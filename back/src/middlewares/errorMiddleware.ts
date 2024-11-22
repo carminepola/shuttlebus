@@ -9,19 +9,22 @@ export default function errorMiddleware(
   next: NextFunction
 ) {
   try {
-    const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
-    res.status(statusCode);
+
+    res.status(500);
 
     if (!res.locals.response) {
       res.locals.response = {};
     }
-    res.locals.response.error = new ErrorModel(
-      err.message,
-      statusCode,
-      err.stack
-    );
 
-    res.json(res.locals.response);
+
+    res.locals.response.error = new ErrorModel(
+
+      500, err.message, err.stack)
+
+
+
+
+    res.json({});
   } catch (error) {
     res.locals.log.error = error;
     logger.error(`Errore ${res.locals.response.uniqueCallKey}`, res.locals.log);

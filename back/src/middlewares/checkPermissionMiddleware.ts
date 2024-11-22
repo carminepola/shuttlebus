@@ -43,6 +43,7 @@ const checkPermissionMiddleware = (requiredRoles: RequiredRole, requiredPermissi
                 }
                 else {
 
+                    res.locals.customErrorMessage = "Permessi insufficienti";
                     return res.sendStatus(403);
                 }
 

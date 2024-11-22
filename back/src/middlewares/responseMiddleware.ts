@@ -16,10 +16,19 @@ export default function responseMiddleware(
       if (res.locals.response.error) {
         res.status(res.locals.response.error.code);
         res.locals.log.error = res.locals.response.error;
-        logger.error(
-          `Richiesta completata`,
-          res.locals.log
-        );
+
+        if (res.locals.response.error.code == 500) {
+          logger.error(
+            `Richiesta completata`,
+            res.locals.log
+          );
+        }
+        else {
+          logger.warn(
+            `Richiesta completata`,
+            res.locals.log
+          );
+        }
       } else {
         res.locals.log.body = body;
 
@@ -29,6 +38,12 @@ export default function responseMiddleware(
           res.locals.log
         );
       }
+
+
+      if (res.locals.response.error && res.locals.response.error.stack) {
+        delete res.locals.response.error.stack;
+      }
+
 
       return originalJson.call(this, res.locals.response);
     };

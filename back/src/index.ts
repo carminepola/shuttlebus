@@ -8,53 +8,49 @@ const env = process.env;
 const appName = env.APP_NAME || "No name";
 import winston from "winston";
 let transportsType = [];
-if (env.LOG_URL && env.LOG_API_KEY) {
-  transportsType = [
-    new winston.transports.Console({
-      format: winston.format.simple(),
-    }),
-    new SeqTransport({
-      serverUrl: env.LOG_URL,
-      apiKey: env.LOG_API_KEY,
-      onError: (e: any) => {
-        console.error(JSON.stringify(e));
-      },
-      handleExceptions: true,
-      handleRejections: true,
-    }),
-  ];
-} else {
-  transportsType = [
-    new winston.transports.Console({
-      level: env.LOGLEVEL || "info",
-      format: winston.format.combine(
-        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        winston.format.colorize(),
-        winston.format.errors({ stack: true }),
-        winston.format.metadata({ fillExcept: ["message", "level", "timestamp"] }),
-        winston.format.printf((info: any) => {
-          let out = `${info.timestamp} ${info.level}: ${info.message}`;
-          if (info.metadata && info.metadata.error) {
-            out += `\n${JSON.stringify(info.metadata.error)}`;
-            if (info.metadata.error.stack) {
-              out += `\n ${info.metadata.error.stack}`;
-            }
-          }
-          return out;
-        })
-      ),
-    }),
+const consoleTransport = new winston.transports.Console({
+  level: env.LOGLEVEL || "info",
+  format: winston.format.combine(
+    winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    winston.format.colorize(),
+    winston.format.errors({ stack: true }),
+    winston.format.metadata({ fillExcept: ["message", "level", "timestamp"] }),
+    winston.format.printf((info: any) => {
+      let out = `${info.timestamp} ${info.level}: ${info.message}`;
+      if (info.metadata && info.metadata.error) {
+        out += `\n${JSON.stringify(info.metadata.error)}`;
+        if (info.metadata.error.stack) {
+          out += `\n ${info.metadata.error.stack}`;
+        }
+      }
+      return out;
+    })
+  ),
+});
+transportsType.push(consoleTransport);
 
+
+if (env.LOG_URL && env.LOG_API_KEY) {
+  transportsType.push(new SeqTransport({
+    serverUrl: env.LOG_URL,
+    apiKey: env.LOG_API_KEY,
+    onError: (e: any) => {
+      console.error(JSON.stringify(e));
+    },
+    handleExceptions: true,
+    handleRejections: true,
+  }));
+} else {
+  transportsType.push(
     new winston.transports.File({
       filename: "app.log",
       level: "error", // Solo errori
       format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-    }),
-  ];
+    }))
 }
 
 let logger = winston.createLogger({
-  level: "debug",
+  level: env.LOGLEVEL || "debug",
   format: winston.format.combine(winston.format.errors({ stack: true }), winston.format.json()),
   defaultMeta: {
     application: appName,
@@ -63,16 +59,11 @@ let logger = winston.createLogger({
   transports: transportsType,
 });
 
-//Variabili env
-logger.level = env.LOG_LEVEL || "debug";
-const port = env.PORT || "1800";
-const dbDependencies = env.DB_DEPENDECIES || false;
-const connectionString = env.CONNECTION_STRING; // EXEMPLE "mongodb://localhost:27017"
-const postgresURI = env.POSTGRES_CONNECTION; // EXEMPLE "postgresql://username:password@localhost:5432/nomedeldatabase"
+
 let db: any;
 let databaseInstance: any;
 let dbStarted = false;
-const restServer = new RestServer(parseInt(port));
+const restServer = new RestServer(parseInt(env.PORT || "1800"));
 //Db default
 
 const startServer = async () => {
@@ -80,9 +71,9 @@ const startServer = async () => {
     switch (env.DB_TYPE) {
 
       case "MONGODB":
-        if (connectionString) {
+        if (env.CONNECTION_STRING) {
           databaseInstance = new Mongo();
-          db = await databaseInstance.init(connectionString);
+          db = await databaseInstance.init(env.CONNECTION_STRING);
           if (databaseInstance.isConnect()) {
             dbStarted = true;
           }
