@@ -63,7 +63,10 @@ router.post(
 
       let oldUser = await userDao.readUserByEmail(user.email);
       if (oldUser.length > 0) {
-        res.locals.response.error = new ErrorModel("L'utente già esiste", 409);
+
+        res.locals.customErrorMessage = "Utente già esistente";
+        return res.sendStatus(409);
+
       } else {
 
         result = await userDao.insertNewUser(user);
@@ -102,7 +105,9 @@ router.patch(
         result = await userDao.updatePassword(user);
         res.locals.response.object = result;
       } else {
-        res.locals.response.error = new ErrorModel("Qualcosa è andato storto", 500);
+        res.locals.customErrorMessage = "Password errata";
+        return res.sendStatus(400);
+
       }
       res.json(result);
     } catch (error) {

@@ -12,11 +12,12 @@ export default function validateDataMiddleware(
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.locals.response.error = new ErrorModel(
-        "Qualcosa è andato storto",
-        400,
+
+        400, undefined,
         undefined,
         errors.array()
       );
+
       return res.status(400).json(res.locals.response);
     }
     next();

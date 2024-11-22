@@ -19,18 +19,23 @@ router.post(
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+
       let secretKey = env.SECRET_KEY || "";
       let result = {};
       let userDao = new UserDao(db, res.locals.log);
       let failToBan = new FailToBanDao(db);
       const token = req.cookies ? req.cookies["jwt"] : undefined;
       if (token) {
+        let valid = true;
         jwt.verify(token, secretKey, (err: any, user: any) => {
           if (!err) {
-            res.locals.response.error = new ErrorModel("Utente già autenticato", 409);
-            return;
+            valid = false;
           }
         });
+        if (!valid) {
+          res.locals.customErrorMessage = "Utente già autenticato";
+          return res.sendStatus(409);
+        }
       }
 
       if (await userDao.checkPassword(req.body.email, req.body.password)) {
@@ -55,10 +60,13 @@ router.post(
           secure: env.NODE_ENV === 'production',
         });
 
+
         result = { message: "Login riuscito" };
       } else {
         failToBan.insertIp(res.locals.log.ip);
-        res.locals.response.error = new ErrorModel("Utente non autorizzato", 401);
+        res.locals.customErrorMessage = "Login fallito";
+        return res.sendStatus(401);
+
       }
       res.json(result);
     } catch (error) {
@@ -76,7 +84,8 @@ router.delete("/", authMiddleware, async (req: Request, res: Response, next: Nex
     res.clearCookie("jwt");
     if (ris == 0) {
 
-      res.locals.response.error = new ErrorModel("Sessione non trovata", 404);
+      res.locals.customErrorMessage = "Nessuna sessione trovata";
+      return res.sendStatus(404);
 
     }
     else {

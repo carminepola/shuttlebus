@@ -9,6 +9,7 @@ import tokenRequestMiddleware from "./middlewares/tokenRequestMiddleware";
 import versionMiddleware from "./middlewares/versionMiddleware";
 import responseMiddleware from "./middlewares/responseMiddleware";
 import cookieParser from "cookie-parser";
+import { logSendStatusMiddleware } from "./middlewares/sendStatusMiddleware";
 //variabili d'ambiente
 require("dotenv").config();
 const app = express();
@@ -22,6 +23,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 //Abilita json per leggere i parametri di body
 app.use(express.json());
+app.use(logSendStatusMiddleware);
 //Crea il token per la richiesta
 app.use(tokenRequestMiddleware);
 //Da la versione del server alla risposta

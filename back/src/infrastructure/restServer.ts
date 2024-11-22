@@ -4,7 +4,7 @@ import { logger } from "../index";
 export default class RestServer {
   private port: number;
 
-  private server: http.Server | null = null;
+
 
   private serverRunning = false;
   constructor(port: number) {
@@ -17,13 +17,13 @@ export default class RestServer {
 
   run() {
     try {
-     
+
       app.listen(this.port, () => {
         this.serverRunning = true;
         logger.info(`Server in ascolto all'indirizzo http://localhost:${this.port}`);
       });
     } catch (error) {
-      logger.error("Errore in restServer: "+JSON.stringify(error));
+      logger.error("Errore in restServer: " + JSON.stringify(error));
     }
   }
 }

@@ -204,13 +204,8 @@ export default class UsersDao {
           },
         }
       );
-      if (result.upsertedCount > 0) {
-        logger.info(`Nuova sessione creata per l'utente ${email} con id ${newSession}`, this.loggerInfo);
-
-        return newSession;
-      } else if (result.modifiedCount > 0) {
-        logger.info(`Sessione aggiornata per l'utente ${email} con id ${newSession}`, this.loggerInfo);
-
+      if (result.modifiedCount > 0) {
+        logger.info(`Sessione aggiunta per l'utente ${email}, sessione: ${newSession}`, this.loggerInfo);
         return newSession;
       } else {
 
@@ -242,7 +237,7 @@ export default class UsersDao {
         }
       );
       if (result.modifiedCount > 0) {
-        // New document inserted, return the new session ID
+        logger.info(`Sessione rimossa per l'utente ${email}, session: ${sessionId}`, this.loggerInfo);
         return 1;
       } else {
         return 0;
