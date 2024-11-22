@@ -1,19 +1,22 @@
 import express from "express";
-import { mongo, logger, env } from "../index";
-import bcrypt from "bcrypt";
-import UserDao from "../dao/user/userDao";
-import { check, validationResult } from "express-validator"; // Aggiuntoimport { error } from "console";
+import { db, logger } from "../index";
+
+import UserDao from "../dao/users/usersDao";
+import { check } from "express-validator";
+
 import ErrorModel from "../model/errorModel";
-import { exitCode } from "process";
+
 import { Request, Response, NextFunction } from "express";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 import authMiddleware from "../middlewares/authMiddleware";
-
+import userModel from "../interface/userModel";
+import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
+import { role } from "../enum/role";
 const router = express.Router();
-
-router.get("/:id?", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id?", authMiddleware, checkPermissionMiddleware([role.ADMIN], ["CREATE_USER"]), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let userDao = new UserDao(mongo.getDb());
+
+    let userDao = new UserDao(db, res.locals.log);
     let id = req.params.id ? req.params.id : undefined;
     if (id) {
       const result = await userDao.readUserById(id);
@@ -23,48 +26,61 @@ router.get("/:id?", authMiddleware, async (req: Request, res: Response, next: Ne
       res.json(result);
     }
   } catch (error) {
+    logger.error(error);
     next(error);
   }
 });
-router.get("/username/:username", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+
+router.get("/email/:email", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let userDao = new UserDao(mongo.getDb());
-    let username = req.params.username;
-    const result = await userDao.readUserByUsername(username);
+
+    let userDao = new UserDao(db, res.locals.log);
+    let email = req.params.email;
+    const result = await userDao.readUserByEmail(email);
     res.json(result);
   } catch (error) {
+    logger.error(error);
     next(error);
   }
 });
+
 router.post(
   "/",
-  [check("username").notEmpty().withMessage("username is required"), check("password").notEmpty().withMessage("password is required")],
+  [check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"), check("password").notEmpty().withMessage("password is required"), check("name").notEmpty().withMessage("name is required")],
   authMiddleware,
+  checkPermissionMiddleware([role.ADMIN], ["CREATE_USER"]),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+
       let result: any;
-      let user = { username: req.body.username, password: req.body.password };
+      let user: userModel = new userModel();
+      user.email = req.body.email;
+      user.password = req.body.password;
+      user.details.name = req.body.name;
 
-      let userDao = new UserDao(mongo.getDb());
+      let userDao = new UserDao(db, res.locals.log);
 
-      let oldUser = await userDao.readUserByUsername(user.username);
+      let oldUser = await userDao.readUserByEmail(user.email);
       if (oldUser.length > 0) {
         res.locals.response.error = new ErrorModel("L'utente già esiste", 409);
       } else {
+
         result = await userDao.insertNewUser(user);
         res.locals.response.object = result;
       }
       res.json(result);
     } catch (error) {
+      logger.error(error);
       next(error);
     }
   }
 );
+
 router.patch(
-  "/",
+  "/changePassword",
   [
-    check("username").notEmpty().withMessage("username is required"),
+    check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
     check("password").notEmpty().withMessage("password is required"),
     check("oldPassword").notEmpty().withMessage("oldPassword is required"),
   ],
@@ -72,16 +88,17 @@ router.patch(
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+
       let result: any;
       let user = {
-        username: req.body.username,
+        email: req.body.email,
         password: req.body.password,
         oldPassword: req.body.oldPassword,
       };
 
-      let userDao = new UserDao(mongo.getDb());
+      let userDao = new UserDao(db, res.locals.log)
 
-      if (await userDao.checkPassword(user.username, user.oldPassword)) {
+      if (await userDao.checkPassword(user.email, user.oldPassword)) {
         result = await userDao.updatePassword(user);
         res.locals.response.object = result;
       } else {
@@ -89,9 +106,11 @@ router.patch(
       }
       res.json(result);
     } catch (error) {
+      logger.error(error);
       next(error);
     }
   }
 );
 
 export default router;
+

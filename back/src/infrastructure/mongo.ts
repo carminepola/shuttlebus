@@ -8,7 +8,7 @@ export default class Mongo {
 
   private db: Db | undefined;
 
-  constructor() {}
+  constructor() { }
 
   async init(connectionString: string) {
     try {
@@ -51,7 +51,7 @@ export default class Mongo {
     if (!this.db) {
       throw new Error("Database non connesso");
     }
-    return this.db
+    return this.db;
   }
 
   isConnect(): boolean {

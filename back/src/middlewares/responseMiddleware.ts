@@ -17,7 +17,7 @@ export default function responseMiddleware(
         res.status(res.locals.response.error.code);
         res.locals.log.error = res.locals.response.error;
         logger.error(
-          `Esito negativo ${res.locals.response.uniqueCallKey}`,
+          `Richiesta completata`,
           res.locals.log
         );
       } else {
@@ -25,7 +25,7 @@ export default function responseMiddleware(
 
         res.locals.response.object = body;
         logger.info(
-          `Esito positivo ${res.locals.response.uniqueCallKey}`,
+          `Richiesta completata`,
           res.locals.log
         );
       }

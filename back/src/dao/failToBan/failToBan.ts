@@ -1,6 +1,4 @@
-import { Db, ObjectId } from "mongodb";
-import { logger } from "../..";
-import bcrypt from "bcrypt";
+import { Db } from "mongodb";
 
 export default class FailToBanDao {
   db: Db;
@@ -10,6 +8,12 @@ export default class FailToBanDao {
     this.db = db;
   }
 
+  /**
+   * Check if the given ip is banned (more than 10 attempts)
+   * @param ip the ip to check
+   * @returns true if the ip is banned, false otherwise
+   * @throws Error if there was an error during the operation
+   */
   async isFail(ip: string) {
     try {
       let ris = await this.db.collection(this.schema).find({ ip: ip }).toArray();
@@ -20,11 +24,17 @@ export default class FailToBanDao {
     }
   }
 
+  /**
+   * Delete all documents with the given ip
+   * @param ip the ip to delete
+   * @returns true if the operation was successful, false otherwise
+   * @throws Error if there was an error during the operation
+   */
   async deleteIp(ip: string) {
     try {
       let result = undefined;
 
-      result = await this.db.collection(this.schema).deleteOne({ ip: ip });
+      result = await this.db.collection(this.schema).deleteMany({ ip: ip });
 
       if (result) {
         return true;
@@ -35,6 +45,12 @@ export default class FailToBanDao {
       throw error;
     }
   }
+  /**
+   * Insert a document with the given ip into the collection
+   * @param ip the ip to insert
+   * @returns true if the operation was successful, false otherwise
+   * @throws Error if there was an error during the operation
+   */
   async insertIp(ip: string) {
     try {
       let result = undefined;
