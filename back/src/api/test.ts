@@ -8,6 +8,7 @@ router.get("/", async (req, res, next) => {
     res.json({
       headers: req.headers,
       ip: res.locals.log.ip,
+      req: req.query
     });
   } catch (error) {
     next(error);
