@@ -1,0 +1,155 @@
+<div class="flex min-h-screen">
+  <div class="hidden lg:block lg:w-1/2 bg-dark-blue relative overflow-hidden">
+    <div
+      class="absolute inset-0 bg-gradient-to-br from-dark-blue via-[#2C3E50] to-[#34495E] opacity-90"
+    ></div>
+    <div
+      class="relative z-10 flex flex-col justify-center items-center h-full text-white text-center p-12"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-48 h-48 mb-8"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="8.5" cy="7" r="4"></circle>
+        <line x1="20" y1="8" x2="20" y2="14"></line>
+        <line x1="23" y1="11" x2="17" y2="11"></line>
+      </svg>
+      <h2 class="text-4xl font-bold mb-4">Benvenuto</h2>
+      <p class="text-xl text-gray-300">
+        Accedi per continuare la tua esperienza
+      </p>
+    </div>
+  </div>
+
+  <div
+    class="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 lg:px-8"
+  >
+    <div class="w-full max-w-md">
+      <div class="mb-10 text-center">
+        <h1 class="text-3xl font-bold tracking-tight text-dark-blue">
+          Accedi al tuo account
+        </h1>
+        <p class="mt-2 text-sm text-gray-600">
+          Non hai ancora un account?
+          <a href="#" class="font-medium text-pink hover:text-pink/80"
+            >Registrati</a
+          >
+        </p>
+      </div>
+
+      <form
+        [formGroup]="loginForm"
+        (submit)="onSubmit($event)"
+        novalidate
+        class="space-y-6"
+      >
+        <div
+          *ngIf="loginError"
+          class="bg-pink/20 border border-pink/50 text-pink p-4 rounded-md mb-4"
+        >
+          {{ loginError }}
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-dark-blue"
+            >Email</label
+          >
+          <div class="mt-1">
+            <input
+              id="email"
+              formControlName="email"
+              type="email"
+              autocomplete="email"
+              class="block w-full appearance-none rounded-md border px-3 py-2 placeholder-dark-blue/50 text-dark-blue shadow-sm focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink sm:text-sm"
+              [ngClass]="{
+                'border-gray-300': !isSubmitted || formControls['email'].valid,
+                'border-pink': isSubmitted && formControls['email'].invalid
+              }"
+              placeholder="Inserisci la tua email"
+            />
+            <div
+              *ngIf="isSubmitted && formControls['email'].errors"
+              class="text-pink text-sm mt-1"
+            >
+              <div *ngIf="formControls['email'].errors['required']">
+                Email è richiesta
+              </div>
+              <div *ngIf="formControls['email'].errors['email']">
+                Email non valida
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-dark-blue"
+            >Password</label
+          >
+          <div class="mt-1">
+            <input
+              id="password"
+              formControlName="password"
+              type="password"
+              autocomplete="current-password"
+              class="block w-full appearance-none rounded-md border px-3 py-2 placeholder-dark-blue/50 text-dark-blue shadow-sm focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink sm:text-sm"
+              [ngClass]="{
+                'border-gray-300':
+                  !isSubmitted || formControls['password'].valid,
+                'border-pink': isSubmitted && formControls['password'].invalid
+              }"
+              placeholder="Inserisci la tua password"
+            />
+            <div
+              *ngIf="isSubmitted && formControls['password'].errors"
+              class="text-pink text-sm mt-1"
+            >
+              <div *ngIf="formControls['password'].errors['required']">
+                Password è richiesta
+              </div>
+              <div *ngIf="formControls['password'].errors['minlength']">
+                Password deve essere lunga almeno 6 caratteri
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              class="h-4 w-4 rounded border-gray-300 text-pink focus:ring-pink"
+            />
+            <label for="remember-me" class="ml-2 block text-sm text-dark-blue">
+              Ricordami
+            </label>
+          </div>
+
+          <div class="text-sm">
+            <a href="#" class="font-medium text-pink hover:text-pink/80">
+              Password dimenticata?
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            [disabled]="loginForm.invalid"
+            class="flex w-full cursor-pointer justify-center rounded-md bg-pink px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink"
+          >
+            Accedi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
