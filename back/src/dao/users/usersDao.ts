@@ -52,11 +52,11 @@ export default class UsersDao {
           _id: new ObjectId(id),
         };
       }
-      let list = await this.db.collection(this.schema).find(json).toArray();
-      list.forEach((element) => {
-        delete element.password;
-      });
-      return list;
+      let element = await this.db.collection(this.schema).findOne(json)
+
+      delete element?.password;
+
+      return element
     } catch (error) {
       throw error;
     }
@@ -76,11 +76,11 @@ export default class UsersDao {
       json = {
         email: email,
       };
-      let list = await this.db.collection(this.schema).find(json).toArray();
-      list.forEach((element) => {
-        delete element.password;
-      });
-      return list;
+      let element = await this.db.collection(this.schema).findOne(json);
+
+      delete element?.password;
+
+      return element;
     } catch (error) {
       throw error;
     }
@@ -92,7 +92,7 @@ export default class UsersDao {
    * @returns {Promise<{role: number, permissions: string[]}>} - A promise that resolves to an object containing the role and permissions of the user.
    * @throws {Error} - Throws an error if there is an issue querying the database.
    */
-  async getUserPermissionFormEmail(email: string) {
+  async getUserPermissionsFormEmail(email: string) {
     try {
       let json = {};
       json = {
@@ -189,6 +189,7 @@ export default class UsersDao {
   async createSession(email: string) {
     try {
       let newSession = Guid.create().toString();
+      let refreshToken = Guid.create().toString();
       const result = await this.db.collection<userModel>(this.schema).updateOne(
         { email: email },
         {
@@ -199,6 +200,7 @@ export default class UsersDao {
                 update: false,
                 createdAt: Date.now(),
                 updatedAt: Date.now(),
+                refreshToken: refreshToken
               }],
             },
           },
@@ -206,7 +208,7 @@ export default class UsersDao {
       );
       if (result.modifiedCount > 0) {
         logger.info(`Sessione aggiunta per l'utente ${email}, sessione: ${newSession}`, this.loggerInfo);
-        return newSession;
+        return { newSession, refreshToken };
       } else {
 
         throw new Error("Errore durante l'inserimento nel database");
@@ -246,42 +248,9 @@ export default class UsersDao {
       throw error;
     }
   }
-  /**
-   * Deletes all sessions for a user in the database.
-   * 
-   * @param {string} email - The email of the user whose sessions are to be deleted.
-   * @param {string} session - The ID of the current session of the user.
-   * @returns {Promise<string>} - A promise that resolves to an empty string if all sessions were successfully deleted,
-   *                              or throws an error if there was an issue updating the database.
-   */
-  async deleteAll(email: string, session: string) {
-    try {
-      const result = await this.db.collection<userModel>(this.schema).updateOne(
-        { email: email },
-        {
-          sessions: [],
-        }
-      );
-      if (result.upsertedCount > 0) {
-        // New document inserted, return the new session ID
-        return "";
-      } else {
-        throw new Error("Errore durante l'inserimento nel database");
-      }
-    } catch (error) {
-      throw error;
-    }
-    /**
-     * Checks the existence and updates the timestamp of a user session in the database.
-     * 
-     * @param {string} email - The email of the user whose session is to be checked.
-     * @param {string} sessionID - The ID of the session to check.
-     * @returns {Promise<number>} - A promise that resolves to 0 if the session is not found,
-     *                              1 if the session is found and not marked for update,
-     *                              or 2 if the session is found and marked for update.
-     * @throws {Error} - Throws an error if there is an issue querying the database.
-     */
-  } async checkSession(email: string, sessionID: string): Promise<number> {
+
+
+  async checkSession(email: string, sessionID: string): Promise<number> {
     try {
       // Esegui la query per trovare e aggiornare la sessione
       const result = await this.db.collection(this.schema).findOneAndUpdate(
@@ -319,7 +288,67 @@ export default class UsersDao {
       throw error; // Rilancia l'errore
     }
   }
+  /**
+   * Controlla se il token di refresh e la sessione sono validi e restituisce
+   * true se il token di refresh e la sessione sono validi
+   * false se il token di refresh o la sessione non sono validi
+   * @param {string} email - L'email dell'utente
+   * @param {string} refreshToken - Il token di refresh da controllare
+   * @param {string} userSession - La sessione da controllare
+   * @returns {boolean} - true se il token di refresh e la sessione sono validi, false se non lo sono
+   */
+  async checkRefreshTokenAndSession(email: string, refreshToken: string, userSession: string): Promise<boolean> {
+    try {
+      // Esegui la query per trovare e controllare la sessione
+      const result = await this.db.collection(this.schema).findOne(
+        {
+          email: email,
+          "sessions.id": userSession, // Cerca la sessione per email e sessionID
+          "sessions.refreshToken": refreshToken, // Cerca la sessione per email e refreshToken
+        }
+      );
 
+      // Verifica se `result` è nullo o se `result.value` è nullo
+      if (!result) {
+        return false; // Utente o sessione non trovata
+      }
 
+      return true;
+    } catch (error) {
+      console.error("Errore durante l'operazione:", error);
+      throw error; // Rilancia l'errore
+    }
+  }
+
+  /**
+   * Deletes all sessions for a user except the current session in the database.
+   * 
+   * @param {string} email - The email of the user whose sessions are to be deleted.
+   * @param {string} currentSessionId - The ID of the current session that should not be deleted.
+   * @returns {Promise<number>} - A promise that resolves to the number of sessions deleted.
+   * @throws {Error} - Throws an error if there is an issue updating the database.
+   */
+  async deleteAllExceptCurrentSession(email: string, currentSessionId: string): Promise<number> {
+    try {
+      // Verifica e rimuove tutte le sessioni tranne quella corrente
+      const result = await this.db.collection<userModel>(this.schema).updateMany(
+        {
+          email: email, // Cerca il documento con l'email corrispondente
+          sessions: { $exists: true } // Assicurati che il campo `sessions` esista
+        },
+        {
+          $pull: {
+            sessions: { id: { $ne: currentSessionId } } // Rimuovi tutte le sessioni con id diverso dal corrente
+          }
+        }
+      );
+
+      // Ritorna il numero di documenti modificati
+      return result.modifiedCount;
+    } catch (error) {
+      console.error("Errore durante l'eliminazione delle sessioni:", error);
+      throw new Error("Errore nell'eliminazione delle sessioni");
+    }
+  }
 
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -9,10 +10,10 @@ import { environment } from '../../../environments/environment.development';
 export class AuthService {
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/auth`, { email, password });
+  login(email: string, password: string, rememberMe: boolean): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth`, { email, password, rememberMe });
   }
 
   logout(): Observable<any> {
@@ -20,17 +21,35 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken() || !!this.getCookie('jwt');
+    return !!this.getCookieExists('jwt');
   }
 
-  private getCookie(name: string): boolean {
+  getDecodedToken(): any {
+    const jwt = this.getCookie('jwt');
+    if (jwt) {
+      try {
+        return jwtDecode(jwt);
+      } catch (error) {
+        console.error('Invalid JWT', error);
+      }
+    }
+    return undefined;
+  }
+
+  deleteCookie(name: string): void {
+    document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+  }
+  private getCookieExists(name: string): boolean {
     return document.cookie.split(';').some((c) => {
       return c.trim().startsWith(`${name}=`);
     });
   }
 
-  getToken(): string | null {
-    const token = localStorage.getItem('token');
-    return token ? JSON.parse(atob(token.split('.')[1])).sub : null;
+  private getCookie(name: string): string | null {
+    const match = document.cookie.split(';').find((c) => c.trim().startsWith(`${name}=`));
+    return match ? match.split('=')[1] : null;
   }
+
+
 }
+

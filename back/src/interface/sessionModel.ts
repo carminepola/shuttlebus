@@ -4,6 +4,7 @@ export default class sessionModel {
     update: boolean;
     createdAt: number;
     updatedAt: number;
+    refreshToken: string
     constructor(
 
     ) {
@@ -11,6 +12,7 @@ export default class sessionModel {
         this.update = false;
         this.createdAt = new Date().getTime();
         this.updatedAt = new Date().getTime()
+        this.refreshToken = "";
 
     }
 }

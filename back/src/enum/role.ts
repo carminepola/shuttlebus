@@ -1,7 +1,8 @@
 export enum role {
-    ADMIN = 0,
+    ROOT = 0,
+    ADMIN = 50,
     USER = 100,
-    GUEST = 200,
+    GUEST = 9998,
     NO_PERMISSION = 9999
 
 }

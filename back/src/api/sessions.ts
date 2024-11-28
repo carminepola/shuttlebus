@@ -1,4 +1,4 @@
-import express from "express";
+import express, { CookieOptions } from "express";
 import { db, logger, env } from "../index";
 import bcrypt from "bcrypt";
 import UserDao from "../dao/users/usersDao";
@@ -10,7 +10,7 @@ import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 import jwt from "jsonwebtoken";
 import FailToBanDao from "../dao/failToBan/failToBan";
 import authMiddleware from "../middlewares/authMiddleware";
-import { role } from "../enum/role";
+
 const router = express.Router();
 
 router.post(
@@ -40,31 +40,56 @@ router.post(
 
       if (await userDao.checkPassword(req.body.email, req.body.password)) {
         failToBan.deleteIp(res.locals.log.ip);
-        let permission = await userDao.getUserPermissionFormEmail(req.body.email)
+
+        let seessionToken = await userDao.createSession(req.body.email)
+        let user = await userDao.readUserByEmail(req.body.email)
         let session = {
-          session: await userDao.createSession(req.body.email),
+          ...user,
+          rememberMe: req.body.rememberMe || false,
+          session: seessionToken.newSession,
           email: req.body.email,
-          role: permission?.role >= 0 && permission?.role != undefined && permission?.role != null ? permission.role : 9999,
-          permissions: permission?.permissions ? permission.permissions : [],
+          role: user?.role >= 0 && user?.role != undefined && user?.role != null ? user.role : 9999,
+          permissions: user?.permissions ? user.permissions : [],
         };
 
-        const options: jwt.SignOptions = {
-          expiresIn: "30d",
-        };
 
-        let token: any = jwt.sign(session, secretKey, options);
-
-        res.cookie("jwt", token, {
-          maxAge: 2592000000,
-          httpOnly: false,
-          secure: env.NODE_ENV === 'production',
+        let token: any = jwt.sign(session, secretKey, {
+          expiresIn: "3h",
         });
 
+        let refreshToken: any = jwt.sign({
+          refreshToken: seessionToken.refreshToken
 
-        result = { message: "Login riuscito" };
+        }, secretKey, {
+          expiresIn: "30d",
+        });
+        let settingsJwt: CookieOptions =
+        {
+          maxAge: undefined,
+          httpOnly: false,
+          sameSite: env.NODE_ENV === 'production' ? "none" : "strict",
+          secure: env.NODE_ENV === 'production',
+        }
+        if (req.body.rememberMe) {
+          settingsJwt.maxAge = 2592000000
+          res.cookie("refreshToken", refreshToken, {
+            maxAge: 2592000000,
+            httpOnly: true,
+            sameSite: env.NODE_ENV === 'production' ? "none" : "strict",
+
+            secure: env.NODE_ENV === 'production',
+          });
+        }
+
+
+        res.cookie("jwt", token, settingsJwt);
+
+
+
+        result = { message: "Accesso autorizzato" };
       } else {
         failToBan.insertIp(res.locals.log.ip);
-        res.locals.customErrorMessage = "Login fallito";
+        res.locals.customErrorMessage = "Credenziali non valide. Riprova.";
         return res.sendStatus(401);
 
       }
@@ -82,6 +107,7 @@ router.delete("/", authMiddleware, async (req: Request, res: Response, next: Nex
     let userDao = new UserDao(db, res.locals.log);
     let ris = await userDao.deleteSession(res.locals.userLogged.email, res.locals.userLogged.session);
     res.clearCookie("jwt");
+    res.clearCookie("refreshToken");
     if (ris == 0) {
 
       res.locals.customErrorMessage = "Nessuna sessione trovata";
@@ -91,6 +117,19 @@ router.delete("/", authMiddleware, async (req: Request, res: Response, next: Nex
     else {
       result = { message: "Logout riuscito" };
     }
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+router.delete("/all", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let result = {};
+
+    let userDao = new UserDao(db, res.locals.log);
+    await userDao.deleteAllExceptCurrentSession(res.locals.userLogged.email, res.locals.userLogged.session);
+    result = { message: "Tutte le sessioni cancellate eccetto quella in uso" };
+
     res.json(result);
   } catch (error) {
     next(error);
