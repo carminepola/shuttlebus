@@ -16,12 +16,11 @@ export default function errorMiddleware(
       res.locals.response = {};
     }
 
-
-    res.locals.response.error = new ErrorModel(
-
-      500, err.message, err.stack)
+    let error = new ErrorModel(500, err.message, err.stack)
 
 
+
+    Object.assign(res.locals.response, error);
 
 
     res.json({});

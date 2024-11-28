@@ -14,7 +14,15 @@ export function logSendStatusMiddleware(req: Request, res: Response, next: NextF
 
         // Crea il corpo della risposta come oggetto JSON
 
-        res.locals.response.error = new ErrorModel(statusCode, res.locals.customErrorMessage);
+        if (!res.locals.response) {
+            res.locals.response = {};
+        }
+
+        let error = new ErrorModel(statusCode, res.locals.customErrorMessage);
+
+
+        Object.assign(res.locals.response, error);
+
         // Invia il JSON con il codice di stato
         delete res.locals.customErrorMessage;
         return res.status(statusCode).json({});

@@ -13,7 +13,7 @@ import userModel from "../interface/userModel";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
 import { role } from "../enum/role";
 const router = express.Router();
-router.get("/:id?", authMiddleware, checkPermissionMiddleware([role.ADMIN], ["CREATE_USER"]), async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id?", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["CREATE_USER"]), async (req: Request, res: Response, next: NextFunction) => {
   try {
 
     let userDao = new UserDao(db, res.locals.log);
@@ -48,7 +48,7 @@ router.post(
   "/",
   [check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"), check("password").notEmpty().withMessage("password is required"), check("name").notEmpty().withMessage("name is required")],
   authMiddleware,
-  checkPermissionMiddleware([role.ADMIN], ["CREATE_USER"]),
+  checkPermissionMiddleware(role.ADMIN, ["CREATE_USER"]),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -62,7 +62,7 @@ router.post(
       let userDao = new UserDao(db, res.locals.log);
 
       let oldUser = await userDao.readUserByEmail(user.email);
-      if (oldUser.length > 0) {
+      if (oldUser) {
 
         res.locals.customErrorMessage = "Utente già esistente";
         return res.sendStatus(409);

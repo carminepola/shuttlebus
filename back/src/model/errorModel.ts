@@ -1,10 +1,9 @@
 export default class ErrorModel {
-  code: number;
   stack: string | undefined;
   message: string | undefined;
   errors: any;
   constructor(code?: number, message?: string, stack?: string, errors?: any) {
-    this.code = code || 500;
+    code = code || 500;
     this.stack = stack || undefined;
     this.errors = errors || undefined;
 

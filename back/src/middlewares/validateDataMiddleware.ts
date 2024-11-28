@@ -11,14 +11,16 @@ export default function validateDataMiddleware(
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.locals.response.error = new ErrorModel(
+      let error = new ErrorModel(
 
         400, undefined,
         undefined,
         errors.array()
       );
 
-      return res.status(400).json(res.locals.response);
+      Object.assign(res.locals.response, error);
+
+      return res.status(400).json({});
     }
     next();
   } catch (error) {

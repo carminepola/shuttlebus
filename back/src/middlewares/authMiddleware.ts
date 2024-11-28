@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import MessageModel from "../model/messageModel";
-import ErrorModel from "../model/errorModel";
-import { logger, env, db } from "..";
 
+import { logger, env, db } from "..";
+import { CookieOptions } from "express";
 import jwt from "jsonwebtoken";
 import FailToBanDao from "../dao/failToBan/failToBan";
 import UsersDao from "../dao/users/usersDao";
@@ -10,71 +10,146 @@ import UsersDao from "../dao/users/usersDao";
 function sleep(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
+/**
+ * Middleware per l'autenticazione
+ * Controlla se l'utente  ha fatto il login e se il token  valido
+ * @param req richiesta
+ * @param res risposta
+ * @param next funzione successiva
+ */
 export default async function authMiddleware(req: Request, res: Response<MessageModel>, next: NextFunction) {
   try {
-    let secretKey = env.SECRET_KEY || "";
-    let superPass = env.SUPERPASS || undefined;
-    let reqSuperPass = req.headers["superpass"] || undefined;
-    const token = req.cookies ? req.cookies["jwt"] : undefined;
-    if (superPass && reqSuperPass && reqSuperPass == superPass && !token) {
+    // Retrieve secret key and super pass from environment variables
+    const secretKey = env.SECRET_KEY || "";
+    const superPass = env.SUPERPASS || undefined;
+    const reqSuperPass = req.headers["superpass"] || undefined;
+    const token = req.cookies?.jwt;
+    const refreshToken = req.cookies?.refreshToken;
+
+    // Allow access if super pass matches and there's no token
+    if (superPass && reqSuperPass && reqSuperPass === superPass && !token) {
       res.locals.userLogged = {
         email: "root",
       };
-      next();
-    } else {
-      if (!token) {
-        let failToBanDao: FailToBanDao = new FailToBanDao(db);
-        await failToBanDao.insertIp(res.locals.log.ip);
+      return next();
+    }
 
-        if (await failToBanDao.isFail(res.locals.log.ip)) {
-          await sleep(15);
-        }
-
-        return res.sendStatus(401);
+    // If no token is present, log the IP and potentially delay response
+    if (!token) {
+      const failToBanDao = new FailToBanDao(db);
+      await failToBanDao.insertIp(res.locals.log.ip);
+      if (await failToBanDao.isFail(res.locals.log.ip)) {
+        await sleep(15);
       }
-      let usersDao: UsersDao = new UsersDao(db);
-      jwt.verify(token, secretKey, async (err: any, user: any) => {
-        if (err || !user.email || !user.session || !user.permissions || user.exp < Math.floor(Date.now() / 1000)) {
+      return res.sendStatus(401);
+    }
+
+    const usersDao = new UsersDao(db);
+
+    // Verify JWT token
+    await jwt.verify(token, secretKey, { ignoreExpiration: true }, async (err: any, user: any) => {
+      try {
+        if (err) {
+          throw err.message;
+        }
+        if (user.exp < Math.floor(Date.now() / 1000)) {
+          if (refreshToken) {
+            try {
+              // Verify refresh token
+              await jwt.verify(refreshToken, secretKey, async (err: any, token: any) => {
+                if (err) {
+                  await usersDao.deleteSession(user.email, user.session);
+                  res.clearCookie("jwt");
+                  res.clearCookie("refreshToken");
+                  return res.sendStatus(401);
+                }
+
+                // Check if refresh token and session are valid
+                const validRefreshToken = await usersDao.checkRefreshTokenAndSession(user.email, token.refreshToken, user.session);
+                if (!validRefreshToken) {
+                  await usersDao.deleteSession(user.email, user.session);
+                  res.clearCookie("jwt");
+                  res.clearCookie("refreshToken");
+                  return res.sendStatus(401);
+                }
+
+                // Issue new refresh token
+                const newRefreshToken = jwt.sign({ refreshToken: token.refreshToken }, secretKey, {
+                  expiresIn: "30d",
+                });
+                res.cookie("refreshToken", newRefreshToken, {
+                  maxAge: 2592000000,
+                  httpOnly: true,
+                  secure: env.NODE_ENV === "production",
+                  sameSite: "none",
+                });
+              });
+            } catch (error) {
+              res.locals.log.error = error;
+              logger.error(`Errore ${res.locals.response.uniqueCallKey}`, res.locals.log);
+              return next(error);
+            }
+
+          } else {
+            await usersDao.deleteSession(user.email, user.session);
+            res.clearCookie("jwt");
+            res.clearCookie("refreshToken");
+            return res.sendStatus(401);
+          }
+        }
+        // Check if session is valid
+        const sessionCheck = await usersDao.checkSession(user.email, user.session);
+        if (sessionCheck === 0) {
           await usersDao.deleteSession(user.email, user.session);
           res.clearCookie("jwt");
+          res.clearCookie("refreshToken");
           return res.sendStatus(401);
         }
-        let sessionCheck = await usersDao.checkSession(user.email, user.session)
-        if (sessionCheck == 0) {
-          await usersDao.deleteSession(user.email, user.session);
-          res.clearCookie("jwt");
-          return res.sendStatus(401);
-        }
-
-        let newToken = token;
-        if (sessionCheck == 2) {
-          let permission = await usersDao.getUserPermissionFormEmail(req.body.email)
-          const options: jwt.SignOptions = {
-            expiresIn: "30d",
-          };
-
-          user.permission = permission?.permissions ? permission.permissions : [];
-          user.role = permission?.role ? permission.role : 9999;
-          newToken = jwt.sign(user, secretKey, options);
+        if (sessionCheck === 2) {
+          // Refresh user permissions and roles from database
+          const permission = await usersDao.getUserPermissionsFormEmail(user.email);
+          user.permissions = permission?.permissions || [];
+          user.role = permission?.role || 9999;
 
         }
+        delete user.exp;
+        delete user.iat;
 
+        let newToken = jwt.sign(user, secretKey, {
+          expiresIn: "3h",
+        });
+        // Set user information in response locals and set new token
+        debugger
         res.locals.userLogged = user;
-        res.cookie("jwt", newToken, {
+        let settingsJwt: CookieOptions = {
           maxAge: 2592000000,
           httpOnly: false,
-          sameSite: "none",
-          secure: env.NODE_ENV === 'production',
-        });
+          secure: env.NODE_ENV === "production",
+          sameSite: "none"
+        }
+        if (!user.rememberMe) {
+          settingsJwt.maxAge = undefined;
+        }
+
+        debugger
+        res.cookie("jwt", newToken, settingsJwt);
 
 
-        next();
-      });
-    }
+        return next();
+      } catch (error) {
+        res.locals.log.error = error;
+        logger.error(`Errore ${res.locals.response.uniqueCallKey}`, res.locals.log);
+        return next(error);
+      }
+
+
+    });
   } catch (error) {
+    // Log any errors and pass to next middleware
     res.locals.log.error = error;
-
     logger.error(`Errore ${res.locals.response.uniqueCallKey}`, res.locals.log);
-    next(error);
+    return next(error);
   }
 }
+
+

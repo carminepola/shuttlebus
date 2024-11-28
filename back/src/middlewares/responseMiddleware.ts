@@ -13,11 +13,11 @@ export default function responseMiddleware(
     const originalJson = res.json;
 
     res.json = function (body?: any): express.Response {
-      if (res.locals.response.error) {
-        res.status(res.locals.response.error.code);
-        res.locals.log.error = res.locals.response.error;
+      let statusCode = res.statusCode;
+      if (statusCode != 200) {
 
-        if (res.locals.response.error.code == 500) {
+
+        if (statusCode == 500) {
           logger.error(
             `Richiesta completata`,
             res.locals.log
@@ -32,7 +32,7 @@ export default function responseMiddleware(
       } else {
         res.locals.log.body = body;
 
-        res.locals.response.object = body;
+        Object.assign(res.locals.response, body);
         logger.info(
           `Richiesta completata`,
           res.locals.log
@@ -40,11 +40,11 @@ export default function responseMiddleware(
       }
 
 
-      if (res.locals.response.error && res.locals.response.error.stack) {
-        delete res.locals.response.error.stack;
+      if (res.locals.response.stack) {
+        delete res.locals.response.stack;
       }
 
-
+      res.removeHeader('Content-Security-Policy');
       return originalJson.call(this, res.locals.response);
     };
 
