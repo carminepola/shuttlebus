@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { AuthService } from '../../services/auth/auth.service';
-
+import { fadeAnimation } from '../../animations/fade.animation';
 Chart.register(...registerables);
 
 interface DashboardCard {
@@ -28,6 +28,7 @@ interface MenuItem {
 @Component({
   selector: 'app-home',
   standalone: true,
+  animations: [fadeAnimation],
   imports: [CommonModule, RouterModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
