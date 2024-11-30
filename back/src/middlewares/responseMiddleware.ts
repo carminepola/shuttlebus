@@ -14,10 +14,10 @@ export default function responseMiddleware(
 
     res.json = function (body?: any): express.Response {
       let statusCode = res.statusCode;
-      if (statusCode != 200) {
+      if (statusCode >= 400 && statusCode <= 599) {
 
 
-        if (statusCode == 500) {
+        if (statusCode >= 500 && statusCode <= 599) {
           logger.error(
             `Richiesta completata`,
             res.locals.log

@@ -30,6 +30,9 @@ const consoleTransport = new winston.transports.Console({
 transportsType.push(consoleTransport);
 
 
+
+
+
 if (env.LOG_URL && env.LOG_API_KEY) {
   transportsType.push(new SeqTransport({
     serverUrl: env.LOG_URL,
@@ -59,6 +62,26 @@ let logger = winston.createLogger({
   transports: transportsType,
 });
 
+
+
+let mailConfig: any;
+if (process.env.EMAIL_SMTP && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  mailConfig = {
+    host: process.env.EMAIL_SMTP,
+    port: process.env.EMAIL_PORT || 465,
+    secure: process.env.EMAIL_SECURE || true,
+    logger: env.EMAIL_LOG ? env.EMAIL_LOG == 'true' : true,
+    debug: env.LOGLEVEL ? env.LOGLEVEL : "debug",
+    auth: {
+      user: process.env.EMAIL_USER, // Inserisci qui il tuo indirizzo email
+      pass: process.env.EMAIL_PASS, // Inserisci qui la tua password
+    }
+  }
+  logger.info("Configurazione email presente");
+} else {
+  logger.warn("Configurazione email mancante");
+  mailConfig = undefined;
+}
 
 let db: any;
 let databaseInstance: any;
@@ -102,4 +125,4 @@ logger.info("Avvio dell'app");
 startServer();
 
 //Esporto il db per renderlo accessibile all'app
-export { db, restServer, logger, env };
+export { db, restServer, logger, env ,mailConfig};

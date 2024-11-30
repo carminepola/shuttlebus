@@ -1,6 +1,7 @@
 import { Db, ObjectId } from "mongodb";
 import { Guid } from "guid-typescript";
 import { logger } from "../..";
+import MailService from "../../services/mailServices";
 
 export default class ExempleDao {
   db: Db;
@@ -14,6 +15,25 @@ export default class ExempleDao {
 
   async read(id: string) {
     try {
+
+
+
+      let mailService = new MailService()
+
+await      mailService.createAndSendMail({
+        to: "info@carminepola.it",
+        type:"welcome",
+        titleVariable: {
+          name: "Carmine",
+          surname: "Pola",
+        },
+        bodyVariable: {
+          name: "Carmine",
+          surname: "Pola",
+        },
+      })
+      
+
       let json = {};
 
       if (id) {
