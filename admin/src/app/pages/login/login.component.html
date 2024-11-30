@@ -79,7 +79,7 @@
           </div>
 
           <div class="text-sm">
-            <a href="#" class="font-medium text-pink hover:text-pink/80">
+            <a href="" routerLink="/lostpassword" class="font-medium text-pink hover:text-pink/80">
               Password dimenticata?
             </a>
           </div>
@@ -87,7 +87,7 @@
 
         <div>
           <button type="submit" [disabled]="isLoading"
-            class="flex w-full cursor-pointer justify-center rounded-md bg-pink px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink">
+            class="flex w-full disabled:cursor-not-allowed disabled:bg-pink-palette-400 cursor-pointer justify-center rounded-md bg-pink px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink">
             <span *ngIf="!isLoading">Accedi</span>
             <div *ngIf="isLoading" class="flex items-center justify-center">
               <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

@@ -1,6 +1,6 @@
 import express from "express";
 import { db } from "../index";
-
+import StopModel from "../model/stopsModel";
 import ExempleDao from "../dao/exemple/exempleDao";
 const router = express.Router();
 
@@ -14,6 +14,7 @@ router.get("/:id?", async (req, res, next) => {
     next(error);
   }
 });
+ 
 router.post("/", async (req, res, next) => {
   try {
     let exempleDao = new ExempleDao(db);

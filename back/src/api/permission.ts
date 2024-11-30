@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.get("/",
     authMiddleware,
-    checkPermissionMiddleware([role.ADMIN], ["PERMISSION_MANAGEMENT"]), async (req, res, next) => {
+    checkPermissionMiddleware(role.ADMIN, ["PERMISSION_MANAGEMENT"]), async (req, res, next) => {
         try {
             let permissionDaoInstance = new permissionDao(db);
             const result = await permissionDaoInstance.readAll();
@@ -30,7 +30,7 @@ router.post(
     ],
     validateDataMiddleware,
     authMiddleware,
-    checkPermissionMiddleware([role.ADMIN], ["PERMISSION_MANAGEMENT"]),
+    checkPermissionMiddleware(role.ADMIN, ["PERMISSION_MANAGEMENT"]),
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             let permissionDaoInstance = new permissionDao(db);
@@ -45,7 +45,7 @@ router.post(
     }
 );
 
-router.delete("/:id", authMiddleware, checkPermissionMiddleware([role.ADMIN], ["PERMISSION_MANAGEMENT"]), async (req: Request, res: Response, next: NextFunction) => {
+router.delete("/:id", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["PERMISSION_MANAGEMENT"]), async (req: Request, res: Response, next: NextFunction) => {
     try {
         let permissionDaoInstance = new permissionDao(db);
         let id = req.params.id.toUpperCase();
