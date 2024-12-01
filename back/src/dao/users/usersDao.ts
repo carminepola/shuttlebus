@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { Guid } from "guid-typescript";
 import userModel from "../../interface/userModel";
 import sessionModel from "../../interface/sessionModel";
+import * as CryptoJS from "crypto-js";
 
 export default class UsersDao {
   db: Db;
@@ -14,18 +15,16 @@ export default class UsersDao {
     this.loggerInfo = loggerInfo ? loggerInfo : {};
   }
 
-  /*************  ✨ Codeium Command ⭐  *************/
   /**
    * Retrieves all users from the database.
-   * 
-   * @returns {Promise<any[]>} - A promise that resolves to an array of user objects. 
+   *
+   * @returns {Promise<any[]>} - A promise that resolves to an array of user objects.
    * Each user object has its password field removed for security purposes.
    * @throws {Error} - Throws an error if there is an issue querying the database.
    */
-  /******  9cc371dc-25fc-4291-9938-872e0ba45c3e  *******/
+
   async readAllUsers() {
     try {
-
       let json = {};
       let list = await this.db.collection(this.schema).find(json).toArray();
       list.forEach((element) => {
@@ -38,9 +37,9 @@ export default class UsersDao {
   }
   /**
    * Retrieves a user from the database by its id.
-   * 
+   *
    * @param {string} id - The id of the user to retrieve.
-   * @returns {Promise<any[]>} - A promise that resolves to an array containing the user object. 
+   * @returns {Promise<any[]>} - A promise that resolves to an array containing the user object.
    * The user object has its password field removed for security purposes.
    * @throws {Error} - Throws an error if there is an issue querying the database.
    */
@@ -52,11 +51,11 @@ export default class UsersDao {
           _id: new ObjectId(id),
         };
       }
-      let element = await this.db.collection(this.schema).findOne(json)
+      let element = await this.db.collection(this.schema).findOne(json);
 
       delete element?.password;
 
-      return element
+      return element;
     } catch (error) {
       throw error;
     }
@@ -64,9 +63,9 @@ export default class UsersDao {
 
   /**
    * Retrieves a user from the database by its email.
-   * 
+   *
    * @param {string} email - The email of the user to retrieve.
-   * @returns {Promise<any[]>} - A promise that resolves to an array containing the user object. 
+   * @returns {Promise<any[]>} - A promise that resolves to an array containing the user object.
    * The user object has its password field removed for security purposes.
    * @throws {Error} - Throws an error if there is an issue querying the database.
    */
@@ -87,7 +86,7 @@ export default class UsersDao {
   }
   /**
    * Retrieves the role and permissions of a user from the database by its email.
-   * 
+   *
    * @param {string} email - The email of the user to retrieve.
    * @returns {Promise<{role: number, permissions: string[]}>} - A promise that resolves to an object containing the role and permissions of the user.
    * @throws {Error} - Throws an error if there is an issue querying the database.
@@ -107,7 +106,7 @@ export default class UsersDao {
   }
   /**
    * Verifies the password for a user in the database.
-   * 
+   *
    * @param {string} email - The email of the user to verify the password for.
    * @param {string} password - The password to verify.
    * @returns {Promise<boolean>} - A promise that resolves to true if the password is valid, false otherwise.
@@ -118,14 +117,33 @@ export default class UsersDao {
       let json = {};
       json = {
         email: email,
-        disabled: false
+        disabled: false,
       };
       let user = await this.db.collection(this.schema).findOne(json);
 
       if (user) {
         let res = bcrypt.compareSync(password, user.password);
+        if (user.recoverPassword && !res) {
+          let today = new Date().getTime();
+          let lastUpdate = user.recoverPasswordLastUpdate ? user.recoverPasswordLastUpdate : undefined;
+          if (lastUpdate && today - lastUpdate > 1000 * 60 * 60 * 24) {
+            return false;
+          } else {
+            res = bcrypt.compareSync(password, user.recoverPassword);
+            if (res) {
+              await this.db.collection(this.schema).updateOne(
+                { email: email },
+                {
+                  $set: {
+                    recoverPassword: null,
+                    password: user.recoverPassword,
+                  },
+                }
+              );
+            }
+          }
+        }
         return res;
-
       }
 
       return false;
@@ -133,9 +151,36 @@ export default class UsersDao {
       throw error;
     }
   }
+  async insertRecoverPassword(email: string, password: string): Promise<boolean> {
+    try {
+      const today = new Date().getTime();
+      const user = await this.db.collection(this.schema).findOne({ email: email });
+      const count = user?.recoverPasswordCount || 0;
+      const lastUpdate = user?.recoverPasswordLastUpdate ? new Date(user.recoverPasswordLastUpdate).setHours(0, 0, 0, 0) : 0;
+      const startToday = new Date().setHours(0, 0, 0, 0);
+      const newCount = lastUpdate && lastUpdate == startToday ? count + 1 : 1;
+      if (newCount >= 3) {
+        return false;
+      }
+
+      await this.db.collection(this.schema).updateOne(
+        { email: email },
+        {
+          $set: {
+            recoverPassword: bcrypt.hashSync(CryptoJS.MD5(password).toString(), 10),
+            recoverPasswordCount: newCount,
+            recoverPasswordLastUpdate: today,
+          },
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
+    return true;
+  }
   /**
    * Inserts a new user in the database.
-   * 
+   *
    * @param {any} user - The new user to insert. The password will be hashed before insertion.
    * @returns {Promise<any>} - A promise that resolves to the inserted user object with _id and without password.
    * @throws {Error} - Throws an error if there is an issue querying the database.
@@ -157,8 +202,8 @@ export default class UsersDao {
   }
   /**
    * Updates the password for a user in the database.
-   * 
-   * @param {any} user - The user object containing the email and new password. 
+   *
+   * @param {any} user - The user object containing the email and new password.
    *                     The password will be hashed before updating.
    * @returns {Promise<any>} - A promise that resolves to the updated user object without the password and oldPassword fields.
    * @throws {Error} - Throws an error if there is an issue updating the database.
@@ -181,7 +226,7 @@ export default class UsersDao {
 
   /**
    * Creates a new session for a user in the database or updates the existing one.
-   * 
+   *
    * @param {string} email - The email of the user to create or update a session for.
    * @returns {Promise<string>} - A promise that resolves to the id of the new session.
    * @throws {Error} - Throws an error if there is an issue updating the database.
@@ -195,13 +240,15 @@ export default class UsersDao {
         {
           $push: {
             sessions: {
-              $each: [{
-                id: newSession,
-                update: false,
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-                refreshToken: refreshToken
-              }],
+              $each: [
+                {
+                  id: newSession,
+                  update: false,
+                  createdAt: Date.now(),
+                  updatedAt: Date.now(),
+                  refreshToken: refreshToken,
+                },
+              ],
             },
           },
         }
@@ -210,18 +257,16 @@ export default class UsersDao {
         logger.info(`Sessione aggiunta per l'utente ${email}, sessione: ${newSession}`, this.loggerInfo);
         return { newSession, refreshToken };
       } else {
-
         throw new Error("Errore durante l'inserimento nel database");
       }
     } catch (error) {
-
       throw error;
     }
   }
 
   /**
    * Deletes a session for a user in the database.
-   * 
+   *
    * @param {string} email - The email of the user whose session is to be deleted.
    * @param {string} sessionId - The ID of the session to be deleted.
    * @returns {Promise<number>} - A promise that resolves to 1 if the session was successfully deleted,
@@ -234,8 +279,8 @@ export default class UsersDao {
         { email: email },
         {
           $pull: {
-            sessions: { id: sessionId } // Rimuove l'oggetto che ha il campo id uguale a sessionId
-          }
+            sessions: { id: sessionId }, // Rimuove l'oggetto che ha il campo id uguale a sessionId
+          },
         }
       );
       if (result.modifiedCount > 0) {
@@ -249,7 +294,6 @@ export default class UsersDao {
     }
   }
 
-
   async checkSession(email: string, sessionID: string): Promise<number> {
     try {
       // Esegui la query per trovare e aggiornare la sessione
@@ -257,12 +301,12 @@ export default class UsersDao {
         {
           email: email,
           "sessions.id": sessionID, // Cerca la sessione per email e sessionID
-        }, {
-        $set: {
-          "sessions.$.updatedAt": new Date().getTime(), // Aggiorna l'updatedAt della sessione
         },
-      }
-
+        {
+          $set: {
+            "sessions.$.updatedAt": new Date().getTime(), // Aggiorna l'updatedAt della sessione
+          },
+        }
       );
 
       // Verifica se `result` è nullo o se `result.value` è nullo
@@ -276,13 +320,11 @@ export default class UsersDao {
         return 0; // La sessione non è stata trovata, quindi non fare nulla
       }
 
-
       if (session.update) {
         return 2;
       } else {
         return 1;
       }
-
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
       throw error; // Rilancia l'errore
@@ -300,13 +342,11 @@ export default class UsersDao {
   async checkRefreshTokenAndSession(email: string, refreshToken: string, userSession: string): Promise<boolean> {
     try {
       // Esegui la query per trovare e controllare la sessione
-      const result = await this.db.collection(this.schema).findOne(
-        {
-          email: email,
-          "sessions.id": userSession, // Cerca la sessione per email e sessionID
-          "sessions.refreshToken": refreshToken, // Cerca la sessione per email e refreshToken
-        }
-      );
+      const result = await this.db.collection(this.schema).findOne({
+        email: email,
+        "sessions.id": userSession, // Cerca la sessione per email e sessionID
+        "sessions.refreshToken": refreshToken, // Cerca la sessione per email e refreshToken
+      });
 
       // Verifica se `result` è nullo o se `result.value` è nullo
       if (!result) {
@@ -322,7 +362,7 @@ export default class UsersDao {
 
   /**
    * Deletes all sessions for a user except the current session in the database.
-   * 
+   *
    * @param {string} email - The email of the user whose sessions are to be deleted.
    * @param {string} currentSessionId - The ID of the current session that should not be deleted.
    * @returns {Promise<number>} - A promise that resolves to the number of sessions deleted.
@@ -334,12 +374,12 @@ export default class UsersDao {
       const result = await this.db.collection<userModel>(this.schema).updateMany(
         {
           email: email, // Cerca il documento con l'email corrispondente
-          sessions: { $exists: true } // Assicurati che il campo `sessions` esista
+          sessions: { $exists: true }, // Assicurati che il campo `sessions` esista
         },
         {
           $pull: {
-            sessions: { id: { $ne: currentSessionId } } // Rimuovi tutte le sessioni con id diverso dal corrente
-          }
+            sessions: { id: { $ne: currentSessionId } }, // Rimuovi tutte le sessioni con id diverso dal corrente
+          },
         }
       );
 
@@ -350,5 +390,4 @@ export default class UsersDao {
       throw new Error("Errore nell'eliminazione delle sessioni");
     }
   }
-
 }

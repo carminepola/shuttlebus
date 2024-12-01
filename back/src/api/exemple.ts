@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get("/:id?", async (req, res, next) => {
   try {
-    let exempleDao = new ExempleDao(db, res.locals.log);
+    let exempleDao = new ExempleDao(db);
     let id = req.params.id ? req.params.id : "";
     const result = await exempleDao.read(id);
     res.json(result);
@@ -14,7 +14,7 @@ router.get("/:id?", async (req, res, next) => {
     next(error);
   }
 });
- 
+
 router.post("/", async (req, res, next) => {
   try {
     let exempleDao = new ExempleDao(db);
