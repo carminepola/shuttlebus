@@ -4,12 +4,14 @@ import bcrypt from "bcrypt";
 import UserDao from "../dao/users/usersDao";
 import { check, validationResult } from "express-validator"; // Aggiuntoimport { error } from "console";
 import ErrorModel from "../model/errorModel";
-import { exitCode } from "process";
+import { exitCode, title } from "process";
 import { Request, Response, NextFunction } from "express";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 import jwt from "jsonwebtoken";
 import FailToBanDao from "../dao/failToBan/failToBan";
 import authMiddleware from "../middlewares/authMiddleware";
+import { Mail } from "../model/mailModel";
+import MailService from "../services/mailServices";
 
 const router = express.Router();
 
@@ -19,7 +21,6 @@ router.post(
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-
       let secretKey = env.SECRET_KEY || "";
       let result = {};
       let userDao = new UserDao(db, res.locals.log);
@@ -41,8 +42,8 @@ router.post(
       if (await userDao.checkPassword(req.body.email, req.body.password)) {
         failToBan.deleteIp(res.locals.log.ip);
 
-        let seessionToken = await userDao.createSession(req.body.email)
-        let user = await userDao.readUserByEmail(req.body.email)
+        let seessionToken = await userDao.createSession(req.body.email);
+        let user = await userDao.readUserByEmail(req.body.email);
         let session = {
           ...user,
           rememberMe: req.body.rememberMe || false,
@@ -52,46 +53,43 @@ router.post(
           permissions: user?.permissions ? user.permissions : [],
         };
 
-
         let token: any = jwt.sign(session, secretKey, {
           expiresIn: "3h",
         });
 
-        let refreshToken: any = jwt.sign({
-          refreshToken: seessionToken.refreshToken
-
-        }, secretKey, {
-          expiresIn: "30d",
-        });
-        let settingsJwt: CookieOptions =
-        {
+        let refreshToken: any = jwt.sign(
+          {
+            refreshToken: seessionToken.refreshToken,
+          },
+          secretKey,
+          {
+            expiresIn: "30d",
+          }
+        );
+        let settingsJwt: CookieOptions = {
           maxAge: undefined,
           httpOnly: false,
-          sameSite: env.NODE_ENV === 'production' ? "none" : "strict",
-          secure: env.NODE_ENV === 'production',
-        }
+          sameSite: env.NODE_ENV === "production" ? "none" : "strict",
+          secure: env.NODE_ENV === "production",
+        };
         if (req.body.rememberMe) {
-          settingsJwt.maxAge = 2592000000
+          settingsJwt.maxAge = 2592000000;
           res.cookie("refreshToken", refreshToken, {
             maxAge: 2592000000,
             httpOnly: true,
-            sameSite: env.NODE_ENV === 'production' ? "none" : "strict",
+            sameSite: env.NODE_ENV === "production" ? "none" : "strict",
 
-            secure: env.NODE_ENV === 'production',
+            secure: env.NODE_ENV === "production",
           });
         }
 
-
         res.cookie("jwt", token, settingsJwt);
-
-
 
         result = { message: "Accesso autorizzato" };
       } else {
         failToBan.insertIp(res.locals.log.ip);
         res.locals.customErrorMessage = "Credenziali non valide. Riprova.";
         return res.sendStatus(401);
-
       }
       res.json(result);
     } catch (error) {
@@ -103,18 +101,14 @@ router.delete("/", authMiddleware, async (req: Request, res: Response, next: Nex
   try {
     let result = {};
 
-
     let userDao = new UserDao(db, res.locals.log);
     let ris = await userDao.deleteSession(res.locals.userLogged.email, res.locals.userLogged.session);
     res.clearCookie("jwt");
     res.clearCookie("refreshToken");
     if (ris == 0) {
-
       res.locals.customErrorMessage = "Nessuna sessione trovata";
       return res.sendStatus(404);
-
-    }
-    else {
+    } else {
       result = { message: "Logout riuscito" };
     }
     res.json(result);
@@ -136,4 +130,46 @@ router.delete("/all", authMiddleware, async (req: Request, res: Response, next: 
   }
 });
 
+router.post(
+  "/recoverPassword",
+  [check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format")],
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let userDao = new UserDao(db, res.locals.log);
+      let email = req.body.email;
+      let user = await userDao.readUserByEmail(email);
+      if (user) {
+        let newPassword = Array(12)
+          .fill("")
+          .map(() => String.fromCharCode(Math.floor(Math.random() * 26) + 97))
+          .join("");
+        let insert = await userDao.insertRecoverPassword(email, newPassword);
+        if (!insert) {
+          res.locals.customErrorMessage = "Limite di richieste raggiunto, riprova più tardi";
+          return res.sendStatus(429);
+        }
+
+        let mailService = new MailService();
+        mailService.sendMail(
+          new Mail({
+            to: user.email,
+            type: "RECOVER_PASSWORD_ADMIN",
+            bodyVariables: {
+              name: user.details.name,
+              mail: email,
+              password: newPassword,
+            },
+          })
+        );
+        res.json({ message: "Una nuova password sarà inviata all'indirizzo email" });
+      } else {
+        res.locals.customErrorMessage = "Utente non trovato";
+        return res.sendStatus(404);
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 export default router;

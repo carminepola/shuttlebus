@@ -89,7 +89,6 @@ export default async function authMiddleware(req: Request, res: Response<Message
               logger.error(`Errore ${res.locals.response.uniqueCallKey}`, res.locals.log);
               return next(error);
             }
-
           } else {
             await usersDao.deleteSession(user.email, user.session);
             res.clearCookie("jwt");
@@ -110,7 +109,6 @@ export default async function authMiddleware(req: Request, res: Response<Message
           const permission = await usersDao.getUserPermissionsFormEmail(user.email);
           user.permissions = permission?.permissions || [];
           user.role = permission?.role || 9999;
-
         }
         delete user.exp;
         delete user.iat;
@@ -119,21 +117,19 @@ export default async function authMiddleware(req: Request, res: Response<Message
           expiresIn: "3h",
         });
         // Set user information in response locals and set new token
-        debugger
+
         res.locals.userLogged = user;
         let settingsJwt: CookieOptions = {
           maxAge: 2592000000,
           httpOnly: false,
           secure: env.NODE_ENV === "production",
-          sameSite: "none"
-        }
+          sameSite: "none",
+        };
         if (!user.rememberMe) {
           settingsJwt.maxAge = undefined;
         }
 
-        debugger
         res.cookie("jwt", newToken, settingsJwt);
-
 
         return next();
       } catch (error) {
@@ -141,8 +137,6 @@ export default async function authMiddleware(req: Request, res: Response<Message
         logger.error(`Errore ${res.locals.response.uniqueCallKey}`, res.locals.log);
         return next(error);
       }
-
-
     });
   } catch (error) {
     // Log any errors and pass to next middleware
@@ -151,5 +145,3 @@ export default async function authMiddleware(req: Request, res: Response<Message
     return next(error);
   }
 }
-
-

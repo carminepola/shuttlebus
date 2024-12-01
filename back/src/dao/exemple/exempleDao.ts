@@ -1,39 +1,17 @@
 import { Db, ObjectId } from "mongodb";
 import { Guid } from "guid-typescript";
 import { logger } from "../..";
-import MailService from "../../services/mailServices";
 
 export default class ExempleDao {
   db: Db;
   schema: string = "exemple";
-  logInfo: any;
 
-  constructor(db: Db, logInfo?: any) {
+  constructor(db: Db) {
     this.db = db;
-    this.logInfo = logInfo;
   }
 
   async read(id: string) {
     try {
-
-
-
-      let mailService = new MailService()
-
-await      mailService.createAndSendMail({
-        to: "info@carminepola.it",
-        type:"welcome",
-        titleVariable: {
-          name: "Carmine",
-          surname: "Pola",
-        },
-        bodyVariable: {
-          name: "Carmine",
-          surname: "Pola",
-        },
-      })
-      
-
       let json = {};
 
       if (id) {
@@ -42,7 +20,7 @@ await      mailService.createAndSendMail({
         };
       }
 
-      logger.debug("Leggo dal db", this.logInfo);
+      logger.debug("Leggo dal db");
 
       return this.db.collection(this.schema).find(json).toArray();
     } catch (error) {

@@ -29,27 +29,26 @@ const consoleTransport = new winston.transports.Console({
 });
 transportsType.push(consoleTransport);
 
-
-
-
-
 if (env.LOG_URL && env.LOG_API_KEY) {
-  transportsType.push(new SeqTransport({
-    serverUrl: env.LOG_URL,
-    apiKey: env.LOG_API_KEY,
-    onError: (e: any) => {
-      console.error(JSON.stringify(e));
-    },
-    handleExceptions: true,
-    handleRejections: true,
-  }));
+  transportsType.push(
+    new SeqTransport({
+      serverUrl: env.LOG_URL,
+      apiKey: env.LOG_API_KEY,
+      onError: (e: any) => {
+        console.error(JSON.stringify(e));
+      },
+      handleExceptions: true,
+      handleRejections: true,
+    })
+  );
 } else {
   transportsType.push(
     new winston.transports.File({
       filename: "app.log",
       level: "error", // Solo errori
       format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-    }))
+    })
+  );
 }
 
 let logger = winston.createLogger({
@@ -62,21 +61,19 @@ let logger = winston.createLogger({
   transports: transportsType,
 });
 
-
-
 let mailConfig: any;
 if (process.env.EMAIL_SMTP && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
   mailConfig = {
     host: process.env.EMAIL_SMTP,
     port: process.env.EMAIL_PORT || 465,
     secure: process.env.EMAIL_SECURE || true,
-    logger: env.EMAIL_LOG ? env.EMAIL_LOG == 'true' : true,
+    logger: env.EMAIL_LOG ? env.EMAIL_LOG.toLowerCase() == "true" : true,
     debug: env.LOGLEVEL ? env.LOGLEVEL : "debug",
     auth: {
       user: process.env.EMAIL_USER, // Inserisci qui il tuo indirizzo email
       pass: process.env.EMAIL_PASS, // Inserisci qui la tua password
-    }
-  }
+    },
+  };
   logger.info("Configurazione email presente");
 } else {
   logger.warn("Configurazione email mancante");
@@ -92,7 +89,6 @@ const restServer = new RestServer(parseInt(env.PORT || "1800"));
 const startServer = async () => {
   try {
     switch (env.DB_TYPE) {
-
       case "MONGODB":
         if (env.CONNECTION_STRING) {
           databaseInstance = new Mongo();
@@ -125,4 +121,4 @@ logger.info("Avvio dell'app");
 startServer();
 
 //Esporto il db per renderlo accessibile all'app
-export { db, restServer, logger, env ,mailConfig};
+export { db, restServer, logger, env, mailConfig };

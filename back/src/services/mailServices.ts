@@ -1,150 +1,159 @@
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import { Mail } from '../model/mailModel';
-import { MailDao } from '../dao/mailDao/mailDao';
-import { logger, db, mailConfig } from '../index';
+import { promises as fs } from "fs";
+import { join } from "path";
+import { Mail } from "../model/mailModel";
+import { MailDao } from "../dao/mailDao/mailDao";
+import { logger, db, mailConfig, env } from "../index";
 import nodemailer from "nodemailer";
-import { TemplateMailDao } from '../dao/templateMailDao/templateMailDao';
-import { debug } from 'console';
-import e from 'express';
+import { TemplateMailDao } from "../dao/templateMailDao/templateMailDao";
+
 class MailService {
+  private mailDao: MailDao;
+  private templateMailDao: TemplateMailDao;
 
-  logInfo:any;
-  nodemailer: any;
   constructor() {
-
-    
-
+    this.mailDao = new MailDao(db);
+    this.templateMailDao = new TemplateMailDao(db);
   }
 
-  async templateParser(mail: Mail) {
-    try {
-      this.nodemailer.sendMail();
-      let newMail = {
-        from: mailConfig.auth.user,
-        to: mail.to,
-        subject: "",
-        html: "",
-      };
-      let templateMail: any;
+  /**
+   * Parserizza un oggetto Mail per sostituire le variabili all'interno
+   * di un template di email, se presente.
+   * @param mail Oggetto Mail da parserizzare
+   * @returns Oggetto Mail con le variabili sostituite
+   */
+  private async templateParser(mail: Mail): Promise<any> {
+    let newMail = {
+      id: mail.id,
+      from: mailConfig.auth.user,
+      to: mail.to,
+      subject: "",
+      html: "",
+    };
 
-      if (mail.type && mail.type != 'default') {
-        let templateMailDao = new TemplateMailDao(db);
-        templateMail = await templateMailDao.readTemplateMailType(mail.type);
-        if (!templateMail) {
-          mail.type = "default";
-        }
-      }
-
-      if (mail.type == 'default') {
-        newMail.subject = mail.title || "Nessun titolo";
-        newMail.html = mail.message || "Nessun messaggio";
+    if (mail.type && mail.type != "default") {
+      const templateMail = await this.templateMailDao.readTemplateMailType(mail.type);
+      if (!templateMail) {
+        mail.type = "default";
       } else {
-        for (const [key, value] of Object.entries(mail.titleVariable || {})) {
+        for (const [key, value] of Object.entries(mail.titleVariables || {})) {
           templateMail.title = templateMail.title.replaceAll(`{${key}}`, value);
         }
-        for (const [key, value] of Object.entries(mail.bodyVariable || {})) {
+        for (const [key, value] of Object.entries(mail.bodyVariables || {})) {
           templateMail.body = templateMail.body.replaceAll(`{${key}}`, value);
         }
         newMail.subject = templateMail.title;
         newMail.html = templateMail.body;
       }
-
-      return newMail;
-    } catch (error) {
-      logger.error(error);
-      throw error;
+    } else {
+      newMail.subject = mail.title || "Nessun titolo";
+      newMail.html = mail.message || "Nessun messaggio";
     }
 
+    return newMail;
   }
 
-  async createAndSendMail(mailData: Mail): Promise<void> {
+  private async send(newMail: Mail): Promise<{ mailSent: boolean; errorMessage: string }> {
+    let transporter: nodemailer.Transporter | null = null;
+    let mailSended = false;
+
+    let id = newMail.id;
+    let attempts = 0;
+    let errorMessage = "";
+
+    let log = {
+      id,
+      attempts,
+    };
     try {
+      do {
+        logger.info("Sending email id", log);
+        logger.info("Initializing email transport", log);
+        transporter = nodemailer.createTransport(mailConfig as nodemailer.TransportOptions);
+        const isValid = await transporter.verify();
+        if (!isValid) {
+          throw new Error("Failed to initialize email transport");
+        }
+        try {
+          let res = await transporter.sendMail(newMail);
+          if (res.accepted && res.accepted.length > 0) {
+            mailSended = true;
+            await this.mailDao.updateTry(id, true);
+          } else {
+            throw new Error("Failed to send");
+          }
+        } catch (error: any) {
+          attempts++;
+          mailSended = false;
+          await this.mailDao.updateTry(id, false);
+          logger.error(error.message, log);
+          if (attempts < 3) {
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+          } else {
+            throw new Error("Failed to send email after 3 attempts");
+          }
+        }
+      } while (!mailSended && attempts < 3);
+    } catch (error: any) {
+      logger.error(error?.message, log);
+      errorMessage = error?.message;
+    } finally {
+      if (transporter) {
+        transporter.close();
+      }
+    }
+    return { mailSent: mailSended, errorMessage };
+  }
+  public async sendMail(mailData: Mail): Promise<boolean> {
+    try {
+      if (!mailConfig) {
+        throw new Error("Email: manca la configurazione");
+      }
       if (!mailData.to) {
         throw new Error("Email, manca il destinatario");
       }
-      let mailDao = new MailDao(db);
-      const mail = new Mail(mailData);
-      const createdMail = await mailDao.createMail(mail);
-      await this.sendMailId(mail.id!);
+      const createdMail = await this.mailDao.createMail(mailData);
+      if (createdMail._id) return await this.sendMailId(createdMail.id!);
     } catch (error) {
-      logger.error(error);
       throw error;
     }
+    return false;
   }
-  async sendMail(newMail: Mail): Promise<boolean> {
-    let mailSended = false;
-    try {
-      let mailDao = new MailDao(db);
-      let attempts = 0;
 
-      let id = newMail.id;
-      if (id) {
-        do {
-          debugger
-          logger.info("Sending email id: " + id+ " try: " + attempts);
-          try {
-            let res = await this.nodemailer.sendMail(newMail);
-            if (res.accepted && res.accepted.length > 0) {
-              mailSended = true;
-              mailDao.updateTry(id, true);
-            } else {
-              throw new Error("Failed to send email id: " + id);
-            }
-
-          } catch (error:any) {
-            attempts++;
-            mailSended = false;
-            mailDao.updateTry(id, false);
-            logger.error(error.message);
-            if (attempts < 3) {
-              await new Promise(resolve => setTimeout(resolve, 5000));
-            } else {
-              logger.error("Failed to send email after 3 attempts email id: " + id);
-            }
-          }
-        } while (!mailSended && attempts < 3);
-      }
-      else { throw new Error("Email, manca l'id"); }
-
-    } catch (error: any) {
-      throw new Error(error?.message || "Failed to send email");
-    }
-    return mailSended
-
-  }
-  async sendMailId(id: string) {
-
+  public async sendMailId(id: string): Promise<boolean> {
     try {
       if (!mailConfig) {
-        throw new Error("Email, manca la configurazione");
+        throw new Error("Email: manca la configurazione");
       }
-      try {
-        this.nodemailer = await nodemailer.createTransport(mailConfig)
-      } catch (error) {
-        logger.error("Impossibile creare il trasporto nodemailer");
-       
-      }
+
       if (!id) {
-        throw new Error("Email,Manca l'id");
+        throw new Error("Email: manca l'id");
       }
-      let mailDao = new MailDao(db);
-      const mail = await mailDao.readMailById(id);
+
+      const mail = await this.mailDao.readMailById(id);
+
+      if (!mail) {
+        throw new Error("Email: mail non trovata con l'id fornito");
+      }
+
       const newMail = await this.templateParser(mail);
-
       if (!newMail) {
-        throw new Error("Email, manca il template");
+        throw new Error("Email: manca il template");
       }
-
-
-
-    } catch (error) {
-    
-      throw error;
+      if (env.EMAIL_ASYNC?.toLocaleLowerCase() == "true") {
+        this.send(newMail);
+        return true;
+      } else {
+        let emailSended = await this.send(newMail);
+        if (!emailSended.mailSent) {
+          throw new Error(emailSended.errorMessage);
+        }
+      }
+      this.send(newMail);
+    } catch (error: any) {
+      throw error; // Propagazione opzionale
     }
+    return false;
   }
-
 }
 
 export default MailService;
-
