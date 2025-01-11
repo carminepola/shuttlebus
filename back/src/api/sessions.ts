@@ -1,18 +1,19 @@
 import express, { CookieOptions } from "express";
 import { db, logger, env } from "../index";
 import bcrypt from "bcrypt";
-import UserDao from "../dao/users/usersDao";
-import { check, validationResult } from "express-validator"; // Aggiuntoimport { error } from "console";
+import UserDao from "../components/dao/usersDao";
+import { check, validationResult } from "express-validator";
 import ErrorModel from "../model/errorModel";
-import { exitCode, title } from "process";
+
 import { Request, Response, NextFunction } from "express";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 import jwt from "jsonwebtoken";
-import FailToBanDao from "../dao/failToBan/failToBan";
 import authMiddleware from "../middlewares/authMiddleware";
 import { Mail } from "../model/mailModel";
-import MailService from "../services/mailServices";
-
+import MailService from "../components/services/mailServices";
+import UserServices from "../components/services/userServices";
+import FailToBanServices from "../components/services/failToBanServices";
+import SessionServices from "../components/services/sessionServices";
 const router = express.Router();
 
 router.post(
@@ -23,8 +24,7 @@ router.post(
     try {
       let secretKey = env.SECRET_KEY || "";
       let result = {};
-      let userDao = new UserDao(db, res.locals.log);
-      let failToBan = new FailToBanDao(db);
+
       const token = req.cookies ? req.cookies["jwt"] : undefined;
       if (token) {
         let valid = true;
@@ -34,26 +34,24 @@ router.post(
           }
         });
         if (!valid) {
-          res.locals.customErrorMessage = "Utente già autenticato";
-          return res.sendStatus(409);
+          throw new ErrorModel(400, "Utente già autenticato");
         }
       }
 
-      if (await userDao.checkPassword(req.body.email, req.body.password)) {
-        failToBan.deleteIp(res.locals.log.ip);
+      let sessionServices = new SessionServices(db);
+      let userServices = new UserServices(db);
+      let failToBanServices = new FailToBanServices(db);
 
-        let seessionToken = await userDao.createSession(req.body.email);
-        let user = await userDao.readUserByEmail(req.body.email);
-        let session = {
-          ...user,
-          rememberMe: req.body.rememberMe || false,
-          session: seessionToken.newSession,
-          email: req.body.email,
-          role: user?.role >= 0 && user?.role != undefined && user?.role != null ? user.role : 9999,
-          permissions: user?.permissions ? user.permissions : [],
-        };
+      let loginResponse = await sessionServices.login(req.body.email, req.body.password, req.body.rememberMe);
 
-        let token: any = jwt.sign(session, secretKey, {
+      if (await userServices.checkPassword(req.body.email, req.body.password)) {
+        failToBanServices.deleteIp(res.locals.log.ip);
+
+        let seessionToken = loginResponse.sessionToken;
+
+        let userSession = loginResponse.userSession;
+
+        let token: any = jwt.sign(userSession, secretKey, {
           expiresIn: "3h",
         });
 
@@ -87,12 +85,11 @@ router.post(
 
         result = { message: "Accesso autorizzato" };
       } else {
-        failToBan.insertIp(res.locals.log.ip);
-        res.locals.customErrorMessage = "Credenziali non valide. Riprova.";
-        return res.sendStatus(401);
+        failToBanServices.insertIp(res.locals.log.ip);
+        throw new ErrorModel(401, "Credenziali non valide. Riprova.");
       }
       res.json(result);
-    } catch (error) {
+    } catch (error: ErrorModel | any) {
       next(error);
     }
   }
@@ -101,13 +98,12 @@ router.delete("/", authMiddleware, async (req: Request, res: Response, next: Nex
   try {
     let result = {};
 
-    let userDao = new UserDao(db, res.locals.log);
-    let ris = await userDao.deleteSession(res.locals.userLogged.email, res.locals.userLogged.session);
+    let userServices = new UserServices(db);
+    let ris = await userServices.deleteSession(res.locals.userLogged.email, res.locals.userLogged.session);
     res.clearCookie("jwt");
     res.clearCookie("refreshToken");
-    if (ris == 0) {
-      res.locals.customErrorMessage = "Nessuna sessione trovata";
-      return res.sendStatus(404);
+    if (!ris) {
+      throw new ErrorModel(404, "Nessuna sessione trovata");
     } else {
       result = { message: "Logout riuscito" };
     }
@@ -120,7 +116,7 @@ router.delete("/all", authMiddleware, async (req: Request, res: Response, next: 
   try {
     let result = {};
 
-    let userDao = new UserDao(db, res.locals.log);
+    let userDao = new UserDao(db);
     await userDao.deleteAllExceptCurrentSession(res.locals.userLogged.email, res.locals.userLogged.session);
     result = { message: "Tutte le sessioni cancellate eccetto quella in uso" };
 
@@ -136,9 +132,9 @@ router.post(
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let userDao = new UserDao(db, res.locals.log);
+      let userDao = new UserDao(db);
       let email = req.body.email;
-      let user = await userDao.readUserByEmail(email);
+      let user = await userDao.getUserByEmail(email);
       if (user) {
         let newPassword = Array(12)
           .fill("")
@@ -150,7 +146,7 @@ router.post(
           return res.sendStatus(429);
         }
 
-        let mailService = new MailService();
+        let mailService = new MailService(db);
         mailService.sendMail(
           new Mail({
             to: user.email,
@@ -164,8 +160,7 @@ router.post(
         );
         res.json({ message: "Una nuova password sarà inviata all'indirizzo email" });
       } else {
-        res.locals.customErrorMessage = "Utente non trovato";
-        return res.sendStatus(404);
+        throw new ErrorModel(404, "Utente non trovato");
       }
     } catch (error) {
       next(error);

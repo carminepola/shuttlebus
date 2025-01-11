@@ -1,16 +1,15 @@
-import { promises as fs } from "fs";
-import { join } from "path";
-import { Mail } from "../model/mailModel";
-import { MailDao } from "../dao/mailDao/mailDao";
-import { logger, db, mailConfig, env } from "../index";
+import { Db } from "mongodb";
+import { Mail } from "../../model/mailModel";
+import { MailDao } from "../dao/mailDao";
+import { logger, mailConfig, env } from "../../index";
 import nodemailer from "nodemailer";
-import { TemplateMailDao } from "../dao/templateMailDao/templateMailDao";
+import { TemplateMailDao } from "../dao/templateMailDao";
 
 class MailService {
   private mailDao: MailDao;
   private templateMailDao: TemplateMailDao;
 
-  constructor() {
+  constructor(db: Db) {
     this.mailDao = new MailDao(db);
     this.templateMailDao = new TemplateMailDao(db);
   }
@@ -66,8 +65,6 @@ class MailService {
     };
     try {
       do {
-        logger.info("Sending email id", log);
-        logger.info("Initializing email transport", log);
         transporter = nodemailer.createTransport(mailConfig as nodemailer.TransportOptions);
         const isValid = await transporter.verify();
         if (!isValid) {

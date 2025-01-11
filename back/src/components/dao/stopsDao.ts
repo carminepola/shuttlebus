@@ -1,7 +1,6 @@
-
 import { Db, ObjectId } from "mongodb";
 import { Guid } from "guid-typescript";
-import { logger } from "../..";
+import { logger } from "../../..";
 import StopModel from "../../model/stopsModel";
 
 export default class StopsDao {
@@ -35,10 +34,7 @@ export default class StopsDao {
 
   async updateStop(updateData: Partial<StopModel>) {
     try {
-      return await this.db.collection(this.schema).updateOne(
-        { id: updateData.id },
-        { $set: updateData }
-      );
+      return await this.db.collection(this.schema).updateOne({ id: updateData.id }, { $set: updateData });
     } catch (error) {
       logger.error("Error updating stop:", error);
       throw error;

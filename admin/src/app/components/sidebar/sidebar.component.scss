@@ -1,9 +1,60 @@
-:host {
-    display: block;
+.sidebar {
+  width: 256px;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1040;
 }
 
-@media (min-width: 1024px) {
-    :host {
-        width: 16rem;
-    }
+.sidebar.show {
+  transform: translateX(0);
+}
+
+@media (min-width: 992px) {
+  .sidebar {
+    transform: translateX(0);
+  }
+}
+
+.overlay {
+  z-index: 1030;
+}
+
+/* Style for active nav links */
+.nav-link.active {
+  background-color: rgba(var(--bs-secondary-rgb), 0.2);
+}
+
+.nav-link:hover {
+  background-color: rgba(var(--bs-secondary-rgb), 0.2);
+}
+
+/* Show tooltips on hover */
+.btn-link:hover span {
+  display: block !important;
+}
+@keyframes ring {
+  0%,
+  90% {
+    transform: rotate(0deg);
+  }
+  92% {
+    transform: rotate(-10deg);
+  }
+  94% {
+    transform: rotate(10deg);
+  }
+  96% {
+    transform: rotate(-10deg);
+  }
+  98% {
+    transform: rotate(10deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.ring-animaiton {
+  z-index: 10;
+  animation: ring 5s ease-in-out infinite;
 }

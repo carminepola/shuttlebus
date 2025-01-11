@@ -1,9 +1,27 @@
 /* You can add global styles to this file, and also import other style files */
- 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+@use "sass:map";
+//@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@use "./custom_variables" as *;
+@use "bootstrap/scss/bootstrap" as bootstrap with (
+  $white: $white,
+  $black: $black,
+  $primary: $primary,
+  $secondary: $secondary,
+  $input-btn-focus-width: $input-btn-focus-width,
+  $light: $white,
+  $font-weight-bold: $font-weight-bold,
+  $btn-font-weight: $btn-font-weight,
+  $font-family-sans-serif: $font-family-sans-serif,
+  $font-weight-bolder: $font-weight-bolder,
+  $input-focus-border-color: $input-focus-border-color,
+  $input-focus-color: $input-focus-color,
+  $input-color: $input-color,
+  $focus-ring-color: $focus-ring-color,
+  $primary-text-emphasis-dark: $primary-text-emphasis-dark
+);
 
-/* Your custom styles below */
+body {
+  -webkit-font-smoothing: antialiased; /* Su WebKit */
+  -moz-osx-font-smoothing: grayscale; /* Su Firefox su macOS */
+}

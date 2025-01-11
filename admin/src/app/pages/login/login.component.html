@@ -1,97 +1,122 @@
-<div class="flex min-h-screen">
-  <div class="hidden lg:block lg:w-1/2 bg-dark-blue relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-bl from-pink via-dark-blue-palette-600  to-dark-blue opacity-90">
-    </div>
-    <div class="relative z-10 flex flex-col justify-center items-center h-full text-white text-center p-12">
-      <i class="fas fa-user fa-8x text-white mb-8"></i>
-      <h2 class="text-4xl font-bold mb-4">Benvenuto</h2>
-      <p class="text-xl text-gray-300">
+<div class="d-flex min-vh-100">
+  <div
+    class="d-none d-lg-block col-lg-6 bg-dark position-relative overflow-hidden"
+  >
+    <div
+      class="position-absolute top-0 start-0 w-100 h-100 background-gradient"
+    ></div>
+    <div
+      class="position-relative z-index-10 d-flex flex-column justify-content-center align-items-center h-100 text-white text-center p-5"
+    >
+      <i class="fas fa-user fa-8x mb-4"></i>
+      <h2 class="display-4 fw-bold mb-4">Benvenuto</h2>
+      <p class="fs-4 text-gray-300">
         Accedi al pannello di controllo di Pintour
       </p>
     </div>
   </div>
 
-  <div class="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 lg:px-8">
-    <div class="w-full max-w-md">
-      <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold tracking-tight text-dark-blue">
-          Accedi al tuo account
-        </h1>
-        <p class="mt-2 text-sm text-gray-600">
+  <div
+    class="col-12 col-lg-6 d-flex align-items-center justify-content-center p-5"
+  >
+    <div class="w-100">
+      <div class="mb-4 text-center">
+        <h2 class="display-5 fw-bold text-primary">Accedi al tuo account</h2>
+        <p class="mt-2 text-muted">
           Questa sezione è dedicata all'amministrazione
-
         </p>
       </div>
 
-      <form [formGroup]="loginForm" (submit)="onSubmit($event)" novalidate class="space-y-6">
-        <div *ngIf="loginError" class="bg-pink/20 border border-pink/50 text-pink p-4 rounded-md mb-4">
+      <form [formGroup]="loginForm" (submit)="onSubmit($event)" novalidate>
+        <div *ngIf="loginError" class="alert alert-danger mb-4">
           {{ loginError }}
         </div>
 
-        <div>
-          <label for="email" class="block text-sm font-medium text-dark-blue">Email</label>
-          <div class="mt-1">
-            <input id="email" formControlName="email" type="email" autocomplete="email"
-              class="block w-full appearance-none rounded-md border px-3 py-2 placeholder-dark-blue/50 text-dark-blue shadow-sm focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink sm:text-sm"
-              [ngClass]="{
-                'border-gray-300': !isSubmitted || formControls['email'].valid,
-                'border-pink': isSubmitted && formControls['email'].invalid
-              }" placeholder="Inserisci la tua email" />
-            <div *ngIf="isSubmitted && formControls['email'].errors" class="text-pink text-sm mt-1">
-              <div *ngIf="formControls['email'].errors['required']">
-                Email è richiesta
-              </div>
-              <div *ngIf="formControls['email'].errors['email']">
-                Email non valida
-              </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input
+            id="email"
+            formControlName="email"
+            type="email"
+            autocomplete="email"
+            class="form-control"
+            placeholder="Inserisci la tua email"
+            [ngClass]="{
+              'is-invalid': isSubmitted && formControls['email'].invalid,
+          
+            }"
+          />
+          <div
+            *ngIf="isSubmitted && formControls['email'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="formControls['email'].errors['required']">
+              Email è richiesta
+            </div>
+            <div *ngIf="formControls['email'].errors['email']">
+              Email non valida
             </div>
           </div>
         </div>
 
-        <div>
-          <label for="password" class="block text-sm font-medium text-dark-blue">Password</label>
-          <div class="mt-1">
-            <input id="password" formControlName="password" type="password" autocomplete="password"
-              class="block w-full appearance-none rounded-md border px-3 py-2 placeholder-dark-blue/50 text-dark-blue shadow-sm focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink sm:text-sm"
-              [ngClass]="{
-                'border-gray-300':
-                  !isSubmitted || formControls['password'].valid,
-                'border-pink': isSubmitted && formControls['password'].invalid
-              }" placeholder="Inserisci la tua password" />
-            <div *ngIf="isSubmitted && formControls['password'].errors" class="text-pink text-sm mt-1">
-              <div *ngIf="formControls['password'].errors['required']">
-                Password è richiesta
-              </div>
-              <div *ngIf="formControls['password'].errors['minlength']">
-                Password deve essere lunga almeno 6 caratteri
-              </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            id="password"
+            formControlName="password"
+            type="password"
+            autocomplete="password"
+            class="form-control"
+            placeholder="Inserisci la tua password"
+            [ngClass]="{
+              'is-invalid': isSubmitted && formControls['password'].invalid,
+             
+            }"
+          />
+          <div
+            *ngIf="isSubmitted && formControls['password'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="formControls['password'].errors['required']">
+              Password è richiesta
+            </div>
+            <div *ngIf="formControls['password'].errors['minlength']">
+              Password deve essere lunga almeno 6 caratteri
             </div>
           </div>
         </div>
 
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <input formControlName="rememberMe" id="rememberMe" name="rememberMe" type="checkbox"
-              class="h-4 w-4 rounded border-gray-300 text-pink focus:ring-pink" />
-            <label for="rememberMe" class="ml-2 block text-sm text-dark-blue">
-              Ricordami
-            </label>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="form-check">
+            <input
+              formControlName="rememberMe"
+              id="rememberMe"
+              name="rememberMe"
+              type="checkbox"
+              class="form-check-input"
+            />
+            <label for="rememberMe" class="form-check-label">Ricordami</label>
           </div>
 
-          <div class="text-sm">
-            <a href="" routerLink="/lostpassword" class="font-medium text-pink hover:text-pink/80">
-              Password dimenticata?
-            </a>
+          <div class="text-end">
+            <a href="#" routerLink="/lostpassword" class="text-secondary"
+              >Password dimenticata?</a
+            >
           </div>
         </div>
 
         <div>
-          <button type="submit" [disabled]="isLoading"
-            class="flex w-full disabled:cursor-not-allowed disabled:bg-pink-palette-400 cursor-pointer justify-center rounded-md bg-pink px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink">
+          <button
+            type="submit"
+            [disabled]="isLoading"
+            class="btn btn-secondary w-100 d-flex justify-content-center align-items-center"
+          >
             <span *ngIf="!isLoading">Accedi</span>
-            <div *ngIf="isLoading" class="flex items-center justify-center">
-              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            </div>
+            <div
+              *ngIf="isLoading"
+              class="spinner-border spinner-border-sm text-white"
+              role="status"
+            ></div>
           </button>
         </div>
       </form>

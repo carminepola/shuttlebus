@@ -1,18 +1,18 @@
 import { Db, ObjectId } from "mongodb";
-import { logger } from "../..";
+import { logger } from "../../..";
 import bcrypt from "bcrypt";
 import { Guid } from "guid-typescript";
-import userModel from "../../interface/userModel";
-import sessionModel from "../../interface/sessionModel";
+import userModel from "../../model/userModel";
+import sessionModel from "../../model/sessionModel";
 import * as CryptoJS from "crypto-js";
+import ErrorModel from "../../model/errorModel";
 
 export default class UsersDao {
   db: Db;
   schema: string = "users";
   loggerInfo: any;
-  constructor(db: Db, loggerInfo?: any) {
+  constructor(db: Db) {
     this.db = db;
-    this.loggerInfo = loggerInfo ? loggerInfo : {};
   }
 
   /**
@@ -23,7 +23,7 @@ export default class UsersDao {
    * @throws {Error} - Throws an error if there is an issue querying the database.
    */
 
-  async readAllUsers() {
+  async getUsers() {
     try {
       let json = {};
       let list = await this.db.collection(this.schema).find(json).toArray();
@@ -43,7 +43,7 @@ export default class UsersDao {
    * The user object has its password field removed for security purposes.
    * @throws {Error} - Throws an error if there is an issue querying the database.
    */
-  async readUserById(id: string) {
+  async getUserById(id: string) {
     try {
       let json = {};
       if (id) {
@@ -69,7 +69,7 @@ export default class UsersDao {
    * The user object has its password field removed for security purposes.
    * @throws {Error} - Throws an error if there is an issue querying the database.
    */
-  async readUserByEmail(email: string) {
+  async getUserByEmail(email: string) {
     try {
       let json = {};
       json = {
@@ -163,11 +163,13 @@ export default class UsersDao {
         return false;
       }
 
+      let crypto = bcrypt.hashSync(CryptoJS.MD5(password).toString(), 10);
+
       await this.db.collection(this.schema).updateOne(
         { email: email },
         {
           $set: {
-            recoverPassword: bcrypt.hashSync(CryptoJS.MD5(password).toString(), 10),
+            recoverPassword: crypto,
             recoverPasswordCount: newCount,
             recoverPasswordLastUpdate: today,
           },
@@ -185,7 +187,7 @@ export default class UsersDao {
    * @returns {Promise<any>} - A promise that resolves to the inserted user object with _id and without password.
    * @throws {Error} - Throws an error if there is an issue querying the database.
    */
-  async insertNewUser(user: any) {
+  async createUser(user: any) {
     try {
       user.password = bcrypt.hashSync(user.password, 10);
       const result = await this.db.collection(this.schema).insertOne(user);
@@ -231,7 +233,7 @@ export default class UsersDao {
    * @returns {Promise<string>} - A promise that resolves to the id of the new session.
    * @throws {Error} - Throws an error if there is an issue updating the database.
    */
-  async createSession(email: string) {
+  async createSession(email: string): Promise<{ newSession: String; refreshToken: String }> {
     try {
       let newSession = Guid.create().toString();
       let refreshToken = Guid.create().toString();
@@ -257,7 +259,7 @@ export default class UsersDao {
         logger.info(`Sessione aggiunta per l'utente ${email}, sessione: ${newSession}`, this.loggerInfo);
         return { newSession, refreshToken };
       } else {
-        throw new Error("Errore durante l'inserimento nel database");
+        throw new ErrorModel(500, "Errore durante l'inserimento nel database");
       }
     } catch (error) {
       throw error;
@@ -273,7 +275,7 @@ export default class UsersDao {
    *                              or 0 if no session was found and deleted.
    * @throws {Error} - Throws an error if there is an issue updating the database.
    */
-  async deleteSession(email: string, sessionId: string) {
+  async deleteSession(email: string, sessionId: string): Promise<boolean> {
     try {
       const result = await this.db.collection<userModel>(this.schema).updateOne(
         { email: email },
@@ -285,9 +287,9 @@ export default class UsersDao {
       );
       if (result.modifiedCount > 0) {
         logger.info(`Sessione rimossa per l'utente ${email}, session: ${sessionId}`, this.loggerInfo);
-        return 1;
+        return true;
       } else {
-        return 0;
+        return false;
       }
     } catch (error) {
       throw error;

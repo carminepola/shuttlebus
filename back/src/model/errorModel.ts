@@ -1,16 +1,18 @@
 export default class ErrorModel {
+  code?: number;
   stack: string | undefined;
   message: string | undefined;
   errors: any;
-  constructor(code?: number, message?: string, stack?: string, errors?: any) {
-    code = code || 500;
+  constructor(code: number, message?: string, stack?: string, errors?: any) {
+    this.code = code;
+
     this.stack = stack || undefined;
     this.errors = errors || undefined;
 
     this.message = message || undefined;
 
     if (!message) {
-      switch (code) {
+      switch (this.code) {
         case 400:
           this.message = "Bad Request";
           break;
@@ -48,12 +50,9 @@ export default class ErrorModel {
           this.message = "Internal Server Error";
           break;
         default:
-
           this.message = "Internal Server Error";
           break;
       }
     }
-
-
   }
 }

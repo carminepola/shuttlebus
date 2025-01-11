@@ -8,14 +8,14 @@ export default class Mongo {
 
   private db: Db | undefined;
 
-  constructor() { }
+  constructor() {}
 
   async init(connectionString: string) {
     try {
       if (connectionString) {
         this.connectionString = connectionString;
         this.client = new MongoClient(this.connectionString);
-        this.db = await this.client.db(); // Inizializza la proprietà db nel costruttore
+        this.db = await this.client.db();
         return this.db;
       } else {
         logger.error("Nessuna string di connessione");
