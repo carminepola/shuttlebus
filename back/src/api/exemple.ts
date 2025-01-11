@@ -1,14 +1,13 @@
 import express from "express";
 import { db } from "../index";
-import StopModel from "../model/stopsModel";
-import ExempleDao from "../dao/exemple/exempleDao";
+import ExempleServices from "../components/services/exempleServices";
 const router = express.Router();
 
 router.get("/:id?", async (req, res, next) => {
   try {
-    let exempleDao = new ExempleDao(db);
+    let exemple = new ExempleServices(db);
     let id = req.params.id ? req.params.id : "";
-    const result = await exempleDao.read(id);
+    const result = await exemple.read(id);
     res.json(result);
   } catch (error) {
     next(error);
@@ -17,8 +16,8 @@ router.get("/:id?", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   try {
-    let exempleDao = new ExempleDao(db);
-    let result = await exempleDao.write();
+    let exemple = new ExempleServices(db);
+    let result = await exemple.write();
     res.locals.response.object = result;
     res.json(result);
   } catch (error) {

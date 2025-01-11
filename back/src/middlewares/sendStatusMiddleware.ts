@@ -4,30 +4,27 @@ import ErrorModel from "../model/errorModel";
 
 // Middleware per loggare ogni volta che viene inviato un status
 export function logSendStatusMiddleware(req: Request, res: Response, next: NextFunction) {
-    // Salva il riferimento originale del metodo sendStatus
-    const originalSendStatus = res.sendStatus;
+  // Salva il riferimento originale del metodo sendStatus
 
-    // Sovrascrivi il metodo sendStatus
-    res.sendStatus = function (statusCode: number) {
-        // Logga il codice di stato prima di inviarlo
+  // Sovrascrivi il metodo sendStatus
+  res.sendStatus = function (statusCode: number) {
+    // Logga il codice di stato prima di inviarlo
 
+    // Crea il corpo della risposta come oggetto JSON
 
-        // Crea il corpo della risposta come oggetto JSON
+    if (!res.locals.response) {
+      res.locals.response = {};
+    }
 
-        if (!res.locals.response) {
-            res.locals.response = {};
-        }
+    let error = new ErrorModel(statusCode, res.locals.customErrorMessage);
 
-        let error = new ErrorModel(statusCode, res.locals.customErrorMessage);
+    Object.assign(res.locals.response, error);
 
+    // Invia il JSON con il codice di stato
+    delete res.locals.customErrorMessage;
+    return res.status(statusCode).json({});
+  };
 
-        Object.assign(res.locals.response, error);
-
-        // Invia il JSON con il codice di stato
-        delete res.locals.customErrorMessage;
-        return res.status(statusCode).json({});
-    };
-
-    // Passa al middleware successivo
-    next();
+  // Passa al middleware successivo
+  next();
 }

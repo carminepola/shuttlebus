@@ -9,15 +9,25 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class AuthService {
   private apiUrl = environment.apiUrl;
+  private path = 'auth';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   login(email: string, password: string, rememberMe: boolean): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/auth`, { email, password, rememberMe });
+    return this.http.post<any>(`${this.apiUrl}/${this.path}`, {
+      email,
+      password,
+      rememberMe,
+    });
   }
 
+  recoverPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${this.path}/recoverPassword`, {
+      email,
+    });
+  }
   logout(): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/auth`);
+    return this.http.delete<any>(`${this.apiUrl}/${this.path}`);
   }
 
   isLoggedIn(): boolean {
@@ -46,10 +56,9 @@ export class AuthService {
   }
 
   private getCookie(name: string): string | null {
-    const match = document.cookie.split(';').find((c) => c.trim().startsWith(`${name}=`));
+    const match = document.cookie
+      .split(';')
+      .find((c) => c.trim().startsWith(`${name}=`));
     return match ? match.split('=')[1] : null;
   }
-
-
 }
-

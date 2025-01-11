@@ -4,8 +4,8 @@ import MessageModel from "../model/messageModel";
 import { logger, env, db } from "..";
 import { CookieOptions } from "express";
 import jwt from "jsonwebtoken";
-import FailToBanDao from "../dao/failToBan/failToBan";
-import UsersDao from "../dao/users/usersDao";
+import FailToBanDao from "../components/dao/failToBan";
+import UsersDao from "../components/dao/usersDao";
 
 function sleep(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
