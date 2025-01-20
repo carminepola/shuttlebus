@@ -3,8 +3,7 @@
 //@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 @use "./custom_variables" as *;
-@use "bootstrap/scss/bootstrap" as bootstrap with (
-  $white: $white,
+@use "bootstrap/scss/bootstrap" as bootstrap with ($white: $white,
   $black: $black,
   $primary: $primary,
   $secondary: $secondary,
@@ -18,10 +17,56 @@
   $input-focus-color: $input-focus-color,
   $input-color: $input-color,
   $focus-ring-color: $focus-ring-color,
-  $primary-text-emphasis-dark: $primary-text-emphasis-dark
-);
+  $primary-text-emphasis-dark: $primary-text-emphasis-dark);
 
 body {
-  -webkit-font-smoothing: antialiased; /* Su WebKit */
-  -moz-osx-font-smoothing: grayscale; /* Su Firefox su macOS */
+  -webkit-font-smoothing: antialiased;
+  /* Su WebKit */
+  -moz-osx-font-smoothing: grayscale;
+  /* Su Firefox su macOS */
+}
+
+
+.cursor-auto {
+  cursor: auto;
+}
+
+.cursor-default {
+  cursor: default;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-wait {
+  cursor: wait;
+}
+
+.cursor-text {
+  cursor: text;
+}
+
+.cursor-move {
+  cursor: move;
+}
+
+.cursor-help {
+  cursor: help;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+.cardButton {
+  box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
+  transition: box-shadow .3s ease-in-out;
+}
+
+.cardButton:hover {
+
+  box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+  transition: box-shadow .3s ease-in-out;
+
 }

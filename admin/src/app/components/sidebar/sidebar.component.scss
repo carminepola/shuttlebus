@@ -32,23 +32,30 @@
 .btn-link:hover span {
   display: block !important;
 }
+
 @keyframes ring {
+
   0%,
   90% {
     transform: rotate(0deg);
   }
+
   92% {
     transform: rotate(-10deg);
   }
+
   94% {
     transform: rotate(10deg);
   }
+
   96% {
     transform: rotate(-10deg);
   }
+
   98% {
     transform: rotate(10deg);
   }
+
   100% {
     transform: rotate(0deg);
   }

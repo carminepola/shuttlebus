@@ -80,7 +80,7 @@ export class LoginComponent implements OnInit {
           this.isLoading = false;
           console.error(e);
           //'Credenziali non valide. Riprova.'
-          this.loginError = e.error.message;
+          this.loginError = "Credenziali non valide. Riprova.";
         },
       });
     } catch (e: any) {
