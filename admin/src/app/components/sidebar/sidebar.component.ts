@@ -2,7 +2,6 @@ import { Component, EventEmitter, input, Input, Output, OnInit } from '@angular/
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
-import { SidebarService } from '../../services/sidebar/sidebar.service';
 interface MenuItem {
   icon: string;
   title: string;
@@ -26,7 +25,46 @@ export class SidebarComponent implements OnInit {
   isMenuOpen = false;
   private user: any;
   isLoadingLogout: boolean = false;
-
+  notification: any = [];
+  notificatioddns = [
+    {
+      title: "Titolo",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      date: "Ven 20 Dic 17:30"
+    },
+    {
+      title: "Titolo",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      date: "Ven 20 Dic 17:30"
+    }, {
+      title: "Titolo",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      date: "Ven 20 Dic 17:30"
+    }, {
+      title: "Titolo",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      date: "Ven 20 Dic 17:30"
+    }, {
+      title: "Titolo",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      date: "Ven 20 Dic 17:30"
+    }, {
+      title: "Titolo",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      date: "Ven 20 Dic 17:30"
+    }, {
+      title: "Titolo",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      date: "Ven 20 Dic 17:30"
+    }, {
+      title: "Titolo",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      date: "Ven 20 Dic 17:30"
+    }, {
+      title: "Titolo",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      date: "Ven 20 Dic 17:30"
+    },]
   ngOnInit(): void {
     this.user = this.authService.getDecodedToken();
     this.username = this.user?.details?.name.toUpperCase();

@@ -23,7 +23,7 @@ export class LostPasswordComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.lostPasswordForm = this.formBuilder.group({
@@ -45,9 +45,7 @@ export class LostPasswordComponent implements OnInit {
       next: (response: any) => {
         this.isLoading = false;
         this.success = true;
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 2000);
+
       },
       error: (e: any) => {
         this.isLoading = false;
