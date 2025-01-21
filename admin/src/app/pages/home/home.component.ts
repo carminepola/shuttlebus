@@ -36,44 +36,41 @@ interface MenuItem {
 export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('salesChart') salesChart!: ElementRef;
 
-  user: any
+  user: any;
   username = '';
   email = '';
   isMenuOpen = false;
-
-
 
   dashboardCards: DashboardCard[] = [
     {
       icon: 'fa-map-marker-alt',
       title: 'Fermate',
       description: 'Gestisci le fermate del servizio',
-      color: 'bg-gradient-to-br from-blue-600 to-blue-800',
+      color: 'cardButton card-gradient-blue text-white',
     },
     {
       icon: 'fa-route',
       title: 'Corse',
       description: 'Pianifica e gestisci le corse',
-      color: 'bg-gradient-to-br from-teal-600 to-teal-800',
+      color: 'cardButton card-gradient-green',
     },
     {
       icon: 'fa-ticket-alt',
       title: 'Biglietti',
-      description: 'Gestione biglietti e abbonamenti',
-      color: 'bg-gradient-to-br from-violet-600 to-violet-800',
+      description: 'Gestione biglietti',
+      color: ' cardButton card-gradient-violet',
     },
     {
       icon: 'fa-calendar-check',
       title: 'Prenotazioni',
-      description: 'Visualizza e gestisci le prenotazioni',
-      color: 'bg-gradient-to-br from-rose-600 to-rose-800',
+      description: 'Visualizza  le prenotazioni',
+      color: 'cardButton card-gradient-red',
     },
   ];
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-
     this.user = this.authService.getDecodedToken();
     this.username = this.user?.details?.name;
     this.email = this.user.email;
@@ -177,10 +174,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     );
   }
 
-
-
   logout() {
     console.log('Logout clicked');
   }
 }
-
