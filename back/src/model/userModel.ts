@@ -12,6 +12,7 @@ export default class userModel {
     city?: string;
     zipCode?: string;
   };
+  options: { [key: string]: string };
   password: string;
   sessions: sessionModel[];
   role: number;
@@ -25,6 +26,7 @@ export default class userModel {
     this.password = "";
     this.sessions = [];
     this.role = role.NO_PERMISSION;
+    this.options = {};
     this.permissions = [];
     this.disabled = true;
     this.createdAt = new Date().getTime();

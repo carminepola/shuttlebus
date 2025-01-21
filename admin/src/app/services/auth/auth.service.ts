@@ -11,7 +11,7 @@ export class AuthService {
   private apiUrl = environment.apiUrl;
   private path = 'auth';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(email: string, password: string, rememberMe: boolean): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${this.path}`, {
