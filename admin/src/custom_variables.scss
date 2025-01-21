@@ -1,7 +1,9 @@
 @use "sass:map";
+
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 $white: #fff;
-$black: #3d3d3d;
+$black: #1d1d20;
+
 $pink-palette: (
   50: #fef1f8,
   100: #fee5f2,
@@ -29,12 +31,15 @@ $dark-blue-palette: (
   900: #301d95,
   950: #1a1064,
 );
+
+
+$blue: #3B82F6;
 $pink: map.get($pink-palette, 700);
 $indigo: map.get($dark-blue-palette, 950);
 $primary: $indigo;
 $secondary: $pink;
 $input-btn-focus-width: 0rem;
-$light: $white;
+$danger: #CF2F54;
 $font-weight-bold: 700;
 $btn-font-weight: $font-weight-bold;
 $font-family-sans-serif: "Montserrat", sans-serif;
@@ -44,7 +49,8 @@ $input-focus-color: $primary;
 $input-color: $primary;
 $focus-ring-color: map.get($pink-palette, 300);
 $primary-text-emphasis-dark: $pink;
-
+$success: #25867F;
+$info: #8c57e2;
 h1 {
   font-weight: $font-weight-bolder;
 }
@@ -70,7 +76,7 @@ h6 {
 }
 
 label {
-  color: $secondary;
+  color: $primary;
   font-weight: $font-weight-bold;
 }
 
@@ -123,7 +129,41 @@ a {
   background: linear-gradient(to bottom left, $secondary, $primary);
 }
 
+.bg-page{
+  background-color: #F3F4F6;
+}
+.cardButton {
+  box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
+  transition: box-shadow .3s ease-in-out;
+}
+
+.cardButton:hover {
+
+  box-shadow: 0 .75rem 1.5rem rgba(0, 0, 0, .40) !important;
+  transition: box-shadow .2s ease;
+
+}
+
 [data-bs-theme="dark"] {
+  .bg-page{
+    background-color: #18181b;
+  }
+  .bg-white{
+    background-color: #212529 !important ;
+  }
+  .bg-light{
+
+    background-color: #2b3035 !important;
+  }
+  .cardButton {
+    box-shadow: 0 0.125rem 0.25rem rgba(255, 255, 255, 0.075) !important;
+    transition: box-shadow 0.3s ease-in-out;
+  }
+  
+  .cardButton:hover {
+    box-shadow: 0 0.75rem 1.5rem rgba(177, 177, 177, 0.2) !important;
+    transition: box-shadow 0.2s ease;
+  }
   .form-control {
     color: map.get($dark-blue-palette, 400) !important;
   }
@@ -137,4 +177,12 @@ a {
   .btn-primary {
     color: map.get($dark-blue-palette, 400) !important;
   }
+  .form-label, .form-check-label{
+    
+    color: map.get($dark-blue-palette, 400) !important;
+ 
+  }
+  
+  
+
 }

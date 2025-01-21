@@ -1,16 +1,8 @@
-<div class="d-flex bg-gray-100" *ngIf="navbarVisible">
-
-
-
+<div class="bg-gray-100 min-vh-100 bg-page" *ngIf="navbarVisible">
   <app-sidebar> </app-sidebar>
 
-  <div class=" p-2   navMarginTop w-100 ">
-
+  <div class="navMarginTop navMarginLeft">
     <router-outlet></router-outlet>
-
-
-
-
   </div>
 </div>
 

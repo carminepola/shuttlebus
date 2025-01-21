@@ -32,6 +32,7 @@
             ],
             "styles": [
               "src/styles.scss",
+              "src/cursor.scss",
               "@fortawesome/fontawesome-free/css/all.css"
             ],
             "scripts": [
