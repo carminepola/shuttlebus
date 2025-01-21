@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { AuthService } from '../../services/auth/auth.service';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { TitlePageComponent } from "../../components/title-page/title-page.component";
 Chart.register(...registerables);
 
 interface DashboardCard {
@@ -29,7 +30,7 @@ interface MenuItem {
   selector: 'app-home',
   standalone: true,
   animations: [fadeAnimation],
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TitlePageComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
@@ -68,7 +69,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     },
   ];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
     this.user = this.authService.getDecodedToken();

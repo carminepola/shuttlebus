@@ -180,6 +180,26 @@ export default class UsersDao {
     }
     return true;
   }
+
+  async updateOptions(email: string, key: string, value: string): Promise<boolean> {
+    try {
+
+      await this.db.collection(this.schema).updateOne(
+        { email: email },
+        {
+          $set: {
+            options: {
+              [key]: value
+            },
+
+          },
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
+    return true;
+  }
   /**
    * Inserts a new user in the database.
    *

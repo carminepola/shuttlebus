@@ -89,4 +89,11 @@ export default class UserServices {
       throw error;
     }
   }
+  async updateOptions(email: string, key: string, value: string): Promise<boolean> {
+    try {
+      return await this.userDao.updateOptions(email, key, value);
+    } catch (error) {
+      throw error;
+    }
+  }
 }

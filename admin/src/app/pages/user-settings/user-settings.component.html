@@ -1,3 +1,35 @@
-<div @fadeInOut>
-
+<div class="container" @fadeInOut>
+    <app-title-page title="Impostazioni" subtitle="Gestisci le tue impostazioni" back="true"></app-title-page>
+    <div class="row">
+        <div>
+            <h3 class="text-muted">Tema</h3>
+        </div>
+        <div class="col mb-2">
+            <div (click)="toggleDarkMode('light')" class="card  rounded-4 shadow-sm cardButton cursor-pointer "
+                [ngClass]="!isDarkMode && !isAutoMode ? 'border bg-secondary border-primary' : 'border-0'">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-sun display-6 mb-4"></i>
+                    <h6>Chiaro</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col mb-2">
+            <div (click)="toggleDarkMode('dark')" class="card   rounded-4 shadow-sm cardButton cursor-pointer"
+                [ngClass]="isDarkMode && !isAutoMode ? 'border bg-secondary border-primary' : 'border-0'">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-moon display-6 mb-4"></i>
+                    <h6>Scuro</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col mb-2">
+            <div (click)="toggleDarkMode('auto')" class="card   rounded-4 shadow-sm cardButton cursor-pointer"
+                [ngClass]="isAutoMode ? 'border bg-secondary border-primary' : 'border-0'">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-adjust display-6 mb-4"></i>
+                    <h6>Auto</h6>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -106,4 +106,39 @@ router.patch(
   }
 );
 
+
+router.put(
+  "/updateOptions",
+  [
+
+    check("options").notEmpty().withMessage("options is required").isObject().withMessage("options must be an object"),
+    check("options.*").exists().withMessage("options must not be empty"),
+  ],
+  authMiddleware,
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let result: any;
+
+
+      let email = res.locals.userLogged.email
+      let userServices = new UserServices(db);
+
+      let options: { [key: string]: string } = req.body.options;
+
+      for (const key in options) {
+        if (options.hasOwnProperty(key)) {
+          const value = options[key];
+          result = await userServices.updateOptions(email, key, value);
+        }
+      }
+
+      res.json("Opzioni aggiornate con successo");
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  }
+);
+
 export default router;
