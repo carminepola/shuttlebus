@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private cookieService: CookieWatcherServiceService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.router.events.subscribe(() => {
@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
     document.body.setAttribute('data-bs-theme', 'light');
     // Sottoscriviti al comportamento del JWT per ottenere gli aggiornamenti
     this.cookieService.watchCookie().subscribe((newJwtToken: any) => {
-      console.log('ok');
+
       try {
         let mode = 'auto';
         if (newJwtToken?.options?.theme == 'dark') mode = 'dark';

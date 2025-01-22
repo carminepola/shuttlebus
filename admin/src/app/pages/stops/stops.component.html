@@ -1,28 +1,21 @@
-<div class="container-fluid container-lg py-3">
-  <app-title-page
-    title="Fermate"
-    subtitle="Gestisci le fermate"
-    back="true"
-  ></app-title-page>
+<div class="container-fluid container-lg ">
+  <app-title-page title="Fermate" subtitle="Gestisci le fermate" back="true"></app-title-page>
   <div class="card shadow border-0 rounded-4">
     <!-- Header Section -->
     <div class="card-header bg-white rounded-top-4 border-bottom py-4">
       <div class="row align-items-center gy-3">
         <div class="col-md">
-          <span class="input-group-text border-0 rounded-3" id="basic-addon1">
-            <i class="fa-solid fa-magnifying-glass"></i>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0 icon-container"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control rounded-3 form-control-lg bg-light border-0"
+              placeholder="Cerca fermata..." />
+          </div>
 
-            <input
-              type="text"
-              class="form-control form-control bg-light border-0"
-              placeholder="Cerca fermata..."
-            />
-          </span>
         </div>
         <div class="col-md-auto">
-          <button class="btn btn-primary rounded-3 w-100">
+          <a class="btn btn-primary btn-lg h-100 rounded-3 w-100" [routerLink]="['/fermata']">
             <i class="fas fa-plus me-2"></i>Nuova Fermata
-          </button>
+          </a>
         </div>
       </div>
 
@@ -47,9 +40,7 @@
           </div>
 
           <p class="text-secondary mb-2">Garibaldi Square Stop</p>
-          <div
-            class="bg-light rounded-0 py-2 px-3 d-inline-flex align-items-center mb-2"
-          >
+          <div class="bg-light rounded-0 py-2 px-3 d-inline-flex align-items-center mb-2">
             <i class="fas fa-location-dot me-2"></i>
             <small>40.851799, 14.268120</small>
           </div>
@@ -101,9 +92,7 @@
               <td>Fermata Piazza Garibaldi</td>
               <td>Garibaldi Square Stop</td>
               <td>
-                <span
-                  class="bg-light py-2 px-3 d-inline-flex align-items-center"
-                >
+                <span class="bg-light py-2 px-3 d-inline-flex align-items-center">
                   <i class="fas fa-location-dot me-2"></i>
                   <small>40.851799, 14.268120</small>
                 </span>
@@ -123,9 +112,7 @@
               <td>Fermata Stazione Centrale</td>
               <td>Central Station Stop</td>
               <td>
-                <span
-                  class="bg-light py-2 px-3 d-inline-flex align-items-center"
-                >
+                <span class="bg-light py-2 px-3 d-inline-flex align-items-center">
                   <i class="fas fa-location-dot me-2"></i>
                   <small>40.852543, 14.272460</small>
                 </span>

@@ -8,7 +8,7 @@
   $primary: $primary,
   $info: $info,
   $blue: $blue,
-  $danger:$danger,
+  $danger: $danger,
   $success: $success,
   $secondary: $secondary,
   $input-btn-focus-width: $input-btn-focus-width,
@@ -19,16 +19,26 @@
   $font-family-sans-serif: $font-family-sans-serif,
   $font-weight-bolder: $font-weight-bolder,
   $input-focus-border-color: $input-focus-border-color,
-  $input-focus-color: $input-focus-color,
+
   $input-color: $input-color,
   $focus-ring-color: $focus-ring-color,
-  $primary-text-emphasis-dark: $primary-text-emphasis-dark);
- 
+  $primary-text-emphasis-dark: $primary-text-emphasis-dark,
+  $input-border-width: 0,
+
+
+  $input-focus-color: #f8f9fa,
+
+  $input-bg: #f8f9fa,
+
+
+
+);
+
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
- 
+
 body {
-  
-  
+
+
   -webkit-font-smoothing: antialiased;
   /* Su WebKit */
   -moz-osx-font-smoothing: grayscale;
@@ -36,12 +46,12 @@ body {
 
   font-family: "Montserrat", serif;
   font-optical-sizing: auto;
- 
+
   font-style: normal;
   font-variation-settings:
     "wdth" 100;
 }
- 
+
 
 .text-blue {
   color: $blue !important;
@@ -49,37 +59,35 @@ body {
 
 /* Card con gradiente blu */
 .card-gradient-blue {
- 
+
   background: linear-gradient(90deg, #3970EA 0%, #355BC6 100%);
- 
- 
- 
- 
+
+
+
+
 }
 
 /* Card con gradiente verde */
 .card-gradient-green {
   background: linear-gradient(90deg, #24978D 0%, #267973 100%);
- 
+
 }
 
 /* Card con gradiente viola */
 .card-gradient-violet {
   background: linear-gradient(90deg, #8449E7 0%, #743DCC 100%);
-  
+
 }
 
 /* Card con gradiente rosso */
 .card-gradient-red {
   background: linear-gradient(90deg, #BF2C51 0%, #BF2C51 100%);
-  
+
 }
+
 .navMarginLeft {
   @media (min-width: 991.98px) {
     // Bootstrap lg breakpoint is 992px
     margin-left: 256px !important;
   }
 }
-
- 
- 
