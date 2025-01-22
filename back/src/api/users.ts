@@ -106,22 +106,17 @@ router.patch(
   }
 );
 
-
 router.put(
   "/updateOptions",
-  [
-
-    check("options").notEmpty().withMessage("options is required").isObject().withMessage("options must be an object"),
-    check("options.*").exists().withMessage("options must not be empty"),
-  ],
+  [check("options").notEmpty().withMessage("options is required").isObject().withMessage("options must be an object"), check("options.*").exists().withMessage("options must not be empty")],
   authMiddleware,
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let result: any;
 
-
-      let email = res.locals.userLogged.email
+      console.log("options");
+      let email = res.locals.userLogged.email;
       let userServices = new UserServices(db);
 
       let options: { [key: string]: string } = req.body.options;
@@ -133,7 +128,7 @@ router.put(
         }
       }
 
-      res.json("Opzioni aggiornate con successo");
+      return res.status(205).json({ message: "Opzioni aggiornate con successo" });
     } catch (error) {
       logger.error(error);
       next(error);

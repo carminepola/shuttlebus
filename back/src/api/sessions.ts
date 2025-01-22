@@ -126,6 +126,11 @@ router.delete("/all", authMiddleware, async (req: Request, res: Response, next: 
   }
 });
 
+router.get("/refreshToken", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+  let result = {};
+  result = { message: "User upgraded" };
+  res.json(result);
+});
 router.post(
   "/recoverPassword",
   [check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format")],

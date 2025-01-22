@@ -1,4 +1,11 @@
-import { Component, EventEmitter, input, Input, Output, OnInit } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  input,
+  Input,
+  Output,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
@@ -7,96 +14,62 @@ interface MenuItem {
   title: string;
   route: string;
 }
-
-
+import { CookieWatcherServiceService } from '../../services/cookieWatcher/cookie-watcher-service.service';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.scss'
+  styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent implements OnInit {
+  constructor(
+    private cookieService: CookieWatcherServiceService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-
-  constructor(private authService: AuthService, private router: Router) { }
-
-  username = ""
+  username = '';
   isMenuOpen = false;
   private user: any;
   isLoadingLogout: boolean = false;
   notification: any = [];
-  notificatioddns = [
-    {
-      title: "Titolo",
-      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-      date: "Ven 20 Dic 17:30"
-    },
-    {
-      title: "Titolo",
-      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-      date: "Ven 20 Dic 17:30"
-    }, {
-      title: "Titolo",
-      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-      date: "Ven 20 Dic 17:30"
-    }, {
-      title: "Titolo",
-      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-      date: "Ven 20 Dic 17:30"
-    }, {
-      title: "Titolo",
-      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-      date: "Ven 20 Dic 17:30"
-    }, {
-      title: "Titolo",
-      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-      date: "Ven 20 Dic 17:30"
-    }, {
-      title: "Titolo",
-      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-      date: "Ven 20 Dic 17:30"
-    }, {
-      title: "Titolo",
-      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-      date: "Ven 20 Dic 17:30"
-    }, {
-      title: "Titolo",
-      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-      date: "Ven 20 Dic 17:30"
-    },]
+
   ngOnInit(): void {
     this.user = this.authService.getDecodedToken();
     this.username = this.user?.details?.name.toUpperCase();
 
-
+    this.cookieService.watchCookie().subscribe((newJwtToken) => {
+      this.user = newJwtToken;
+      this.username = this.user?.details?.name.toUpperCase();
+    });
   }
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
   }
   onLogout() {
-
     this.isLoadingLogout = true;
 
     this.authService.logout().subscribe({
       next: (response) => {
         this.isLoadingLogout = false;
         this.authService.deleteCookie('jwt');
+        localStorage.clear();
+        sessionStorage.clear();
         this.router.navigate(['/login']);
-
       },
       error: (error) => {
         this.isLoadingLogout = false;
+        this.router.navigate(['/login']);
+        localStorage.clear();
+        sessionStorage.clear();
         console.error('Errore durante il logout', error);
-      }
-
-    })
-
-
+      },
+    });
   }
 
   onMenuItemClick() {
-    this.toggleMenu()
+    this.toggleMenu();
   }
   menuItems: MenuItem[] = [
     { icon: 'fa-home', title: 'Dashboard', route: '/home' },
@@ -113,4 +86,3 @@ export class SidebarComponent implements OnInit {
     { icon: 'fa-cog', title: 'Impostazioni', route: '/settings' },
   ];
 }
-
