@@ -31,12 +31,16 @@ app.use(tokenRequestMiddleware);
 app.use(versionMiddleware);
 //Logga la richiesta
 app.use(requestMiddleware);
+
 //Logga la risposta
 app.use(responseMiddleware);
+
 //Router dell api
 app.use(api);
+
 //Se non trova il path
 app.use(routeNotFoundMiddleware);
 //Se va in errore
 app.use(errorMiddleware);
+
 export default app;

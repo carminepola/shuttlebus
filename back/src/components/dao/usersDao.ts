@@ -93,11 +93,31 @@ export default class UsersDao {
    */
   async getUserPermissionsFormEmail(email: string) {
     try {
-      let json = {};
-      json = {
-        email: email,
-      };
-      let user = await this.db.collection(this.schema).findOne(json, { projection: { permissions: 1, role: 1, _id: 0 } });
+      let user = await this.db.collection(this.schema).findOne(
+        {
+          email: email,
+        },
+        { projection: { permissions: 1, role: 1, _id: 0, options: 1, details: 1 } }
+      );
+
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async setFalseUserPermissions(email: string, session: string) {
+    try {
+      let user = await this.db.collection(this.schema).findOneAndUpdate(
+        {
+          email: email,
+          "sessions.id": session,
+        },
+        {
+          $set: {
+            "sessions.$.update": false,
+          },
+        }
+      );
 
       return user;
     } catch (error) {
@@ -183,15 +203,14 @@ export default class UsersDao {
 
   async updateOptions(email: string, key: string, value: string): Promise<boolean> {
     try {
-
       await this.db.collection(this.schema).updateOne(
         { email: email },
         {
           $set: {
             options: {
-              [key]: value
+              [key]: value,
             },
-
+            "sessions.$[].update": true,
           },
         }
       );

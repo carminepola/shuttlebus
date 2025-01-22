@@ -11,7 +11,7 @@ export class AuthService {
   private apiUrl = environment.apiUrl;
   private path = 'auth';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   login(email: string, password: string, rememberMe: boolean): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${this.path}`, {
@@ -29,7 +29,9 @@ export class AuthService {
   logout(): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${this.path}`);
   }
-
+  refreshToken(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${this.path}/refreshToken`);
+  }
   isLoggedIn(): boolean {
     return !!this.getCookieExists('jwt');
   }
@@ -46,6 +48,9 @@ export class AuthService {
     return undefined;
   }
 
+  getToken(): any {
+    return this.getCookie('jwt');
+  }
   deleteCookie(name: string): void {
     document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
   }

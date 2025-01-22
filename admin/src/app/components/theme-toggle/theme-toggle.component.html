@@ -1,0 +1,49 @@
+<div class="btn-group" data-bs-toggle="buttons">
+  <input
+    type="radio"
+    class="btn-check"
+    name="options"
+    id="option1"
+    autocomplete="off"
+    (click)="toggleDarkMode('dark')"
+    [checked]="isDarkMode"
+  />
+  <label
+    class="btn btn-outline-secondary d-flex align-items-center"
+    for="option1"
+  >
+    <i class="fas fa-moon me-2"></i>Dark
+  </label>
+
+  <input
+    type="radio"
+    class="btn-check"
+    name="options"
+    id="option2"
+    autocomplete="off"
+    (click)="toggleDarkMode('auto')"
+    [checked]="isAutoMode"
+  />
+  <label
+    class="btn btn-outline-secondary d-flex align-items-center"
+    for="option2"
+  >
+    <i class="fas fa-adjust me-2"></i>Auto
+  </label>
+
+  <input
+    type="radio"
+    class="btn-check"
+    name="options"
+    id="option3"
+    autocomplete="off"
+    (click)="toggleDarkMode('light')"
+    [checked]="!isDarkMode && !isAutoMode"
+  />
+  <label
+    class="btn btn-outline-secondary d-flex align-items-center"
+    for="option3"
+  >
+    <i class="fas fa-sun me-2"></i>Light
+  </label>
+</div>

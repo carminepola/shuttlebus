@@ -28,11 +28,11 @@ export class LoginComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService
-
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-
+    localStorage.clear();
+    sessionStorage.clear();
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/home']);
     }
@@ -47,7 +47,6 @@ export class LoginComponent implements OnInit {
     return this.loginForm.controls;
   }
   onSubmit(event: Event): void {
-
     try {
       event.preventDefault();
       event.stopPropagation();
@@ -80,7 +79,7 @@ export class LoginComponent implements OnInit {
           this.isLoading = false;
           console.error(e);
           //'Credenziali non valide. Riprova.'
-          this.loginError = "Credenziali non valide. Riprova.";
+          this.loginError = 'Credenziali non valide. Riprova.';
         },
       });
     } catch (e: any) {

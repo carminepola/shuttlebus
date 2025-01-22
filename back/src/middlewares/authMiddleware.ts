@@ -81,7 +81,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
                   maxAge: 2592000000,
                   httpOnly: true,
                   secure: env.NODE_ENV === "production",
-                  sameSite: "none",
+                  sameSite: env.NODE_ENV === "production" ? "none" : "strict",
                 });
               });
             } catch (error) {
@@ -104,11 +104,15 @@ export default async function authMiddleware(req: Request, res: Response<Message
           res.clearCookie("refreshToken");
           return res.sendStatus(401);
         }
-        if (sessionCheck === 2) {
+        if (sessionCheck == 2) {
           // Refresh user permissions and roles from database
           const permission = await usersDao.getUserPermissionsFormEmail(user.email);
           user.permissions = permission?.permissions || [];
           user.role = permission?.role || 9999;
+          user.options = permission?.options || {};
+          user.details = permission?.details || {};
+
+          await usersDao.setFalseUserPermissions(user.email, user.session);
         }
         delete user.exp;
         delete user.iat;
@@ -123,12 +127,13 @@ export default async function authMiddleware(req: Request, res: Response<Message
           maxAge: 2592000000,
           httpOnly: false,
           secure: env.NODE_ENV === "production",
-          sameSite: "none",
+
+          sameSite: env.NODE_ENV === "production" ? "none" : "strict",
         };
         if (!user.rememberMe) {
           settingsJwt.maxAge = undefined;
         }
-
+        res.clearCookie("jwt", { path: "/" });
         res.cookie("jwt", newToken, settingsJwt);
 
         return next();

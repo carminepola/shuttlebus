@@ -1,14 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import MessageModel from "../model/messageModel";
 import ErrorModel from "../model/errorModel";
-import { logger } from "..";
+import { logger, db } from "..";
 import express from "express";
 
-export default function responseMiddleware(req: Request, res: Response<MessageModel>, next: NextFunction) {
+export default async function responseMiddleware(req: Request, res: Response<MessageModel>, next: NextFunction) {
   try {
     const originalJson = res.json;
 
     res.json = function (body?: any): express.Response {
+      console.log("response");
       let statusCode = res.statusCode;
       res.locals.log.status = res.statusCode;
       res.locals.log.response = res.locals.response;
