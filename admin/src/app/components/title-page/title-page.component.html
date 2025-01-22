@@ -1,12 +1,12 @@
 <div class="text-muted pt-2" *ngIf="back">
-  <button
-    class="btn btn-link btn-sm ms-0 ps-0 text-secondary"
-    (click)="goBack()"
-  >
+  <button class="btn btn-link btn-sm ms-0 ps-0 text-secondary" (click)="goBack()">
     <i class="fas fa-arrow-left me-2"></i>Torna indietro
   </button>
 </div>
 <div class="mb-3 mt-2" *ngIf="title || subtitle">
-  <h1 class="h3" *ngIf="title" [innerHtml]="title"></h1>
+  <h1 class="h3" *ngIf="title">
+    <span [innerHtml]="title" [ngClass]="id!='' ?  'me-2' : ''"></span>
+    <span *ngIf="id" [innerHTML]="id" class="text-secondary fw-bold"></span>
+  </h1>
   <p class="mt-2 text-muted" *ngIf="subtitle" [innerHtml]="subtitle"></p>
 </div>

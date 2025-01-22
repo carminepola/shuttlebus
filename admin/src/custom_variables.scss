@@ -51,6 +51,7 @@ $focus-ring-color: map.get($pink-palette, 300);
 $primary-text-emphasis-dark: $pink;
 $success: #25867F;
 $info: #8c57e2;
+
 h1 {
   font-weight: $font-weight-bolder;
 }
@@ -84,13 +85,16 @@ label {
   padding: 1.2rem 1rem;
   font-weight: $font-weight-bold;
 }
+
 .py-2-5 {
   padding-top: 0.7rem !important;
   padding-bottom: 0.7rem !important;
 }
+
 .nav-link.active {
   background-color: rgba($secondary, 0.3) !important;
 }
+
 .nav-link {
   color: $white !important;
 }
@@ -102,9 +106,11 @@ label {
 option {
   font-weight: $font-weight-bold;
 }
+
 .btn-secondary-active {
   background-color: rgba($secondary, 0.3) !important;
 }
+
 .form-control {
   color: $primary;
   border-color: $secondary;
@@ -129,9 +135,10 @@ a {
   background: linear-gradient(to bottom left, $secondary, $primary);
 }
 
-.bg-page{
+.bg-page {
   background-color: #F3F4F6;
 }
+
 .cardButton {
   box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
   transition: box-shadow .3s ease-in-out;
@@ -145,25 +152,29 @@ a {
 }
 
 [data-bs-theme="dark"] {
-  .bg-page{
+  .bg-page {
     background-color: #18181b;
   }
-  .bg-white{
-    background-color: #212529 !important ;
+
+  .bg-white {
+    background-color: #212529 !important;
   }
-  .bg-light{
+
+  .bg-light {
 
     background-color: #2b3035 !important;
   }
+
   .cardButton {
     box-shadow: 0 0.125rem 0.25rem rgba(255, 255, 255, 0.075) !important;
     transition: box-shadow 0.3s ease-in-out;
   }
-  
+
   .cardButton:hover {
     box-shadow: 0 0.75rem 1.5rem rgba(177, 177, 177, 0.2) !important;
     transition: box-shadow 0.2s ease;
   }
+
   .form-control {
     color: map.get($dark-blue-palette, 400) !important;
   }
@@ -171,18 +182,30 @@ a {
   .text-primary {
     color: map.get($dark-blue-palette, 400) !important;
   }
+
   .form-control:focus {
     color: map.get($dark-blue-palette, 400) !important;
   }
+
   .btn-primary {
     color: map.get($dark-blue-palette, 400) !important;
   }
-  .form-label, .form-check-label{
-    
-    color: map.get($dark-blue-palette, 400) !important;
- 
+
+  .form-control {
+    background-color: $black;
   }
-  
-  
+
+  .form-control:focus {
+    background-color: $black;
+  }
+
+  .form-label,
+  .form-check-label {
+
+    color: map.get($dark-blue-palette, 400) !important;
+
+  }
+
+
 
 }
