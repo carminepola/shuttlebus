@@ -1,0 +1,120 @@
+.bg-page {
+  position: relative;
+  min-height: 15vh;
+  background-image: url("../../../assets/sfondo.png");
+  background-size: cover;
+  background-position: bottom;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bg-page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.4) 0%,
+    /* Trasparente con un po' di bianco */ rgba(255, 255, 255, 0.4) 94%
+  );
+  z-index: 1;
+}
+
+.bg-page > * {
+  position: relative;
+  z-index: 2;
+}
+
+// .glass-effect {
+//   background: rgba(255, 255, 255, 0.5);
+//   border-radius: 10px;
+//   backdrop-filter: blur(10px);
+//   border: 1px solid rgba(255, 255, 255, 0.2);
+//   overflow: hidden;
+// }
+
+.w-responsive {
+  width: 100%;
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .w-responsive {
+    width: 25%;
+  }
+  .card-home {
+    margin-top: 15vh !important;
+    margin-bottom: -150px !important;
+  }
+  .radius-border-card {
+    border-bottom-left-radius: 0px !important;
+  }
+}
+@media (min-width: 992px) {
+  .left-column {
+    -webkit-box-shadow: 48px 14px 25px -7px rgba(29, 29, 32, 0.15);
+    box-shadow: 48px 14px 25px -7px rgba(29, 29, 32, 0.15);
+    transform: translateX(
+      15px
+    ); /* Sovrappone la colonna alla colonna di destra */
+  }
+}
+@media (max-width: 991.98px) {
+  .left-column {
+    padding-left: 0px;
+    transform: translatey(15px);
+  }
+  .bg-amalfi {
+    min-height: 30vh;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+
+.card-home {
+  margin-bottom: -150px !important;
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 576px) {
+  .bg-page {
+    min-height: 35vh;
+  }
+}
+
+.bg-secondary {
+  background-color: #f8f9fa;
+}
+
+.card-body img {
+  margin: 0 auto; /* Centra l'immagine */
+  display: block;
+  max-height: 20px; /* Aggiungi margine se necessario */
+}
+.top-padding {
+  padding-top: 200px;
+  padding-bottom: 150px;
+}
+
+.radius-border-card {
+  border-bottom-right-radius: var(--bs-border-radius-xl) !important;
+  border-bottom-left-radius: var(--bs-border-radius-xl);
+}
+
+.bg-amalfi {
+  background-image: url("../../../assets/amalfi.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+.row-fermata {
+  min-height: 30vh;
+}

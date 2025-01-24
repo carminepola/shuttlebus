@@ -32,14 +32,13 @@ $dark-blue-palette: (
   950: #1a1064,
 );
 
-
-$blue: #3B82F6;
-$pink: map.get($pink-palette, 700);
+$blue: #3b82f6;
+$pink: map.get($pink-palette, 600);
 $indigo: map.get($dark-blue-palette, 950);
 $primary: $indigo;
 $secondary: $pink;
 $input-btn-focus-width: 0rem;
-$danger: #CF2F54;
+$danger: #cf2f54;
 $font-weight-bold: 700;
 $btn-font-weight: $font-weight-bold;
 $font-family-sans-serif: "Montserrat", sans-serif;
@@ -49,9 +48,12 @@ $input-focus-color: $primary;
 $input-color: $primary;
 $focus-ring-color: map.get($pink-palette, 300);
 $primary-text-emphasis-dark: $pink;
-$success: #25867F;
+$success: #25867f;
 $info: #8c57e2;
 
+.bg-white {
+  color: #fff;
+}
 h1 {
   font-weight: $font-weight-bolder;
 }
@@ -136,32 +138,37 @@ a {
 }
 
 .bg-page {
-  background-color: #F3F4F6;
+  background-color: #f3f4f6;
 }
 
 .cardButton {
-  box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
-  transition: box-shadow .3s ease-in-out;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 .cardButton:hover {
-
-  box-shadow: 0 .75rem 1.5rem rgba(0, 0, 0, .40) !important;
-  transition: box-shadow .2s ease;
-
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.4) !important;
+  transition: box-shadow 0.2s ease;
+}
+.form-control:focus {
+  color: $secondary;
+}
+.nav-link {
+  color: var(--bs-primary) !important;
 }
 
 [data-bs-theme="dark"] {
   .bg-page {
     background-color: #18181b;
   }
-
+  .nav-link {
+    color: map.get($dark-blue-palette, 400) !important;
+  }
   .bg-white {
     background-color: #212529 !important;
   }
 
   .bg-light {
-
     background-color: #2b3035 !important;
   }
 
@@ -201,11 +208,6 @@ a {
 
   .form-label,
   .form-check-label {
-
     color: map.get($dark-blue-palette, 400) !important;
-
   }
-
-
-
 }

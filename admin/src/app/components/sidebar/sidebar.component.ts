@@ -56,11 +56,11 @@ export class SidebarComponent implements OnInit {
         this.authService.deleteCookie('jwt');
         localStorage.clear();
         sessionStorage.clear();
-        this.router.navigate(['/login']);
+        this.router.navigate(['/']);
       },
       error: (error) => {
         this.isLoadingLogout = false;
-        this.router.navigate(['/login']);
+        this.router.navigate(['/']);
         localStorage.clear();
         sessionStorage.clear();
         console.error('Errore durante il logout', error);
@@ -72,17 +72,17 @@ export class SidebarComponent implements OnInit {
     this.toggleMenu();
   }
   menuItems: MenuItem[] = [
-    { icon: 'fa-home', title: 'Dashboard', route: '/home' },
-    { icon: 'fa-map-marker-alt', title: 'Fermate', route: '/fermate' },
-    { icon: 'fa-route', title: 'Corse', route: '/corse' },
-    { icon: 'fa-ticket-alt', title: 'Biglietti', route: '/biglietti' },
+    { icon: 'fa-home', title: 'Dashboard', route: '/admin/home' },
+    { icon: 'fa-map-marker-alt', title: 'Fermate', route: '/admin/fermate' },
+    { icon: 'fa-route', title: 'Corse', route: '/admin/corse' },
+    { icon: 'fa-ticket-alt', title: 'Biglietti', route: '/admin/biglietti' },
     {
       icon: 'fa-calendar-check',
       title: 'Prenotazioni',
-      route: '/prenotazioni',
+      route: '/admin/prenotazioni',
     },
-    { icon: 'fa-chart-line', title: 'Statistiche', route: '/stats' },
-    { icon: 'fa-user', title: 'Profilo', route: '/profile' },
-    { icon: 'fa-cog', title: 'Impostazioni', route: '/settings' },
+    { icon: 'fa-users', title: 'Clienti', route: '/admin/clienti' },
+    { icon: 'fa-user', title: 'Utenti', route: '/admin/utenti' },
+    { icon: 'fa-cog', title: 'Impostazioni', route: '/admin/settings' },
   ];
 }

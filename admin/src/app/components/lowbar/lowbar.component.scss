@@ -1,0 +1,22 @@
+/* @use "../../../custom_variables" as *;
+ */ /* Style for active nav links */
+.nav-link.active {
+  background-color: rgba(var(--bs-secondary-rgb), 1) !important;
+  color: rgba(var(--bs-light-rgb), 1) !important;
+}
+.nav-link {
+  color: var(--bs-primary) !important;
+}
+
+.nav-link:hover {
+  background-color: rgba(var(--bs-primary-rgb), 0.2) !important;
+}
+
+/* Show tooltips on hover */
+.btn-link:hover span {
+  display: block !important;
+}
+.space-lowbar {
+  height: 0px;
+  margin-top: 65px;
+}

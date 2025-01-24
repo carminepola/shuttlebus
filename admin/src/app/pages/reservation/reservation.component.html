@@ -1,0 +1,141 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    title="Prenotazioni"
+    subtitle="Gestisci le prenotazioni"
+    back="true"
+  ></app-title-page>
+
+  <div class="card shadow border-0 rounded-4">
+    <!-- Header Section -->
+    <div class="card-header bg-white rounded-top-4 border-bottom py-4">
+      <div class="row align-items-center gy-3">
+        <div class="col-md">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0 icon-container"
+              ><i class="fas fa-search"></i
+            ></span>
+            <input
+              type="text"
+              class="form-control form-control-lg bg-light border-0"
+              placeholder="Cerca biglietto..."
+            />
+          </div>
+        </div>
+        <div class="col-md">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0 icon-container">
+              <i class="fas fa-calendar-alt"></i>
+            </span>
+            <input
+              type="date"
+              class="form-control form-control-lg bg-light border-0"
+              placeholder="Seleziona data"
+            />
+          </div>
+        </div>
+        <div class="col-md">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0 icon-container">
+              <i class="fas fa-calendar"></i>
+            </span>
+            <input
+              type="date"
+              class="form-control form-control-lg bg-light border-0"
+              placeholder="Seleziona data acquisto"
+            />
+          </div>
+        </div>
+        <div class="col-md">
+          <select class="form-select form-select-lg bg-light border-0">
+            <option selected>Filtra per tratta</option>
+            <option>Napoli - Roma</option>
+            <option>Milano - Torino</option>
+            <option>Firenze - Bologna</option>
+          </select>
+        </div>
+        <div class="col-md-auto">
+          <button class="btn btn-primary btn-lg h-100 rounded-3 w-100">
+            <i class="fas fa-filter me-2"></i>Applica Filtri
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile View (Cards) -->
+    <div class="mobile-cards p-3 d-block d-lg-none">
+      <div class="card mb-3 shadow-sm rounded-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Napoli - Roma (9:00)</h5>
+          <p class="mb-2">
+            Stazione scelta:
+            <span class="text-secondary">Via Romani (10:00)</span>
+          </p>
+          <p class="mb-2">
+            Scende a: <span class="text-secondary">Roma (12:00)</span>
+          </p>
+          <p class="mb-2">
+            Nome: <span class="text-secondary">Mario Rossi</span>
+          </p>
+          <p class="mb-2">
+            Email:
+            <span
+              class="text-secondary"
+              [innerHTML]="'mario.rossi@example.com'"
+            ></span>
+          </p>
+          <p class="mb-2">
+            Telefono: <span class="text-secondary">+39 333 123 4567</span>
+          </p>
+          <p class="mb-2">
+            Posti: <span class="text-secondary">2 adulti, 1 bambino</span>
+          </p>
+          <p class="mb-2">Bagagli: <span class="text-secondary">2</span></p>
+          <p class="mb-0">
+            Totale pagato: <span class="text-secondary">€50</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop View (Table) -->
+    <div class="desktop-table p-4 d-none d-lg-block">
+      <div class="table-responsive">
+        <table class="table table-borderless align-middle">
+          <thead class="bg-light">
+            <tr>
+              <th scope="col">Tratta</th>
+              <th scope="col">Stazione scelta</th>
+              <th scope="col">Destinazione</th>
+              <th scope="col">Nome</th>
+              <th scope="col">Email</th>
+              <th scope="col">Telefono</th>
+              <th scope="col">Posti</th>
+              <th scope="col">Bagagli</th>
+              <th scope="col">Totale (€)</th>
+              <th scope="col" class="rounded-end-3">Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="bg-white">
+              <td>Napoli - Roma (9:00)</td>
+              <td>Via Romani (10:00)</td>
+              <td>Roma (12:00)</td>
+              <td>Mario Rossi</td>
+              <td [innerHTML]="'mario.rossi@example.com'"></td>
+              <td>+39 333 123 4567</td>
+              <td>2 adulti, 1 bambino</td>
+              <td>2</td>
+              <td>50</td>
+              <td>
+                <button class="btn btn-danger btn-sm rounded-3">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <!-- Altri record -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
