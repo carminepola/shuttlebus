@@ -1,0 +1,138 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    title="Biglietti"
+    subtitle="Gestisci i biglietti"
+    back="true"
+  ></app-title-page>
+  <div class="card shadow border-0 rounded-4">
+    <!-- Header Section -->
+    <div class="card-header bg-white rounded-top-4 border-bottom py-4">
+      <div class="row align-items-center gy-3">
+        <div class="col-md">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0 icon-container"
+              ><i class="fas fa-search"></i
+            ></span>
+            <input
+              type="text"
+              class="form-control form-control-lg bg-light border-0"
+              placeholder="Cerca biglietto..."
+            />
+          </div>
+        </div>
+        <div class="col-md-auto">
+          <a
+            class="btn btn-primary btn-lg h-100 rounded-3 w-100"
+            [routerLink]="['/admin/ticket-details']"
+          >
+            <i class="fas fa-plus me-2"></i>Nuovo biglietto
+          </a>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+    </div>
+
+    <!-- Mobile View (Cards) -->
+    <div class="mobile-cards p-3 d-block d-lg-none">
+      <!-- Card 1 -->
+      <div class="card mb-3 shadow-sm rounded-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 class="card-title mb-0">Biglietto Intercity</h5>
+            <div>
+              <button class="btn btn-warning btn-sm me-2 rounded-3">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-danger btn-sm rounded-3">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          <p class="mb-2">
+            Nome: <span class="text-secondary">Biglietto Intercity</span>
+          </p>
+          <p class="mb-2">
+            Descrizione:
+            <span class="text-secondary"
+              >Biglietto per viaggiare in classe Intercity</span
+            >
+          </p>
+          <p class="mb-0">Prezzo: <span class="text-secondary">€50</span></p>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="card mb-3 shadow-sm rounded-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 class="card-title mb-0">Biglietto Regionale</h5>
+            <div>
+              <button class="btn btn-warning btn-sm me-2 rounded-3">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-danger btn-sm rounded-3">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <p class="mb-2">
+            Nome: <span class="text-secondary">Biglietto Regionale</span>
+          </p>
+          <p class="mb-2">
+            Descrizione:
+            <span class="text-secondary"
+              >Biglietto per viaggiare in classe Regionale</span
+            >
+          </p>
+          <p class="mb-0">Prezzo: <span class="text-secondary">€30</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop View (Table) -->
+    <div class="desktop-table p-4 d-none d-lg-block">
+      <div class="table-responsive">
+        <table class="table table-borderless align-middle">
+          <thead class="bg-light">
+            <tr>
+              <th scope="col">Nome</th>
+              <th scope="col">Descrizione</th>
+              <th scope="col">Prezzo</th>
+              <th scope="col" class="rounded-end-3">Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="bg-white mb-2">
+              <td>Biglietto Intercity</td>
+              <td>Biglietto per viaggiare in classe Intercity</td>
+              <td>€50</td>
+              <td>
+                <button class="btn btn-warning btn-sm me-2 rounded-3">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-danger btn-sm rounded-3">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr class="bg-white">
+              <td>Biglietto Regionale</td>
+              <td>Biglietto per viaggiare in classe Regionale</td>
+              <td>€30</td>
+              <td class="d-flex">
+                <button class="btn btn-warning btn-sm me-2 rounded-3">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-danger btn-sm rounded-3">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

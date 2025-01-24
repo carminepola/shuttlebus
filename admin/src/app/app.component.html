@@ -6,4 +6,12 @@
   </div>
 </div>
 
-<router-outlet *ngIf="!navbarVisible"></router-outlet>
+<app-navbar *ngIf="lowBarVisible" class="d-none d-lg-block"></app-navbar>
+
+<router-outlet
+  *ngIf="!navbarVisible"
+  style="min-height: 100vh"
+  [ngClass]="{ bottomPadding: lowBarVisible }"
+></router-outlet>
+
+<app-lowbar *ngIf="lowBarVisible && !navbarVisible"></app-lowbar>

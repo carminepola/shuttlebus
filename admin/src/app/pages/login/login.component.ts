@@ -34,7 +34,7 @@ export class LoginComponent implements OnInit {
     localStorage.clear();
     sessionStorage.clear();
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/home']);
+      this.router.navigate(['/admin/home']);
     }
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -66,7 +66,7 @@ export class LoginComponent implements OnInit {
         next: (response: any) => {
           this.isLoading = false;
           this.router
-            .navigate(['/home'])
+            .navigate(['/admin/home'])
             .then(() => {
               // Navigazione completata
             })

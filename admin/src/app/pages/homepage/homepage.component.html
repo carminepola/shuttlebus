@@ -1,0 +1,160 @@
+<div class="bg-page align-items-center" @fadeInOut>
+  <!-- Logo (visibile solo su schermi piccoli) -->
+
+  <!-- Sezione principale con sfondo e form -->
+  <div class="d-block d-lg-flex justify-content-center align-items-center">
+    <div class="d-block d-lg-none mb-2 pt-2">
+      <div class="card border-0 rounded-4 mx-2 glass-effect">
+        <div class="card-body d-flex justify-content-center align-items-center">
+          <img
+            src="../../../assets/pintour-logo.png"
+            alt="pintour-logo"
+            style="max-height: 15px"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Card per il contenuto del form con sfondo vetro -->
+    <div
+      class="card glass-effect mx-lg-5 mx-2 rounded-4 shadow border-0 card-home"
+    >
+      <div class="card-header bg-white rounded-4 border-0">
+        <h2 class="card-title text-primary fw-bold">
+          Autobus giornalieri da e per Napoli Aeroporto, Amalfi e altre
+          destinazioni della regione Campania
+        </h2>
+      </div>
+      <div class="card-body">
+        <form>
+          <div class="row">
+            <div class="d-none">
+              <div
+                class="alert border-0 shadow-sm alert-danger mx-0 mx-lg-4"
+                role="alert"
+              >
+                A simple warning alert—check it out!
+              </div>
+            </div>
+
+            <div class="col-12 col-lg mb-2">
+              <label for="partenza" class="text-secondary mb-1">Partenza</label>
+              <input
+                type="text"
+                id="partenza"
+                formControlName="partenza"
+                class="form-control"
+                placeholder="Scegli un punto di partenza"
+              />
+            </div>
+            <div class="col-12 col-lg mb-2">
+              <label for="arrivo" class="text-secondary mb-1"
+                >Destinazione</label
+              >
+              <input
+                type="text"
+                id="arrivo"
+                placeholder="Scegli la tua destinazione"
+                formControlName="arrivo"
+                class="form-control"
+              />
+            </div>
+            <div class="col-12 col-lg mb-2">
+              <label for="persone" class="text-secondary mb-1"
+                >N. persone</label
+              >
+              <input
+                type="number"
+                id="persone"
+                formControlName="persone"
+                class="form-control"
+                placeholder="Numero di persone"
+              />
+            </div>
+            <div class="col-12 col-lg mb-2">
+              <label for="giorno" class="text-secondary mb-1">Giorno</label>
+              <input
+                type="date"
+                id="giorno"
+                formControlName="giorno"
+                class="form-control"
+              />
+            </div>
+          </div>
+          <div class="row">
+            <div
+              class="col-12 d-flex justify-content-center align-items-center"
+            >
+              <button
+                type="submit"
+                class="btn btn-primary mx-auto w-responsive"
+              >
+                Cerca
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row bg-secondary">
+    <div
+      class="col-12 col-lg-6 top-padding bg-secondary d-flex align-items-center justify-content-center radius-border-card left-column"
+    >
+      <div class="mx-5 d-block">
+        <h2 class="text-white fw-bold">
+          Pintour, la compagnia di autobus per raggiungere ogni destinazione
+        </h2>
+        <div class="text-white">
+          Le nostre linee autobus sono la migliore soluzione per raggiungere
+          Sorrento, Amalfi, Ravello, Maiori e altre città della Costiera
+          Amalfitana.
+        </div>
+        <div class="text-white">
+          Con partenze da e verso Napoli aeroporto e città, Pintour offre
+          massima efficienza e comfort ai numerosi passeggeri e turisti che si
+          spostano nella regione Campania.
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6 bg-amalfi"></div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div
+      class="col-12 col-lg-6 d-flex align-items-center justify-content-center mt-5 my-lg-5 py-lg-5"
+    >
+      <div>
+        <h3 class="fw-bold text-secondary">
+          Non sai a quale fermata scegliere?
+        </h3>
+        <div class="text-muted">
+          Inserisci il tuo indirizzo di destinazione e vedi la fermata più
+          vicina
+        </div>
+      </div>
+    </div>
+    <div
+      class="col-12 col-lg-6 d-flex align-items-center justify-content-center mb-5 mt-5 my-lg-5 py-lg-5"
+    >
+      <form>
+        <div class="input-group">
+          <input
+            type="text"
+            formControlName="indirizzo"
+            class="form-control form-control-lg"
+            placeholder="Il tuo indirizzo"
+          />
+          <button class="btn btn-primary btn-lg" type="submit">
+            Cerca fermata
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>
+<!-- Sezione con sfondo differente per il footer o altre informazioni -->

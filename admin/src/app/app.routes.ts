@@ -8,44 +8,107 @@ import { UserSettingsComponent } from './pages/user-settings/user-settings.compo
 import { LostPasswordComponent } from './pages/lost-password/lost-password.component';
 import { StopsComponent } from './pages/stops/stops.component';
 import { StopDetailsComponent } from './pages/stop-details/stop-details.component';
+import { RouteComponent } from './pages/route/route.component';
+import { ReservationComponent } from './pages/reservation/reservation.component';
+import { TiketsComponent } from './pages/tikets/tikets.component';
+import { UsersComponent } from './pages/users/users.component';
+import { ClientsComponent } from './pages/clients/clients.component';
+import { HomepageComponent } from './pages/homepage/homepage.component';
+import { InfoComponent } from './pages/info/info.component';
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent, data: {} },
-  { path: 'lostpassword', component: LostPasswordComponent, data: {} },
   {
-    path: 'fermate',
-    component: StopsComponent,
-    canActivate: [AuthGuard],
-    data: { navbar: true },
+    path: '',
+    component: HomepageComponent,
+    data: { lowBar: true },
   },
+
   {
-    path: 'home',
-    component: HomeComponent,
-    canActivate: [AuthGuard],
-    data: { navbar: true },
+    path: 'info',
+    component: InfoComponent,
+    canActivate: [],
+    data: { lowBar: true },
   },
+
   {
-    path: 'settings',
-    component: ImpostazioniComponent,
-    canActivate: [AuthGuard],
-    data: { navbar: true },
+    path: 'admin',
+    data: { navbar: false },
+    children: [
+      {
+        path: 'fermate',
+        component: StopsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'login',
+        component: LoginComponent,
+
+        data: { navbar: false },
+      },
+      {
+        path: 'home',
+        component: HomeComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'settings',
+        component: ImpostazioniComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'usersettings',
+        component: UserSettingsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'fermata/:id',
+        component: StopDetailsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'fermata',
+        component: StopDetailsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'corse',
+        component: RouteComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'prenotazioni',
+        component: ReservationComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'biglietti',
+        component: TiketsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'utenti',
+        component: UsersComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'clienti',
+        component: ClientsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      { path: 'lostpassword', component: LostPasswordComponent, data: {} },
+    ],
   },
-  {
-    path: 'usersettings',
-    component: UserSettingsComponent,
-    canActivate: [AuthGuard],
-    data: { navbar: true },
-  }, {
-    path: 'fermata/:id',
-    component: StopDetailsComponent,
-    canActivate: [AuthGuard],
-    data: { navbar: true },
-  },
-  {
-    path: 'fermata',
-    component: StopDetailsComponent,
-    canActivate: [AuthGuard],
-    data: { navbar: true },
-  },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+
+  { path: '', redirectTo: '/', pathMatch: 'full' },
   { path: '**', component: NotFoundComponent },
 ];

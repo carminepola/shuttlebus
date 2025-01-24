@@ -1,9 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @use "sass:map";
 
-
 @use "./custom_variables" as *;
-@use "bootstrap/scss/bootstrap" as bootstrap with ($white: $white,
+@use "bootstrap/scss/bootstrap" as bootstrap with (
+  $white: $white,
   $black: $black,
   $primary: $primary,
   $info: $info,
@@ -12,7 +12,7 @@
   $success: $success,
   $secondary: $secondary,
   $input-btn-focus-width: $input-btn-focus-width,
-  $input-focus-box-shadow: 0 0 0 0.1rem $secondary,
+  $input-focus-box-shadow: 0 0 0 0.15rem $secondary,
   $min-contrast-ratio: 2.5,
   $font-weight-bold: $font-weight-bold,
   $btn-font-weight: $btn-font-weight,
@@ -25,20 +25,12 @@
   $primary-text-emphasis-dark: $primary-text-emphasis-dark,
   $input-border-width: 0,
 
-
-  $input-focus-color: #f8f9fa,
-
-  $input-bg: #f8f9fa,
-
-
-
+  $input-bg: #f1f3f4
 );
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 
 body {
-
-
   -webkit-font-smoothing: antialiased;
   /* Su WebKit */
   -moz-osx-font-smoothing: grayscale;
@@ -48,10 +40,8 @@ body {
   font-optical-sizing: auto;
 
   font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
+  font-variation-settings: "wdth" 100;
 }
-
 
 .text-blue {
   color: $blue !important;
@@ -59,30 +49,22 @@ body {
 
 /* Card con gradiente blu */
 .card-gradient-blue {
-
-  background: linear-gradient(90deg, #3970EA 0%, #355BC6 100%);
-
-
-
-
+  background: linear-gradient(90deg, #3970ea 0%, #355bc6 100%);
 }
 
 /* Card con gradiente verde */
 .card-gradient-green {
-  background: linear-gradient(90deg, #24978D 0%, #267973 100%);
-
+  background: linear-gradient(90deg, #24978d 0%, #267973 100%);
 }
 
 /* Card con gradiente viola */
 .card-gradient-violet {
-  background: linear-gradient(90deg, #8449E7 0%, #743DCC 100%);
-
+  background: linear-gradient(90deg, #8449e7 0%, #743dcc 100%);
 }
 
 /* Card con gradiente rosso */
 .card-gradient-red {
-  background: linear-gradient(90deg, #BF2C51 0%, #BF2C51 100%);
-
+  background: linear-gradient(90deg, #bf2c51 0%, #bf2c51 100%);
 }
 
 .navMarginLeft {
