@@ -10,20 +10,9 @@ export default class CallRequest {
   uniqueCallKey: string;
   version: string;
   clientcallkey: string | undefined;
-  session?: string
-  constructor(
-    ip: string,
-    uniqueCallKey: string,
-    method: string,
-    url: string,
-    header: IncomingHttpHeaders,
-    version: string,
-    clientcallkey: string,
-    session?: string,
-
-
-  ) {
-    this.date = new Date().toISOString();
+  session?: string;
+  constructor(ip: string, uniqueCallKey: string, method: string, url: string, header: IncomingHttpHeaders, version: string, clientcallkey: string, session?: string) {
+    this.date = new Date().toString();
     this.ip = ip ? ip : "";
     this.clientcallkey = clientcallkey;
     this.method = method;
@@ -32,6 +21,6 @@ export default class CallRequest {
     this.uniqueCallKey = uniqueCallKey;
     this.body = undefined;
     this.version = version;
-    this.session = session
+    this.session = session;
   }
 }
