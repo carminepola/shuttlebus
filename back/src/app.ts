@@ -15,7 +15,7 @@ import { logSendStatusMiddleware } from "./middlewares/sendStatusMiddleware";
 require("dotenv").config();
 const app = express();
 //Abilita cors per tutte le origini
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS || "*", credentials: true }));
+app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(",") || "*", credentials: true }));
 //Abilita helmet per la sicurezza
 app.use(helmet());
 //Abilita cookie parser per leggere i cookie
