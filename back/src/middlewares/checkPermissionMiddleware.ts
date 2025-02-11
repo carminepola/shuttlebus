@@ -1,8 +1,7 @@
+import { Request, Response, NextFunction } from "express";
+import { env } from "..";
 
-import { Request, Response, NextFunction } from 'express';
-import { env } from '..';
-
-import MessageModel from '../model/messageModel';
+import MessageModel from "../model/messageModel";
 
 // Secret utilizzato per firmare i JWT (deve essere uguale a quello usato per firmare il token)
 
@@ -18,45 +17,37 @@ type RequiredPermission = string | string[];
  * @returns Il middleware
  */
 const checkPermissionMiddleware = (requiredRoles: RequiredRole, requiredPermissions: RequiredPermission) => {
-    return (req: Request, res: Response<MessageModel>, next: NextFunction) => {
-        // Estrai il token dalla richiesta (tipicamente negli headers)
+  return (req: Request, res: Response<MessageModel>, next: NextFunction) => {
+    // Estrai il token dalla richiesta (tipicamente negli headers)
 
-        // Se il token non  presente, non fare nulla e lasciare
-        // che il middleware successivo gestisca la richiesta
+    // Se il token non  presente, non fare nulla e lasciare
+    // che il middleware successivo gestisca la richiesta
 
-        let superPass = env.SUPERPASS || undefined;
-        let reqSuperPass = req.headers["superpass"] || undefined;
+    let superPass = env.SUPERPASS || undefined;
+    let reqSuperPass = req.headers["superpass"] || undefined;
 
-        if (!superPass || !reqSuperPass || superPass != reqSuperPass) {
+    if (!superPass || !reqSuperPass || superPass != reqSuperPass) {
+      if (res.locals.userLogged) {
+        let user = res.locals.userLogged;
+        // Verifica se i ruoli dell'utente corrispondono ai ruoli richiesti
+        const roles = requiredRoles;
+        const permissions = Array.isArray(requiredPermissions) ? requiredPermissions : [requiredPermissions];
 
-            if (res.locals.userLogged) {
-                let user = res.locals.userLogged;
-                // Verifica se i ruoli dell'utente corrispondono ai ruoli richiesti
-                const roles = requiredRoles;
-                const permissions = Array.isArray(requiredPermissions) ? requiredPermissions : [requiredPermissions];
+        const hasRequiredRole = user.role <= requiredRoles;
+        const hasRequiredPermission = permissions.some((permission) => user.permissions.includes(permission));
 
-                const hasRequiredRole = user.role <= requiredRoles;
-                const hasRequiredPermission = permissions.some(permission =>
-                    user.permissions.includes(permission)
-                );
-
-                // Verifica il ruolo
-                if (hasRequiredRole || hasRequiredPermission) {
-                    next();
-                }
-                else {
-
-                    res.locals.customErrorMessage = "Permessi insufficienti";
-                    return res.sendStatus(403);
-                }
-
-            }
-
+        // Verifica il ruolo
+        if (hasRequiredRole || hasRequiredPermission) {
+          next();
+        } else {
+          res.locals.customErrorMessage = "Permessi insufficienti";
+          return res.sendStatus(403);
         }
-        else {
-            next();
-        }
-    };
-}
+      }
+    } else {
+      next();
+    }
+  };
+};
 
 export default checkPermissionMiddleware;
