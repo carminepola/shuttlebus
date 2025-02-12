@@ -47,7 +47,7 @@
         *ngFor="let stop of stops | filter : search"
       >
         <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="d-flex justify-content-between align-items-start mb-2">
             <h5 class="card-title mb-0" [innerHTML]="stop.name"></h5>
             <div>
               <button class="btn btn-warning btn-sm me-2 rounded-3">
@@ -59,17 +59,22 @@
             </div>
           </div>
 
-          <p class="text-secondary mb-2" [innerHTML]="stop.description.it"></p>
-          <div
-            class="bg-light rounded-0 py-2 px-3 d-inline-flex align-items-center mb-2"
-          >
-            <i class="fas fa-location-dot me-2"></i>
-            <small
-              ><span [innerText]="stop.location.latitude"></span>,
-              <span [innerText]="stop.location.longitude"></span
-            ></small>
+          <p class="mb-2 text-muted" [innerHTML]="stop.description"></p>
+
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <p class="text-secondary mb-0" [innerHTML]="stop.address"></p>
+            </div>
+            <div
+              class="bg-light rounded-0 py-2 px-3 d-inline-flex align-items-center mb-2"
+            >
+              <i class="fas fa-location-dot me-2"></i>
+              <small
+                ><span [innerText]="stop.latitude"></span>,
+                <span [innerText]="stop.longitude"></span
+              ></small>
+            </div>
           </div>
-          <p class="text-secondary mb-0" [innerHTML]="stop.address"></p>
         </div>
       </div>
     </div>
@@ -94,25 +99,31 @@
               *ngFor="let stop of stops | filter : search"
             >
               <td [innerText]="stop.name"></td>
-              <td [innerText]="stop.description.it"></td>
+              <td [innerText]="stop.description"></td>
               <td>
                 <span
                   class="bg-light py-2 px-3 d-inline-flex align-items-center"
                 >
                   <i class="fas fa-location-dot me-2"></i>
                   <small
-                    ><span [innerText]="stop.location.latitude"></span>,
-                    <span [innerText]="stop.location.longitude"></span
+                    ><span [innerText]="stop.latitude"></span>,
+                    <span [innerText]="stop.longitude"></span
                   ></small>
                 </span>
               </td>
               <td [innerHTML]="stop.address"></td>
 
               <td style="min-width: 80px">
-                <button class="btn btn-warning btn-sm me-2 rounded-3">
+                <button
+                  class="btn btn-warning btn-sm me-2 rounded-3"
+                  (click)="edit(stop.id)"
+                >
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-danger btn-sm rounded-3">
+                <button
+                  class="btn btn-danger btn-sm rounded-3"
+                  (click)="delete(stop.id)"
+                >
                   <i class="fas fa-trash"></i>
                 </button>
               </td>
