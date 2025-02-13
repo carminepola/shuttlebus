@@ -87,7 +87,7 @@ export class StopsComponent implements OnInit {
       showCancelButton: false,
       confirmButtonText: 'Confermo',
       denyButtonText: `Annulla`,
-    }).then((result) => {
+    }).then((result: any) => {
       /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         this.deleteStopFromId(id);

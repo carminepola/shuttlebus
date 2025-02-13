@@ -83,7 +83,7 @@ export class AppComponent implements OnInit {
     // Sottoscriviti al comportamento del JWT per ottenere gli aggiornamenti
     this.cookieService.watchCookie().subscribe((newJwtToken: any) => {
       try {
-        let mode = 'auto';
+        let mode = 'light';
         if (newJwtToken?.options?.theme == 'dark') mode = 'dark';
         if (newJwtToken?.options?.theme == 'light') mode = 'light';
 
