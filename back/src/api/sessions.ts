@@ -67,17 +67,16 @@ router.post(
         let settingsJwt: CookieOptions = {
           maxAge: undefined,
           httpOnly: false,
-          sameSite: env.NODE_ENV === "production" ? "none" : "strict",
-          secure: env.NODE_ENV === "production",
+          sameSite: env.NODE_ENV === "PROD" ? "none" : "strict",
+          secure: env.NODE_ENV === "PROD",
         };
         if (req.body.rememberMe) {
           settingsJwt.maxAge = 2592000000;
           res.cookie("refreshToken", refreshToken, {
             maxAge: 2592000000,
             httpOnly: true,
-            sameSite: env.NODE_ENV === "production" ? "none" : "strict",
-
-            secure: env.NODE_ENV === "production",
+            sameSite: env.NODE_ENV === "PROD" ? "none" : "strict",
+            secure: env.NODE_ENV === "PROD",
           });
         }
 
