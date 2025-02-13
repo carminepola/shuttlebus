@@ -22,7 +22,7 @@ export default function errorMiddleware(err: any, req: Request, res: Response<Me
 
     Object.assign(res.locals.response, error);
 
-    res.json({});
+    res.json(error);
   } catch (error) {
     res.locals.log.error = error;
     logger.error(`Errore ${res.locals.response.uniqueCallKey}`, res.locals.log);
