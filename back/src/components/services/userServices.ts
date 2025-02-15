@@ -75,6 +75,7 @@ export default class UserServices {
       throw error;
     }
   }
+
   async deleteSession(email: string, sessionId: string): Promise<boolean> {
     try {
       return await this.userDao.deleteSession(email, sessionId);
@@ -92,6 +93,13 @@ export default class UserServices {
   async updateOptions(email: string, key: string, value: string): Promise<boolean> {
     try {
       return await this.userDao.updateOptions(email, key, value);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async deleteOldSessions(email: string): Promise<boolean> {
+    try {
+      return await this.userDao.deleteOldSessions(email);
     } catch (error) {
       throw error;
     }

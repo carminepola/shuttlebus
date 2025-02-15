@@ -334,7 +334,35 @@ export default class UsersDao {
       throw error;
     }
   }
+  async deleteOldSessions(email: string): Promise<boolean> {
+    try {
+      const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
+      // Rimuove sessioni più vecchie di 30 giorni
+      await this.db.collection<userModel>(this.schema).updateOne(
+        { email: email },
+        {
+          $pull: { sessions: { updatedAt: { $lte: thirtyDaysAgo } } },
+        }
+      );
+
+      // Ottieni le sessioni attuali ordinate per data (dal più recente al più vecchio)
+      const user = await this.db.collection<userModel>(this.schema).findOne({ email: email }, { projection: { sessions: 1 } });
+
+      if (user && user.sessions.length > 10) {
+        // Tieni solo le ultime 10 sessioni ordinate per updatedAt
+        const recentSessions = user.sessions.sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 10);
+
+        // Sostituisci l'array delle sessioni con i soli ultimi 10 elementi
+        await this.db.collection<userModel>(this.schema).updateOne({ email: email }, { $set: { sessions: recentSessions } });
+      }
+
+      logger.info(`Sessioni aggiornate per l'utente ${email}, mantenendo solo le ultime 10`, this.loggerInfo);
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
   async checkSession(email: string, sessionID: string): Promise<number> {
     try {
       // Esegui la query per trovare e aggiornare la sessione
