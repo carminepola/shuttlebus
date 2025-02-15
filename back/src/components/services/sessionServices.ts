@@ -32,6 +32,11 @@ export default class SessionServices {
 
       let sessionToken = await this.userServices.createSession(email);
 
+      if (userFind?.sessions) {
+        //va oltre le possibilità del cookie
+        delete userFind.sessions;
+      }
+
       let userSession = {
         ...userFind,
         rememberMe: rememberMe,
@@ -40,6 +45,8 @@ export default class SessionServices {
         role: userFind?.role >= 0 && userFind?.role != undefined && userFind?.role != null ? userFind.role : 9999,
         permissions: userFind?.permissions ? userFind.permissions : [],
       };
+
+      this.userServices.deleteOldSessions(email);
 
       return { userSession, sessionToken };
     } else {

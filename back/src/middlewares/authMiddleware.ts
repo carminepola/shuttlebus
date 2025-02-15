@@ -41,6 +41,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
       if (await failToBanDao.isFail(res.locals.log.ip)) {
         await sleep(15);
       }
+      res.clearCookie("refreshToken");
       return res.sendStatus(401);
     }
 
@@ -108,8 +109,8 @@ export default async function authMiddleware(req: Request, res: Response<Message
           // Refresh user permissions and roles from database
           const permission = await usersDao.getUserPermissionsFormEmail(user.email);
           user.permissions = permission?.permissions || [];
-          user.role = permission?.role || 9999;
-          user.options = permission?.options || {};
+
+          (user.role = permission?.role >= 0 && permission?.role != undefined && permission?.role != null ? permission.role : 9999), (user.options = permission?.options || {});
           user.details = permission?.details || {};
 
           await usersDao.setFalseUserPermissions(user.email, user.session);
