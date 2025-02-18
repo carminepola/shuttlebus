@@ -4,6 +4,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http'; impo
 import { AuthService } from './services/auth/auth.service';
 import { httpInterceptor } from './services/http-interceptor/http-interceptor.service';
 import { provideAnimations } from '@angular/platform-browser/animations';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),

@@ -1,50 +1,73 @@
 <div class="container">
     <app-title-page [title]="'Fermata'" subtitle=" Gestisci la fermata" back="true"></app-title-page>
-    <div class="card border-0 rounded-4 shadow">
-        <div class="card-body " [formGroup]="stopForm">
 
-            <form (ngSubmit)="onSubmit()">
+    <div *ngIf="loading" class="w-100 d-flex align-items-center justify-content-center">
+        <app-loading></app-loading>
+    </div>
+    <div *ngIf="!loading" class="card border-0 rounded-4 shadow">
+        <div class="card-body">
+            <form ngNativeValidate (ngSubmit)="onSubmit(f)" #f="ngForm">
+
+
+
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
-                        <label for="name_it" class="form-label">Nome Italiano</label>
-                        <input type="text" placeholder="Es. Piazza Garibaldi" formControlName="name_it"
-                            class="form-control" id="name_it" formControlName="name_it" required>
+                        <label class="form-label">Nome</label>
+                        <input [(ngModel)]="stopForm.name" name="name" type="text" placeholder="Stazione 1"
+                            class="form-control" id="name" required>
                     </div>
                     <div class="col-12 col-md-6">
-                        <label for="name_en" class="form-label">Nome Inglese</label>
-                        <input type="text" placeholder="Es. Garibaldi Place" formControlName="name_en"
-                            class="form-control" id="name_en" formControlName="name_en" required>
+                        <label class="form-label">Indirizzo</label>
+                        <input [(ngModel)]="stopForm.address" name="address" type="text" placeholder="Stazione 1"
+                            class="form-control" id="address" required>
                     </div>
+
                     <div class="col-12 col-md-6">
                         <label for="desc_it" class="form-label">Descrizione Italiana</label>
-                        <textarea formControlName="desc_it" class="form-control" id="desc_it" formControlName="desc_it"
+                        <textarea [(ngModel)]="stopForm.description.it" name="desc_it" class="form-control" id="desc_it"
                             required></textarea>
                     </div>
+
+
                     <div class="col-12 col-md-6">
                         <label for="desc_en" class="form-label">Descrizione Inglese</label>
-                        <textarea formControlName="desc_en" class="form-control" id="desc_en" formControlName="desc_en"
+                        <textarea [(ngModel)]="stopForm.description.en" name="desc_en" class="form-control" id="desc_en"
                             required></textarea>
                     </div>
+
                     <div class="col-12 col-md-6">
-                        <label for="lat" class="form-label">Latitudine</label>
-                        <input formControlName="lat" placeholder="32.34556" type="number" class="form-control" id="lat"
-                            formControlName="lat" required>
+                        <label for="latitude" class="form-label">Latitudine</label>
+                        <input name="latitude" [(ngModel)]="stopForm.location.latitude" placeholder="32.34556"
+                            type="number" step="any" class="form-control" id="latitude" required>
                     </div>
                     <div class="col-12 col-md-6">
-                        <label for="lon" class="form-label">Longitudine</label>
-                        <input formControlName="lon" placeholder="12.34556" type="number" class="form-control" id="lon"
-                            formControlName="lon" required>
-                    </div>
+                        <label for="longitude" class="form-label">Longitudine</label>
+                        <input name="longitude" [(ngModel)]="stopForm.location.longitude" placeholder="12.34556"
+                            type="number" step="any" class="form-control" id="longitude" required>
+                    </div>-
                     <div class="col-12 col-md-6">
                         <label for="img" class="form-label">Foto</label>
-                        <input formControlName="img" type="file" class="form-control" id="img"
+                        <input [(ngModel)]="stopForm.img" name="img" type="file" class="form-control" id="img"
                             (change)="onImageChange($event)">
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input [(ngModel)]="stopForm.isActive" name="isActive" class="form-check-input"
+                                type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                            <label class="form-check-label" for="flexSwitchCheckDefault">Attiva</label>
+                        </div>
+
+                    </div>
+                    <div class="col-12 " *ngIf="errorMessage!=''">
+                        <div class="alert alert-danger border-0">{{errorMessage}}</div>
                     </div>
 
                 </div>
                 <div class="mt-3">
                     <button type="submit" class="float-end btn btn-secondary">Salva</button>
                 </div>
+
+
             </form>
 
         </div>
