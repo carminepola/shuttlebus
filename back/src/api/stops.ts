@@ -9,11 +9,13 @@ import authMiddleware from "../middlewares/authMiddleware";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
 import { role } from "../enum/role";
 import ErrorModel from "../model/errorModel";
-import { raw } from "mysql2";
+import uploadImagesMiddleware from "../middlewares/uploadImage";
 const router = Router();
 
 router.post(
   "/",
+  authMiddleware,
+  uploadImagesMiddleware,
   [
     check("id").isEmpty().withMessage("Id not required"),
     check("name").notEmpty().withMessage("Name is required"),
@@ -25,11 +27,14 @@ router.post(
     check("location.longitude").notEmpty().withMessage("Longitude is required"),
     check("isActive").optional().isBoolean().withMessage("isActive must be a boolean"),
   ],
-  authMiddleware,
+
   checkPermissionMiddleware(role.ADMIN, ["MANAGE_STOPS"]),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (req.body.imagePaths) {
+        req.body.image = req.body.imagePaths[0];
+      }
       let stopsDao = new StopsDao(db);
       const stopData: StopModel = new StopModel(req.body);
       const stopId = await stopsDao.createStop(stopData);
@@ -51,15 +56,11 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 });
 router.get("/id/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
-
     if (!req.params.id) {
       throw new ErrorModel(400, "Id is required");
-    }
-    else if (req.params.id === '0') {
+    } else if (req.params.id === "0") {
       res.json({ stop: new StopModel() });
-
-    }
-    else {
+    } else {
       let stopsDao = new StopsDao(db);
       const stop = await stopsDao.getStops(req.params.id);
       res.json({ stop: stop });
@@ -67,8 +68,6 @@ router.get("/id/:id", async (req: Request, res: Response, next: NextFunction) =>
         throw new ErrorModel(404, "Stop not found");
       }
     }
-
-
   } catch (error) {
     next(error);
   }
@@ -92,15 +91,19 @@ router.patch(
     check("description.it").optional().isString().withMessage("Description in Italian must be a string"),
     check("description.en").optional().isString().withMessage("Description in English must be a string"),
     check("image").optional().isString().withMessage("Image must be a string"),
-    check("location.latitude").notEmpty().withMessage("Latitude is required").isFloat({ min: -90, max: 90 }).withMessage("Latitude must be a valid number between -90 and 90"),
-    check("location.longitude").notEmpty().withMessage("Longitude is required").isFloat({ min: -180, max: 180 }).withMessage("Longitude must be a valid number between -180 and 180"),
+    check("location.latitude").notEmpty().withMessage("Latitude is required"),
+    check("location.longitude").notEmpty().withMessage("Longitude is required"),
     check("isActive").isBoolean().withMessage("isActive must be a boolean"),
   ],
+
   authMiddleware,
   checkPermissionMiddleware(role.ADMIN, ["MANAGE_STOPS"]),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (req.body.imagePaths) {
+        req.body.image = req.body.imagePaths[0];
+      }
       let stopsDao = new StopsDao(db);
       const updateData: StopModel = new StopModel(req.body);
       await stopsDao.updateStop(updateData);
