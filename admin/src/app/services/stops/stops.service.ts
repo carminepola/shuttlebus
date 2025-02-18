@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment.development';
 export class StopsService {
   private apiUrl = environment.apiUrl + '/stops';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   createStop(stopData: any): Observable<any> {
     return this.http.post(this.apiUrl, stopData).pipe(

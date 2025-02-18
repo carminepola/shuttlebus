@@ -1,6 +1,7 @@
 import express from "express";
 const router = express.Router();
-
+import uploadImagesMiddleware from "../middlewares/uploadImage";
+import authMiddleware from "../middlewares/authMiddleware";
 router.get("/", async (req, res, next) => {
   try {
     res.locals.response.message = "OK";
@@ -8,7 +9,7 @@ router.get("/", async (req, res, next) => {
     res.json({
       headers: req.headers,
       ip: res.locals.log.ip,
-      req: req.query
+      req: req.query,
     });
   } catch (error) {
     next(error);
