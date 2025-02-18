@@ -5,8 +5,8 @@
     back="true"
   ></app-title-page>
 
-  <div class="w-100 d-flex align-items-center justify-content-center">
-    <app-loading *ngIf="loading"></app-loading>
+  <div *ngIf="loading" class="w-100 d-flex align-items-center justify-content-center">
+    <app-loading ></app-loading>
   </div>
 
   <div class="card shadow border-0 rounded-4" *ngIf="!loading">

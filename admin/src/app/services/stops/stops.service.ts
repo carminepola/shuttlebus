@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment.development';
 export class StopsService {
   private apiUrl = environment.apiUrl + '/stops';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   createStop(stopData: any): Observable<any> {
     return this.http.post(this.apiUrl, stopData).pipe(
@@ -29,7 +29,7 @@ export class StopsService {
   }
 
   getStop(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/id/${id}`).pipe(
       catchError((error) => {
         return throwError(() => error);
       })
@@ -45,7 +45,7 @@ export class StopsService {
   }
 
   updateStop(stopData: any): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${stopData.id}`, stopData).pipe(
+    return this.http.patch(`${this.apiUrl}`, stopData).pipe(
       catchError((error) => {
         return throwError(() => error);
       })

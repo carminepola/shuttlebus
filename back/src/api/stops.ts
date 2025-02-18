@@ -9,6 +9,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
 import { role } from "../enum/role";
 import ErrorModel from "../model/errorModel";
+import { raw } from "mysql2";
 const router = Router();
 
 router.post(
@@ -20,9 +21,9 @@ router.post(
     check("description.it").optional().isString().withMessage("Description in Italian must be a string"),
     check("description.en").optional().isString().withMessage("Description in English must be a string"),
     check("image").optional().isString().withMessage("Image must be a string"),
-    check("location.latitude").notEmpty().withMessage("Latitude is required").isFloat({ min: -90, max: 90 }).withMessage("Latitude must be a valid number between -90 and 90"),
-    check("location.longitude").notEmpty().withMessage("Longitude is required").isFloat({ min: -180, max: 180 }).withMessage("Longitude must be a valid number between -180 and 180"),
-    check("isActive").isBoolean().withMessage("isActive must be a boolean"),
+    check("location.latitude").notEmpty().withMessage("Latitude is required"),
+    check("location.longitude").notEmpty().withMessage("Longitude is required"),
+    check("isActive").optional().isBoolean().withMessage("isActive must be a boolean"),
   ],
   authMiddleware,
   checkPermissionMiddleware(role.ADMIN, ["MANAGE_STOPS"]),
@@ -32,7 +33,7 @@ router.post(
       let stopsDao = new StopsDao(db);
       const stopData: StopModel = new StopModel(req.body);
       const stopId = await stopsDao.createStop(stopData);
-      res.status(201).json({ message: "Stop created", stopId });
+      res.status(201).json({ message: "Stop created", id: stopId });
     } catch (error) {
       next(error);
     }
@@ -50,15 +51,24 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 });
 router.get("/id/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
+
     if (!req.params.id) {
       throw new ErrorModel(400, "Id is required");
     }
-    let stopsDao = new StopsDao(db);
-    const stop = await stopsDao.getStops(req.params.id);
-    if (!stop) {
-      throw new ErrorModel(404, "Stop not found");
+    else if (req.params.id === '0') {
+      res.json({ stop: new StopModel() });
+
     }
-    res.json({ stop: stop });
+    else {
+      let stopsDao = new StopsDao(db);
+      const stop = await stopsDao.getStops(req.params.id);
+      res.json({ stop: stop });
+      if (!stop) {
+        throw new ErrorModel(404, "Stop not found");
+      }
+    }
+
+
   } catch (error) {
     next(error);
   }
