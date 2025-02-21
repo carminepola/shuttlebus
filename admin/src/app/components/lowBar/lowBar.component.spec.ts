@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LowbarComponent } from './lowbar.component';
+import { LowBarComponent } from './lowBar.component';
 
-describe('LowbarComponent', () => {
-  let component: LowbarComponent;
-  let fixture: ComponentFixture<LowbarComponent>;
+describe('LowBarComponent', () => {
+  let component: LowBarComponent;
+  let fixture: ComponentFixture<LowBarComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LowbarComponent]
-    })
-    .compileComponents();
+      imports: [LowBarComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(LowbarComponent);
+    fixture = TestBed.createComponent(LowBarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

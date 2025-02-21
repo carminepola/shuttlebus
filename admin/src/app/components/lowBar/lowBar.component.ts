@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { FooterComponent } from '../footer/footer.component';
 @Component({
-  selector: 'app-lowbar',
+  selector: 'app-lowBar',
   imports: [RouterModule],
-  templateUrl: './lowbar.component.html',
-  styleUrl: './lowbar.component.scss',
+  templateUrl: './lowBar.component.html',
+  styleUrl: './lowBar.component.scss',
 })
-export class LowbarComponent {}
+export class LowBarComponent {}

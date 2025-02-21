@@ -10,7 +10,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth/auth.service';
 import { CookieWatcherServiceService } from './services/cookieWatcher/cookie-watcher-service.service';
-import { LowbarComponent } from './components/lowbar/lowbar.component';
+import { LowBarComponent } from './components/lowBar/lowBar.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 @Component({
   selector: 'app-root',
@@ -18,7 +18,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
     RouterOutlet,
     SidebarComponent,
     CommonModule,
-    LowbarComponent,
+    LowBarComponent,
     NavbarComponent,
   ],
   templateUrl: './app.component.html',
