@@ -1,6 +1,7 @@
 import Mongo from "./infrastructure/mongo";
 import RestServer from "./infrastructure/restServer";
 import { SeqTransport } from "@datalust/winston-seq";
+import { Console } from "console";
 
 import * as dotenv from "dotenv";
 dotenv.config({ path: ".env" });
@@ -8,6 +9,7 @@ const env = process.env;
 const appName = env.APP_NAME || "No name";
 import winston from "winston";
 let transportsType = [];
+console.log(`${new Date().toISOString().replace("T", " ").split(".")[0]} ${`\x1b[32m` + "info" + `\x1b[0m`}: Avvio dell'app\x1b[0m`);
 const consoleTransport = new winston.transports.Console({
   level: env.LOGLEVEL || "info",
   format: winston.format.combine(
@@ -61,6 +63,12 @@ let logger = winston.createLogger({
   transports: transportsType,
 });
 
+logger.info("Logger inizializzato");
+if (env.LOG_URL && env.LOG_API_KEY) {
+  logger.info("Log configurato su seq: " + env.LOG_URL);
+} else {
+  logger.info("Log configurato su file");
+}
 let mailConfig: any;
 if (process.env.EMAIL_SMTP && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
   mailConfig = {
@@ -76,7 +84,7 @@ if (process.env.EMAIL_SMTP && process.env.EMAIL_USER && process.env.EMAIL_PASS) 
   };
   logger.info("Configurazione email presente");
 } else {
-  logger.warn("Configurazione email mancante");
+  logger.warn("Configurazione email mancante non sarà possibile inviare email da quest'applicazione");
   mailConfig = undefined;
 }
 
@@ -93,7 +101,7 @@ const startServer = async () => {
         if (env.CONNECTION_STRING) {
           databaseInstance = new Mongo();
           db = await databaseInstance.init(env.CONNECTION_STRING);
-          if (databaseInstance.isConnect()) {
+          if (db) {
             dbStarted = true;
           }
         }
@@ -107,17 +115,14 @@ const startServer = async () => {
     if (!dbStarted && env.DB_DEPENDECIES && env.DB_DEPENDECIES.toLocaleLowerCase() == "true") {
       logger.error(`Impossibile avviare l'app`);
       return;
-    } else if (dbStarted) {
-      logger.info(`DB Connesso`);
     }
+    logger.info("Avvio del rest server");
     restServer.run();
   } catch (error) {
     logger.error(`Error connecting to the database`, error);
   }
 };
 
-// Autoesegui la funzione startServer
-logger.info("Avvio dell'app");
 startServer();
 
 //Esporto il db per renderlo accessibile all'app
