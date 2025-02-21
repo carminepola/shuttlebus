@@ -13,8 +13,11 @@ export default class Mongo {
   async init(connectionString: string) {
     try {
       if (connectionString) {
+        logger.info("Connessione al db mongo");
         this.connectionString = connectionString;
         this.client = new MongoClient(this.connectionString);
+        await this.client?.connect();
+        logger.info("Connesso al db mongo");
         this.db = await this.client.db();
         return this.db;
       } else {
@@ -23,28 +26,7 @@ export default class Mongo {
     } catch (error) {
       logger.error("Impossibile connettersi al db mongo: ", error);
     }
-  }
-
-  async run(): Promise<MongoClient> {
-    return new Promise(async (resolve, rejected) => {
-      try {
-        if (this.connectionString) {
-          logger.info("Connessione al db mongo");
-          await this.client?.connect();
-          if (this.client) {
-            logger.info("Connesso al db mongo");
-            resolve(this.client);
-          } else {
-            logger.info("Non connesso al db mongo");
-            rejected(undefined);
-          }
-        } else {
-          logger.warn("Nessuna stringa connessione mongo");
-        }
-      } catch (error) {
-        throw error;
-      }
-    });
+    return null;
   }
 
   getDb(): Db {
