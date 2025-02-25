@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { check, validationResult } from "express-validator";
-import StopsDao from "../components/dao/stopsDao";
+import StopServices from "../components/services/stopServices";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 
 import { db } from "../index"; // Assuming db is exported from index.ts
@@ -35,9 +35,9 @@ router.post(
       if (req.body.imagePaths) {
         req.body.image = req.body.imagePaths[0];
       }
-      let stopsDao = new StopsDao(db);
+      let stopsServices = new StopServices(db);
       const stopData: StopModel = new StopModel(req.body);
-      const stopId = await stopsDao.createStop(stopData);
+      const stopId = await stopsServices.createStop(stopData);
       res.status(201).json({ message: "Stop created", id: stopId });
     } catch (error) {
       next(error);
@@ -47,8 +47,8 @@ router.post(
 
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let stopsDao = new StopsDao(db);
-    const stops = await stopsDao.getAllActiveStops();
+    let stopsServices = new StopServices(db);
+    const stops = await stopsServices.getAllActiveStops();
     res.json({ stops: stops });
   } catch (error) {
     next(error);
@@ -61,8 +61,8 @@ router.get("/id/:id", async (req: Request, res: Response, next: NextFunction) =>
     } else if (req.params.id === "0") {
       res.json({ stop: new StopModel() });
     } else {
-      let stopsDao = new StopsDao(db);
-      const stop = await stopsDao.getStops(req.params.id);
+      let stopsServices = new StopServices(db);
+      const stop = await stopsServices.getStop(req.params.id);
       res.json({ stop: stop });
       if (!stop) {
         throw new ErrorModel(404, "Stop not found");
@@ -75,8 +75,8 @@ router.get("/id/:id", async (req: Request, res: Response, next: NextFunction) =>
 
 router.get("/all", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAGE_STOPS"]), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let stopsDao = new StopsDao(db);
-    const stops = await stopsDao.getAllStops();
+    let stopsServices = new StopServices(db);
+    const stops = await stopsServices.getAllStops();
     res.json({ stops: stops });
   } catch (error) {
     next(error);
@@ -104,9 +104,9 @@ router.patch(
       if (req.body.imagePaths) {
         req.body.image = req.body.imagePaths[0];
       }
-      let stopsDao = new StopsDao(db);
+      let stopsServices = new StopServices(db);
       const updateData: StopModel = new StopModel(req.body);
-      await stopsDao.updateStop(updateData);
+      await stopsServices.updateStop(updateData);
       res.json({ message: "Stop updated" });
     } catch (error) {
       next(error);
@@ -116,9 +116,9 @@ router.patch(
 
 router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let stopsDao = new StopsDao(db);
+    let stopsServices = new StopServices(db);
     const stopId = req.params.id;
-    await stopsDao.deleteStop(stopId);
+    await stopsServices.deleteStop(stopId);
     res.json({ message: "Stop deleted" });
   } catch (error) {
     next(error);
