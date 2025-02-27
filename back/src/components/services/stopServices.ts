@@ -9,7 +9,8 @@ class StopServices {
     this.stopsDao = new StopsDao(db);
   }
 
-  async createStop(stopData: Partial<StopModel>) {
+  async createStop(obj: any) {
+    const stopData: StopModel = new StopModel(obj);
     return await this.stopsDao.createStop(stopData);
   }
 
@@ -25,7 +26,8 @@ class StopServices {
     return await this.stopsDao.getStops(id);
   }
 
-  async updateStop(updateData: Partial<StopModel>) {
+  async updateStop(obj: any) {
+    const updateData: StopModel = new StopModel(obj);
     return await this.stopsDao.updateStop(updateData);
   }
 

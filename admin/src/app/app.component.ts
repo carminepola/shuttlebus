@@ -12,10 +12,13 @@ import { AuthService } from './services/auth/auth.service';
 import { CookieWatcherServiceService } from './services/cookieWatcher/cookie-watcher-service.service';
 import { LowBarComponent } from './components/lowBar/lowBar.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { LngService } from './services/lng/lng.service';
+import { LoadingComponent } from './components/loading/loading/loading.component';
 @Component({
   selector: 'app-root',
   imports: [
     RouterOutlet,
+    LoadingComponent,
     SidebarComponent,
     CommonModule,
     LowBarComponent,
@@ -27,15 +30,17 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 export class AppComponent implements OnInit {
   navbarVisible: boolean = false;
   lowBarVisible: boolean = false;
-
+  loading: boolean = true;
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
-    private cookieService: CookieWatcherServiceService
+    private cookieService: CookieWatcherServiceService,
+    private lngService: LngService
   ) {}
 
   ngOnInit() {
+    this.loadLng();
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         // Ottieni i dati della route attiva
@@ -100,6 +105,15 @@ export class AppComponent implements OnInit {
     });
   }
 
+  loadLng() {
+    this.lngService.get().subscribe((res) => {
+      if (res && res.lng) {
+        debugger;
+        this.loading = false;
+        localStorage['lng'] = JSON.stringify(res.lng);
+      }
+    });
+  }
   autoDarkMode() {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
     document.body.setAttribute(

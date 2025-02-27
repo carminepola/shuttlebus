@@ -1,18 +1,25 @@
-<div class="bg-gray-100 min-vh-100 bg-page" *ngIf="navbarVisible">
-  <app-sidebar> </app-sidebar>
+<span *ngIf="!loading">
+  <div class="bg-gray-100 min-vh-100 bg-page" *ngIf="navbarVisible">
+    <app-sidebar> </app-sidebar>
 
-  <div class="navMarginTop navMarginLeft">
-    <router-outlet></router-outlet>
+    <div class="navMarginTop navMarginLeft">
+      <router-outlet></router-outlet>
+    </div>
   </div>
+
+  <app-navbar *ngIf="lowBarVisible" class="d-none d-lg-block"></app-navbar>
+
+  <router-outlet
+    *ngIf="!navbarVisible"
+    style="min-height: 100vh"
+    [ngClass]="{ bottomPadding: lowBarVisible }"
+  ></router-outlet>
+
+  <app-lowBar *ngIf="lowBarVisible && !navbarVisible"></app-lowBar>
+</span>
+<div
+  class="wv-100 vh-100 d-flex align-items-center justify-content-center"
+  *ngIf="loading"
+>
+  <app-loading></app-loading>
 </div>
-
-<app-navbar *ngIf="lowBarVisible" class="d-none d-lg-block"></app-navbar>
-
-<router-outlet
-  *ngIf="!navbarVisible"
-  style="min-height: 100vh"
-  [ngClass]="{ bottomPadding: lowBarVisible }"
-></router-outlet>
-
-<app-lowBar *ngIf="lowBarVisible && !navbarVisible"></app-lowBar>
- 
