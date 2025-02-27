@@ -19,17 +19,16 @@ router.post(
   uploadImagesMiddleware,
   [
     check("id").isEmpty().withMessage("Id not required"),
-    check("name.it").optional().isString().withMessage("name in Italian must be a string"),
-    check("name.en").optional().isString().withMessage("name in English must be a string"),
+    check("txt").isString().withMessage("name in Italian must be a string"),
+    check("it").isString().withMessage("name in Italian must be a string"),
+    check("en").isString().withMessage("name in English must be a string"),
   ],
 
   checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (req.body.imagePaths) {
-        req.body.image = req.body.imagePaths[0];
-      }
+    
       let lngServices = new LngServices(db);
       const id = await lngServices.create(req.body);
       res.status(201).json({ message: "lng Created", id: id });
@@ -38,7 +37,29 @@ router.post(
     }
   }
 );
+router.patch(
+  "/",
+  authMiddleware,
+  uploadImagesMiddleware,
+  [
+    check("id").notEmpty().withMessage("Id is required"),
+    check("it").isString().withMessage("name in Italian must be a string"),
+    check("en").isString().withMessage("name in English must be a string"),
+  ],
 
+  checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+    
+      let lngServices = new LngServices(db);
+      const id = await lngServices.update(req.body);
+      res.status(201).json({ message: "lng Created", id: id });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     let lngServices = new LngServices(db);

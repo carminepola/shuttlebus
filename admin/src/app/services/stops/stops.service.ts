@@ -20,7 +20,7 @@ export class StopsService {
   }
 
   getAllActiveStops(): Observable<any> {
-    debugger;
+    
     return this.http.get<any[]>(this.apiUrl).pipe(
       catchError((error) => {
         return throwError(() => error);

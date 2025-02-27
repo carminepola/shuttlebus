@@ -4,3 +4,11 @@
     margin-top: 77px !important; // Replace 'x' with the desired value
   }
 }
+
+.background-100{
+  min-height: 100vh !important;
+   @media (max-width: 991.98px) {
+    // Bootstrap lg breakpoint is 992px
+    min-height: calc(100vh - 77px) !important;
+  }
+};

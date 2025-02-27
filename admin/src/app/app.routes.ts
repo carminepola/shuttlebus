@@ -16,6 +16,7 @@ import { ClientsComponent } from './pages/clients/clients.component';
 import { HomepageComponent } from './pages/homepage/homepage.component';
 import { InfoComponent } from './pages/info/info.component';
 import { TicketTypeDetailsComponent } from './pages/ticket-type-details/ticket-type-details.component';
+import { TraduzioniComponent } from './pages/traduzioni/traduzioni/traduzioni.component';
 export const routes: Routes = [
   {
     path: '',
@@ -115,6 +116,12 @@ export const routes: Routes = [
       {
         path: 'clienti',
         component: ClientsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'traduzioni',
+        component: TraduzioniComponent,
         canActivate: [AuthGuard],
         data: { navbar: true },
       },

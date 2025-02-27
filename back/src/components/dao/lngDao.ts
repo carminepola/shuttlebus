@@ -13,7 +13,7 @@ export default class lngDao {
     this.logInfo = logInfo;
   }
 
-  async createTicketType(obj: lngModel) {
+  async create(obj: lngModel) {
     try {
       const existingLng = await this.db.collection(this.schema).findOne({ id: obj.id });
       if (existingLng) {
@@ -27,6 +27,19 @@ export default class lngDao {
     }
   }
 
+  async update(obj:lngModel){
+    try {
+      const result = await this.db.collection(this.schema).updateOne({ id: obj.id }, { $set: {
+        it: obj.it,
+        en: obj.en
+      } });
+ 
+      return result.upsertedId  ? obj.id : null;
+    } catch (error) {
+      logger.error("Error creating ticketType:", error);
+      throw error;
+    }
+  }
   async getAll() {
     try {
       return await this.db.collection(this.schema).find().toArray();

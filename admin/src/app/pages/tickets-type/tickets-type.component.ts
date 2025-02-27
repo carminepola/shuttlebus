@@ -34,13 +34,21 @@ export class TicketsTypeComponent implements OnInit {
   }
 
   readAll() {
-    debugger;
+    
     this.loading = true;
     this.ticketTypeService.getAllTicketTypes().subscribe((res) => {
       if (res && res.ticketType) {
         this.loading = false;
-        debugger;
-        this.ticketsType = res.ticketType;
+        
+        this.ticketsType = res.ticketType.map((t: any) => {
+          return {
+            id: t.id,
+            name: t.name.it,
+            description: t.description.it,
+            cost: t.cost,
+          };
+        });
+      
       }
     });
   }

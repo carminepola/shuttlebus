@@ -19,11 +19,7 @@ export class ThemeToggleComponent implements OnInit {
     private authService: AuthService
   ) {}
   toggleDarkMode(mode: string) {
-    if (mode != 'auto') {
-      localStorage['theme'] = mode;
-    } else {
-      localStorage['theme'] = mode;
-    }
+ 
 
     switch (mode) {
       case 'auto':
@@ -53,7 +49,7 @@ export class ThemeToggleComponent implements OnInit {
   check() {
     let user = this.authService.getDecodedToken();
 
-    debugger;
+    
     const theme = user?.options?.theme ? user?.options?.theme : 'auto';
 
     switch (theme) {

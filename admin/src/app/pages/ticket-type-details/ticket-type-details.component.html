@@ -16,12 +16,12 @@
       <form ngNativeValidate (ngSubmit)="onSubmit(f)" #f="ngForm">
         <div class="row g-3">
           <div class="col-12 col-md-6">
-            <label for="name_it" class="form-label">Nome fermata it</label>
+            <label for="name_it" class="form-label">Nome biglietto it</label>
             <input
               [(ngModel)]="form.name.it"
               name="name_it"
               type="text"
-              placeholder="Nome fermata"
+              placeholder="Nome biglietto"
               class="form-control"
               id="name_it"
               required
@@ -29,12 +29,12 @@
           </div>
 
           <div class="col-12 col-md-6">
-            <label for="name_en" class="form-label">Nome fermata en</label>
+            <label for="name_en" class="form-label">Nome biglietto en</label>
             <input
               [(ngModel)]="form.name.en"
               name="name_en"
               type="text"
-              placeholder="Name station"
+              placeholder="Name ticket"
               class="form-control"
               id="name_en"
               required

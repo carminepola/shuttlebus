@@ -90,7 +90,7 @@ export class TicketTypeDetailsComponent implements OnInit {
     }
   }
   load(id: string) {
-    debugger;
+    
     this.ticketTypeService.getTicketType(id).subscribe((res) => {
       this.loading = false;
       if (res && res.ticketType) {
