@@ -58,7 +58,7 @@ export class LostPasswordComponent implements OnInit {
   onSubmitCode(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    debugger;
+    
     if (this.code.length === 6) {
       this.isLoading = true;
       setTimeout(() => {
@@ -81,7 +81,7 @@ export class LostPasswordComponent implements OnInit {
   }
 
   onInput(event: Event, index: number): void {
-    debugger;
+    
     const input = event.target as HTMLInputElement;
     const value = input.value;
     if (!value.trim().match(/^\d+$/)) {
@@ -98,7 +98,7 @@ export class LostPasswordComponent implements OnInit {
   }
 
   onKeydown(event: KeyboardEvent, index: number): void {
-    debugger;
+    
     if (event.key === 'Backspace') {
       const input = event.target as HTMLInputElement;
       input.value = '';
@@ -111,7 +111,7 @@ export class LostPasswordComponent implements OnInit {
   }
 
   onPaste(event: ClipboardEvent): void {
-    debugger;
+    
     const { clipboardData } = event;
     if (clipboardData) {
       const text = clipboardData.getData('text/plain');

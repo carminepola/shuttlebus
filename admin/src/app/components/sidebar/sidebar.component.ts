@@ -54,15 +54,13 @@ export class SidebarComponent implements OnInit {
       next: (response) => {
         this.isLoadingLogout = false;
         this.authService.deleteCookie('jwt');
-        localStorage.clear();
-        sessionStorage.clear();
+ 
         this.router.navigate(['/']);
       },
       error: (error) => {
         this.isLoadingLogout = false;
         this.router.navigate(['/']);
-        localStorage.clear();
-        sessionStorage.clear();
+ 
         console.error('Errore durante il logout', error);
       },
     });

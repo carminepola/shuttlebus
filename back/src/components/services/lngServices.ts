@@ -12,7 +12,12 @@ class TicketTypeServices {
 
   async create(obj: any) {
     let model = new LngModel(obj);
-    return await this.lngDao.createTicketType(model);
+    return await this.lngDao.create(model);
+  }
+
+  async update(obj: any) {
+    let model = new LngModel(obj);
+    return await this.lngDao.update(model);
   }
 
   async getAll() {

@@ -40,6 +40,7 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+
     this.loadLng();
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -93,10 +94,10 @@ export class AppComponent implements OnInit {
         if (newJwtToken?.options?.theme == 'light') mode = 'light';
 
         if (mode == 'auto') {
-          localStorage['theme'] = mode;
+          
           this.autoDarkMode();
         } else {
-          localStorage.removeItem('theme');
+         
           document.body.setAttribute('data-bs-theme', mode);
         }
       } catch (error) {
@@ -106,13 +107,26 @@ export class AppComponent implements OnInit {
   }
 
   loadLng() {
-    this.lngService.get().subscribe((res) => {
-      if (res && res.lng) {
-        debugger;
-        this.loading = false;
-        localStorage['lng'] = JSON.stringify(res.lng);
-      }
-    });
+     let browserLanguage = navigator.language;
+     let lng = "it"
+     if(browserLanguage != "it-IT"){
+      lng = "en"
+ 
+    }
+ 
+    if(!localStorage["currentLng"]){
+      this.lngService.setLng(lng);
+    }
+    
+      this.lngService.get().subscribe((res) => {
+        if (res && res.lng) {
+          
+          this.loading = false;
+          sessionStorage['lng'] = JSON.stringify(res.lng);
+        }
+      });
+    
+    
   }
   autoDarkMode() {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
