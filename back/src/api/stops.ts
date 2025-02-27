@@ -36,8 +36,7 @@ router.post(
         req.body.image = req.body.imagePaths[0];
       }
       let stopsServices = new StopServices(db);
-      const stopData: StopModel = new StopModel(req.body);
-      const stopId = await stopsServices.createStop(stopData);
+      const stopId = await stopsServices.createStop(req.body);
       res.status(201).json({ message: "Stop created", id: stopId });
     } catch (error) {
       next(error);
@@ -105,8 +104,7 @@ router.patch(
         req.body.image = req.body.imagePaths[0];
       }
       let stopsServices = new StopServices(db);
-      const updateData: StopModel = new StopModel(req.body);
-      await stopsServices.updateStop(updateData);
+      await stopsServices.updateStop(req.body);
       res.json({ message: "Stop updated" });
     } catch (error) {
       next(error);

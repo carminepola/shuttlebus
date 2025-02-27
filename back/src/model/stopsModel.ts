@@ -19,7 +19,7 @@ export default class StopModel {
   public isActive: boolean;
 
   constructor(stops?: any) {
-    debugger
+    debugger;
     this.id = stops?.id || Guid.create().toString();
     this.name = stops?.name || "";
     this.description = stops?.description || { it: "", en: "" };
@@ -30,8 +30,7 @@ export default class StopModel {
     this.address = stops?.address || "";
     if (!stops?.id) {
       this.createdAt = new Date().getTime();
-    }
-    else if (stops?.createdAt) {
+    } else if (stops?.createdAt) {
       this.createdAt = stops.createdAt;
     }
     this.updatedAt = new Date().getTime();

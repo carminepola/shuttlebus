@@ -10,11 +10,12 @@ import { StopsComponent } from './pages/stops/stops.component';
 import { StopDetailsComponent } from './pages/stop-details/stop-details.component';
 import { RouteComponent } from './pages/route/route.component';
 import { ReservationComponent } from './pages/reservation/reservation.component';
-import { TiketsComponent } from './pages/tikets/tikets.component';
+import { TicketsTypeComponent } from './pages/tickets-type/tickets-type.component';
 import { UsersComponent } from './pages/users/users.component';
 import { ClientsComponent } from './pages/clients/clients.component';
 import { HomepageComponent } from './pages/homepage/homepage.component';
 import { InfoComponent } from './pages/info/info.component';
+import { TicketTypeDetailsComponent } from './pages/ticket-type-details/ticket-type-details.component';
 export const routes: Routes = [
   {
     path: '',
@@ -76,6 +77,18 @@ export const routes: Routes = [
         data: { navbar: true },
       },
       {
+        path: 'ticket-details',
+        component: TicketTypeDetailsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'ticket-details/:id',
+        component: TicketTypeDetailsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
         path: 'corse',
         component: RouteComponent,
         canActivate: [AuthGuard],
@@ -89,7 +102,7 @@ export const routes: Routes = [
       },
       {
         path: 'biglietti',
-        component: TiketsComponent,
+        component: TicketsTypeComponent,
         canActivate: [AuthGuard],
         data: { navbar: true },
       },
