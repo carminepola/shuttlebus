@@ -5,18 +5,17 @@
     back="true"
   ></app-title-page>
   <div>
-    <ol class="list-group  border-0 rounded-4 shadow">
-      <li [routerLink]="['/admin/traduzioni']" class=" list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center">
-       <i class="fa fa-language me-3 fs-3"></i>
+    <ol class="list-group border-0 rounded-4 shadow" @fadeInOut>
+      <li
+        [routerLink]="['/admin/traduzioni']"
+        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+      >
+        <i class="fa fa-language me-3 fs-3"></i>
         <div class="ms-2 me-auto">
           <div class="fw-bold">Traduzioni</div>
-         Puoi cambiare la lista delle traduzioni
+          Puoi cambiare la lista delle traduzioni
         </div>
-        
       </li>
-      
     </ol>
   </div>
- 
-  
 </div>

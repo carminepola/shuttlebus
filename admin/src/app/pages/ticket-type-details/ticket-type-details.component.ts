@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
-
+import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-ticket-type-details',
   imports: [
@@ -15,6 +15,7 @@ import { TicketTypeService } from '../../services/ticket-type/ticket-type.servic
     LoadingComponent,
     ReactiveFormsModule,
   ],
+  animations: [fadeAnimation],
   templateUrl: './ticket-type-details.component.html',
   styleUrl: './ticket-type-details.component.scss',
 })
@@ -90,7 +91,6 @@ export class TicketTypeDetailsComponent implements OnInit {
     }
   }
   load(id: string) {
-    
     this.ticketTypeService.getTicketType(id).subscribe((res) => {
       this.loading = false;
       if (res && res.ticketType) {

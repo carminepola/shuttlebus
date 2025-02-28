@@ -7,6 +7,7 @@ import { StopsService } from '../../services/stops/stops.service';
 import { FormsModule } from '@angular/forms';
 import { FilterPipe } from '../../pipe/filter.pipe';
 import Swal from 'sweetalert2';
+import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-stops',
   imports: [
@@ -17,6 +18,7 @@ import Swal from 'sweetalert2';
     FormsModule,
     FilterPipe,
   ],
+  animations: [fadeAnimation],
   templateUrl: './stops.component.html',
   styleUrl: './stops.component.scss',
 })
