@@ -12,6 +12,7 @@ let transportsType = [];
 console.log(`${new Date().toISOString().replace("T", " ").split(".")[0]} ${`\x1b[32m` + "info" + `\x1b[0m`}: Avvio dell'app\x1b[0m`);
 const consoleTransport = new winston.transports.Console({
   level: env.LOGLEVEL || "info",
+  forceConsole: true,
   format: winston.format.combine(
     winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     winston.format.colorize(),
@@ -47,7 +48,7 @@ if (env.LOG_URL && env.LOG_API_KEY) {
   transportsType.push(
     new winston.transports.File({
       filename: "app.log",
-      level: "error", // Solo errori
+      level: env.LOGLEVEL || "error", // Solo errori
       format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
     })
   );
