@@ -11,7 +11,7 @@
   >
     <app-loading></app-loading>
   </div>
-  <div *ngIf="!loading" class="card border-0 rounded-4 shadow">
+  <div *ngIf="!loading" class="card border-0 rounded-4 shadow" @fadeInOut>
     <div class="card-body">
       <form ngNativeValidate (ngSubmit)="onSubmit(f)" #f="ngForm">
         <div class="row g-3">

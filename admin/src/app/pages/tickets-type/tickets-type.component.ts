@@ -8,6 +8,7 @@ import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 import { FilterPipe } from '../../pipe/filter.pipe';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
+import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-ticketsType',
   imports: [
@@ -18,6 +19,7 @@ import { LoadingComponent } from '../../components/loading/loading/loading.compo
     FormsModule,
     FilterPipe,
   ],
+  animations: [fadeAnimation],
   templateUrl: './tickets-type.component.html',
   styleUrl: './tickets-type.component.scss',
 })
@@ -34,12 +36,11 @@ export class TicketsTypeComponent implements OnInit {
   }
 
   readAll() {
-    
     this.loading = true;
     this.ticketTypeService.getAllTicketTypes().subscribe((res) => {
       if (res && res.ticketType) {
         this.loading = false;
-        
+
         this.ticketsType = res.ticketType.map((t: any) => {
           return {
             id: t.id,
@@ -48,7 +49,6 @@ export class TicketsTypeComponent implements OnInit {
             cost: t.cost,
           };
         });
-      
       }
     });
   }
