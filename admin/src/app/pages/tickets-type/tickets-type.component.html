@@ -12,7 +12,7 @@
     <app-loading></app-loading>
   </div>
 
-  <div class="card shadow border-0 rounded-4" *ngIf="!loading">
+  <div class="card shadow border-0 rounded-4" *ngIf="!loading" @fadeInOut>
     <!-- Header Section -->
     <div class="card-header bg-white rounded-top-4 border-bottom py-4">
       <div class="row align-items-center gy-3">
@@ -46,33 +46,46 @@
 
     <div class="mobile-cards p-3 d-block d-lg-none">
       <!-- Card 1 -->
-      <div class="card mb-3   rounded-4" *ngFor="let ticketType of ticketsType | filter : search">
+      <div
+        class="card mb-3 rounded-4"
+        *ngFor="let ticketType of ticketsType | filter : search"
+      >
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-3">
             <h5 class="card-title mb-0" [innerHTML]="ticketType.name"></h5>
             <div>
-              <button class="btn btn-warning btn-sm me-2 rounded-3" (click)="edit(ticketType.id)">
+              <button
+                class="btn btn-warning btn-sm me-2 rounded-3"
+                (click)="edit(ticketType.id)"
+              >
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn btn-danger btn-sm rounded-3" (click)="delete(ticketType.id)">
+              <button
+                class="btn btn-danger btn-sm rounded-3"
+                (click)="delete(ticketType.id)"
+              >
                 <i class="fas fa-trash"></i>
               </button>
             </div>
           </div>
-          
+
           <p class="mb-2">
             Descrizione:
+            <span
+              class="text-secondary"
+              [innerHTML]="ticketType.description"
+            ></span>
+          </p>
+          <p class="mb-0">
+            Prezzo:
             <span class="text-secondary"
-               [innerHTML]="ticketType.description"></span
+              ><span [innerHTML]="ticketType.cost"></span>€</span
             >
           </p>
-          <p class="mb-0">Prezzo: <span class="text-secondary" ><span [innerHTML]="ticketType.cost"></span>€</span></p>
         </div>
       </div>
-
-   
     </div>
-   
+
     <!-- Desktop View (Table) -->
     <div class="desktop-table p-4 d-none d-lg-block">
       <div class="table-responsive">

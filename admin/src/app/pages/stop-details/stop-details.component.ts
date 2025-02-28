@@ -6,6 +6,7 @@ import { LoadingComponent } from '../../components/loading/loading/loading.compo
 import { ActivatedRoute, Router } from '@angular/router';
 import { StopsService } from '../../services/stops/stops.service';
 import { ImagesService } from '../../services/images/images.service';
+import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-stop-details',
   imports: [
@@ -15,6 +16,7 @@ import { ImagesService } from '../../services/images/images.service';
     LoadingComponent,
     ReactiveFormsModule,
   ],
+  animations: [fadeAnimation],
   templateUrl: './stop-details.component.html',
   styleUrl: './stop-details.component.scss',
 })
