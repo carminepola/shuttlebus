@@ -5,7 +5,10 @@
         class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0 d-block d-lg-flex justify-content-center"
       >
         <div>
-          <h2 class="fw-light-bold mb-3">Informazioni</h2>
+          <h2
+            class="fw-light-bold mb-3"
+            [innerText]="'str_info' | translate"
+          ></h2>
           <div class="mb-2">Pintour S.C.A.R.L.</div>
           <div class="mb-2">
             Sede legale:<br />
@@ -40,6 +43,30 @@
               ><i class="fa-brands fa-instagram display-6 me-2"> </i>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+    <div class="row pt-3">
+      <div class="col-12 col-lg-2 offset-lg-10">
+        <div class="dropdown">
+          <button
+            class="btn btn-secondary"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            [innerHTML]="getSelectedLng().name"
+          ></button>
+
+          <ul class="dropdown-menu">
+            <li>
+              <a
+                class="dropdown-item cursor-pointer"
+                (click)="setLng(l.lng)"
+                *ngFor="let l of lng"
+                [innerHtml]="l.name"
+              ></a>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
