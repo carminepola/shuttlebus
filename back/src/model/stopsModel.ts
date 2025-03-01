@@ -19,7 +19,6 @@ export default class StopModel {
   public isActive: boolean;
 
   constructor(stops?: any) {
-    debugger;
     this.id = stops?.id || Guid.create().toString();
     this.name = stops?.name || "";
     this.description = stops?.description || { it: "", en: "" };
