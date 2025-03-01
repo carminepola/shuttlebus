@@ -16,10 +16,11 @@ export default class Mongo {
         logger.info("Connessione al db mongo");
         this.connectionString = connectionString;
         this.client = new MongoClient(this.connectionString);
+
         await this.client?.connect();
         logger.info("Connesso al db mongo");
         this.db = await this.client.db();
-        return this.db;
+        return { client: this.client, db: this.db };
       } else {
         logger.error("Nessuna string di connessione");
       }

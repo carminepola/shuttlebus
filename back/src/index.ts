@@ -90,6 +90,7 @@ if (process.env.EMAIL_SMTP && process.env.EMAIL_USER && process.env.EMAIL_PASS) 
 }
 
 let db: any;
+let client: any;
 let databaseInstance: any;
 let dbStarted = false;
 const restServer = new RestServer(parseInt(env.PORT || "1800"));
@@ -101,9 +102,11 @@ const startServer = async () => {
       case "MONGODB":
         if (env.CONNECTION_STRING) {
           databaseInstance = new Mongo();
-          db = await databaseInstance.init(env.CONNECTION_STRING);
-          if (db) {
+          let res = await databaseInstance.init(env.CONNECTION_STRING);
+          if (res.db) {
             dbStarted = true;
+            db = res.db;
+            client = res.client;
           }
         }
 
@@ -127,4 +130,4 @@ const startServer = async () => {
 startServer();
 
 //Esporto il db per renderlo accessibile all'app
-export { db, restServer, logger, env, mailConfig };
+export { db, client, restServer, logger, env, mailConfig };
