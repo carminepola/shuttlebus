@@ -46,7 +46,7 @@ export class RouteComponent implements OnInit {
           id: route.id,
           partenza: firstStop.name,
           arrivo: lastStop.name,
-          schedulazioni: route.schedules.length,
+          schedulazioni: route.schedules?.length || 0,
         };
       }
     );

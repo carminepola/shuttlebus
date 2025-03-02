@@ -20,6 +20,7 @@ import { TraduzioniComponent } from './pages/traduzioni/traduzioni/traduzioni.co
 import { RouteDetailsComponent } from './pages/route-details/route-details.component';
 import { ScheduleListComponent } from './pages/schedule-list/schedule-list.component';
 import { ScheduleComponent } from './pages/schedule/schedule.component';
+import { SearchPageComponent } from './pages/search-page/search-page.component';
 export const routes: Routes = [
   {
     path: '',
@@ -30,6 +31,12 @@ export const routes: Routes = [
   {
     path: 'info',
     component: InfoComponent,
+    canActivate: [],
+    data: { lowBar: true },
+  },
+  {
+    path: 'search/:partenza/:arrivo/:persone/:data/:bagagli',
+    component: SearchPageComponent,
     canActivate: [],
     data: { lowBar: true },
   },
