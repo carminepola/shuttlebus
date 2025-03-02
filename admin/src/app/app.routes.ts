@@ -17,6 +17,9 @@ import { HomepageComponent } from './pages/homepage/homepage.component';
 import { InfoComponent } from './pages/info/info.component';
 import { TicketTypeDetailsComponent } from './pages/ticket-type-details/ticket-type-details.component';
 import { TraduzioniComponent } from './pages/traduzioni/traduzioni/traduzioni.component';
+import { RouteDetailsComponent } from './pages/route-details/route-details.component';
+import { ScheduleListComponent } from './pages/schedule-list/schedule-list.component';
+import { ScheduleComponent } from './pages/schedule/schedule.component';
 export const routes: Routes = [
   {
     path: '',
@@ -96,6 +99,18 @@ export const routes: Routes = [
         data: { navbar: true },
       },
       {
+        path: 'route',
+        component: RouteDetailsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'route/:id',
+        component: RouteDetailsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
         path: 'prenotazioni',
         component: ReservationComponent,
         canActivate: [AuthGuard],
@@ -125,6 +140,25 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         data: { navbar: true },
       },
+      {
+        path: 'schedules/:idRoute',
+        component: ScheduleListComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'schedule/:idRoute',
+        component: ScheduleComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+      {
+        path: 'schedule/:idRoute/:idSchedule',
+        component: ScheduleComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true },
+      },
+
       { path: 'lostpassword', component: LostPasswordComponent, data: {} },
     ],
   },

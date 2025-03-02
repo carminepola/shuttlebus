@@ -1,0 +1,55 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    [title]="'Lista schedulazioni'"
+    subtitle=" Gestisci la schedulazioni"
+    back="true"
+  ></app-title-page>
+  <div
+    *ngIf="loading"
+    class="w-100 d-flex align-items-center justify-content-center"
+  >
+    <app-loading></app-loading>
+  </div>
+
+  <div *ngIf="!loading" class="card border-0 rounded-4 shadow" @fadeInOut>
+    <div class="card-body">
+      <div class="row g-4">
+        <div class="col-12">
+          <button class="btn btn-primary w-100" (click)="newRoute()">
+            Aggiungi una schedulazione
+          </button>
+        </div>
+        <div class="col-12" *ngFor="let r of routes">
+          <div class="card">
+            <div class="card-body">
+              <div
+                class="d-flex justify-content-between align-items-center mx-2"
+              >
+                <div>
+                  <h5>Linea {{ r.name }}</h5>
+                  <div>
+                    <span class="fw-bold text-muted me-2">Orario:</span>
+                    <span class="text-secondary"
+                      >{{ r.start }} - {{ r.end }}</span
+                    >
+                  </div>
+                  <div>
+                    <span class="fw-bold text-muted me-2">Stato:</span>
+                    <span [class]="r.active ? 'text-success' : 'text-danger'">{{
+                      r.active ? "Attiva" : "Disattivata"
+                    }}</span>
+                  </div>
+                </div>
+                <div>
+                  <button class="btn btn-warning" (click)="editRoute(r.id)">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

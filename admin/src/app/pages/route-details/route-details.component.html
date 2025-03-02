@@ -1,0 +1,183 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    [title]="'Corsa'"
+    subtitle=" Gestisci la corsa"
+    back="true"
+  ></app-title-page>
+  <div
+    *ngIf="loading"
+    class="w-100 d-flex align-items-center justify-content-center"
+  >
+    <app-loading></app-loading>
+  </div>
+  <div *ngIf="!loading" class="card border-0 rounded-4 shadow" @fadeInOut>
+    <div class="card-body">
+      <form ngNativeValidate (ngSubmit)="onSubmit(f)" #f="ngForm">
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Nome it</label>
+            <input
+              [(ngModel)]="routeForm.name.it"
+              name="name"
+              type="text"
+              placeholder="Nome ita"
+              class="form-control"
+              id="name"
+              required
+            />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Nome En</label>
+            <input
+              [(ngModel)]="routeForm.name.en"
+              name="nameEn"
+              type="text"
+              placeholder="Nome eng"
+              class="form-control"
+              id="nameEn"
+              required
+            />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Aggiungi biglietti</label>
+            <div class="input-group mb-3">
+              <select
+                [(ngModel)]="ticketSelected"
+                class="form-control"
+                id="inputGroupSelect01"
+                name="ticket_type"
+              >
+                <option value="" disabled selected>
+                  Seleziona il tipo di biglietto
+                </option>
+                <option
+                  *ngFor="let t of ticket"
+                  [value]="t.id"
+                  [innerHTML]="t.name.it"
+                ></option>
+              </select>
+              <div class="input-group-append">
+                <button
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  id="button-addon1"
+                  (click)="addTicket()"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <ul
+              class="list-group mb-3"
+              *ngIf="routeForm.ticketTypes.length > 0"
+            >
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+                *ngFor="let t of routeForm.ticketTypes"
+              >
+                <span>{{ getTicketFromId(t) }}</span>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-sm"
+                  (click)="deleteTicket(t)"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Aggiungi fermate</label>
+            <div class="input-group mb-3">
+              <select
+                [(ngModel)]="stopSelected"
+                name="ticket_type"
+                class="form-control"
+                id="inputGroupSelect01"
+              >
+                <option value="" disabled selected>
+                  Seleziona una fermata
+                </option>
+                <option
+                  *ngFor="let t of stops"
+                  [value]="t.id"
+                  [innerHTML]="t.name"
+                ></option>
+              </select>
+              <div class="input-group-append">
+                <button
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  id="button-addon1"
+                  (click)="addStop()"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <ul class="list-group mb-3" *ngIf="routeForm.stops.length > 0">
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+                *ngFor="let t of routeForm.stops"
+              >
+                <span>{{ getStopFromId(t.id) }}</span>
+
+                <div *ngIf="t.new">
+                  <button
+                    type="button"
+                    *ngIf="routeForm.stops.indexOf(t) !== 0"
+                    class="btn btn-outline-secondary btn-sm"
+                    (click)="moveStopUp(t.id)"
+                  >
+                    <i class="fas fa-arrow-up"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    (click)="moveStopDown(t.id)"
+                    *ngIf="
+                      routeForm.stops.indexOf(t) !== routeForm.stops.length - 1
+                    "
+                  >
+                    <i class="fas fa-arrow-down"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="deleteStop(t.id)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="flexSwitchCheckDefault"
+                [checked]="routeForm.enabled"
+                (change)="routeForm.enabled = !routeForm.enabled"
+              />
+              <label class="form-check-label" for="flexSwitchCheckDefault">
+                Abilitato
+              </label>
+            </div>
+          </div>
+          <div class="col-12" *ngIf="errorMessage != ''">
+            <div class="alert alert-danger border-0">{{ errorMessage }}</div>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-secondary float-end" type="submit">
+              Salva
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

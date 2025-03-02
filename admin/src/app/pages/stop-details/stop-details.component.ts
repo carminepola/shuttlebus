@@ -80,7 +80,7 @@ export class StopDetailsComponent implements OnInit {
         this.stopService.updateStop(this.stopForm).subscribe({
           next: (response: any) => {
             this.loading = false;
-            this.router.navigate(['admin/fermate/']);
+            window.history.back();
           },
           error: (e: any) => {
             this.loading = false;
