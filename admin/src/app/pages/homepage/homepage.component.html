@@ -29,86 +29,16 @@
         ></h2>
       </div>
       <div class="card-body">
-        <form>
-          <div class="row">
-            <div *ngIf="('str_alert' | translate) != 'str_alert'">
-              <div
-                class="alert border-0 shadow-sm alert-danger mx-0 mx-lg-4"
-                role="alert"
-                [innerHTML]="'str_alert' | translate"
-              >
-                A simple warning alert—check it out!
-              </div>
-            </div>
-
-            <div class="col-12 col-lg mb-2">
-              <label
-                for="partenza"
-                class="text-secondary mb-1"
-                [innerHTML]="'str_partenza' | translate"
-              ></label>
-              <input
-                type="text"
-                id="partenza"
-                formControlName="partenza"
-                class="form-control"
-                [placeholder]="'str_partenza_placeholder' | translate"
-              />
-            </div>
-            <div class="col-12 col-lg mb-2">
-              <label
-                for="arrivo"
-                class="text-secondary mb-1"
-                [innerHTML]="'str_arrivo' | translate"
-              ></label>
-              <input
-                type="text"
-                id="arrivo"
-                [placeholder]="'str_arrivo_placeholder' | translate"
-                formControlName="arrivo"
-                class="form-control"
-              />
-            </div>
-            <div class="col-12 col-lg mb-2">
-              <label
-                for="persone"
-                class="text-secondary mb-1"
-                [innerHTML]="'str_n_persone' | translate"
-              ></label>
-              <input
-                type="number"
-                id="persone"
-                formControlName="persone"
-                class="form-control"
-                [placeholder]="'str_n_persone_placeholder' | translate"
-              />
-            </div>
-            <div class="col-12 col-lg mb-2">
-              <label
-                for="giorno"
-                class="text-secondary mb-1"
-                [innerHTML]="'str_day' | translate"
-              ></label>
-              <input
-                type="date"
-                id="giorno"
-                formControlName="giorno"
-                class="form-control"
-              />
-            </div>
+        <div *ngIf="('str_alert' | translate) != 'str_alert'">
+          <div
+            class="alert border-0 shadow-sm alert-danger mx-0 mx-lg-4"
+            role="alert"
+            [innerHTML]="'str_alert' | translate"
+          >
+            A simple warning alert—check it out!
           </div>
-          <div class="row">
-            <div
-              class="col-12 d-flex justify-content-center align-items-center"
-            >
-              <button
-                type="submit"
-                class="btn btn-primary mx-auto w-responsive"
-                [innerHTML]="'str_search' | translate"
-              ></button>
-            </div>
-          </div>
-        </form>
+        </div>
+        <app-search></app-search>
       </div>
     </div>
   </div>
@@ -163,11 +93,12 @@
             class="form-control form-control-lg"
             [placeholder]="'str_indirizzo_placeholder' | translate"
           />
-          <button
+          <a
             class="btn btn-primary btn-lg"
+            style="z-index: 0"
             type="submit"
             [innerHTML]="'str_search' | translate"
-          ></button>
+          ></a>
         </div>
       </form>
     </div>

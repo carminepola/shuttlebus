@@ -73,3 +73,16 @@ body {
     margin-left: 256px !important;
   }
 }
+
+.paddingTopBar{
+  @media (min-width: 991.98px) {
+    // Bootstrap lg breakpoint is 992px
+    padding-top: 77px !important;
+  }
+}
+.marginTopBar {
+  @media (min-width: 991.98px) {
+    // Bootstrap lg breakpoint is 992px
+    margin-top: 77px !important;
+  }
+}
