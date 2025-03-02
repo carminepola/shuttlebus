@@ -1,3 +1,5 @@
 {
-    "cSpell.language": "it, en"
+    "cSpell.language": "it, en",
+    "postman.settings.dotenv-detection-notification-visibility": false
+ 
 }

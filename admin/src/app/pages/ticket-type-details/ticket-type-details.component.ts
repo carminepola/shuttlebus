@@ -55,7 +55,7 @@ export class TicketTypeDetailsComponent implements OnInit {
         this.ticketTypeService.createTicketType(this.form).subscribe({
           next: (response: any) => {
             this.loading = false;
-            this.router.navigate(['admin/biglietti/']);
+            window.history.back();
           },
           error: (e: any) => {
             this.loading = false;
@@ -73,7 +73,7 @@ export class TicketTypeDetailsComponent implements OnInit {
         this.ticketTypeService.updateTicketType(this.form).subscribe({
           next: (response: any) => {
             this.loading = false;
-            this.router.navigate(['admin/biglietti/']);
+            window.history.back();
           },
           error: (e: any) => {
             this.loading = false;

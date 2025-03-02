@@ -1,0 +1,245 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    [title]="'Schedule'"
+    subtitle=" Gestisci la schedulazione"
+    back="true"
+  ></app-title-page>
+  <div
+    *ngIf="loading"
+    class="w-100 d-flex align-items-center justify-content-center"
+  >
+    <app-loading></app-loading>
+  </div>
+
+  <div *ngIf="!loading" class="card border-0 rounded-4 shadow" @fadeInOut>
+    <div class="card-body">
+      <form #f="ngForm" ngNativeValidate (ngSubmit)="onSubmit(f)">
+        <div class="row">
+          <div class="col-12 col-md-6">
+            <label>Data di inizio</label>
+
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="form.startDate"
+              name="startDate"
+              required
+            />
+          </div>
+          <div class="col-12 col-md-6">
+            <label>Data di fine</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="form.endDate"
+              name="endDate"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-12 col-md-6">
+            <label>Posti totali</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="form.totalSeats"
+              name="totalSeats"
+              required
+            />
+          </div>
+          <div class="col-12 col-md-6">
+            <label>Bagagli disponibili</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="form.availableLuggage"
+              name="availableLuggage"
+              required
+            />
+          </div>
+        </div>
+        <div class="row mt-3" *ngFor="let stop of form.stops; let i = index">
+          <div class="col-12" *ngIf="stops.length > 0">
+            <h4 class="text-muted">{{ getStop(stop.id).name }}</h4>
+          </div>
+          <div class="col-12 col-lg">
+            <label>Ora di arrivo</label>
+            <input
+              type="time"
+              class="form-control"
+              [(ngModel)]="stop.stopTime"
+              name="arrivalTime_{{ i }}"
+              required
+            />
+          </div>
+          <div
+            class="col-12 col-lg-2 d-flex align-items-end justify-content-center"
+          >
+            <div>
+              <div class="form-group form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  [value]="stop.status"
+                  [checked]="stop.status === 'active'"
+                  (change)="toggleStatus(i)"
+                  [id]="'flexSwitchCheckDefault' + i"
+                  name="status_{{ i }}"
+                />
+                <label
+                  class="form-check-label ms-2"
+                  [for]="'flexSwitchCheckDefault' + i"
+                >
+                  <span *ngIf="stop.status === 'active'">Attivo</span
+                  ><span *ngIf="stop.status === 'inactive'"
+                    >Inattivo</span
+                  ></label
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="form-group">
+              <label>Stato</label>
+              <select
+                class="form-control"
+                [(ngModel)]="form.status"
+                name="status"
+                required
+              >
+                <option value="active">Attiva</option>
+                <option value="inactive">Inattiva</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3 g-4">
+          <div class="col-12">
+            <h3 class="text-muted mb-0">Eccezioni</h3>
+          </div>
+          <div
+            class="col-12"
+            *ngFor="let date of form.excludedDates; let i = index"
+          >
+            <div class="input-group">
+              <input
+                type="date"
+                class="form-control"
+                [(ngModel)]="form.excludedDates[i]"
+                name="startDate_{{ i }}"
+                required
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                id="button-addon2"
+                (click)="form.excludedDates.splice(i, 1)"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="input-group">
+              <input
+                type="date"
+                class="form-control"
+                [(ngModel)]="exceptionDate"
+                name="exceptionDate"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                id="button-addon2"
+                (click)="
+                  form.excludedDates.push(exceptionDate); exceptionDate = ''
+                "
+              >
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-12 col-lg" *ngFor="let day of [1, 2, 3, 4, 5, 6, 0]">
+            <div class="form-check">
+              <input
+                [checked]="form?.daysOfWeek?.includes(day) || false"
+                [value]="day"
+                class="form-check-input"
+                type="checkbox"
+                [id]="'someCheckbox' + day"
+                [name]="'someCheckbox' + day"
+                (change)="onDayChange(day)"
+              />
+              <label class="form-check-label" [for]="'someCheckbox' + day">
+                {{ dayOfWeek(day) }}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3 g-3">
+          <div class="col-12">
+            <h3 class="text-muted">Giorni extra</h3>
+          </div>
+          <div
+            class="col-12"
+            *ngFor="let date of form.extraDates; let i = index"
+          >
+            <div class="input-group">
+              <input
+                type="date"
+                class="form-control"
+                [(ngModel)]="form.extraDates[i]"
+                name="startDate_{{ i }}"
+                required
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                id="button-addon2"
+                (click)="form.extraDates.splice(i, 1)"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="input-group">
+              <input
+                type="date"
+                class="form-control"
+                [(ngModel)]="extraDate"
+                name="extraDate"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                id="button-addon2"
+                (click)="form.extraDates.push(extraDate); extraDate = ''"
+              >
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-12" *ngIf="errorMessage != ''">
+            <div class="alert alert-danger border-0">{{ errorMessage }}</div>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-secondary float-end" type="submit">
+              Salva
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

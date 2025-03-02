@@ -4,7 +4,14 @@
     subtitle="Gestisci le corse"
     back="true"
   ></app-title-page>
-  <div class="card shadow border-0 rounded-4">
+  <div
+    *ngIf="loading"
+    class="w-100 d-flex align-items-center justify-content-center"
+  >
+    <app-loading></app-loading>
+  </div>
+
+  <div class="card shadow border-0 rounded-4" *ngIf="!loading" @fadeInOut>
     <!-- Header Section -->
     <div class="card-header bg-white rounded-top-4 border-bottom py-4">
       <div class="row align-items-center gy-3">
@@ -14,6 +21,7 @@
               ><i class="fas fa-search"></i
             ></span>
             <input
+              [(ngModel)]="search"
               type="text"
               class="form-control form-control-lg bg-light border-0"
               placeholder="Cerca corsa..."
@@ -23,7 +31,7 @@
         <div class="col-md-auto">
           <a
             class="btn btn-primary btn-lg h-100 rounded-3 w-100"
-            [routerLink]="['/admin/route-details']"
+            [routerLink]="['/admin/route']"
           >
             <i class="fas fa-plus me-2"></i>Nuova corsa
           </a>
@@ -36,51 +44,33 @@
     <!-- Mobile View (Cards) -->
     <div class="mobile-cards p-3 d-block d-lg-none">
       <!-- Card 1 -->
-      <div class="card mb-3 shadow-sm rounded-4">
+      <div
+        class="card mb-3 shadow-sm rounded-4"
+        *ngFor="let route of routes | filter : search"
+      >
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <h5 class="card-title mb-0">Corsa da Napoli a Roma</h5>
+            <h5 class="card-title mb-0" [innerHTML]="route.nome"></h5>
             <div>
               <button class="btn btn-warning btn-sm me-2 rounded-3">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn btn-danger btn-sm rounded-3 me-2">
-                <i class="fas fa-trash"></i>
-              </button>
+
               <button class="btn btn-primary btn-sm rounded-3">
                 <i class="fas fa-calendar-alt"></i>
               </button>
             </div>
           </div>
           <p class="mb-2">
-            Partenza: <span class="text-secondary">Napoli</span>
+            Partenza: <span class="text-secondary">{{ route.partenza }}</span>
           </p>
-          <p class="mb-0">Arrivo: <span class="text-secondary">Roma</span></p>
-        </div>
-      </div>
-
-      <!-- Card 2 -->
-      <div class="card mb-3 shadow-sm rounded-4">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <h5 class="card-title mb-0">Corsa da Milano a Torino</h5>
-            <div>
-              <button class="btn btn-warning btn-sm me-2 rounded-3">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="btn btn-danger btn-sm rounded-3 me-2">
-                <i class="fas fa-trash"></i>
-              </button>
-              <button class="btn btn-primary btn-sm rounded-3">
-                <i class="fas fa-calendar-alt"></i>
-              </button>
-            </div>
-          </div>
-
-          <p class="mb-2">
-            Partenza: <span class="text-secondary">Milano</span>
+          <p class="mb-0">
+            Arrivo: <span class="text-secondary">{{ route.arrivo }}</span>
           </p>
-          <p class="mb-0">Arrivo: <span class="text-secondary">Torino</span></p>
+          <p class="mb-0">
+            Numero schedulazioni:
+            <span class="text-secondary">{{ route.schedulazioni }}</span>
+          </p>
         </div>
       </div>
     </div>
@@ -94,38 +84,31 @@
               <th scope="col">Nome</th>
               <th scope="col">Partenza</th>
               <th scope="col">Arrivo</th>
+              <th scope="col">Numero schedulazioni</th>
               <th scope="col" class="rounded-end-3">Azioni</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="bg-white mb-2">
-              <td>Corsa da Napoli a Roma</td>
-              <td>Napoli</td>
-              <td>Roma</td>
+            <tr
+              class="bg-white mb-2"
+              *ngFor="let route of routes | filter : search"
+            >
+              <td [innerHTML]="route.nome"></td>
+              <td [innerHTML]="route.partenza"></td>
+              <td [innerHTML]="route.arrivo"></td>
+              <td [innerHTML]="route.schedulazioni"></td>
               <td>
-                <button class="btn btn-warning btn-sm me-2 rounded-3">
+                <button
+                  class="btn btn-warning btn-sm me-2 rounded-3"
+                  [routerLink]="['/admin/route', route.id]"
+                >
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-danger btn-sm me-2 rounded-3">
-                  <i class="fas fa-trash"></i>
-                </button>
-                <button class="btn btn-primary btn-sm rounded-3">
-                  <i class="fas fa-calendar-alt"></i>
-                </button>
-              </td>
-            </tr>
-            <tr class="bg-white">
-              <td>Corsa da Milano a Torino</td>
-              <td>Milano</td>
-              <td>Torino</td>
-              <td class="d-flex">
-                <button class="btn btn-warning btn-sm me-2 rounded-3">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-danger btn-sm me-2 rounded-3">
-                  <i class="fas fa-trash"></i>
-                </button>
-                <button class="btn btn-primary btn-sm rounded-3">
+
+                <button
+                  class="btn btn-primary btn-sm rounded-3"
+                  [routerLink]="['/admin/schedules', route.id]"
+                >
                   <i class="fas fa-calendar-alt"></i>
                 </button>
               </td>

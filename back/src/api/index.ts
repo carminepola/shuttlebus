@@ -9,6 +9,7 @@ import stops from "./stops";
 import images from "./images";
 import ticketType from "./ticketType";
 import lng from "./lng";
+import routes from "./routes";
 const router = express.Router();
 
 router.get<{}, messageResponse>("/", (req, res, next) => {
@@ -25,4 +26,5 @@ router.use("/users", users);
 router.use("/stops", stops);
 router.use("/images", images);
 router.use("/ticketType", ticketType);
+router.use("/routes", routes);
 export default router;
