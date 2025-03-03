@@ -10,131 +10,129 @@ export default class BookingsDAO {
   async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0) {
     let daysOfWeek = new Date(travelDate).getDay();
 
-    return this.db
-      .collection("routes")
-      .aggregate([
-        // 2️⃣ Trova solo le `routes` che contengono entrambe le fermate
-        {
-          $match: {
-            "stops.id": { $all: [fromStopId, toStopId] },
-          },
+    let q = [
+      // 2️⃣ Trova solo le `routes` che contengono entrambe le fermate
+      {
+        $match: {
+          "stops.id": { $all: [fromStopId, toStopId] },
         },
-        // 3️⃣ Estrai le `schedules` dalla route
-        { $unwind: "$schedules" },
-        // 4️⃣ Filtra solo le `schedules` attive e valide per il giorno richiesto
-        {
-          $match: {
-            "schedules.status": "active",
-            "schedules.stops.id": { $all: [fromStopId, toStopId] },
-            $and: [
-              { "schedules.stops": { $elemMatch: { id: fromStopId, status: "active" } } }, // Fermata di partenza attiva
-              { "schedules.stops": { $elemMatch: { id: toStopId, status: "active" } } }, // Fermata di arrivo attiva
-            ],
-            $or: [
-              {
-                // Caso in cui la travelDate è presente in extraDates
-                "schedules.extraDates": { $elemMatch: { $eq: travelDate } },
-              },
+      },
+      // 3️⃣ Estrai le `schedules` dalla route
+      { $unwind: "$schedules" },
+      // 4️⃣ Filtra solo le `schedules` attive e valide per il giorno richiesto
+      {
+        $match: {
+          "schedules.status": "active",
+          "schedules.stops.id": { $all: [fromStopId, toStopId] },
+          $and: [
+            { "schedules.stops": { $elemMatch: { id: fromStopId, status: "active" } } }, // Fermata di partenza attiva
+            { "schedules.stops": { $elemMatch: { id: toStopId, status: "active" } } }, // Fermata di arrivo attiva
+          ],
+          $or: [
+            {
+              // Caso in cui la travelDate è presente in extraDates
+              "schedules.extraDates": { $elemMatch: { $eq: travelDate } },
+            },
 
-              {
-                // Caso in cui la travelDate rientra nel range startDate - endDate
-                $and: [
-                  {
-                    "schedules.daysOfWeek": {
-                      $not: {
-                        $elemMatch: { $eq: daysOfWeek },
-                      },
+            {
+              // Caso in cui la travelDate rientra nel range startDate - endDate
+              $and: [
+                {
+                  "schedules.daysOfWeek": {
+                    $not: {
+                      $elemMatch: { $eq: daysOfWeek },
                     },
                   },
-                  {
-                    // Caso in cui la travelDate non è esclusa dalle excludedDates
+                },
+                {
+                  // Caso in cui la travelDate non è esclusa dalle excludedDates
 
-                    "schedules.excludedDates": { $nin: [travelDate] },
-                  },
+                  "schedules.excludedDates": { $nin: [travelDate] },
+                },
 
-                  {
-                    "schedules.startDate": { $lte: travelDate },
-                    "schedules.endDate": { $gte: travelDate },
-                  },
-                ],
-              },
-            ],
-          },
+                {
+                  "schedules.startDate": { $lte: travelDate },
+                  "schedules.endDate": { $gte: travelDate },
+                },
+              ],
+            },
+          ],
         },
-        // 5️⃣ Aggiungi un campo per determinare l'ordine delle fermate
-        {
-          $addFields: {
-            fromStopIndex: { $indexOfArray: ["$schedules.stops.id", fromStopId] },
-            toStopIndex: { $indexOfArray: ["$schedules.stops.id", toStopId] },
-          },
+      },
+      // 5️⃣ Aggiungi un campo per determinare l'ordine delle fermate
+      {
+        $addFields: {
+          fromStopIndex: { $indexOfArray: ["$schedules.stops.id", fromStopId] },
+          toStopIndex: { $indexOfArray: ["$schedules.stops.id", toStopId] },
         },
-        // 6️⃣ Filtra solo le `schedules` in cui la fermata di partenza viene prima della fermata di arrivo
-        {
-          $match: {
-            $expr: { $lt: ["$fromStopIndex", "$toStopIndex"] },
-          },
+      },
+      // 6️⃣ Filtra solo le `schedules` in cui la fermata di partenza viene prima della fermata di arrivo
+      {
+        $match: {
+          $expr: { $lt: ["$fromStopIndex", "$toStopIndex"] },
         },
-        // 7️⃣ Cerca nelle `bookings` per calcolare i posti e bagagli occupati
-        {
-          $lookup: {
-            from: "bookings",
-            let: { scheduleId: "$schedules.id", travelDate: travelDate },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $and: [{ $eq: ["$scheduleId", "$$scheduleId"] }, { $eq: ["$travelDate", "$$travelDate"] }, { $in: ["$status", ["confirmed", "pending"]] }],
-                  },
+      },
+      // 7️⃣ Cerca nelle `bookings` per calcolare i posti e bagagli occupati
+      {
+        $lookup: {
+          from: "bookings",
+          let: { scheduleId: "$schedules.id", travelDate: travelDate },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [{ $eq: ["$scheduleId", "$$scheduleId"] }, { $eq: ["$travelDate", "$$travelDate"] }, { $in: ["$status", ["confirmed", "pending"]] }],
                 },
               },
-              { $unwind: "$purchasedTickets" },
-              {
-                $group: {
-                  _id: "$scheduleId",
-                  bookedSeats: { $sum: "$purchasedTickets.quantity" },
-                  bookedLuggage: { $sum: { $ifNull: ["$luggageBooked", 0] } },
-                },
+            },
+            { $unwind: "$purchasedTickets" },
+            {
+              $group: {
+                _id: "$scheduleId",
+                bookedSeats: { $sum: "$purchasedTickets.quantity" },
+                bookedLuggage: { $sum: { $ifNull: ["$luggageBooked", 0] } },
               },
-            ],
-            as: "bookingsData",
-          },
-        },
-        // 8️⃣ Aggiungi campi con i posti disponibili
-        {
-          $addFields: {
-            bookedSeats: { $ifNull: [{ $arrayElemAt: ["$bookingsData.bookedSeats", 0] }, 0] },
-            bookedLuggage: { $ifNull: [{ $arrayElemAt: ["$bookingsData.bookedLuggage", 0] }, 0] },
-            totalSeats: "$schedules.totalSeats",
-            totalLuggage: "$schedules.availableLuggage",
-            availableSeats: {
-              $max: [{ $subtract: ["$schedules.totalSeats", { $ifNull: [{ $arrayElemAt: ["$bookingsData.bookedSeats", 0] }, 0] }] }, 0],
             },
-            availableLuggage: {
-              $max: [{ $subtract: ["$schedules.availableLuggage", { $ifNull: [{ $arrayElemAt: ["$bookingsData.bookedLuggage", 0] }, 0] }] }, 0],
-            },
+          ],
+          as: "bookingsData",
+        },
+      },
+      // 8️⃣ Aggiungi campi con i posti disponibili
+      {
+        $addFields: {
+          bookedSeats: { $ifNull: [{ $arrayElemAt: ["$bookingsData.bookedSeats", 0] }, 0] },
+          bookedLuggage: { $ifNull: [{ $arrayElemAt: ["$bookingsData.bookedLuggage", 0] }, 0] },
+          totalSeats: "$schedules.totalSeats",
+          totalLuggage: "$schedules.availableLuggage",
+          availableSeats: {
+            $max: [{ $subtract: ["$schedules.totalSeats", { $ifNull: [{ $arrayElemAt: ["$bookingsData.bookedSeats", 0] }, 0] }] }, 0],
+          },
+          availableLuggage: {
+            $max: [{ $subtract: ["$schedules.availableLuggage", { $ifNull: [{ $arrayElemAt: ["$bookingsData.bookedLuggage", 0] }, 0] }] }, 0],
           },
         },
-        // 9️⃣ Filtra solo le `schedules` con abbastanza posti e bagagli disponibili
-        {
-          $match: {
-            availableSeats: { $gte: posti },
-            availableLuggage: { $gte: bagagli },
-          },
+      },
+      // 9️⃣ Filtra solo le `schedules` con abbastanza posti e bagagli disponibili
+      {
+        $match: {
+          availableSeats: { $gte: posti },
+          availableLuggage: { $gte: bagagli },
         },
-        // 🔟 Proietta solo i campi necessari per l'output
-        {
-          $project: {
-            _id: 0,
-            dayOfWeekTravelDate: "$dayOfWeekTravelDate",
-            scheduleId: "$schedules.id",
-            fromStopId: fromStopId,
-            toStopId: toStopId,
-            routeId: "$id",
-            availableSeats: 1,
-            availableLuggage: 1,
-          },
+      },
+      // 🔟 Proietta solo i campi necessari per l'output
+      {
+        $project: {
+          _id: 0,
+          dayOfWeekTravelDate: "$dayOfWeekTravelDate",
+          scheduleId: "$schedules.id",
+          fromStopId: fromStopId,
+          toStopId: toStopId,
+          routeId: "$id",
+          availableSeats: 1,
+          availableLuggage: 1,
         },
-      ])
-      .toArray();
+      },
+    ];
+    return this.db.collection("routes").aggregate(q).toArray();
   }
 }

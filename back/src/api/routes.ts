@@ -9,7 +9,7 @@ import { role } from "../enum/role";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 import { check } from "express-validator";
 
-router.get("/", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.getRoutes();

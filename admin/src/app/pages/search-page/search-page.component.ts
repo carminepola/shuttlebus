@@ -8,22 +8,30 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { SearchComponent } from '../../components/search/search.component';
 import { BookingsService } from '../../services/bookings/bookings.service';
+import { FooterComponent } from '../../components/footer/footer.component';
+import { LoadingComponent } from '../../components/loading/loading/loading.component';
+import { TranslateNamePipe } from '../../pipe/translateName.pipe';
+import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 
 @Component({
   selector: 'app-search-page',
   imports: [
+    LoadingComponent,
     SearchComponent,
     TranslatePipe,
+    TranslateNamePipe,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
+    FooterComponent,
+    LoadingComponent,
   ],
   templateUrl: './search-page.component.html',
   styleUrl: './search-page.component.scss',
 })
 export class SearchPageComponent implements OnInit {
-  public routes: string[] = [];
-  public stops: string[] = [];
+  public ticketTypes: any[] = [];
+  public loading: boolean = true;
   public ricerca = {
     partenza: '',
     arrivo: '',
@@ -31,14 +39,26 @@ export class SearchPageComponent implements OnInit {
     data: '',
     bagagli: 0,
   };
-  public params: any;
+  public ricercaFind = {
+    partenza: '',
+    arrivo: '',
+    persone: 0,
+    data: '',
+    bagagli: 0,
+  };
+
+  public params: any = [];
+
   constructor(
     private routesService: RoutesService,
     private stopsService: StopsService,
     private bookingService: BookingsService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private ticketTypeService: TicketTypeService
   ) {}
+
+  ngAfterViewInit(): void {}
   async ngOnInit(): Promise<void> {
     this.route.params.subscribe((params) => {
       this.ricerca.partenza = params['partenza'];
@@ -46,7 +66,38 @@ export class SearchPageComponent implements OnInit {
       this.ricerca.persone = parseInt(params['persone']);
       this.ricerca.data = params['data'];
       this.ricerca.bagagli = parseInt(params['bagagli']);
+      this.params = [];
+      this.ricercaFind = JSON.parse(JSON.stringify(this.ricerca));
+      this.load();
     });
+  }
+
+  addTicket(j: number, i: number) {
+    this.params[j].seats++;
+    this.params[j].ticketTypes[i].count++;
+    this.params[j].total += this.params[j].ticketTypes[i].cost;
+  }
+  removeTicket(j: number, i: number) {
+    this.params[j].ticketTypes[i].count--;
+    this.params[j].seats--;
+    this.params[j].total -= this.params[j].ticketTypes[i].cost;
+  }
+  removeLuggage(j: number) {
+    this.params[j].total -= 2;
+    this.params[j].luggage--;
+  }
+  addLuggage(j: number) {
+    this.params[j].total += 2;
+    this.params[j].luggage++;
+  }
+
+  async load() {
+    this.params = [];
+    this.loading = true;
+
+    let risTicketTypes = await lastValueFrom(
+      this.ticketTypeService.getAllActiveTicketTypes()
+    );
     let risRoutes = await lastValueFrom(this.routesService.getRoutes());
     let risStops = await lastValueFrom(this.stopsService.getAllActiveStops());
     let risBookings = await lastValueFrom(
@@ -59,6 +110,77 @@ export class SearchPageComponent implements OnInit {
       )
     );
 
-    this.params = risBookings;
+    let ticketTypes = risTicketTypes.ticketType;
+    let stops = risStops.stops;
+    let routes = risRoutes.routes;
+    let params = risBookings.result || [];
+    for (let i = 0; i < params.length; i++) {
+      let route: any = routes.find((t: any) => t.id === params[i].routeId);
+      if (route && route.schedules) {
+        let schedule = route?.schedules.find(
+          (t: any) => t.id === params[i].scheduleId
+        );
+
+        let from: any = stops.find((t: any) => t.id === this.ricerca.partenza);
+        let to: any = stops.find((t: any) => t.id === this.ricerca.arrivo);
+        let info = {
+          total: 2 * this.ricerca.bagagli,
+          luggage: this.ricerca.bagagli,
+          seats: 0,
+          availableSeats: params[i].availableSeats || 0,
+          availableLuggage: params[i].availableLuggage || 0,
+          name: route.name,
+          from: {
+            name: from.name,
+            description: from.description,
+            image: from.image,
+            address: from.address,
+            stopTime: schedule.stops.find(
+              (z: any) => z.id === this.ricerca.partenza
+            ).stopTime,
+          },
+
+          to: {
+            name: to.name,
+            description: to.description,
+            image: to.image,
+            address: to.address,
+            stopTime: schedule.stops.find(
+              (z: any) => z.id === this.ricerca.arrivo
+            ).stopTime,
+          },
+          ticketTypes: JSON.parse(
+            JSON.stringify(
+              ticketTypes.map((t: any) => {
+                return ticketTypes.find((z: any) => z.id === t.id);
+              })
+            )
+          ),
+        };
+
+        info.ticketTypes = info.ticketTypes.map((t: any) => {
+          return {
+            ...t,
+            count: 0,
+          };
+        });
+
+        this.params.push(info);
+      }
+    }
+
+    if (this.ricerca.data == new Date().toISOString().split('T')[0]) {
+      this.params = this.params.filter((param: any) => {
+        const [hour, minute] = param.from.stopTime.split(':');
+        const stopTime = new Date();
+        stopTime.setHours(parseInt(hour));
+        stopTime.setMinutes(parseInt(minute));
+        const now = new Date();
+        now.setHours(now.getHours() - 1);
+        return stopTime > now;
+      });
+    }
+
+    this.loading = false;
   }
 }

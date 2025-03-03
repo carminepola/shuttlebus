@@ -106,6 +106,7 @@
       </select>
     </div>
     <div class="col-12 col-lg mb-2">
+      {{ ricerca!.data }}
       <label
         for="giorno"
         class="text-secondary mb-1"
@@ -117,6 +118,7 @@
         name="data"
         type="date"
         id="giorno"
+        (ngModelChange)="updateDate($event)"
         class="form-control"
         [min]="today"
       />

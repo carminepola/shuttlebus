@@ -1,8 +1,161 @@
 <div class="container-fluid pt-2">
   <div class="card marginTopBar shadow-lg border-0 rounded-4">
     <div class="card-body">
-      <app-search [ricerca]="ricerca"></app-search>
+      <app-search [ricerca]="ricercaFind"></app-search>
     </div>
   </div>
 </div>
-{{ params | json }}
+
+<div class="container" style="min-height: 50vh">
+  <div class="row h-100 my-5" *ngIf="loading">
+    <div class="col text-center h-100 d-flex flex-column align-items-center">
+      <app-loading></app-loading>
+    </div>
+  </div>
+  <div class="row" *ngIf="params.length == 0 && !loading">
+    <div class="col text-center my-5">
+      <img
+        src="../../../assets/no-results.png"
+        class="img-fluid"
+        style="max-width: 200px"
+        alt="not-found"
+      />
+      <h1
+        class="text-primary mt-4"
+        [innerText]="'search_not_found' | translate"
+      ></h1>
+    </div>
+  </div>
+  <div class="row my-5" *ngIf="params.length > 0 && !loading">
+    <div class="col-12" *ngFor="let param of params; let j = index">
+      <div class="card border-secondary rounded-4 mb-3">
+        <div class="card-body">
+          <div class="card-text">
+            <div class="row">
+              <div class="col-12 col-lg-6">
+                <div>
+                  <h5
+                    class="fw-bold text-primary"
+                    [innerHTML]="param.name | translateName"
+                  ></h5>
+                </div>
+                <div>
+                  <div class="fw-bold text-secondary">Partenza da</div>
+                  <div class="d-flex justify-content-between">
+                    <div class="text-primary">Fermata 2</div>
+                    <div class="text-primary fw-bold">10:00</div>
+                  </div>
+                  <div class="text-muted">
+                    via mauro comite, 2 - 20121 Milano
+                  </div>
+                </div>
+
+                <div class="mt-2">
+                  <div class="fw-bold text-secondary">Arrivo a</div>
+                  <div class="d-flex justify-content-between">
+                    <div class="text-primary">Fermata 3</div>
+                    <div class="text-primary fw-bold">10:10</div>
+                  </div>
+                  <div class="text-muted">via cimitile, 2 - 20121 Milano</div>
+                </div>
+              </div>
+              <hr class="w-100 my-3 d-block d-lg-none" />
+
+              <div class="col-12 col-lg-6">
+                <div class="mb-2 ps-0 ps-lg-5">
+                  Seleziona i biglietti per abilitare l'acquisto
+                </div>
+                <div class="ps-0 ps-lg-5">
+                  <div *ngFor="let ticket of param.ticketTypes; let i = index">
+                    <div class="d-flex justify-content-between">
+                      <div>
+                        <div
+                          class="fw-bold text-secondary"
+                          [innerHTML]="ticket.name | translateName"
+                        ></div>
+                        <div
+                          class="text-muted"
+                          [innerHTML]="ticket.description | translateName"
+                        ></div>
+                      </div>
+
+                      <div class="fw-bold text-primary fs-3">
+                        <span [innerHTML]="ticket.cost"></span
+                        ><span class="text-secondary">€</span>
+                      </div>
+                    </div>
+                    <div
+                      class="d-flex mt-2 justify-content-center align-items-center"
+                    >
+                      <button
+                        class="btn btn-link me-3"
+                        [disabled]="ticket.count == 0"
+                        (click)="removeTicket(j, i)"
+                      >
+                        <i class="fa fa-minus"></i>
+                      </button>
+                      <div>
+                        <h3 [innerHTML]="ticket.count"></h3>
+                      </div>
+                      <button
+                        class="btn btn-link ms-3"
+                        (click)="addTicket(j, i)"
+                        [disabled]="param.seats == ricerca.persone"
+                      >
+                        <i class="fa fa-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div *ngIf="ricerca.bagagli > 0">
+                    <div class="d-flex justify-content-between">
+                      <div>
+                        <div
+                          class="fw-bold text-secondary"
+                          [innerHTML]="'str_bagagli_aggiuntivi' | translate"
+                        ></div>
+                        <div
+                          class="text-muted"
+                          [innerHTML]="
+                            'str_bagagli_aggiuntivi_descrizione' | translate
+                          "
+                        ></div>
+                      </div>
+
+                      <div class="fw-bold text-primary fs-3">
+                        <span>2</span><span class="text-secondary">€</span>
+                      </div>
+                    </div>
+                    <div
+                      class="d-flex mt-2 justify-content-center align-items-center"
+                    >
+                      <div>
+                        <h3 [innerHTML]="ricerca.bagagli"></h3>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-12">
+                <button
+                  class="btn btn-secondary btn-lg float-end w-sm-100"
+                  [disabled]="param.seats != ricerca.persone"
+                >
+                  Acquista
+                  <span *ngIf="param.seats == ricerca.persone"
+                    >per {{ param.total }} €</span
+                  >
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- {{ param | json }} -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>
