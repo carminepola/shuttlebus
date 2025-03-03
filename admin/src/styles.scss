@@ -86,3 +86,9 @@ body {
     margin-top: 77px !important;
   }
 }
+.w-sm-100{
+  @media (max-width: 991.98px) {
+    // Bootstrap lg breakpoint is 992px
+    width: 100% !important;
+  }
+}

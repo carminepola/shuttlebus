@@ -46,7 +46,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit(): Promise<void> {
-    debugger;
     if (!this.ricerca) {
       this.ricerca = {
         partenza: '',
@@ -123,7 +122,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }, 10);
   }
   cambioArrivo() {
-    debugger;
     if (this.ricerca?.arrivo) {
       let listaStazioni: string[] = [];
 
@@ -177,5 +175,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.ricerca?.data,
       this.ricerca?.bagagli,
     ]);
+  }
+  updateDate(event: string) {
+    const dateObj = new Date(event);
+
+    this.ricerca!.data = dateObj.toISOString().split('T')[0]; // Sempre YYYY-MM-DD
   }
 }
