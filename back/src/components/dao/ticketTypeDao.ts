@@ -37,7 +37,7 @@ export default class TicketTypeDao {
   }
   async getAllActiveTicketType() {
     try {
-      return await this.db.collection(this.schema).find({ isDeleted: false, isActive: true }).toArray();
+      return await this.db.collection(this.schema).find({ isDeleted: false, isActive: true }).project({ id: 1, name: 1, description: 1, cost: 1, _id: 0 }).toArray();
     } catch (error) {
       logger.error("Error retrieving all ticketType:", error);
       throw error;

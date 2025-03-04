@@ -21,6 +21,7 @@ import { RouteDetailsComponent } from './pages/route-details/route-details.compo
 import { ScheduleListComponent } from './pages/schedule-list/schedule-list.component';
 import { ScheduleComponent } from './pages/schedule/schedule.component';
 import { SearchPageComponent } from './pages/search-page/search-page.component';
+import { RiepilogoComponent } from './pages/riepilogo/riepilogo.component';
 export const routes: Routes = [
   {
     path: '',
@@ -37,6 +38,12 @@ export const routes: Routes = [
   {
     path: 'search/:partenza/:arrivo/:persone/:data/:bagagli',
     component: SearchPageComponent,
+    canActivate: [],
+    data: { lowBar: true },
+  },
+  {
+    path: 'riepilogo',
+    component: RiepilogoComponent,
     canActivate: [],
     data: { lowBar: true },
   },

@@ -9,7 +9,6 @@ export default async function responseMiddleware(req: Request, res: Response<Mes
     const originalJson = res.json;
 
     res.json = function (body?: any): express.Response {
-      console.log("response");
       let statusCode = res.statusCode;
       res.locals.log.status = res.statusCode;
       res.locals.log.response = res.locals.response;

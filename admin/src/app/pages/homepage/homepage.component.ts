@@ -4,7 +4,7 @@ import { FooterComponent } from '../../components/footer/footer.component';
 import { LngService } from '../../services/lng/lng.service';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '../../pipe/translate.pipe';
-import { NgLabelTemplateDirective, NgOptionTemplateDirective, NgSelectComponent } from '@ng-select/ng-select';
+
 import { FormsModule } from '@angular/forms';
 import { SearchComponent } from '../../components/search/search.component';
 @Component({

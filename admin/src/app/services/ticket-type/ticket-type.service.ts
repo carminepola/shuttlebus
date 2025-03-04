@@ -21,7 +21,7 @@ export class TicketTypeService {
   }
 
   getAllActiveTicketTypes(): Observable<any> {
-    return this.http.get<any[]>(this.apiUrl).pipe(
+    return this.http.get<any[]>(this.apiUrl + '/all').pipe(
       catchError((error) => {
         return throwError(() => error);
       })
