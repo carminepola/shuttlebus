@@ -10,21 +10,56 @@
     /></a>
     <div class="collapse navbar-collapse d-flex" id="navbar">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item">
+        <li class="nav-item cursor-pointer">
           <a class="nav-link rounded-3 active" aria-current="page" href="#"
             >Home</a
           >
         </li>
-        <li class="nav-item">
-          <a class="nav-link rounded-3" href="#"> Ticket</a>
+        <li class="nav-item cursor-pointer">
+          <a class="nav-link rounded-3" (click)="onTicket()"> Ticket</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item cursor-pointer">
           <a class="nav-link rounded-3" href="#"> Info</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link rounded-3" href="#"> Contatti</a>
+        <li class="nav-item cursor-pointer">
+          <a class="nav-link rounded-3" href="#"> Whatsapp</a>
         </li>
       </ul>
     </div>
   </div>
 </nav>
+<div class="modal fade show" tabindex="-1" id="modalLogin">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="d-flex justify-content-between align-items-center py-2 px-3">
+        <nav class="nav nav-pills nav-fill">
+          <a
+            (click)="login = true"
+            class="nav-link cursor-pointer"
+            [ngClass]="{ active: login }"
+            aria-current="page"
+            href="#"
+            >LOGIN</a
+          >
+          <a
+            (click)="login = false"
+            class="nav-link cursor-pointer"
+            [ngClass]="{ active: !login }"
+            aria-current="page"
+            >REGISTRATI</a
+          >
+        </nav>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <app-login-form *ngIf="login"></app-login-form>
+        <app-registrazione *ngIf="!login"></app-registrazione>
+      </div>
+    </div>
+  </div>
+</div>

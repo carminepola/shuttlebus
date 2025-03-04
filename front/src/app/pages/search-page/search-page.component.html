@@ -1,5 +1,5 @@
 <div class="container pt-2">
-  <div class="card marginTopBar shadow-lg border-0 rounded-4">
+  <div class="card marginTopBar rounded-4">
     <div class="card-body">
       <app-search [ricerca]="ricercaFind"></app-search>
     </div>
@@ -27,7 +27,10 @@
     </div>
   </div>
   <div class="row my-5" *ngIf="params.length > 0 && !loading">
-    <div class="col-12" *ngFor="let param of params; let j = index">
+    <div
+      class="col-12 col-lg-8 mx-auto"
+      *ngFor="let param of params; let j = index"
+    >
       <div class="card border-secondary rounded-4 mb-3">
         <div class="card-body">
           <div class="card-text">

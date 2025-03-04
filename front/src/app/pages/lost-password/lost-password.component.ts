@@ -25,6 +25,9 @@ export class LostPasswordComponent implements OnInit {
     private authService: AuthService
   ) {}
 
+  goBack() {
+    window.history.back();
+  }
   ngOnInit(): void {
     this.lostPasswordForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -58,7 +61,7 @@ export class LostPasswordComponent implements OnInit {
   onSubmitCode(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (this.code.length === 6) {
       this.isLoading = true;
       setTimeout(() => {
@@ -81,7 +84,6 @@ export class LostPasswordComponent implements OnInit {
   }
 
   onInput(event: Event, index: number): void {
-    
     const input = event.target as HTMLInputElement;
     const value = input.value;
     if (!value.trim().match(/^\d+$/)) {
@@ -98,7 +100,6 @@ export class LostPasswordComponent implements OnInit {
   }
 
   onKeydown(event: KeyboardEvent, index: number): void {
-    
     if (event.key === 'Backspace') {
       const input = event.target as HTMLInputElement;
       input.value = '';
@@ -111,7 +112,6 @@ export class LostPasswordComponent implements OnInit {
   }
 
   onPaste(event: ClipboardEvent): void {
-    
     const { clipboardData } = event;
     if (clipboardData) {
       const text = clipboardData.getData('text/plain');

@@ -2,6 +2,19 @@
   <div class="container" *ngIf="!loading" style="min-height: 50vh">
     <div class="row">
       <div class="col">
+        <div class="my-4">
+          <a
+            class="d-flex align-items-center text-secondary cursor-pointer"
+            (click)="goBack()"
+          >
+            <i class="fas fa-arrow-left me-2"></i>
+            Torna alla login
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
         <div class="card border-secondary">
           <div class="card-body">
             <div class="card-title">

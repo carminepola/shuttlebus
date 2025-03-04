@@ -39,4 +39,7 @@ export class RiepilogoComponent implements OnInit {
       this.router.navigate(['/']);
     }
   }
+  goBack() {
+    window.history.back();
+  }
 }

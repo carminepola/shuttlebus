@@ -1,0 +1,97 @@
+<div class="fs-2 mb-3 fw-bold text-primary">
+  {{ "str_accendi_account" | translate }}
+</div>
+<form [formGroup]="loginForm" (submit)="onSubmit($event)" novalidate>
+  <div class="mb-3">
+    <label for="email" class="form-label">Email</label>
+    <input
+      id="email"
+      formControlName="email"
+      type="email"
+      autocomplete="email"
+      class="form-control"
+      [placeholder]="'str_email' | translate"
+      [ngClass]="{
+              'is-invalid': isSubmitted && formControls['email'].invalid,
+          
+            }"
+    />
+    <div
+      *ngIf="isSubmitted && formControls['email'].errors"
+      class="invalid-feedback"
+    >
+      <div *ngIf="formControls['email'].errors['required']">
+        {{ "str_email_obbligatoria" | translate }}
+      </div>
+      <div *ngIf="formControls['email'].errors['email']">
+        {{ "str_email_non_valida" | translate }}
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <input
+      id="password"
+      formControlName="password"
+      type="password"
+      autocomplete="password"
+      class="form-control"
+      [placeholder]="'str_password' | translate"
+      [ngClass]="{
+              'is-invalid': isSubmitted && formControls['password'].invalid,
+             
+            }"
+    />
+    <div
+      *ngIf="isSubmitted && formControls['password'].errors"
+      class="invalid-feedback"
+    >
+      <div *ngIf="formControls['password'].errors['required']">
+        {{ "str_password_obbligatoria" | translate }}
+      </div>
+      <div *ngIf="formControls['password'].errors['minlength']">
+        {{ "str_password_lunghezza_minima" | translate }}
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="form-check">
+      <input
+        formControlName="rememberMe"
+        id="rememberMe"
+        name="rememberMe"
+        type="checkbox"
+        class="form-check-input"
+      />
+      <label for="rememberMe" class="form-check-label">{{
+        "str_remember_me" | translate
+      }}</label>
+    </div>
+
+    <div class="text-end">
+      <a href="#" routerLink="/lostpassword" class="text-secondary">{{
+        "str_lost_password" | translate
+      }}</a>
+    </div>
+  </div>
+
+  <div>
+    <div *ngIf="loginError" class="alert alert-danger border-0 mb-2">
+      {{ loginError }}
+    </div>
+    <button
+      type="submit"
+      [disabled]="isLoading"
+      class="btn btn-secondary w-100 d-flex justify-content-center align-items-center"
+    >
+      <span *ngIf="!isLoading">{{ "str_login" | translate }}</span>
+      <div
+        *ngIf="isLoading"
+        class="spinner-border spinner-border-sm text-white"
+        role="status"
+      ></div>
+    </button>
+  </div>
+</form>
