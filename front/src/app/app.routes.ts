@@ -22,13 +22,19 @@ import { ScheduleListComponent } from './pages/schedule-list/schedule-list.compo
 import { ScheduleComponent } from './pages/schedule/schedule.component';
 import { SearchPageComponent } from './pages/search-page/search-page.component';
 import { RiepilogoComponent } from './pages/riepilogo/riepilogo.component';
+import { TestComponent } from './pages/test/test.component';
 export const routes: Routes = [
   {
     path: '',
     component: HomepageComponent,
     data: { lowBar: true },
   },
-
+  { path: 'lostpassword', component: LostPasswordComponent, data: {} },
+  {
+    path: 'test',
+    component: TestComponent,
+    data: { lowBar: false },
+  },
   {
     path: 'info',
     component: InfoComponent,
@@ -172,8 +178,6 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         data: { navbar: true },
       },
-
-      { path: 'lostpassword', component: LostPasswordComponent, data: {} },
     ],
   },
 

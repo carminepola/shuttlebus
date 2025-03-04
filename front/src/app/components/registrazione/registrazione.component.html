@@ -1,0 +1,239 @@
+<div class="fs-2 mb-3 fw-bold text-primary">
+  {{ "str_registra_account" | translate }}
+</div>
+<form
+  [formGroup]="loginForm"
+  (submit)="onSubmit($event)"
+  novalidate
+  *ngIf="!pinMode"
+>
+  <div class="mb-3">
+    <label for="email" class="form-label">Email</label>
+    <input
+      id="email"
+      formControlName="email"
+      type="email"
+      autocomplete="email"
+      class="form-control"
+      [placeholder]="'str_email' | translate"
+      [ngClass]="{
+              'is-invalid': isSubmitted && formControls['email'].invalid,
+          
+            }"
+    />
+    <div
+      *ngIf="isSubmitted && formControls['email'].errors"
+      class="invalid-feedback"
+    >
+      <div *ngIf="formControls['email'].errors['required']">
+        {{ "str_email_obbligatoria" | translate }}
+      </div>
+      <div *ngIf="formControls['email'].errors['email']">
+        {{ "str_email_non_valida" | translate }}
+      </div>
+    </div>
+  </div>
+  <div class="mb-3">
+    <label
+      for="repeatEmail"
+      class="form-label"
+      [innerHTML]="'str_ripeti_email' | translate"
+      >Email</label
+    >
+    <input
+      id="repeatEmail"
+      formControlName="repeatEmail"
+      type="repeatEmail"
+      autocomplete="repeatEmail"
+      class="form-control"
+      [placeholder]="'str_ripeti_email' | translate"
+      [ngClass]="{
+              'is-invalid': isSubmitted && formControls['repeatEmail'].invalid,
+          
+            }"
+    />
+    <div
+      *ngIf="isSubmitted && formControls['repeatEmail'].errors"
+      class="invalid-feedback"
+    >
+      <div *ngIf="formControls['repeatEmail'].errors['required']">
+        {{ "str_email_obbligatoria" | translate }}
+      </div>
+      <div *ngIf="formControls['repeatEmail'].errors['email']">
+        {{ "str_email_non_valida" | translate }}
+      </div>
+    </div>
+  </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <input
+      id="password"
+      formControlName="password"
+      type="password"
+      autocomplete="password"
+      class="form-control"
+      [placeholder]="'str_password' | translate"
+      [ngClass]="{ 'is-invalid': isSubmitted &&
+    formControls['password'].invalid, }"
+    />
+    <div
+      *ngIf="isSubmitted && formControls['password'].errors"
+      class="invalid-feedback"
+    >
+      <div *ngIf="formControls['password'].errors['required']">
+        {{ "str_password_obbligatoria" | translate }}
+      </div>
+      <div *ngIf="formControls['password'].errors['minlength']">
+        {{ "str_password_lunghezza_minima" | translate }}
+      </div>
+    </div>
+  </div>
+  <div class="mb-3">
+    <label
+      for="repeatPassword"
+      class="form-label"
+      [innerHTML]="'str_ripeti_password' | translate"
+      >Password'"></label
+    >
+    <input
+      id="password"
+      formControlName="password"
+      type="password"
+      autocomplete="password"
+      class="form-control"
+      [placeholder]="'str_ripeti_password' | translate"
+      [ngClass]="{
+              'is-invalid': isSubmitted && formControls['repeatPassword'].invalid,
+             
+            }"
+    />
+    <div
+      *ngIf="isSubmitted && formControls['repeatPassword'].errors"
+      class="invalid-feedback"
+    >
+      <div *ngIf="formControls['repeatPassword'].errors['required']">
+        {{ "str_password_obbligatoria" | translate }}
+      </div>
+      <div *ngIf="formControls['repeatPassword'].errors['minlength']">
+        {{ "str_password_lunghezza_minima" | translate }}
+      </div>
+    </div>
+  </div>
+  <div class="mb-3">
+    <div class="row">
+      <div class="col-4">
+        <div>
+          <label
+            for="prefixPhone"
+            class="form-label"
+            [innerHTML]="'str_prefix_phone' | translate"
+          >
+          </label>
+          <input
+            id="prefixPhone"
+            formControlName="prefixPhone"
+            type="prefixPhone"
+            autocomplete="prefixPhone"
+            class="form-control"
+            [placeholder]="'str_prefix_phone' | translate"
+            [ngClass]="{
+              'is-invalid': isSubmitted && formControls['prefixPhone'].invalid,
+             
+            }"
+          />
+          <div
+            *ngIf="isSubmitted && formControls['prefixPhone'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="formControls['prefixPhone'].errors['required']">
+              {{ "str_prefix_phone_obbligatorio" | translate }}
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+      <div class="col">
+        <div>
+          <label
+            for="prefixPhone"
+            class="form-label"
+            [innerHTML]="'str_prefix_phone' | translate"
+          >
+          </label>
+          <input
+            id="phone"
+            formControlName="phoneNumber"
+            type="phoneNumber"
+            autocomplete="phoneNumber"
+            class="form-control"
+            [placeholder]="'str_phone_number' | translate"
+            [ngClass]="{
+              'is-invalid': isSubmitted && formControls['phoneNumber'].invalid,
+             
+            }"
+          />
+          <div
+            *ngIf="isSubmitted && formControls['phoneNumber'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="formControls['phoneNumber'].errors['required']">
+              {{ "str_phone_number_obbligatorio" | translate }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mb-3">
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        required
+        id="termsAndConditions"
+        formControlName="termsAndConditions"
+        [ngClass]="{
+              'is-invalid': isSubmitted && formControls['termsAndConditions'].invalid,
+             
+            }"
+      />
+      <label class="form-check-label" for="termsAndConditions">
+        {{ "str_terms_and_conditions_accept" | translate }}
+      </label>
+      <span
+        class="text-underline cursor-pointer text-secondary ms-2"
+        (click)="privacy = !privacy"
+        [innerHTML]="'str_qui_riportati' | translate"
+      >
+      </span>
+      <div
+        *ngIf="isSubmitted && formControls['termsAndConditions'].errors"
+        class="invalid-feedback"
+      >
+        <div *ngIf="formControls['termsAndConditions'].errors['required']">
+          {{ "str_terms_and_conditions_required" | translate }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="privacy" class="my-3">
+    <p>{{ "str_privacy_policy" | translate }}</p>
+  </div>
+  <div>
+    <div *ngIf="loginError" class="alert alert-danger border-0 mb-2">
+      {{ loginError }}
+    </div>
+    <button
+      type="submit"
+      [disabled]="isLoading"
+      class="btn btn-secondary w-100 d-flex justify-content-center align-items-center"
+    >
+      <span *ngIf="!isLoading">{{ "str_registrati" }}</span>
+      <div
+        *ngIf="isLoading"
+        class="spinner-border spinner-border-sm text-white"
+        role="status"
+      ></div>
+    </button>
+  </div>
+</form>
