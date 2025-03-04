@@ -1,0 +1,169 @@
+<div class="marginTopBar">
+  <div class="container" *ngIf="!loading" style="min-height: 50vh">
+    <div class="row">
+      <div class="col">
+        <div class="card border-secondary">
+          <div class="card-body">
+            <div class="card-title">
+              <h2 class="text-secondary fw-bold">Riepilogo</h2>
+              <div class="row">
+                <div class="col-12 col-lg-4">
+                  <div>
+                    <h5
+                      class="fw-bold text-primary"
+                      [innerHTML]="param.name | translateName"
+                    ></h5>
+                  </div>
+                  <div>
+                    <div
+                      class="fw-bold text-secondary"
+                      [innerHTML]="'str_partenza_da' | translate"
+                    ></div>
+                    <div class="d-flex justify-content-between">
+                      <div
+                        class="text-primary"
+                        [innerHTML]="param.from.name"
+                      ></div>
+                      <div
+                        class="text-primary fw-bold"
+                        [innerHTML]="param.from.stopTime"
+                      ></div>
+                    </div>
+                    <div
+                      class="text-muted"
+                      [innerHTML]="param.from.address"
+                    ></div>
+                  </div>
+
+                  <div class="mt-2">
+                    <div
+                      class="fw-bold text-secondary"
+                      [innerHTML]="'str_arrivo_a' | translate"
+                    ></div>
+                    <div class="d-flex justify-content-between">
+                      <div
+                        class="text-primary"
+                        [innerHTML]="param.to.name"
+                      ></div>
+                      <div
+                        class="text-primary fw-bold"
+                        [innerHTML]="param.to.stopTime"
+                      ></div>
+                    </div>
+                    <div
+                      class="text-muted"
+                      [innerHTML]="param.to.address"
+                    ></div>
+                  </div>
+                </div>
+                <hr class="w-100 my-3 d-block d-lg-none" />
+                <div class="col-12 col-lg-8">
+                  <div class="list-group w-auto">
+                    <a
+                      *ngFor="let ticket of param.ticketTypes; let i = index"
+                      class="list-group-item list-group-item-action gap-3 py-3"
+                      aria-current="true"
+                    >
+                      <div class="d-flex gap-2 w-100 justify-content-between">
+                        <div>
+                          <h6
+                            class="mb-0"
+                            [innerHTML]="ticket.name | translateName"
+                          ></h6>
+
+                          <p
+                            class="mb-0 opacity-75"
+                            [innerHTML]="ticket.description | translateName"
+                          ></p>
+                        </div>
+
+                        <div class="fw-bold text-primary fs-3">
+                          <span [innerHTML]="ticket.cost"></span
+                          ><span class="text-secondary">€</span>
+                        </div>
+                      </div>
+                      <div class="w-100">
+                        <div
+                          class="d-flex mt-2 justify-content-center align-items-center"
+                        >
+                          <div>
+                            <h3>
+                              <span class="text-secondary me-1">X</span
+                              ><span [innerHTML]="ticket.count"></span>
+                            </h3>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+
+                    <a
+                      *ngIf="param.luggage > 0"
+                      class="list-group-item list-group-item-action gap-3 py-3"
+                    >
+                      <div class="d-flex gap-2 w-100 justify-content-between">
+                        <div>
+                          <h6
+                            class="mb-0"
+                            [innerHTML]="'str_bagagli_aggiuntivi' | translate"
+                          ></h6>
+
+                          <p
+                            class="mb-0 opacity-75"
+                            [innerHTML]="
+                              'str_bagagli_aggiuntivi_descrizione' | translate
+                            "
+                          ></p>
+                        </div>
+
+                        <div class="fw-bold text-primary fs-3">
+                          <span>2</span><span class="text-secondary">€</span>
+                        </div>
+                      </div>
+                      <div class="w-100">
+                        <div
+                          class="d-flex mt-2 justify-content-center align-items-center"
+                        >
+                          <div>
+                            <h3>
+                              <span class="text-secondary me-1">X</span
+                              ><span [innerHTML]="param.luggage"></span>
+                            </h3>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                    <a
+                      class="list-group-item list-group-item-action gap-3 py-3"
+                    >
+                      <div class="d-flex gap-2 w-100 justify-content-between">
+                        <h2
+                          class="text-primary text-uppercase"
+                          [innerText]="'str_totale' | translate"
+                        ></h2>
+                        <div>
+                          <h2 class="text-primary">
+                            <span [innerHTML]="param.total"></span
+                            ><span class="text-secondary">€</span>
+                          </h2>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="container my-5 d-flex justify-content-center align-items-center"
+    style="min-height: 50vh"
+    *ngIf="loading"
+  >
+    <app-loading></app-loading>
+  </div>
+</div>
+<app-footer></app-footer>

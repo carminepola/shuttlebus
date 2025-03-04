@@ -12,7 +12,7 @@ import { FooterComponent } from '../../components/footer/footer.component';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
-
+import { LngService } from '../../services/lng/lng.service';
 @Component({
   selector: 'app-search-page',
   imports: [
@@ -50,6 +50,7 @@ export class SearchPageComponent implements OnInit {
   public params: any = [];
 
   constructor(
+    private lngService: LngService,
     private routesService: RoutesService,
     private stopsService: StopsService,
     private bookingService: BookingsService,
@@ -93,6 +94,7 @@ export class SearchPageComponent implements OnInit {
 
   async load() {
     this.params = [];
+    let params = [];
     this.loading = true;
 
     let risTicketTypes = await lastValueFrom(
@@ -113,24 +115,27 @@ export class SearchPageComponent implements OnInit {
     let ticketTypes = risTicketTypes.ticketType;
     let stops = risStops.stops;
     let routes = risRoutes.routes;
-    let params = risBookings.result || [];
-    for (let i = 0; i < params.length; i++) {
-      let route: any = routes.find((t: any) => t.id === params[i].routeId);
+    let res = risBookings.result || [];
+    for (let i = 0; i < res.length; i++) {
+      let route: any = routes.find((t: any) => t.id === res[i].routeId);
       if (route && route.schedules) {
         let schedule = route?.schedules.find(
-          (t: any) => t.id === params[i].scheduleId
+          (t: any) => t.id === res[i].scheduleId
         );
 
         let from: any = stops.find((t: any) => t.id === this.ricerca.partenza);
         let to: any = stops.find((t: any) => t.id === this.ricerca.arrivo);
         let info = {
+          date: this.ricerca.data,
+          id: res[i].routeId,
           total: 2 * this.ricerca.bagagli,
           luggage: this.ricerca.bagagli,
           seats: 0,
-          availableSeats: params[i].availableSeats || 0,
-          availableLuggage: params[i].availableLuggage || 0,
+          availableSeats: res[i].availableSeats || 0,
+          availableLuggage: res[i].availableLuggage || 0,
           name: route.name,
           from: {
+            id: from.id,
             name: from.name,
             description: from.description,
             image: from.image,
@@ -141,6 +146,7 @@ export class SearchPageComponent implements OnInit {
           },
 
           to: {
+            id: to.id,
             name: to.name,
             description: to.description,
             image: to.image,
@@ -165,22 +171,44 @@ export class SearchPageComponent implements OnInit {
           };
         });
 
-        this.params.push(info);
+        params.push(info);
       }
     }
 
-    if (this.ricerca.data == new Date().toISOString().split('T')[0]) {
-      this.params = this.params.filter((param: any) => {
+    debugger;
+    if (
+      new Date(this.ricerca.data).toDateString().split('T')[0] ==
+      new Date().toDateString().split('T')[0]
+    ) {
+      params = params.filter((param: any) => {
         const [hour, minute] = param.from.stopTime.split(':');
-        const stopTime = new Date();
-        stopTime.setHours(parseInt(hour));
-        stopTime.setMinutes(parseInt(minute));
-        const now = new Date();
-        now.setHours(now.getHours() - 1);
-        return stopTime > now;
+        const [nowHour, nowMinute] = new Date()
+          .toLocaleTimeString('it-IT')
+          .split(':');
+
+        let stopTime = parseInt(hour) * 60 + parseInt(minute);
+        let nowTime = parseInt(nowHour) * 60 + parseInt(nowMinute);
+        if (nowTime + 60 > stopTime) {
+          return false;
+        }
+
+        return true;
       });
     }
+    this.params = params;
 
     this.loading = false;
+  }
+  acquista(param: any) {
+    debugger;
+    param.ticketTypes = param.ticketTypes.filter((t: any) => t.count > 0);
+    param.lng = this.lngService.getLng();
+    delete param['to']['image'];
+    delete param['from']['image'];
+    delete param['availableSeats'];
+    delete param['availableLuggage'];
+
+    console.log(param);
+    this.router.navigate(['/riepilogo'], { state: { value: param } });
   }
 }

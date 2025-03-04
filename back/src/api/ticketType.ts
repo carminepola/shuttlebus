@@ -43,7 +43,7 @@ router.post(
   }
 );
 
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     let ticketTypeServices = new TicketTypeServices(db);
     const ticketType = await ticketTypeServices.getAllTicketTypes();
@@ -71,7 +71,7 @@ router.get("/id/:id", async (req: Request, res: Response, next: NextFunction) =>
   }
 });
 
-router.get("/all", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAGE_TICKET"]), async (req: Request, res: Response, next: NextFunction) => {
+router.get("/all", async (req: Request, res: Response, next: NextFunction) => {
   try {
     let ticketTypeServices = new TicketTypeServices(db);
     const ticketType = await ticketTypeServices.getAllActiveTicketTypes();
