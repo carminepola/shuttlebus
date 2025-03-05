@@ -12,7 +12,7 @@ export default class userModel {
     city?: string;
     zipCode?: string;
   };
-  options: { [key: string]: string };
+  options: { [key: string]: any };
   password: string;
   sessions: sessionModel[];
   role: number;
