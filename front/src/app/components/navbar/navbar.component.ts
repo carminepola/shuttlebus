@@ -44,9 +44,19 @@ export class NavbarComponent {
     }
   }
   public login: boolean = true;
+
+  getPath(): string {
+    return this.router.url;
+  }
   onTicket() {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/admin/home']);
+      let session = this.authService.getDecodedToken();
+
+      if (session.role <= 50) {
+        this.router.navigate(['/admin/home']);
+      } else {
+        this.router.navigate(['/user/account']);
+      }
     } else {
       const myModal = new bootstrap.Modal('#modalLogin');
       const modalToggle: HTMLElement | null =

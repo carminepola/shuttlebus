@@ -1,3 +1,38 @@
+<div class="modal fade show" tabindex="-1" id="modalLogin2">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="d-flex justify-content-between align-items-center py-2 px-3">
+        <nav class="nav nav-pills nav-fill">
+          <a
+            (click)="login = true"
+            class="nav-link cursor-pointer"
+            [ngClass]="{ active: login }"
+            aria-current="page"
+            href="#"
+            >LOGIN</a
+          >
+          <a
+            (click)="login = false"
+            class="nav-link cursor-pointer"
+            [ngClass]="{ active: !login }"
+            aria-current="page"
+            >REGISTRATI</a
+          >
+        </nav>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <app-login-form *ngIf="login"></app-login-form>
+        <app-registrazione *ngIf="!login"></app-registrazione>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="space-lowBar d-block d-lg-none"></div>
 <nav
   class="card rounded-4 bg-white shadow d-block d-lg-none"
@@ -13,27 +48,28 @@
   <div class="row h-100">
     <div class="col">
       <a
-        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 justify-content-center"
+        [class.active]="getPath() == '/'"
         routerLink="/"
-        routerLinkActive="active"
+        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
       >
-        <i class="fas fa-shopping-cart"></i>
+        <i class="fa fa-home"></i>
         <span class="ms-2 fw-bold">Home</span>
       </a>
     </div>
 
     <div class="col">
       <a
-        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 justify-content-center"
-        routerLink="/user-ticket"
+        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+        (click)="onTicket()"
+        [class.active]="getPath().includes('/user/')"
       >
-        <i class="fas fa-ticket"></i>
-        <span class="ms-2 fw-bold">Ticket</span>
+        <i class="fa-solid fa-user"></i>
+        <span class="ms-2 fw-bold">Account</span>
       </a>
     </div>
     <div class="col">
       <a
-        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 justify-content-center"
+        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
         routerLink="/info"
         routerLinkActive="active"
       >
@@ -43,7 +79,7 @@
     </div>
     <div class="col">
       <a
-        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 justify-content-center"
+        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
       >
         <i class="fa-brands fa-whatsapp"></i
         ><span class="ms-2 fw-bold">WA</span>

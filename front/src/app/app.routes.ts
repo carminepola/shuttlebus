@@ -25,6 +25,7 @@ import { RiepilogoComponent } from './pages/riepilogo/riepilogo.component';
 import { TestComponent } from './pages/test/test.component';
 import { AuthPageComponent } from './pages/auth-page/auth-page.component';
 import { AuthGuard } from './services/guard/auth.guard';
+import { UserProfileComponent } from './pages/user-profile/user-profile.component';
 export const routes: Routes = [
   {
     path: '',
@@ -61,6 +62,17 @@ export const routes: Routes = [
     canActivate: [],
     data: { lowBar: true },
   },
+  {
+    path: 'user',
+    children: [
+      {
+        path: 'account',
+        component: UserProfileComponent,
+        canActivate: [AuthGuard],
+        data: { lowBar: true, requiredRole: 100 },
+      },
+    ],
+  },
 
   {
     path: 'admin',
@@ -70,7 +82,7 @@ export const routes: Routes = [
         path: 'fermate',
         component: StopsComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'login',
@@ -90,103 +102,103 @@ export const routes: Routes = [
         path: 'settings',
         component: ImpostazioniComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'usersettings',
         component: UserSettingsComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'fermata/:id',
         component: StopDetailsComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'fermata',
         component: StopDetailsComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'ticket-details',
         component: TicketTypeDetailsComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'ticket-details/:id',
         component: TicketTypeDetailsComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'corse',
         component: RouteComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'route',
         component: RouteDetailsComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'route/:id',
         component: RouteDetailsComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'prenotazioni',
         component: ReservationComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'biglietti',
         component: TicketsTypeComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'utenti',
         component: UsersComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'clienti',
         component: ClientsComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'traduzioni',
         component: TraduzioniComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'schedules/:idRoute',
         component: ScheduleListComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'schedule/:idRoute',
         component: ScheduleComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'schedule/:idRoute/:idSchedule',
         component: ScheduleComponent,
 
-        data: { navbar: true },
+        data: { navbar: true, requiredRole: 50 },
       },
     ],
   },

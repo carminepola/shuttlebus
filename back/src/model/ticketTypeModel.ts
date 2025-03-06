@@ -16,7 +16,6 @@ export default class ticketTypeModel {
   public isActive: boolean;
   public isDeleted: boolean;
   constructor(ticketType?: any) {
-    debugger;
     this.id = ticketType?.id || Guid.create().toString();
     if (!this.name) {
       this.name = { it: "", en: "" };
