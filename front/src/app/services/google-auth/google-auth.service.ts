@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class googleAuthService {
+export class GoogleAuthService {
   private apiUrl = environment.apiUrl;
   private path = 'google';
   constructor(private http: HttpClient) {}

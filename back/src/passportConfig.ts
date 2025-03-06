@@ -1,6 +1,8 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import dotenv from "dotenv";
+import { logger } from "./index";
+import https from "https";
 
 dotenv.config();
 
@@ -11,9 +13,17 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
       callbackURL: process.env.GOOGLE_CALLBACK_URL || "",
     },
-    (accessToken, refreshToken, profile, done) => {
-      console.log("Dati ricevuti da Google:", profile);
-      return done(null, profile);
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const data = await verifyGoogleAccessToken(accessToken);
+        if (!data) {
+          throw new Error("Access Token non valido");
+        }
+
+        return done(null, profile);
+      } catch (error) {
+        logger.error(error);
+      }
     }
   )
 );
@@ -26,3 +36,25 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((obj: any, done) => {
   done(null, obj);
 });
+async function verifyGoogleAccessToken(accessToken: string) {
+  return new Promise((resolve, reject) => {
+    https
+      .get(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${accessToken}`, (res) => {
+        let data = "";
+        res.on("data", (chunk) => (data += chunk));
+        res.on("end", () => {
+          try {
+            const json = JSON.parse(data);
+            if (json.error) {
+              resolve(false);
+            } else {
+              resolve(json);
+            }
+          } catch (error) {
+            reject(error);
+          }
+        });
+      })
+      .on("error", (error) => reject(error));
+  });
+}

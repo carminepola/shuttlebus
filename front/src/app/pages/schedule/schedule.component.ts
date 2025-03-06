@@ -120,10 +120,10 @@ export class ScheduleComponent implements OnInit {
   load(id: string) {
     this.routeService.getRouteById(id).subscribe((res) => {
       this.loading = false;
-      debugger;
+
       if (res && res.route) {
         this.readRoute = res.route;
-        debugger;
+
         if (this.readRoute.schedules?.length > 0) {
           this.form =
             this.readRoute.schedules.find(
@@ -152,7 +152,6 @@ export class ScheduleComponent implements OnInit {
   }
 
   onSubmit(f: NgForm) {
-    debugger;
     this.errorMessage = '';
     if (f.invalid) {
       return;

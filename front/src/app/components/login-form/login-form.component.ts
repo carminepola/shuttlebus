@@ -10,6 +10,8 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import * as CryptoJS from 'crypto-js';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
+
 @Component({
   selector: 'app-login-form',
   standalone: true,
@@ -25,7 +27,8 @@ export class LoginFormComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private googleAuthService: GoogleAuthService
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +41,9 @@ export class LoginFormComponent implements OnInit {
       rememberMe: [false],
     });
   }
-
+  loginWithGoogle() {
+    this.googleAuthService.loginWithGoogle();
+  }
   get formControls() {
     return this.loginForm.controls;
   }
@@ -61,14 +66,7 @@ export class LoginFormComponent implements OnInit {
       this.authService.login(email, md5Password, rememberMe).subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          this.router
-            .navigate(['/admin/home'])
-            .then(() => {
-              // Navigazione completata
-            })
-            .catch((err) => {
-              this.loginError = 'Errore durante la navigazione. Riprova.';
-            });
+
           this.loginError = '';
         },
         error: (e: any) => {

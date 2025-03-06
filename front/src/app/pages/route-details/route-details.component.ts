@@ -90,7 +90,6 @@ export class RouteDetailsComponent implements OnInit {
   }
 
   addStop() {
-    debugger;
     if (
       this.stopSelected &&
       this.routeForm.stops.find((t: any) => t.id === this.stopSelected) ===

@@ -9,7 +9,7 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import CryptoJS from 'crypto-js';
-import { googleAuthService } from '../../services/google-auth/google-auth.service';
+import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private googleAuthService: googleAuthService
+    private googleAuthService: GoogleAuthService
   ) {}
 
   ngOnInit(): void {

@@ -4,7 +4,7 @@ import passport from "passport";
 import UserServices from "../components/services/userServices";
 import { role } from "../enum/role";
 import userModel from "../model/userModel";
-import { db, env } from "../index";
+import { db, env, logger } from "../index";
 import SessionServices from "../components/services/sessionServices";
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
@@ -17,7 +17,7 @@ router.get("/auth", passport.authenticate("google", { scope: ["profile", "email"
 router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction) => {
   try {
     let secretKey = env.SECRET_KEY || "";
-
+    logger.info(req.cookies["connect.sid"]);
     const failToBanServices = new FailToBanServices(db);
     failToBanServices.insertIp(req.ip);
     let id = req.params.id;
@@ -69,6 +69,8 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
 router.get("/auth/callback", passport.authenticate("google", { failureRedirect: "/login" }), async (req: any, res: Response) => {
   if (!req.user) return res.redirect("/login");
   let url = env.CLIENT_URL || "http://localhost:4200";
+  logger.info(req.cookies["connect.sid"]);
+  req.session.sid;
 
   const user = new userModel();
   user.email = req.user.emails[0].value;

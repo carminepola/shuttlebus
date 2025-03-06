@@ -1,0 +1,37 @@
+<div class="container-fluid container-lg marginTopBar">
+  <app-title-page title="Area personale" back="true"></app-title-page>
+
+  <div>
+    <ol class="list-group border-0 rounded-4 shadow" @fadeInOut>
+      <li
+        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+      >
+        <i class="fa fa-ticket me-3 fs-3"></i>
+        <div class="ms-2 me-auto">
+          <div class="fw-bold">Biglietti</div>
+          Visualizza lo stato dei tuoi biglietti
+        </div>
+      </li>
+
+      <li
+        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+      >
+        <i class="fa-solid fa-user me-3 fs-3"></i>
+        <div class="ms-2 me-auto">
+          <div class="fw-bold">Profilo personale</div>
+          Visualizza e cambia i tuoi dati
+        </div>
+      </li>
+      <li
+        (click)="logout()"
+        class="list-group-item bg-danger text-white list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+      >
+        <i class="fas fa-sign-out-alt me-3 fs-3"></i>
+        <div class="ms-2 me-auto">
+          <div class="fw-bold">Logout</div>
+          Disconnessione utente
+        </div>
+      </li>
+    </ol>
+  </div>
+</div>

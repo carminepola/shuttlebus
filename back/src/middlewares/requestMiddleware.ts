@@ -22,7 +22,7 @@ export default function requestMiddleware(req: Request, res: Response, next: Nex
     const headers = req.headers;
     const token = req.cookies ? req.cookies["jwt"] : undefined;
 
-    const clientSid = req.cookies ? req.cookies["client.sid"] : undefined;
+    const clientSid = req.cookies ? req.cookies["connect.sid"] : undefined;
     let session = "";
     jwt.verify(token, secretKey, (err: any, user: any) => {
       if (!err) {
