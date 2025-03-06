@@ -21,15 +21,17 @@ export default function requestMiddleware(req: Request, res: Response, next: Nex
     const url = req.url;
     const headers = req.headers;
     const token = req.cookies ? req.cookies["jwt"] : undefined;
+
+    const clientSid = req.cookies ? req.cookies["client.sid"] : undefined;
     let session = "";
     jwt.verify(token, secretKey, (err: any, user: any) => {
       if (!err) {
-        session = user.session
+        session = user.session;
       }
-    })
+    });
 
     // Log della richiesta
-    let log = new CallRequestModel(ipAddress, res.locals.response.uniqueCallKey, method, url, headers, res.locals.response.version, res.locals.response.clientCallKey, session);
+    let log = new CallRequestModel(clientSid, ipAddress, res.locals.response.uniqueCallKey, method, url, headers, res.locals.response.version, res.locals.response.clientCallKey, session);
     res.locals.log = log;
     // Se la richiesta ha un corpo (ad es. POST), loggiamolo
     if (req.body) {

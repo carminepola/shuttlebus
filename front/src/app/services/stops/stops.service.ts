@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
@@ -20,7 +20,6 @@ export class StopsService {
   }
 
   getAllActiveStops(): Observable<any> {
-    
     return this.http.get<any[]>(this.apiUrl).pipe(
       catchError((error) => {
         return throwError(() => error);

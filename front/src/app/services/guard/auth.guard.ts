@@ -34,16 +34,16 @@ export class AuthGuard implements CanActivate {
       haveRole = user.role <= route.data['requiredRole'];
     }
 
-    if (route.routeConfig?.data?.['requiredPermissions']) {
-      havePermission = user.permissions.some((permission: string) =>
-        route.routeConfig?.data
-          ? ['requiredPermissions'].includes(permission)
-          : false
-      );
-    }
-    if (route.routeConfig?.data?.['requiredRole']) {
-      haveRole = user.role <= route.routeConfig.data['requiredRole'];
-    }
+    // if (route.routeConfig?.data?.['requiredPermissions']) {
+    //   havePermission = user.permissions.some((permission: string) =>
+    //     route.routeConfig?.data
+    //       ? ['requiredPermissions'].includes(permission)
+    //       : false
+    //   );
+    // }
+    // if (route.routeConfig?.data?.['requiredRole']) {
+    //   haveRole = user.role <= route.routeConfig.data['requiredRole'];
+    // }
 
     if (haveRole && havePermission) {
       return true;

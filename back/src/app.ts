@@ -13,6 +13,7 @@ import { logSendStatusMiddleware } from "./middlewares/sendStatusMiddleware";
 import noSqlInjectionMiddleware from "./middlewares/noSqlInjectionMiddleware";
 import session from "express-session";
 import passport from "passport";
+import "./passportConfig";
 //variabili d'ambiente
 require("dotenv").config();
 const app = express();

@@ -4,7 +4,7 @@ import { RegistrazioneComponent } from '../../components/registrazione/registraz
 
 @Component({
   selector: 'app-test',
-  imports: [LoginFormComponent, RegistrazioneComponent],
+  imports: [RegistrazioneComponent],
   templateUrl: './test.component.html',
   styleUrl: './test.component.scss',
 })

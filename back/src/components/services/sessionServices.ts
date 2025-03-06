@@ -55,7 +55,34 @@ export default class SessionServices {
       throw new ErrorModel(401, "Credenziali non valide. Riprova.");
     }
   }
+  public async loginGoogle(email: string): Promise<{
+    userSession: any;
+    sessionToken: {
+      newSession: String;
+      refreshToken: String;
+    };
+  }> {
+    this.failToBan.deleteIp(email);
+    let userFind = await this.userServices.getUserByEmail(email);
 
+    if (userFind?.sessions) {
+      //va oltre le possibilità del cookie
+      delete userFind.sessions;
+    }
+    let sessionToken = await this.userServices.createSession(email);
+    let userSession = {
+      ...userFind,
+      rememberMe: true,
+      session: sessionToken.newSession,
+      email: email,
+      role: userFind?.role >= 0 && userFind?.role != undefined && userFind?.role != null ? userFind.role : 9999,
+      permissions: userFind?.permissions ? userFind.permissions : [],
+    };
+
+    this.userServices.deleteOldSessions(email);
+
+    return { userSession, sessionToken };
+  }
   public async logout(email: string, session: string): Promise<void> {
     let ris = await this.userServices.deleteSession(email, session);
     if (!ris) {

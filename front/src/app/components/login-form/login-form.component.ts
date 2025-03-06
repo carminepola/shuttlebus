@@ -30,7 +30,7 @@ export class LoginFormComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/admin/home']);
+      //this.router.navigate(['/admin/home']);
     }
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],

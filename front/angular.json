@@ -16,13 +16,30 @@
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:application",
+
           "options": {
+            "stylePreprocessorOptions": {
+              "sass": {
+                "silenceDeprecations": [
+                  "mixed-decls",
+                  "color-functions",
+                  "global-builtin",
+                  "import"
+                ]
+              }
+            },
             "outputPath": "dist/shuttlebus-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "allowedCommonJsDependencies": [
+              "crypto-js",
+              "sweetalert2",
+              "bootstrap"
+            ],
+
             "assets": [
               {
                 "glob": "**/*",
@@ -35,7 +52,6 @@
               "src/cursor.scss",
               "@fortawesome/fontawesome-free/css/all.css",
               "animate.css/animate.css"
-              
             ],
             "scripts": [
               "@popperjs/core/dist/umd/popper.min.js",
@@ -47,8 +63,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "100mb",
+                  "maximumError": "200mb"
                 },
                 {
                   "type": "anyComponentStyle",

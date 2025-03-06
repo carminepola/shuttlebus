@@ -8,8 +8,8 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
-import * as CryptoJS from 'crypto-js';
-
+import CryptoJS from 'crypto-js';
+import { googleAuthService } from '../../services/google-auth/google-auth.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -27,7 +27,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private googleAuthService: googleAuthService
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +44,10 @@ export class LoginComponent implements OnInit {
 
   get formControls() {
     return this.loginForm.controls;
+  }
+  loginWithGoogle() {
+    localStorage.setItem('authUrl', '/admin/home');
+    this.googleAuthService.loginWithGoogle();
   }
   onSubmit(event: Event): void {
     try {
