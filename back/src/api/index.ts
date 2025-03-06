@@ -11,6 +11,7 @@ import ticketType from "./ticketType";
 import lng from "./lng";
 import routes from "./routes";
 import booking from "./booking";
+import google from "./google";
 const router = express.Router();
 
 router.get<{}, messageResponse>("/", (req, res, next) => {
@@ -29,4 +30,5 @@ router.use("/images", images);
 router.use("/ticketType", ticketType);
 router.use("/routes", routes);
 router.use("/booking", booking);
+router.use("/google", google);
 export default router;

@@ -47,7 +47,7 @@ router.post(
       if (await userServices.checkPassword(req.body.email, req.body.password)) {
         failToBanServices.deleteIp(res.locals.log.ip);
 
-        let seessionToken = loginResponse.sessionToken;
+        let sessionToken = loginResponse.sessionToken;
 
         let userSession = loginResponse.userSession;
 
@@ -57,7 +57,7 @@ router.post(
 
         let refreshToken: any = jwt.sign(
           {
-            refreshToken: seessionToken.refreshToken,
+            refreshToken: sessionToken.refreshToken,
           },
           secretKey,
           {

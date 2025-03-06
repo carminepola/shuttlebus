@@ -1,6 +1,6 @@
 export const environment = {
-  production: true,
-  apiUrl: 'http://localhost:1801', // URL del backend per production
+  production: false,
   appName: 'ShuttleBus Admin',
   logLevel: 'debug',
+  apiUrl: 'http://localhost:1801',
 };

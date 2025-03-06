@@ -9,12 +9,14 @@ export default class CallRequest {
   body: any;
   uniqueCallKey: string;
   version: string;
-  clientcallkey: string | undefined;
+  clientCallKey: string | undefined;
+  clientSid: string;
   session?: string;
-  constructor(ip: string, uniqueCallKey: string, method: string, url: string, header: IncomingHttpHeaders, version: string, clientcallkey: string, session?: string) {
+  constructor(clientSid: string, ip: string, uniqueCallKey: string, method: string, url: string, header: IncomingHttpHeaders, version: string, clientCallKey: string, session?: string) {
     this.date = new Date().toString();
     this.ip = ip ? ip : "";
-    this.clientcallkey = clientcallkey;
+    this.clientSid = clientSid ? clientSid : "";
+    this.clientCallKey = clientCallKey;
     this.method = method;
     this.url = url;
     this.header = header;

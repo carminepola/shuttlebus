@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -37,11 +37,10 @@ export class LngService {
   setLng(data: string) {
     localStorage.setItem('currentLng', data);
   }
-  getLng():string {
-    return localStorage.getItem('currentLng') || "it";
+  getLng(): string {
+    return localStorage.getItem('currentLng') || 'it';
   }
   traslate(id: string) {
-  
     let obj = JSON.parse(sessionStorage['lng']);
     if (obj.length > 0) {
       let find = obj.find((x: any) => x.txt === id);
