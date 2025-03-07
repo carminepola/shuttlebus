@@ -29,6 +29,8 @@ export default class UsersDao {
       let list = await this.db.collection(this.schema).find(json).toArray();
       list.forEach((element) => {
         delete element.password;
+        delete element.recoverPassword;
+        delete element.recoverPasswordCount;
       });
       return list;
     } catch (error) {
