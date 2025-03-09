@@ -6,7 +6,7 @@ stages:
 
 compilazione_back:
   stage: compilazione_back
-  image: node:22
+  image: node:22.11
   script:
     - "cd back"
     - "rm package-lock.json"
@@ -21,7 +21,7 @@ compilazione_back:
 
 compilazione_front:
   stage: compila_front
-  image: node:22
+  image: node:22.11
   script:
     - "cd front"
     - "rm package-lock.json"
