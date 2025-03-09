@@ -56,6 +56,8 @@ export default class UsersDao {
       let element = await this.db.collection(this.schema).findOne(json);
 
       delete element?.password;
+      delete element?.recoverPassword;
+      delete element?.recoverPasswordCount;
 
       return element;
     } catch (error) {
@@ -78,8 +80,9 @@ export default class UsersDao {
         email: email,
       };
       let element = await this.db.collection(this.schema).findOne(json);
-
       delete element?.password;
+      delete element?.recoverPassword;
+      delete element?.recoverPasswordCount;
 
       return element;
     } catch (error) {

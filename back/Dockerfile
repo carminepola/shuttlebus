@@ -1,7 +1,6 @@
-FROM node:latest
-WORKDIR /
-RUN echo "i"
+FROM node:22
+WORKDIR /  
+COPY  package.json .
+RUN npm install
 COPY ./dist/src .
-COPY  package*.json .
-RUN npm i 
 CMD ["node", "index.js"]

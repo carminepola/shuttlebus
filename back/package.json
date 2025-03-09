@@ -1,20 +1,19 @@
 {
   "name": "api",
-  "version": "1.0.0",
-  "description": "Pintour 2.0",
-  "main": "src/index.ts",
+  "version": "2.0.0",
+  "description": "pintour",
+  "main": "index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
     "runDist": "node dist/index.js",
-    "build": "tsc",
+    "build": "tsc --removeComments   --outDir dist",
     "lint": "eslint --fix src test",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "version-patch": "npm version patch",
     "version-minor": "npm version minor",
-    "version-major": "npm version major",
-    "gitPushVersion": "git push --tags origin main"
+    "version-major": "npm version major"
   },
   "keywords": [],
   "author": "Carmine Pola",

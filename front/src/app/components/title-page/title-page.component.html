@@ -4,7 +4,8 @@
       class="btn btn-link btn-sm ms-0 ps-0 text-secondary"
       (click)="goBack()"
     >
-      <i class="fas fa-arrow-left me-2"></i>Torna indietro
+      <i class="fas fa-arrow-left me-2"></i
+      ><span [innerText]="'str_go_back' | translate"></span>
     </button>
   </div>
   <div class="mb-3 mt-2" *ngIf="title || subtitle">

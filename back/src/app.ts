@@ -24,7 +24,7 @@ app.use(helmet());
 
 app.use(
   session({
-    secret: process.env.JWT_SECRET || "",
+    secret: process.env.JWT_SECRET || "supersegreto",
     resave: false,
     saveUninitialized: true,
     cookie: { secure: process.env.NODE_ENV === "PROD" ? true : false }, // Se usi HTTPS, metti true

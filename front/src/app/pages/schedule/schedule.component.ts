@@ -177,6 +177,17 @@ export class ScheduleComponent implements OnInit {
         }
       }
 
+      let primaFermataAttiva = activeStops.find(
+        (stop: any) => stop.status === 'active'
+      );
+      let ultimaFermataAttiva = activeStops
+        .reverse()
+        .find((stop: any) => stop.status === 'active');
+
+      this.form.departureTime = primaFermataAttiva.stopTime;
+
+      this.form.arrivalTime = ultimaFermataAttiva.stopTime;
+
       if (!this.idSchedule) {
         this.routeService
           .insertSchedule(this.form, this.idRoute)

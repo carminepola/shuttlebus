@@ -1,12 +1,71 @@
 import { Db, ClientSession } from "mongodb";
 import { Schedule, ScheduleStop, Stop } from "../../model/routesModel";
-import booking from "../../model/bookFromSiteModel";
+import booking, { TicketType } from "../../model/bookFromSiteModel";
+import { session } from "passport";
+import { create } from "domain";
 export default class BookingsDAO {
   private db: Db;
 
   constructor(db: Db) {
     this.db = db;
   }
+  async availableSeats(travelDate: string, routeId: string, scheduleId: string, session?: ClientSession) {
+    let q = [
+      { $match: { id: routeId } },
+      { $unwind: "$schedules" },
+      { $match: { "schedules.id": scheduleId } },
+      {
+        $lookup: {
+          from: "bookings",
+          let: { routeId: "$id", scheduleId: "$schedules.id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [{ $eq: ["$routeId", "$$routeId"] }, { $eq: ["$scheduleId", "$$scheduleId"] }, { $eq: ["$date", travelDate] }, { $in: ["$status", ["pending", "confirmed"]] }],
+                },
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                occupiedSeats: { $sum: "$seats" },
+                occupiedLuggage: { $sum: "$luggage" },
+              },
+            },
+          ],
+          as: "occupiedData",
+        },
+      },
+      {
+        $addFields: {
+          totalSeats: "$schedules.totalSeats",
+          totalLuggage: "$schedules.availableLuggage",
+          occupiedSeats: { $ifNull: [{ $arrayElemAt: ["$occupiedData.occupiedSeats", 0] }, 0] },
+          occupiedLuggage: { $ifNull: [{ $arrayElemAt: ["$occupiedData.occupiedLuggage", 0] }, 0] },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+
+          totalSeats: 1,
+          availableSeats: { $subtract: ["$schedules.totalSeats", "$occupiedSeats"] },
+          occupiedSeats: 1,
+
+          totalLuggage: "$schedules.availableLuggage",
+          occupiedLuggage: 1,
+          availableLuggage: { $subtract: ["$schedules.availableLuggage", "$occupiedLuggage"] },
+        },
+      },
+    ];
+    if (session) {
+      return this.db.collection("routes").aggregate(q, { session }).toArray();
+    } else {
+      return this.db.collection("routes").aggregate(q).toArray();
+    }
+  }
+
   async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0) {
     let daysOfWeek = new Date(travelDate).getDay();
 
@@ -206,24 +265,102 @@ export default class BookingsDAO {
         },
       },
     ];
+
     return this.db.collection("routes").aggregate(q).toArray();
   }
   async insertBooking(booking: booking, session?: ClientSession) {
-    return this.db.collection("bookings").insertOne(booking, session);
+    return this.db.collection("bookings").insertOne(booking, { session });
+  }
+
+  async readBookingConfirmed(date: string, routeId: string, scheduleId: string) {
+    let search: any = {
+      status: "confirmed",
+      date,
+    };
+
+    if (routeId) {
+      search.routeId = routeId;
+    }
+    if (scheduleId) {
+      search.scheduleId = scheduleId;
+    }
+    const bookings = await this.db.collection("bookings").find(search).toArray();
+    if (bookings.length > 0) {
+      return bookings;
+    } else {
+      return null;
+    }
   }
 
   async removeExpiredPendingBookings() {
-    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-    // return this.db.collection("bookings").updateMany(
-    //   {
-    //     createdAt: { $lt: fifteenMinutesAgo },
-    //     status: "pending",
-    //   },
-    //   {
-    //     $set: {
-    //       status: "expired",
-    //     },
-    //   }
-    // );
+    const now = new Date();
+    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+    return this.db.collection("bookings").updateMany(
+      {
+        createdAt: { $lt: fifteenMinutesAgo },
+        status: "pending",
+      },
+      {
+        $set: {
+          status: "expired",
+        },
+      }
+    );
+  }
+
+  async cancelBooking(bookingId: string) {
+    return this.db.collection("bookings").updateOne(
+      {
+        ticketId: bookingId,
+        status: "pending",
+      },
+      {
+        $set: {
+          status: "cancelled",
+        },
+      }
+    );
+  }
+
+  async confirmBooking(bookingId: string) {
+    return this.db.collection("bookings").updateOne(
+      {
+        ticketId: bookingId,
+        status: "pending",
+      },
+      {
+        $set: {
+          status: "confirmed",
+        },
+      }
+    );
+  }
+
+  async refundBooking(bookingId: string) {
+    return this.db.collection("bookings").updateOne(
+      {
+        ticketId: bookingId,
+        status: "cancelled",
+      },
+      {
+        $set: {
+          status: "pending",
+        },
+      }
+    );
+  }
+
+  async getBookingForUser(userId: string) {
+    return this.db
+      .collection("bookings")
+      .find({
+        userId,
+        status: {
+          $in: ["pending", "confirmed", "cancelled", "refunded"],
+        },
+      })
+      .project({ date: 1, createdAt: 1, numberOfTickets: 1, status: 1, from: 1, to: 1, travelDate: 1, total: 1, luggage: 1, seats: 1, name: 1, ticketType: 1 })
+      .sort({ createdAt: -1 })
+      .toArray();
   }
 }

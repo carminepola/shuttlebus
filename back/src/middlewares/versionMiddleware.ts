@@ -10,7 +10,7 @@ import { logger } from "..";
 export default async function versionMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     // Estrae la versione dell'applicazione dal file package.json
-    var pjson = require("../../package.json");
+    var pjson = require((process.env.NODE_ENV === "DEV" ? "../../" : "../") + "package.json");
     const appVersion = pjson.version || "Versione non trovata";
 
     // Assegna la versione alla risposta

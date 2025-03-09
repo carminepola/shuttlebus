@@ -52,4 +52,32 @@ router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USE
     next(error);
   }
 });
+
+router.post(
+  "/readBookingConfirmed",
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, []),
+  [check("date").notEmpty().withMessage("date is required").isISO8601().withMessage("Invalid date format")],
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let bookingServices = new BookingServices(db);
+      let result = await bookingServices.readBookingConfirmed(req.body.date, req.body.routeId, req.body.scheduleId);
+      res.json({ ticket: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get("/getBookingForUser", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.getBookingForUser(res.locals.userLogged["_id"]);
+    res.json({ booking: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

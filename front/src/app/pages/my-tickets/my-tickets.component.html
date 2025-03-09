@@ -1,0 +1,76 @@
+<div class="container-fluid container-lg marginTopBar">
+  <app-title-page
+    [title]="'str_my_tickets' | translate"
+    [subtitle]="'str_my_tickets_subtitle' | translate"
+    back="true"
+  ></app-title-page>
+
+  <div
+    *ngIf="loading"
+    class="w-100 d-flex align-items-center justify-content-center"
+  >
+    <app-loading></app-loading>
+  </div>
+  <div *ngIf="!loading">
+    <div class="row g-4">
+      <div *ngFor="let booking of bookings" class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title text-primary fw-bold">
+              {{ booking.numberOfTickets }}
+            </h5>
+            <div class="card-text">
+              <strong
+                class="text-secondary"
+                [innerHTML]="'str_giorno' | translate"
+              ></strong>
+              {{ booking.date }}
+              <br />
+              <strong
+                class="text-secondary"
+                [innerHTML]="'str_partenza_da' | translate"
+              ></strong>
+              {{ booking.from.name }}
+              <span class="text-muted">({{ booking.from.stopTime }})</span>
+              <div class="text-muted">
+                {{ booking.from.description | translateName }}
+              </div>
+
+              <strong
+                class="text-secondary"
+                [innerHTML]="'str_arrivo_a' | translate"
+              ></strong>
+              {{ booking.to.name }}
+              <span class="text-muted">({{ booking.to.stopTime }})</span>
+              <div class="text-muted">
+                {{ booking.to.description | translateName }}
+              </div>
+
+              <div class="d-flex justify-content-end">
+                <div>
+                  <strong
+                    class="text-secondary"
+                    [innerHTML]="'str_totale' | translate"
+                  ></strong>
+                  {{ booking.total }}<span class="text-secondary">€</span>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <span
+                class="badge"
+                [ngClass]="{
+                  'text-bg-success': booking.status === 'confirmed',
+                  'text-bg-danger': booking.status === 'canceled',
+                  'text-bg-warning': booking.status === 'pending',
+                  'text-bg-info': booking.status === 'refunded'
+                }"
+                [innerHTML]="booking.status | translate"
+              ></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

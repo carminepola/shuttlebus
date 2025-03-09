@@ -4,10 +4,11 @@ import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { LngService } from '../../services/lng/lng.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { TranslatePipe } from '../../pipe/translate.pipe';
 @Component({
   selector: 'app-user-profile',
-  imports: [TitlePageComponent],
+  imports: [TitlePageComponent, TranslatePipe],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.scss',
 })
@@ -17,6 +18,10 @@ export class UserProfileComponent {
     private authService: AuthService,
     private router: Router
   ) {}
+
+  goTo(path: string) {
+    this.router.navigate([path]);
+  }
   logout() {
     Swal.fire({
       title: this.lng.traslate('ste_vuoi_uscire'),
