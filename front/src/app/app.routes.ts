@@ -26,6 +26,7 @@ import { TestComponent } from './pages/test/test.component';
 import { AuthPageComponent } from './pages/auth-page/auth-page.component';
 import { AuthGuard } from './services/guard/auth.guard';
 import { UserProfileComponent } from './pages/user-profile/user-profile.component';
+import { MyTicketsComponent } from './pages/my-tickets/my-tickets.component';
 export const routes: Routes = [
   {
     path: '',
@@ -68,6 +69,12 @@ export const routes: Routes = [
       {
         path: 'account',
         component: UserProfileComponent,
+        canActivate: [AuthGuard],
+        data: { lowBar: true, requiredRole: 100 },
+      },
+      {
+        path: 'mytickets',
+        component: MyTicketsComponent,
         canActivate: [AuthGuard],
         data: { lowBar: true, requiredRole: 100 },
       },

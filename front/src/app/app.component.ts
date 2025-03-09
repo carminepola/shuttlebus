@@ -16,7 +16,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { LngService } from './services/lng/lng.service';
 import { LoadingComponent } from './components/loading/loading/loading.component';
 import { CookiePolicyComponent } from './components/cookie-policy/cookie-policy.component';
-
+import { version } from '../../package.json';
 @Component({
   selector: 'app-root',
   imports: [
@@ -44,6 +44,7 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    console.log(this.getVersion());
     this.loadLng();
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -140,5 +141,8 @@ export class AppComponent implements OnInit {
     //   'data-bs-theme',
     //   prefersDark.matches ? 'light' : 'light'
     // );
+  }
+  getVersion() {
+    return version;
   }
 }

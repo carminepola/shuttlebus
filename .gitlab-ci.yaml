@@ -1,0 +1,80 @@
+stages:
+  - compilazione_back
+  - compila_front
+  - compila_dockerfile_back 
+  - compila_dockerfile_front
+
+compilazione_dotnet_back:
+  stage: compilazione_back
+  image: node:22
+  script:
+    - "cd Back"
+    - |
+      if [ "$CI_COMMIT_REF_NAME" == "main"  || "$CI_COMMIT_REF_NAME" == "dev"]; then
+         npm build
+      fi
+      
+  artifacts:
+    paths:
+      - Back/bin/
+
+compila_angular_front:
+  stage: compila_angular_front
+  image: node:22
+  script:
+    - "cd Front"
+    - "npm install -g @angular/cli@91.1.8"
+    - "npm install"
+    - |
+      if ["$CI_COMMIT_REF_NAME" == "main"  || "$CI_COMMIT_REF_NAME" == "dev"]; then
+        ng build-prod
+      fi
+  artifacts:
+    paths:
+      - Front/dist/
+
+compila_dockerfile_back:
+  stage: compila_dockerfile_back
+  image: docker:dind
+  script:
+    - "cd Back" 
+    - "docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD" 
+    - "docker build -t back ."
+    - |
+      if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
+        docker tag back $REGISTRY/pintour2/back:dev
+        docker push $REGISTRY/pintour2/back:dev
+      fi
+    - |
+      if [ "$CI_COMMIT_TAG" ] && [ "$CI_COMMIT_REF_NAME" == "main" ]; then
+        docker tag back $REGISTRY/pintour2/back:$CI_COMMIT_TAG
+        docker push $REGISTRY/pintour2/back:$CI_COMMIT_TAG
+      fi
+    - |
+      if [ "$CI_COMMIT_REF_NAME" == "main" ] && [ -z "$CI_COMMIT_TAG" ]; then
+        docker tag back  $REGISTRY/pintour2/back:latest
+        docker push  $REGISTRY/pintour2/back:latest
+      fi
+
+compila_dockerfile_front:
+  stage: compila_dockerfile_front
+  image: docker:dind
+  script:
+    - "cd Front"  
+    - "docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+    - "docker build -t front ."
+    - |
+      if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
+        docker tag front  $REGISTRY/pintour/front:dev
+        docker push  $REGISTRY/pintour/front:dev
+      fi
+    - |
+      if [ "$CI_COMMIT_TAG" ] && [ "$CI_COMMIT_REF_NAME" == "main" ]; then
+        docker tag front r $REGISTRY/pintour2/front:$CI_COMMIT_TAG
+        docker push  $REGISTRY/pintour2/front:$CI_COMMIT_TAG
+      fi
+    - |
+      if [ "$CI_COMMIT_REF_NAME" == "main" ] && [ -z "$CI_COMMIT_TAG" ]; then
+        docker tag front  $REGISTRY/pintour2/front:latest
+        docker push  $REGISTRY/pintour2/front:latest
+      fi

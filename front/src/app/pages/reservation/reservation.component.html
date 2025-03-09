@@ -5,10 +5,70 @@
     back="true"
   ></app-title-page>
 
-  <div class="card shadow border-0 rounded-4">
+  <div
+    *ngIf="loading"
+    class="w-100 d-flex align-items-center justify-content-center"
+  >
+    <app-loading></app-loading>
+  </div>
+
+  <div class="card shadow border-0 rounded-4" *ngIf="!loading">
     <!-- Header Section -->
     <div class="card-header bg-white rounded-top-4 border-bottom py-4">
       <div class="row align-items-center gy-3">
+        <div class="col-md">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0 icon-container">
+              <i class="fas fa-calendar-alt"></i>
+            </span>
+            <input
+              [(ngModel)]="filter.date"
+              type="date"
+              class="form-control form-control-lg bg-light border-0"
+              placeholder="Seleziona data"
+            />
+          </div>
+        </div>
+
+        <div class="col-md">
+          <select
+            [(ngModel)]="filter.routeId"
+            (change)="
+              filter.scheduleId = ''; calculateSchedules(filter.routeId)
+            "
+            class="form-select form-select-lg bg-light border-0"
+          >
+            <option selected value="">Filtra per tratta</option>
+            <option
+              [value]="route.id"
+              *ngFor="let route of routes"
+              [innerHTML]="route.name | translateName"
+            ></option>
+          </select>
+        </div>
+        <div class="col-md">
+          <select
+            [(ngModel)]="filter.scheduleId"
+            class="form-select form-select-lg bg-light border-0"
+          >
+            <option value="">Filtra per schedulazione</option>
+            <option
+              [value]="s.id"
+              *ngFor="let s of filterSchedule"
+              [innerHTML]="s.name"
+            ></option>
+          </select>
+        </div>
+        <div class="col-md-auto">
+          <button
+            class="btn btn-primary btn-lg h-100 rounded-3 w-100"
+            (click)="filterButton()"
+          >
+            <i class="fas fa-filter me-2"></i>Applica Filtri
+          </button>
+        </div>
+      </div>
+      <div class="row mt-3">
         <div class="col-md">
           <div class="input-group">
             <span class="input-group-text bg-light border-0 icon-container"
@@ -20,43 +80,6 @@
               placeholder="Cerca biglietto..."
             />
           </div>
-        </div>
-        <div class="col-md">
-          <div class="input-group">
-            <span class="input-group-text bg-light border-0 icon-container">
-              <i class="fas fa-calendar-alt"></i>
-            </span>
-            <input
-              type="date"
-              class="form-control form-control-lg bg-light border-0"
-              placeholder="Seleziona data"
-            />
-          </div>
-        </div>
-        <div class="col-md">
-          <div class="input-group">
-            <span class="input-group-text bg-light border-0 icon-container">
-              <i class="fas fa-calendar"></i>
-            </span>
-            <input
-              type="date"
-              class="form-control form-control-lg bg-light border-0"
-              placeholder="Seleziona data acquisto"
-            />
-          </div>
-        </div>
-        <div class="col-md">
-          <select class="form-select form-select-lg bg-light border-0">
-            <option selected>Filtra per tratta</option>
-            <option>Napoli - Roma</option>
-            <option>Milano - Torino</option>
-            <option>Firenze - Bologna</option>
-          </select>
-        </div>
-        <div class="col-md-auto">
-          <button class="btn btn-primary btn-lg h-100 rounded-3 w-100">
-            <i class="fas fa-filter me-2"></i>Applica Filtri
-          </button>
         </div>
       </div>
     </div>
@@ -100,39 +123,64 @@
     <!-- Desktop View (Table) -->
     <div class="desktop-table p-4 d-none d-lg-block">
       <div class="table-responsive">
-        <table class="table table-borderless align-middle">
+        <table class="table table-borderless table-striped align-middle">
           <thead class="bg-light">
             <tr>
+              <th>N.Biglietto</th>
               <th scope="col">Tratta</th>
-              <th scope="col">Stazione scelta</th>
-              <th scope="col">Destinazione</th>
-              <th scope="col">Nome</th>
-              <th scope="col">Email</th>
-              <th scope="col">Telefono</th>
+              <th scope="col">Partenza</th>
+              <th scope="col">Arrivo</th>
+              <th scope="col">Dati utente</th>
+
               <th scope="col">Posti</th>
               <th scope="col">Bagagli</th>
-              <th scope="col">Totale (€)</th>
+              <th scope="col">Totale</th>
               <th scope="col" class="rounded-end-3">Azioni</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="bg-white">
-              <td>Napoli - Roma (9:00)</td>
-              <td>Via Romani (10:00)</td>
-              <td>Roma (12:00)</td>
-              <td>Mario Rossi</td>
-              <td [innerHTML]="'mario.rossi@example.com'"></td>
-              <td>+39 333 123 4567</td>
-              <td>2 adulti, 1 bambino</td>
-              <td>2</td>
-              <td>50</td>
+            <tr class="bg-white" *ngFor="let b of booking">
+              <td [innerHTML]="b.ticketId"></td>
+              <td [innerHTML]="b.route"></td>
+              <td [innerHTML]="b.from"></td>
+              <td [innerHTML]="b.to"></td>
+
               <td>
-                <button class="btn btn-danger btn-sm rounded-3">
+                <div *ngIf="b.name" [innerHTML]="b.name"></div>
+                <a
+                  [href]="'tel:' + b.phone"
+                  *ngIf="b.phone"
+                  [innerHTML]="b.phone"
+                ></a>
+                <a
+                  [href]="'mailto:' + b.mail"
+                  *ngIf="b.mail"
+                  [innerHTML]="b.mail"
+                ></a>
+              </td>
+
+              <td>
+                <div *ngFor="let t of b.ticket">
+                  <div>
+                    <span [innerHTML]="t.count"></span>
+                    <span class="text-secondary">X</span>
+                    <span [innerHTML]="t.name.it"></span>
+                  </div>
+                </div>
+              </td>
+              <td class="text-center">
+                <span [innerHTML]="b.bagagli"></span>
+              </td>
+              <td>
+                <span [innerHTML]="b.total"></span
+                ><span class="text-secondary">€</span>
+              </td>
+              <td>
+                <button disabled class="btn btn-danger btn-sm rounded-3">
                   <i class="fas fa-trash"></i>
                 </button>
               </td>
             </tr>
-            <!-- Altri record -->
           </tbody>
         </table>
       </div>

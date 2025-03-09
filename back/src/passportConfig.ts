@@ -6,30 +6,32 @@ import https from "https";
 
 dotenv.config();
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      callbackURL: process.env.GOOGLE_CALLBACK_URL || "",
-    },
-    async (accessToken, refreshToken, profile: any, done) => {
-      try {
-        const data = await verifyGoogleAccessToken(accessToken);
-        if (!data) {
-          throw new Error("Access Token non valido");
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_CALLBACK_URL) {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID || "",
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+        callbackURL: process.env.GOOGLE_CALLBACK_URL || "",
+      },
+      async (accessToken, refreshToken, profile: any, done) => {
+        try {
+          const data = await verifyGoogleAccessToken(accessToken);
+          if (!data) {
+            throw new Error("Access Token non valido");
+          }
+
+          // const phoneNumber = await getGooglePhoneNumber(accessToken);
+          // profile.phoneNumber = phoneNumber;
+
+          return done(null, profile);
+        } catch (error) {
+          logger.error(error);
         }
-
-        // const phoneNumber = await getGooglePhoneNumber(accessToken);
-        // profile.phoneNumber = phoneNumber;
-
-        return done(null, profile);
-      } catch (error) {
-        logger.error(error);
       }
-    }
-  )
-);
+    )
+  );
+}
 
 // Salva l'utente nella sessione
 passport.serializeUser((user, done) => {

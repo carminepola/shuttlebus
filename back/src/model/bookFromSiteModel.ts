@@ -17,6 +17,7 @@ export default class booking {
   updatedAt: string;
   paymentMethod: { type: string; data: any }[];
   other: any;
+  user: any;
   constructor(book: any) {
     try {
       if (book.userId === undefined) throw new Error("userId is required");
@@ -49,6 +50,7 @@ export default class booking {
       this.createdAt = book.createdAt ? book.createdAt : new Date().toISOString();
       this.updatedAt = new Date().toISOString();
       this.paymentMethod = book.paymentMethod ? book.paymentMethod : [];
+      this.user = book.user;
     } catch (error) {
       throw error;
     }

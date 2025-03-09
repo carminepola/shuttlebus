@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { LngService } from '../../services/lng/lng.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { version } from '../../../../package.json';
 @Component({
   selector: 'app-footer',
   imports: [RouterModule, CommonModule, TranslatePipe],
@@ -34,6 +35,9 @@ export class FooterComponent {
     } else {
       return this.lng[1];
     }
+  }
+  getVersion() {
+    return version;
   }
   public traduci = (id: string) => this.lngService.traslate(id);
 }

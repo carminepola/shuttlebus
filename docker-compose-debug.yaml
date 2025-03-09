@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  back:
+    image: shuttlebus2/back:latest
+    hostname: back
+    env_file:
+      - ./back/.env
+    ports:
+      - "1801:1801"
+  front:
+    hostname: front
+    image: shuttlebus2/front:latest
+    ports:
+      - "4200:80"
+networks:
+  default:

@@ -37,4 +37,25 @@ export class BookingsService {
       })
     );
   }
+  readBookingConfirmed(date: string, routeId: string, scheduleId: string) {
+    return this.http
+      .post(this.apiUrl + '/readBookingConfirmed', {
+        date,
+        routeId,
+        scheduleId,
+      })
+      .pipe(
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getBookingForUser(): Observable<any> {
+    return this.http.get(this.apiUrl + '/getBookingForUser').pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
 }
