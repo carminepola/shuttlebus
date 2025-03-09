@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import * as CryptoJS from 'crypto-js';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-login-form',
@@ -30,6 +31,7 @@ export class LoginFormComponent implements OnInit {
     private authService: AuthService,
     private googleAuthService: GoogleAuthService
   ) {}
+  @Output() loginSuccess = new EventEmitter<void>();
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -47,6 +49,7 @@ export class LoginFormComponent implements OnInit {
   get formControls() {
     return this.loginForm.controls;
   }
+
   onSubmit(event: Event): void {
     try {
       event.preventDefault();
@@ -66,7 +69,11 @@ export class LoginFormComponent implements OnInit {
       this.authService.login(email, md5Password, rememberMe).subscribe({
         next: (response: any) => {
           this.isLoading = false;
+          debugger;
 
+          // this.router.navigate(['/user/account']);
+
+          this.loginSuccess.emit();
           this.loginError = '';
         },
         error: (e: any) => {

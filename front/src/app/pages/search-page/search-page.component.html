@@ -31,6 +31,12 @@
       class="col-12 col-lg-8 mx-auto"
       *ngFor="let param of params; let j = index"
     >
+      <div>posti disponibili : {{ param.availableSeats }}</div>
+      <div>
+        bagagli disponibili :
+        {{ param.availableLuggage }}
+      </div>
+
       <div class="card border-secondary rounded-4 mb-3">
         <div class="card-body">
           <div class="card-text">
@@ -180,9 +186,17 @@
                   [disabled]="param.seats != ricerca.persone"
                   (click)="acquista(param)"
                 >
-                  Acquista
-                  <span *ngIf="param.seats == ricerca.persone"
-                    >per {{ param.total }} €</span
+                  <span
+                    *ngIf="param.seats != ricerca.persone"
+                    [innerHTML]="'str_acquista' | translate"
+                  ></span>
+                  <span
+                    *ngIf="param.seats == ricerca.persone"
+                    [innerHTML]="'str_acquista_per' | translate"
+                    class="me-1"
+                  ></span>
+                  <span *ngIf="param.seats == ricerca.persone">
+                    {{ param.total }} €</span
                   >
                 </button>
               </div>

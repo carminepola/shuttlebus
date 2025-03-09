@@ -18,4 +18,16 @@ export class UserService {
       options,
     });
   }
+  getNormalUser(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${this.path}/getNormalUser`);
+  }
+  register(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${this.path}/register`, data);
+  }
+  validateMail(data: any): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/${this.path}/validateEmail`,
+      data
+    );
+  }
 }

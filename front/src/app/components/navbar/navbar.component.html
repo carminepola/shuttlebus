@@ -39,7 +39,12 @@
           >
         </li>
         <li class="nav-item cursor-pointer">
-          <a class="nav-link rounded-3" href="#"> Whatsapp</a>
+          <a
+            class="nav-link rounded-3"
+            href="https://api.whatsapp.com/send/?phone=%2B393356910211"
+          >
+            Whatsapp</a
+          >
         </li>
       </ul>
     </div>
@@ -55,7 +60,6 @@
             class="nav-link cursor-pointer"
             [ngClass]="{ active: login }"
             aria-current="page"
-            href="#"
             >LOGIN</a
           >
           <a
@@ -74,8 +78,14 @@
         ></button>
       </div>
       <div class="modal-body">
-        <app-login-form *ngIf="login"></app-login-form>
-        <app-registrazione *ngIf="!login"></app-registrazione>
+        <app-login-form
+          *ngIf="login"
+          (loginSuccess)="onEvent()"
+        ></app-login-form>
+        <app-registrazione
+          (registerSuccess)="onComplete()"
+          *ngIf="!login"
+        ></app-registrazione>
       </div>
     </div>
   </div>

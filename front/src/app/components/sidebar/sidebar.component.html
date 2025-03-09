@@ -42,7 +42,14 @@
           </li>
         </ul>
       </div>
+      <img
+        *ngIf="image"
+        [src]="image"
+        class="rounded-circle me-3"
+        style="width: 48px; height: 48px"
+      />
       <div
+        *ngIf="!image"
         class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
         style="width: 40px; height: 40px"
       >
@@ -112,7 +119,14 @@
   <!-- Desktop Header -->
   <div class="d-none d-lg-flex align-items-center justify-content-between p-4">
     <div class="d-flex align-items-center">
+      <img
+        *ngIf="image"
+        [src]="image"
+        class="rounded-circle me-3"
+        style="width: 48px; height: 48px"
+      />
       <div
+        *ngIf="!image"
         class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
         style="width: 48px; height: 48px"
       >

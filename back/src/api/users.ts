@@ -12,25 +12,12 @@ import authMiddleware from "../middlewares/authMiddleware";
 import userModel from "../model/userModel";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
 import { role } from "../enum/role";
+import MailService from "../components/services/mailServices";
+import { Mail } from "../model/mailModel";
 const router = express.Router();
-router.get("/:id?", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["CREATE_USER"]), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    let userServices = new UserServices(db);
-    let id = req.params.id ? req.params.id : undefined;
-    if (id) {
-      const result = await userServices.getUserById(id);
-      res.json(result);
-    } else {
-      const result = await userServices.getUsers();
-      res.json(result);
-    }
-  } catch (error) {
-    logger.error(error);
-    next(error);
-  }
-});
+let requiredRole = "USER_MANAGEMENT";
 
-router.get("/email/:email", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get("/email/:email", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let userServices = new UserServices(db);
     let email = req.params.email;
@@ -41,7 +28,65 @@ router.get("/email/:email", authMiddleware, async (req: Request, res: Response, 
     next(error);
   }
 });
+router.post(
+  "/register",
+  [
+    check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
+    check("password").notEmpty().withMessage("password is required"),
+    check("name").notEmpty().withMessage("name is required"),
+  ],
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let result: any;
+      let user: userModel = new userModel();
+      let language = req.body.lng;
+      user.email = req.body.email;
+      user.password = req.body.password;
+      user.details.name = req.body.name;
+      user.details.phone = req.body.phoneNumber;
+      user.role = role.NO_PERMISSION;
+      user.disabled = false;
+      user.options.lng = language;
+      user.options.pin = Array(6)
+        .fill(0)
+        .map(() => Math.floor(Math.random() * 10))
+        .join("");
 
+      let userServices = new UserServices(db);
+      result = await userServices.register(user, language);
+
+      res.json({ message: "Registrazione effettuata con successo" });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  }
+);
+
+router.post(
+  "/validateEmail",
+  [
+    check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
+    check("pin").notEmpty().withMessage("pin is required").isNumeric().withMessage("pin must be a number"),
+  ],
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let result: any;
+      let email = req.body.email;
+      let pin = req.body.pin;
+
+      let userServices = new UserServices(db);
+      await userServices.validateEmail(email, pin);
+
+      res.json({ message: "Email validata con successo" });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  }
+);
 router.post(
   "/",
   [
@@ -50,7 +95,7 @@ router.post(
     check("name").notEmpty().withMessage("name is required"),
   ],
   authMiddleware,
-  checkPermissionMiddleware(role.ADMIN, ["CREATE_USER"]),
+  checkPermissionMiddleware(role.ADMIN, [requiredRole]),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -106,6 +151,16 @@ router.patch(
   }
 );
 
+router.get("/getNormalUser", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let userServices = new UserServices(db);
+    const result = await userServices.getNormalUser();
+    res.json({ listUser: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.put(
   "/updateOptions",
   [check("options").notEmpty().withMessage("options is required").isObject().withMessage("options must be an object"), check("options.*").exists().withMessage("options must not be empty")],
@@ -135,5 +190,20 @@ router.put(
     }
   }
 );
-
+router.get("/:id?", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let userServices = new UserServices(db);
+    let id = req.params.id ? req.params.id : undefined;
+    if (id) {
+      const result = await userServices.getUserById(id);
+      res.json(result);
+    } else {
+      const result = await userServices.getUsers();
+      res.json(result);
+    }
+  } catch (error) {
+    logger.error(error);
+    next(error);
+  }
+});
 export default router;

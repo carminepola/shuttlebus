@@ -4,13 +4,17 @@ import { lastValueFrom } from 'rxjs';
 import { StopsService } from '../../services/stops/stops.service';
 import { RoutesService } from '../../services/routes/routes.service';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-
+import { AuthService } from '../../services/auth/auth.service';
+import { RegistrazioneComponent } from '../../components/registrazione/registrazione.component';
+import { ModalService } from '../../services/modal/modal.service';
+import { BookingsService } from '../../services/bookings/bookings.service';
+declare var bootstrap: any;
 @Component({
   selector: 'app-riepilogo',
   imports: [
@@ -26,20 +30,62 @@ import { FooterComponent } from '../../components/footer/footer.component';
   styleUrl: './riepilogo.component.scss',
 })
 export class RiepilogoComponent implements OnInit {
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private authService: AuthService,
+    private modalService: ModalService,
+    private bookingService: BookingsService
+  ) {}
 
   public loading: boolean = true;
   public param: any = {};
   ngOnInit() {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        localStorage.removeItem('authUrl');
+        localStorage.removeItem('ticket');
+        this.modalService.closeModal();
+      }
+    });
+    localStorage.setItem('authUrl', '/riepilogo');
+
     const navigation = window.history.state;
     if (navigation.value) {
       this.param = navigation.value;
       this.loading = false;
+      localStorage.setItem('ticket', JSON.stringify(this.param));
     } else {
-      this.router.navigate(['/']);
+      let param = localStorage.getItem('ticket');
+      if (param) {
+        this.param = JSON.parse(param);
+        this.loading = false;
+      } else {
+        this.router.navigate(['/']);
+      }
     }
+  }
+  isLoggedIn() {
+    return this.authService.isLoggedIn();
+  }
+  myModal: any;
+  openModal() {
+    this.modalService.openModal('modalLogin');
   }
   goBack() {
     window.history.back();
+  }
+  bookNow() {
+    this.loading = true;
+    this.bookingService.insertBooking(this.param).subscribe({
+      next: (response: any) => {
+        console.log(response);
+        this.loading = false;
+        alert('POI SI VEDE');
+      },
+      error: (e: any) => {
+        this.loading = false;
+      },
+    });
   }
 }

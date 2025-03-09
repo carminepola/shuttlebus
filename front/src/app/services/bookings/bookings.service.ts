@@ -30,4 +30,11 @@ export class BookingsService {
         })
       );
   }
+  insertBooking(ticket: any): Observable<any> {
+    return this.http.post(this.apiUrl + '/insertBooking', ticket).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
 }

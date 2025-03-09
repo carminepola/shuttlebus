@@ -26,7 +26,12 @@ const checkPermissionMiddleware = (requiredRoles: RequiredRole, requiredPermissi
     let superPass = env.SUPERPASS || undefined;
     let reqSuperPass = req.headers["superpass"] || undefined;
 
-    if (!superPass || !reqSuperPass || superPass != reqSuperPass) {
+    if (superPass && reqSuperPass && superPass != reqSuperPass) {
+      return res.sendStatus(403);
+    } else {
+      if (superPass && reqSuperPass && superPass == reqSuperPass) {
+        next();
+      }
       if (res.locals.userLogged) {
         let user = res.locals.userLogged;
         // Verifica se i ruoli dell'utente corrispondono ai ruoli richiesti
@@ -44,8 +49,6 @@ const checkPermissionMiddleware = (requiredRoles: RequiredRole, requiredPermissi
           return res.sendStatus(403);
         }
       }
-    } else {
-      next();
     }
   };
 };

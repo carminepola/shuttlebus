@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { CommonModule } from '@angular/common';
 import { StopsService } from '../../services/stops/stops.service';
+import { lastValueFrom } from 'rxjs';
 @Component({
   selector: 'app-route',
   imports: [
@@ -32,24 +33,24 @@ export class RouteComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    let risStops = await this.stopsService.getAllActiveStops().toPromise();
-    this.stops = risStops.stops;
-    this.routes = (await this.routeService.getRoutes().toPromise()).routes.map(
-      (route: any) => {
-        let firstStop = this.stops.find((t: any) => t.id === route.stops[0].id);
-        let lastStop = this.stops.find(
-          (t: any) => t.id === route.stops[route.stops.length - 1].id
-        );
+    let risStops = await lastValueFrom(this.stopsService.getAllActiveStops());
 
-        return {
-          nome: route.name.it,
-          id: route.id,
-          partenza: firstStop.name,
-          arrivo: lastStop.name,
-          schedulazioni: route.schedules?.length || 0,
-        };
-      }
-    );
+    this.stops = risStops.stops;
+    let r = await lastValueFrom(this.routeService.getRoutes());
+    this.routes = r.routes.map((route: any) => {
+      let firstStop = this.stops.find((t: any) => t.id === route.stops[0].id);
+      let lastStop = this.stops.find(
+        (t: any) => t.id === route.stops[route.stops.length - 1].id
+      );
+
+      return {
+        nome: route.name.it,
+        id: route.id,
+        partenza: firstStop.name,
+        arrivo: lastStop.name,
+        schedulazioni: route.schedules?.length || 0,
+      };
+    });
 
     this.loading = false;
   }

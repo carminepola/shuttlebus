@@ -127,7 +127,8 @@ export class SearchPageComponent implements OnInit {
         let to: any = stops.find((t: any) => t.id === this.ricerca.arrivo);
         let info = {
           date: this.ricerca.data,
-          id: res[i].routeId,
+          routeId: res[i].routeId,
+          scheduleId: res[i].scheduleId,
           total: 2 * this.ricerca.bagagli,
           luggage: this.ricerca.bagagli,
           seats: 0,

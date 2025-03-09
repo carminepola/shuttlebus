@@ -6,7 +6,7 @@ import userModel from "../../model/userModel";
 import sessionModel from "../../model/sessionModel";
 import * as CryptoJS from "crypto-js";
 import ErrorModel from "../../model/errorModel";
-
+import { role } from "../../enum/role";
 export default class UsersDao {
   db: Db;
   schema: string = "users";
@@ -459,6 +459,111 @@ export default class UsersDao {
     } catch (error) {
       console.error("Errore durante l'eliminazione delle sessioni:", error);
       throw new Error("Errore nell'eliminazione delle sessioni");
+    }
+  }
+  /**
+   * Restituisce gli utenti con un ruolo specifico
+   * @param {role} role - Il ruolo da cercare
+   * @returns {Promise<userModel[]>} - Un array di utenti con il ruolo selezionato
+   */
+  async getUsersByListOfRole(role: role[]): Promise<userModel[]> {
+    try {
+      // Trova tutti gli utenti con il ruolo selezionato
+      const result = await this.db.collection<userModel>(this.schema).find({ disabled: false, isDeleted: false, role: { $in: role } });
+      // Ritorna l'array di utenti
+      return result.toArray();
+    } catch (error) {
+      console.error("Errore durante la ricerca degli utenti con il ruolo selezionato:", error);
+      throw error; // Rilancia l'errore
+    }
+  }
+  async updateGoogleInfo(email: string, googleInfo: any) {
+    try {
+      // Aggiorna la sessione google dell'utente
+      const result = await this.db.collection<userModel>(this.schema).updateOne(
+        {
+          email: email,
+        },
+        {
+          $set: {
+            "options.google": googleInfo,
+          },
+        }
+      );
+
+      // Verifica se `result` è nullo o se `result.value` è nullo
+      if (!result) {
+        throw new Error("Utente non trovato");
+      }
+
+      return result.modifiedCount;
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento della sessione google:", error);
+      throw error; // Rilancia l'errore
+    }
+  }
+  async getUsersByRole(role: role): Promise<userModel[]> {
+    try {
+      // Trova tutti gli utenti con il ruolo selezionato
+      const result = await this.db.collection<userModel>(this.schema).find({ disabled: false, role: role }, { projection: { email: 1, details: 1, name: 1, surname: 1, role: 1, permissions: 1 } });
+      // Ritorna l'array di utenti
+      return result.toArray();
+    } catch (error) {
+      console.error("Errore durante la ricerca degli utenti con il ruolo selezionato:", error);
+      throw error; // Rilancia l'errore
+    }
+  }
+  async deleteUser(email: string): Promise<boolean> {
+    try {
+      // Cancella l'utente
+      const result = await this.db.collection<userModel>(this.schema).deleteOne({ email: email });
+      // Verifica se `result` è nullo o se `result.value` è nullo
+      if (!result) {
+        throw new Error("Utente non trovato");
+      }
+      return true;
+    } catch (error) {
+      console.error("Errore durante la cancellazione dell'utente:", error);
+      throw error; // Rilancia l'errore
+    }
+    return false;
+  }
+  async validateEmail(email: string): Promise<void> {
+    try {
+      // Trova l'utente con l'email specificata
+      const result = await this.db.collection<userModel>(this.schema).updateOne(
+        { email: email },
+        {
+          $set: {
+            "options.pin": "",
+          },
+        }
+      );
+      // Verifica se `result`è nullo o se `result.value`è nullo
+      if (!result) {
+        return; // L'utente non esiste
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateUser(user: userModel): Promise<boolean> {
+    try {
+      // Aggiorna l'utente
+
+      if (!user.password) {
+        delete user.password;
+      }
+
+      const result = await this.db.collection<userModel>(this.schema).updateOne({ email: user.email }, { $set: user });
+      // Verifica se `result`è nullo o se `result.value`è nullo
+      if (!result) {
+        throw new Error("Utente non trovato");
+      }
+      return true;
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento dell'utente:", error);
+      throw error; // Rilancia l'errore
     }
   }
 }

@@ -12,7 +12,12 @@ import GoogleSessionServices from "../components/services/googleSessionsServices
 const router = express.Router();
 import FailToBanServices from "../components/services/failToBanServices";
 // Reindirizza l'utente a Google per il login
-router.get("/auth", passport.authenticate("google", { scope: ["profile", "email"] }));
+router.get(
+  "/auth",
+  passport.authenticate("google", {
+    scope: ["profile", "email", "https://www.googleapis.com/auth/user.phonenumbers.read"],
+  })
+);
 
 router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction) => {
   try {
@@ -74,7 +79,7 @@ router.get("/auth/callback", passport.authenticate("google", { failureRedirect: 
 
   const user = new userModel();
   user.email = req.user.emails[0].value;
-  user.details.name = req.user.name.givenName;
+  user.details.name = req.user.displayName;
   user.options.google = req.user;
   user.role = role.USER;
   user.disabled = false;
@@ -87,6 +92,8 @@ router.get("/auth/callback", passport.authenticate("google", { failureRedirect: 
 
   if (!userExists) {
     userServices.createUser(user);
+  } else {
+    userServices.updateGoogleInfo(user.email, req.user);
   }
 
   let googleSession = await googleSessionServices.insertGoogleSession(user.email);

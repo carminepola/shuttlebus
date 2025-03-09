@@ -1,6 +1,6 @@
 import { Db, ClientSession } from "mongodb";
 import { Schedule, ScheduleStop, Stop } from "../../model/routesModel";
-import { PurchasedTicket, Bookings } from "../../model/bookingsModel";
+import booking from "../../model/bookFromSiteModel";
 export default class BookingsDAO {
   private db: Db;
 
@@ -76,27 +76,100 @@ export default class BookingsDAO {
       {
         $lookup: {
           from: "bookings",
-          let: { scheduleId: "$schedules.id", travelDate: travelDate },
+          let: {
+            scheduleId: "$schedules.id",
+            travelDate: "2025-03-10",
+            stops: "$stops",
+            fromStopIndex: "$fromStopIndex",
+            toStopIndex: "$toStopIndex",
+          },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  $and: [{ $eq: ["$scheduleId", "$$scheduleId"] }, { $eq: ["$travelDate", "$$travelDate"] }, { $in: ["$status", ["confirmed", "pending"]] }],
+                  $and: [
+                    {
+                      $eq: ["$scheduleId", "$$scheduleId"],
+                    },
+                    {
+                      $eq: ["$date", "$$travelDate"],
+                    },
+                    {
+                      $in: ["$status", ["confirmed", "pending"]],
+                    },
+                    {
+                      $or: [
+                        {
+                          $gt: [
+                            {
+                              $indexOfArray: ["$$stops.id", "$to.id"],
+                            },
+                            "$$fromStopIndex",
+                          ],
+                        },
+                        {
+                          $and: [
+                            {
+                              $gte: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "$from.id"],
+                                },
+                                "$$fromStopIndex",
+                              ],
+                            },
+                            {
+                              $lt: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "$from.id"],
+                                },
+                                "$$toStopIndex",
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
                 },
               },
             },
-            { $unwind: "$purchasedTickets" },
+
+            {
+              $addFields: {
+                fromStopPosition: {
+                  $indexOfArray: ["$$stops.id", "$from.id"],
+                },
+                toStopPosition: {
+                  $indexOfArray: ["$$stops.id", "$to.id"],
+                },
+              },
+            },
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    {
+                      $and: [{ $gte: ["$fromStopPosition", "$fromStopIndex"] }, { $lt: ["$fromStopPosition", "$toStopIndex"] }],
+                    },
+                    {
+                      $gt: ["$toStopPosition", "$fromStopIndex"],
+                    },
+                  ],
+                },
+              },
+            },
             {
               $group: {
                 _id: "$scheduleId",
-                bookedSeats: { $sum: "$purchasedTickets.quantity" },
-                bookedLuggage: { $sum: { $ifNull: ["$luggageBooked", 0] } },
+                bookedSeats: { $sum: "$seats" },
+                bookedLuggage: { $sum: "$luggage" },
               },
             },
           ],
           as: "bookingsData",
         },
       },
+
       // 8️⃣ Aggiungi campi con i posti disponibili
       {
         $addFields: {
@@ -134,5 +207,23 @@ export default class BookingsDAO {
       },
     ];
     return this.db.collection("routes").aggregate(q).toArray();
+  }
+  async insertBooking(booking: booking, session?: ClientSession) {
+    return this.db.collection("bookings").insertOne(booking, session);
+  }
+
+  async removeExpiredPendingBookings() {
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    // return this.db.collection("bookings").updateMany(
+    //   {
+    //     createdAt: { $lt: fifteenMinutesAgo },
+    //     status: "pending",
+    //   },
+    //   {
+    //     $set: {
+    //       status: "expired",
+    //     },
+    //   }
+    // );
   }
 }
