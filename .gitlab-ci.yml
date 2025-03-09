@@ -19,7 +19,7 @@ compilazione_dotnet_back:
       - Back/bin/
 
 compila_angular_front:
-  stage: compila_angular_front
+  stage: compila_front
   image: node:22
   script:
     - "cd Front"
