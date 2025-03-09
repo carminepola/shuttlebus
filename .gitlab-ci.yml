@@ -4,11 +4,11 @@ stages:
   - compila_dockerfile_back 
   - compila_dockerfile_front
 
-compilazione_dotnet_back:
+compilazione_back:
   stage: compilazione_back
   image: node:22
   script:
-    - "cd Back"
+    - "cd back"
     - |
       if [ "$CI_COMMIT_REF_NAME" == "main"  || "$CI_COMMIT_REF_NAME" == "dev"]; then
          npm build
@@ -16,13 +16,13 @@ compilazione_dotnet_back:
       
   artifacts:
     paths:
-      - Back/bin/
+      - back/bin/
 
-compila_angular_front:
+compilazione_front:
   stage: compila_front
   image: node:22
   script:
-    - "cd Front"
+    - "cd front"
     - "npm install -g @angular/cli@91.1.8"
     - "npm install"
     - |
@@ -31,13 +31,13 @@ compila_angular_front:
       fi
   artifacts:
     paths:
-      - Front/dist/
+      - front/dist/
 
 compila_dockerfile_back:
   stage: compila_dockerfile_back
   image: docker:dind
   script:
-    - "cd Back" 
+    - "cd back" 
     - "docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD" 
     - "docker build -t back ."
     - |
@@ -60,7 +60,7 @@ compila_dockerfile_front:
   stage: compila_dockerfile_front
   image: docker:dind
   script:
-    - "cd Front"  
+    - "cd front"  
     - "docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
     - "docker build -t front ."
     - |
