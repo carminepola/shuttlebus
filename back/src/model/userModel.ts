@@ -13,23 +13,28 @@ export default class userModel {
     zipCode?: string;
   };
   options: { [key: string]: any };
-  password: string;
+  password?: string;
   sessions: sessionModel[];
   role: number;
-  permissions: permissionModel[];
-  disabled: boolean;
+  permissions?: permissionModel[];
+  disabled?: boolean;
   createdAt: number;
   updatedAt: number;
-  constructor() {
-    this.email = "";
-    this.details = {};
-    this.password = "";
-    this.sessions = [];
-    this.role = role.NO_PERMISSION;
-    this.options = {};
-    this.permissions = [];
-    this.disabled = true;
-    this.createdAt = new Date().getTime();
+  constructor(user: any = {}) {
+    this.email = user.email || "";
+    this.details = user.details || {};
+    if (user.password) {
+      this.password = user.password || "";
+    }
+    this.sessions = user.sessions || [];
+    this.permissions = user.permissions || [];
+    this.disabled = user.disabled || false;
+
+    this.role = user.role || role.NO_PERMISSION;
+    this.options = user.options || {};
+
+    this.createdAt = user.createdAt || new Date().getTime();
+
     this.updatedAt = new Date().getTime();
   }
 }

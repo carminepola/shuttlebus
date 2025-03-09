@@ -145,7 +145,6 @@ class MailService {
           throw new Error(emailSended.errorMessage);
         }
       }
-      this.send(newMail);
     } catch (error: any) {
       throw error; // Propagazione opzionale
     }

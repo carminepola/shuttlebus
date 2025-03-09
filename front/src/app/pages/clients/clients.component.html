@@ -4,43 +4,27 @@
     subtitle="Gestisci i clienti"
     back="true"
   ></app-title-page>
-  <div class="card shadow border-0 rounded-4">
+  <div
+    *ngIf="loading"
+    class="w-100 d-flex align-items-center justify-content-center"
+  >
+    <app-loading></app-loading>
+  </div>
+
+  <div class="card shadow border-0 rounded-4" *ngIf="!loading" @fadeInOut>
     <!-- Header Section -->
     <div class="card-header bg-white rounded-top-4 border-bottom py-4">
       <div class="row align-items-center gy-3">
-        <div class="col-md">
+        <div class="col">
           <div class="input-group">
             <span class="input-group-text bg-light border-0 icon-container"
               ><i class="fas fa-search"></i
             ></span>
             <input
+              [(ngModel)]="search"
               type="text"
               class="form-control form-control-lg bg-light border-0"
-              placeholder="Filtra per nome..."
-            />
-          </div>
-        </div>
-        <div class="col-md">
-          <div class="input-group">
-            <span class="input-group-text bg-light border-0 icon-container"
-              ><i class="fas fa-search"></i
-            ></span>
-            <input
-              type="text"
-              class="form-control form-control-lg bg-light border-0"
-              placeholder="Filtra per email..."
-            />
-          </div>
-        </div>
-        <div class="col-md">
-          <div class="input-group">
-            <span class="input-group-text bg-light border-0 icon-container"
-              ><i class="fas fa-search"></i
-            ></span>
-            <input
-              type="text"
-              class="form-control form-control-lg bg-light border-0"
-              placeholder="Filtra per numero..."
+              placeholder="Cerca cliente..."
             />
           </div>
         </div>
@@ -71,10 +55,8 @@
             ></span>
           </p>
           <p class="mb-2">
-            Numero: <span class="text-secondary">+39 333 123 4567</span>
-          </p>
-          <p class="mb-0">
-            Numero Prenotazioni: <span class="text-secondary">5</span>
+            Numero:
+            <span class="text-secondary">+39 333 123 4567</span>
           </p>
         </div>
       </div>
@@ -90,16 +72,19 @@
               <th scope="col">Nome</th>
               <th scope="col">Email</th>
               <th scope="col">Numero</th>
-              <th scope="col">Numero Prenotazioni</th>
+
               <th scope="col" class="rounded-end-3">Azioni</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="bg-white mb-2">
-              <td>Mario Rossi</td>
-              <td [innerHTML]="'mario.rossi@example.com'"></td>
-              <td>+39 333 123 4567</td>
-              <td>5</td>
+            <tr
+              class="bg-white mb-2"
+              *ngFor="let client of clients | filter : search"
+            >
+              <td [innerHTML]="client.name"></td>
+              <td [innerHTML]="client.email"></td>
+              <td [innerHTML]="client.phone"></td>
+
               <td>
                 <button class="btn btn-info btn-sm me-2 rounded-3">
                   <i class="fas fa-info-circle"></i>

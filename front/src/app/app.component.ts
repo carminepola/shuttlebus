@@ -15,6 +15,7 @@ import { LowBarComponent } from './components/lowBar/lowBar.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { LngService } from './services/lng/lng.service';
 import { LoadingComponent } from './components/loading/loading/loading.component';
+import { CookiePolicyComponent } from './components/cookie-policy/cookie-policy.component';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,7 @@ import { LoadingComponent } from './components/loading/loading/loading.component
     CommonModule,
     LowBarComponent,
     NavbarComponent,
+    CookiePolicyComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

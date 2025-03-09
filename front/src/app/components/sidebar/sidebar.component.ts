@@ -35,13 +35,18 @@ export class SidebarComponent implements OnInit {
   isLoadingLogout: boolean = false;
   notification: any = [];
 
+  image = '';
+
   ngOnInit(): void {
+    debugger;
     this.user = this.authService.getDecodedToken();
-    this.username = this.user?.details?.name.toUpperCase();
 
     this.cookieService.watchCookie().subscribe((newJwtToken) => {
       this.user = newJwtToken;
-      this.username = this.user?.details?.name.toUpperCase();
+      this.username = this.user?.details?.name.split(' ')[0].toUpperCase();
+      if (this.user?.options?.google?.photos?.length > 0) {
+        this.image = this.user.options.google.photos[0].value;
+      }
     });
   }
   toggleMenu() {
@@ -54,13 +59,13 @@ export class SidebarComponent implements OnInit {
       next: (response) => {
         this.isLoadingLogout = false;
         this.authService.deleteCookie('jwt');
- 
+
         this.router.navigate(['/']);
       },
       error: (error) => {
         this.isLoadingLogout = false;
         this.router.navigate(['/']);
- 
+
         console.error('Errore durante il logout', error);
       },
     });

@@ -5,6 +5,10 @@ import { check, validationResult } from "express-validator";
 import { Router, Request, Response, NextFunction } from "express";
 import BookingServices from "../components/services/bookingServices";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
+import authMiddleware from "../middlewares/authMiddleware";
+import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
+import { role } from "../enum/role";
+
 const router = express.Router();
 
 router.post(
@@ -18,6 +22,7 @@ router.post(
   ],
 
   validateDataMiddleware,
+
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let bookingServices = new BookingServices(db);
@@ -36,4 +41,15 @@ router.post(
     }
   }
 );
+router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let book = req.body;
+    let bookingServices = new BookingServices(db);
+
+    let result = await bookingServices.insertBooking(book, res.locals.userLogged["_id"]);
+    res.json({ result: result });
+  } catch (error) {
+    next(error);
+  }
+});
 export default router;

@@ -1,11 +1,16 @@
 import { Db } from "mongodb";
 import UsersDao from "../dao/usersDao";
 import userModel from "../../model/userModel";
+import { role } from "../../enum/role";
 import ErrorModel from "../../model/errorModel";
+import MailSenderServices from "./mailSender";
+
 export default class UserServices {
   private userDao: UsersDao;
+  private mailSenderServices: MailSenderServices;
   constructor(db: Db) {
     this.userDao = new UsersDao(db);
+    this.mailSenderServices = new MailSenderServices(db);
   }
 
   async getUserById(id: string) {
@@ -76,6 +81,25 @@ export default class UserServices {
     }
   }
 
+  async register(user: userModel, lng: string) {
+    try {
+      let oldUser = await this.userDao.getUserByEmail(user.email);
+      if (oldUser && user.role !== role.NO_PERMISSION) {
+        throw new ErrorModel(409, "Utente già esistente");
+      } else {
+        if (oldUser) {
+          await this.deleteUser(user.email);
+        }
+
+        await this.mailSenderServices.sendWelcomeMail(user.email, user.details.name || "Utente", user.options.pin, user.email, lng);
+
+        let result = await this.createUser(user);
+        return result;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
   async deleteSession(email: string, sessionId: string): Promise<boolean> {
     try {
       return await this.userDao.deleteSession(email, sessionId);
@@ -103,5 +127,57 @@ export default class UserServices {
     } catch (error) {
       throw error;
     }
+  }
+  async getNormalUser() {
+    try {
+      let allUsers = await this.userDao.getUsersByRole(role.USER);
+      let normalUsers = allUsers.map((user) => {
+        return {
+          photo: user.options?.google?.photos[0].value || "",
+          name: user.details.name,
+          email: user.email,
+          phone: user.details.phone || "",
+        };
+      });
+      return normalUsers;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateGoogleInfo(email: string, googleInfo: any) {
+    try {
+      return await this.userDao.updateGoogleInfo(email, googleInfo);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async deleteUser(email: string): Promise<boolean> {
+    try {
+      return await this.userDao.deleteUser(email);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async validateEmail(email: string, pin: string): Promise<boolean> {
+    try {
+      let u = await this.userDao.getUserByEmail(email);
+      let user = new userModel(u);
+
+      if (!user) {
+        throw new ErrorModel(404, "Utente non trovato");
+      }
+      if (user.options.pin == "" || Number(user.options.pin) !== Number(pin)) {
+        throw new ErrorModel(400, "Pin non valido");
+      } else {
+        user.options.pin = "";
+      }
+      user.role = role.USER;
+
+      await this.userDao.updateUser(user);
+      return true;
+    } catch (error) {
+      throw error;
+    }
+    return false;
   }
 }
