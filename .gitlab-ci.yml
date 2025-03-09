@@ -9,16 +9,15 @@ compilazione_back:
   image: node:22
   script:
     - "cd back"
-    - |
-      if [ "$CI_COMMIT_REF_NAME" == "main"  || "$CI_COMMIT_REF_NAME" == "dev"]; then
-         npm install && npm build
-      fi
+    - "npm install"
+    - "npm build"
       
   artifacts:
     paths:
       - back/bin/
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_TAG'
+
 compilazione_front:
   stage: compila_front
   image: node:22
@@ -26,10 +25,7 @@ compilazione_front:
     - "cd front"
     - "npm install -g @angular/cli@19.1.8"
     - "npm install"
-    - |
-      if ["$CI_COMMIT_REF_NAME" == "main"  || "$CI_COMMIT_REF_NAME" == "dev"]; then
-        ng build-prod
-      fi
+    - "ng build-prod"
   artifacts:
     paths:
       - front/dist/
