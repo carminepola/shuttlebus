@@ -11,7 +11,7 @@ compilazione_back:
     - "cd back"
     - "rm package-lock.json"
     - "npm install"
-    - "npm build"
+    - "npm run build"
       
   artifacts:
     paths:
