@@ -1,6 +1,6 @@
 import { Db, ObjectId } from "mongodb";
 import { Guid } from "guid-typescript";
-import { logger } from "../../..";
+import { logger } from "../../index";
 import StopModel from "../../model/stopsModel";
 
 export default class StopsDao {

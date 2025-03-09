@@ -1,5 +1,5 @@
 import { Db, ObjectId } from "mongodb";
-import { logger } from "../../..";
+import { logger } from "../../index";
 import bcrypt from "bcrypt";
 import { Guid } from "guid-typescript";
 import userModel from "../../model/userModel";
