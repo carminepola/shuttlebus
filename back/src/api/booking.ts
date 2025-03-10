@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import { db, logger } from "../index";
 import { check, validationResult } from "express-validator";
 
@@ -8,6 +8,7 @@ import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 import authMiddleware from "../middlewares/authMiddleware";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
 import { role } from "../enum/role";
+import { url } from "inspector";
 
 const router = express.Router();
 
@@ -46,8 +47,9 @@ router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USE
     let book = req.body;
     let bookingServices = new BookingServices(db);
 
-    let result = await bookingServices.insertBooking(book, res.locals.userLogged["_id"]);
-    res.json({ result: result });
+    let response: any = await bookingServices.insertBooking(book, res.locals.userLogged["_id"]);
+
+    res.json({ url: response });
   } catch (error) {
     next(error);
   }
@@ -74,6 +76,7 @@ router.get("/getBookingForUser", authMiddleware, checkPermissionMiddleware(role.
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.getBookingForUser(res.locals.userLogged["_id"]);
+
     res.json({ booking: result });
   } catch (error) {
     next(error);

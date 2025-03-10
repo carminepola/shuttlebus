@@ -271,6 +271,9 @@ export default class BookingsDAO {
   async insertBooking(booking: booking, session?: ClientSession) {
     return this.db.collection("bookings").insertOne(booking, { session });
   }
+  async getBookingFromNumber(numberOfTickets: string): Promise<booking> {
+    return new booking(await this.db.collection("bookings").findOne({ numberOfTickets }));
+  }
 
   async readBookingConfirmed(date: string, routeId: string, scheduleId: string) {
     let search: any = {
@@ -294,7 +297,7 @@ export default class BookingsDAO {
 
   async removeExpiredPendingBookings() {
     const now = new Date();
-    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+    const fifteenMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
     return this.db.collection("bookings").updateMany(
       {
         createdAt: { $lt: fifteenMinutesAgo },
@@ -362,5 +365,11 @@ export default class BookingsDAO {
       .project({ date: 1, createdAt: 1, numberOfTickets: 1, status: 1, from: 1, to: 1, travelDate: 1, total: 1, luggage: 1, seats: 1, name: 1, ticketType: 1 })
       .sort({ createdAt: -1 })
       .toArray();
+  }
+  async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {
+    return this.db.collection("bookings").updateOne({ numberOfTickets }, { $set: { paymentMethod: type, other: other } });
+  }
+  async deleteBooking(numberOfTickets: string) {
+    return this.db.collection("bookings").deleteOne({ numberOfTickets });
   }
 }
