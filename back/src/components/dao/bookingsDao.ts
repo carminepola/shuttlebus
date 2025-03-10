@@ -137,7 +137,7 @@ export default class BookingsDAO {
           from: "bookings",
           let: {
             scheduleId: "$schedules.id",
-            travelDate: "2025-03-10",
+            travelDate: travelDate,
             stops: "$stops",
             fromStopIndex: "$fromStopIndex",
             toStopIndex: "$toStopIndex",
