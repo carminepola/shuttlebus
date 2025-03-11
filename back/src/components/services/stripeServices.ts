@@ -8,9 +8,9 @@ class StripeServices {
   constructor() {
     this.stripe = StripeInstance.getInstance();
   }
+
   async getPaymentSession(ticket: booking) {
     try {
-      debugger;
       let name = `${ticket.lng == "it" ? ticket.name.it : ticket.name.en} • ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}))`;
       let items = ticket.ticketTypes.map((item: TicketType) => {
         return {
@@ -45,7 +45,10 @@ class StripeServices {
         customer_email: ticket.user.mail,
         line_items: items,
         mode: "payment",
-        success_url: `${env.CLIENT_URL}/payment/stripe/success`,
+        payment_intent_data: {
+          capture_method: "manual", // ⬅️ Questo imposta il pagamento manuale
+        },
+        success_url: `${env.CLIENT_URL}/payment/stripe/success/${ticket.numberOfTickets}`,
         cancel_url: `${env.CLIENT_URL}/payment/stripe/cancel/${ticket.numberOfTickets}`,
         metadata: {
           route: ` ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}))`, // Es: "Napoli - Amalfi"
@@ -68,7 +71,10 @@ class StripeServices {
 
   async deletePaymentSession(booking_id: string) {
     try {
-      this.stripe.checkout.sessions.expire(booking_id);
+      const session = await this.stripe.checkout.sessions.retrieve(booking_id);
+      if (session && session.status !== "expired") {
+        this.stripe.checkout.sessions.expire(booking_id);
+      }
     } catch (error) {
       throw new Error("str_error_payment");
     }

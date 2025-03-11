@@ -310,51 +310,91 @@ export default class BookingsDAO {
     );
   }
 
-  async cancelBooking(bookingId: string, userId?: string) {
-    let q: any = {
-      ticketId: bookingId,
-      status: "pending",
-    };
-    if (userId) {
-      q.userId = userId;
-    }
-    return this.db.collection("bookings").updateOne(q, {
-      $set: {
-        updatedAt: new Date().getTime(),
-        status: "cancelled",
-      },
-    });
-  }
-
-  async confirmBooking(bookingId: string) {
-    return this.db.collection("bookings").updateOne(
+  async expireTicketById(ticketId: string) {
+    this.db.collection("bookings").updateMany(
       {
-        ticketId: bookingId,
+        numberOfTickets: ticketId,
         status: "pending",
       },
       {
         $set: {
           updatedAt: new Date().getTime(),
-          status: "confirmed",
+          status: "expired",
         },
       }
     );
   }
 
-  async refundBooking(bookingId: string) {
-    return this.db.collection("bookings").updateOne(
-      {
-        ticketId: bookingId,
-        status: "confirmed",
-      },
-      {
+  async cancelBooking(bookingId: string, userId?: string) {
+    let q: any = {
+      numberOfTickets: bookingId,
+      status: { $in: ["confirmed"] },
+    };
+
+    return this.db
+      .collection("bookings")
+      .updateOne(q, {
         $set: {
           updatedAt: new Date().getTime(),
-
-          status: "refunded",
+          status: "cancelled",
         },
-      }
-    );
+      })
+      .then((result) => {
+        if (result.matchedCount > 0) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+  }
+
+  async confirmBooking(bookingId: string) {
+    return this.db
+      .collection("bookings")
+      .updateOne(
+        {
+          ticketId: bookingId,
+          status: "pending",
+        },
+        {
+          $set: {
+            updatedAt: new Date().getTime(),
+            status: "confirmed",
+          },
+        }
+      )
+      .then((result) => {
+        if (result.matchedCount > 0) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+  }
+
+  async refundBooking(bookingId: string) {
+    return this.db
+      .collection("bookings")
+      .updateOne(
+        {
+          ticketId: bookingId,
+          status: { $in: ["confirmed", "cancelled"] },
+        },
+        {
+          $set: {
+            updatedAt: new Date().getTime(),
+
+            status: "refunded",
+          },
+        }
+      )
+      .then((result) => {
+        if (result.matchedCount > 0) {
+          return true;
+        } else {
+          return false;
+        }
+      });
   }
   async getBooking(numberOfTickets: string) {
     return this.db.collection("bookings").findOne({ numberOfTickets });
@@ -376,7 +416,28 @@ export default class BookingsDAO {
   async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {
     return this.db.collection("bookings").updateOne({ numberOfTickets }, { $set: { paymentMethod: type, other: other, updatedAt: new Date().getTime() } });
   }
-  async deleteBooking(numberOfTickets: string) {
-    return this.db.collection("bookings").deleteOne({ numberOfTickets });
+  async deleteBooking(bookingId: string, userId?: string) {
+    let q: any = {
+      numberOfTickets: bookingId,
+      status: { $in: ["pending"] },
+    };
+    if (userId) {
+      q.userId = userId;
+    }
+    return this.db
+      .collection("bookings")
+      .updateOne(q, {
+        $set: {
+          updatedAt: new Date().getTime(),
+          status: "deleted",
+        },
+      })
+      .then((result) => {
+        if (result.matchedCount > 0) {
+          return true;
+        } else {
+          return false;
+        }
+      });
   }
 }

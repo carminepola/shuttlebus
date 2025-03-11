@@ -126,11 +126,37 @@ class BookingsServices {
   async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {
     return await this.bookingDao.updatePaymentInfo(type, other, numberOfTickets);
   }
-  async cancelBooking(numberOfTickets: string, userId?: string) {
-    return await this.bookingDao.cancelBooking(numberOfTickets, userId);
+  async getBooking(numberOfTickets: string): Promise<booking> {
+    return new booking(await this.bookingDao.getBooking(numberOfTickets));
   }
-  async getBooking(numberOfTickets: string) {
-    return await this.bookingDao.getBooking(numberOfTickets);
+  async cancelBooking(numberOfTickets: string) {
+    let success = await this.bookingDao.cancelBooking(numberOfTickets);
+    if (success) {
+      //manda mail annullato biglietto
+    }
+    return success;
+  }
+
+  async refundBooking(numberOfTickets: string) {
+    let success = await this.bookingDao.refundBooking(numberOfTickets);
+    if (success) {
+      //manda mail rimborsato biglietto
+    }
+    return success;
+  }
+  async confirmBooking(numberOfTickets: string) {
+    let success = await this.bookingDao.confirmBooking(numberOfTickets);
+    if (success) {
+      //manda mail confermato biglietto
+    }
+
+    return success;
+  }
+  async deleteBooking(numberOfTickets: string, userId?: string) {
+    return await this.bookingDao.deleteBooking(numberOfTickets, userId);
+  }
+  async expireTicketById(ticketId: string) {
+    return await this.bookingDao.expireTicketById(ticketId);
   }
 }
 

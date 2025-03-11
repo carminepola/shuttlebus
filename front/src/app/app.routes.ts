@@ -27,6 +27,7 @@ import { AuthPageComponent } from './pages/auth-page/auth-page.component';
 import { AuthGuard } from './services/guard/auth.guard';
 import { UserProfileComponent } from './pages/user-profile/user-profile.component';
 import { MyTicketsComponent } from './pages/my-tickets/my-tickets.component';
+import { PaymentComponent } from './pages/payment/payment.component';
 export const routes: Routes = [
   {
     path: '',
@@ -62,6 +63,12 @@ export const routes: Routes = [
     component: RiepilogoComponent,
     canActivate: [],
     data: { lowBar: true },
+  },
+  {
+    path: 'payment/:type/:action/:id',
+    component: PaymentComponent,
+    canActivate: [AuthGuard],
+    data: { lowBar: true, requiredRole: 100 },
   },
   {
     path: 'user',
