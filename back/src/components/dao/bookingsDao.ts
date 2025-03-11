@@ -296,14 +296,14 @@ export default class BookingsDAO {
   }
 
   async removeExpiredPendingBookings() {
-    const fifteenMinutesAgo = Date.now() - 30 * 60 * 1000;
-    return this.db.collection("bookings").updateMany(
+    this.db.collection("bookings").updateMany(
       {
-        createdAt: { $lt: fifteenMinutesAgo },
+        createdAt: { $lt: new Date().getTime() - 30 * 60 * 1000 },
         status: "pending",
       },
       {
         $set: {
+          updatedAt: new Date().getTime(),
           status: "expired",
         },
       }
@@ -320,6 +320,7 @@ export default class BookingsDAO {
     }
     return this.db.collection("bookings").updateOne(q, {
       $set: {
+        updatedAt: new Date().getTime(),
         status: "cancelled",
       },
     });
@@ -333,6 +334,7 @@ export default class BookingsDAO {
       },
       {
         $set: {
+          updatedAt: new Date().getTime(),
           status: "confirmed",
         },
       }
@@ -347,6 +349,8 @@ export default class BookingsDAO {
       },
       {
         $set: {
+          updatedAt: new Date().getTime(),
+
           status: "refunded",
         },
       }
@@ -370,7 +374,7 @@ export default class BookingsDAO {
       .toArray();
   }
   async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {
-    return this.db.collection("bookings").updateOne({ numberOfTickets }, { $set: { paymentMethod: type, other: other } });
+    return this.db.collection("bookings").updateOne({ numberOfTickets }, { $set: { paymentMethod: type, other: other, updatedAt: new Date().getTime() } });
   }
   async deleteBooking(numberOfTickets: string) {
     return this.db.collection("bookings").deleteOne({ numberOfTickets });
