@@ -13,8 +13,8 @@ export default class booking {
   ticketTypes: TicketType[];
   lng: string;
   status: "pending" | "confirmed" | "expired" | "cancelled" | "refunded";
-  createdAt: string;
-  updatedAt: string;
+  createdAt: number;
+  updatedAt: number;
   paymentMethod: { type: string; data: any }[];
   other: any;
   user: any;
@@ -47,8 +47,8 @@ export default class booking {
       this.ticketTypes = book.ticketTypes;
       this.lng = book.lng;
       this.status = book.status ? book.status : "pending";
-      this.createdAt = book.createdAt ? book.createdAt : new Date().toISOString();
-      this.updatedAt = new Date().toISOString();
+      this.createdAt = book.createdAt ? book.createdAt : new Date().getTime();
+      this.updatedAt = new Date().getTime();
       this.paymentMethod = book.paymentMethod ? book.paymentMethod : [];
       this.user = book.user;
     } catch (error) {
