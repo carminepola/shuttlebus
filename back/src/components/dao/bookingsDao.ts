@@ -296,8 +296,7 @@ export default class BookingsDAO {
   }
 
   async removeExpiredPendingBookings() {
-    const now = new Date();
-    const fifteenMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
+    const fifteenMinutesAgo = Date.now() - 30 * 60 * 1000;
     return this.db.collection("bookings").updateMany(
       {
         createdAt: { $lt: fifteenMinutesAgo },
