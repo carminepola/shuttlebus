@@ -8,6 +8,7 @@ import TicketTypeServices from "./ticketTypeServices";
 import ErrorModel from "../../model/errorModel";
 import PaymentServices from "./paymentServices";
 import { response } from "express";
+import { use } from "passport";
 class BookingsServices {
   private bookingDao: BookingDao;
   private userServices: UserServices;
@@ -95,8 +96,8 @@ class BookingsServices {
   async readBookingConfirmed(date: string, routeId: string, scheduleId: string) {
     return await this.bookingDao.readBookingConfirmed(date, routeId, scheduleId);
   }
-  async getBookingForUser(userId: string) {
-    return await this.bookingDao.getBookingForUser(userId);
+  async getBookingFromUser(userId: string) {
+    return await this.bookingDao.getBookingFromUser(userId);
   }
   async checkPrice(ticket: any) {
     let totale = ticket.total;
@@ -124,6 +125,12 @@ class BookingsServices {
 
   async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {
     return await this.bookingDao.updatePaymentInfo(type, other, numberOfTickets);
+  }
+  async cancelBooking(numberOfTickets: string, userId?: string) {
+    return await this.bookingDao.cancelBooking(numberOfTickets, userId);
+  }
+  async getBooking(numberOfTickets: string) {
+    return await this.bookingDao.getBooking(numberOfTickets);
   }
 }
 

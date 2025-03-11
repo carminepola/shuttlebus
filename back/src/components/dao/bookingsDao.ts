@@ -311,18 +311,19 @@ export default class BookingsDAO {
     );
   }
 
-  async cancelBooking(bookingId: string) {
-    return this.db.collection("bookings").updateOne(
-      {
-        ticketId: bookingId,
-        status: "pending",
+  async cancelBooking(bookingId: string, userId?: string) {
+    let q: any = {
+      ticketId: bookingId,
+      status: "pending",
+    };
+    if (userId) {
+      q.userId = userId;
+    }
+    return this.db.collection("bookings").updateOne(q, {
+      $set: {
+        status: "cancelled",
       },
-      {
-        $set: {
-          status: "cancelled",
-        },
-      }
-    );
+    });
   }
 
   async confirmBooking(bookingId: string) {
@@ -343,17 +344,20 @@ export default class BookingsDAO {
     return this.db.collection("bookings").updateOne(
       {
         ticketId: bookingId,
-        status: "cancelled",
+        status: "confirmed",
       },
       {
         $set: {
-          status: "pending",
+          status: "refunded",
         },
       }
     );
   }
+  async getBooking(numberOfTickets: string) {
+    return this.db.collection("bookings").findOne({ numberOfTickets });
+  }
 
-  async getBookingForUser(userId: string) {
+  async getBookingFromUser(userId: string) {
     return this.db
       .collection("bookings")
       .find({

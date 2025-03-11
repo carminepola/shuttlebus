@@ -27,7 +27,7 @@ export class MyTicketsComponent implements OnInit {
   }
   async load() {
     let bookings: any = await lastValueFrom(
-      this.bookingsService.getBookingForUser()
+      this.bookingsService.getBookingFromUser()
     );
     console.log(bookings);
 
