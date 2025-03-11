@@ -51,8 +51,8 @@ export class BookingsService {
       );
   }
 
-  getBookingForUser(): Observable<any> {
-    return this.http.get(this.apiUrl + '/getBookingForUser').pipe(
+  getBookingFromUser(): Observable<any> {
+    return this.http.get(this.apiUrl + '/getBookingFromUser').pipe(
       catchError((error) => {
         return throwError(() => error);
       })

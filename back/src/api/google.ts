@@ -22,7 +22,7 @@ router.get(
 router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction) => {
   try {
     let secretKey = env.SECRET_KEY || "";
-    logger.info(req.cookies["connect.sid"]);
+
     const failToBanServices = new FailToBanServices(db);
     failToBanServices.insertIp(req.ip);
     let id = req.params.id;
@@ -74,7 +74,7 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
 router.get("/auth/callback", passport.authenticate("google", { failureRedirect: "/login" }), async (req: any, res: Response) => {
   if (!req.user) return res.redirect("/login");
   let url = env.CLIENT_URL;
-  logger.info(req.cookies["connect.sid"]);
+
   req.session.sid;
 
   const user = new userModel();

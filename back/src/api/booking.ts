@@ -72,10 +72,10 @@ router.post(
   }
 );
 
-router.get("/getBookingForUser", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get("/getBookingFromUser", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
-    let result = await bookingServices.getBookingForUser(res.locals.userLogged["_id"]);
+    let result = await bookingServices.getBookingFromUser(res.locals.userLogged["_id"]);
 
     res.json({ booking: result });
   } catch (error) {

@@ -3,7 +3,7 @@ import { env, logger } from "../../index";
 import { TicketType } from "../../model/bookFromSiteModel";
 import booking from "../../model/bookFromSiteModel";
 import StripeInstance from "../../stripe";
-class stripeServices {
+class StripeServices {
   private stripe: any;
   constructor() {
     this.stripe = StripeInstance.getInstance();
@@ -46,7 +46,7 @@ class stripeServices {
         line_items: items,
         mode: "payment",
         success_url: `${env.CLIENT_URL}/payment/stripe/success`,
-        cancel_url: `${env.CLIENT_URL}/payment/stripe/cancel`,
+        cancel_url: `${env.CLIENT_URL}/payment/stripe/cancel/${ticket.numberOfTickets}`,
         metadata: {
           route: ` ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}))`, // Es: "Napoli - Amalfi"
           booking_id: ticket.numberOfTickets, // ID della prenotazione
@@ -65,6 +65,14 @@ class stripeServices {
       throw new Error("str_error_payment");
     }
   }
+
+  async deletePaymentSession(booking_id: string) {
+    try {
+      this.stripe.checkout.sessions.expire(booking_id);
+    } catch (error) {
+      throw new Error("str_error_payment");
+    }
+  }
 }
 
-export default stripeServices;
+export default StripeServices;
