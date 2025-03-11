@@ -13,7 +13,15 @@
   </div>
   <div *ngIf="!loading">
     <div class="row g-4">
-      <div *ngFor="let booking of bookings" class="col">
+      <div class="w-100 text-center">
+        <h2
+          *ngIf="bookings.length == 0"
+          class="text-primary fw-bold"
+          [innerHTML]="'str_nessun_ticket' | translate"
+        ></h2>
+      </div>
+
+      <div *ngFor="let booking of bookings" class="col-12 col-lg-6">
         <div class="card h-100">
           <div class="card-body">
             <h5 class="card-title text-primary fw-bold">
@@ -61,7 +69,7 @@
                 class="badge"
                 [ngClass]="{
                   'text-bg-success': booking.status === 'confirmed',
-                  'text-bg-danger': booking.status === 'canceled',
+                  'text-bg-danger': booking.status === 'cancelled',
                   'text-bg-warning': booking.status === 'pending',
                   'text-bg-info': booking.status === 'refunded'
                 }"

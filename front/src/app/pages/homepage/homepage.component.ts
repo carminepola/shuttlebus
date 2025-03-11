@@ -14,4 +14,8 @@ import { SearchComponent } from '../../components/search/search.component';
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.scss',
 })
-export class HomepageComponent {}
+export class HomepageComponent implements OnInit {
+  ngOnInit(): void {
+    localStorage.removeItem('ticket');
+  }
+}

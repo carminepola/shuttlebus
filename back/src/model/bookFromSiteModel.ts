@@ -12,7 +12,7 @@ export default class booking {
   to: To;
   ticketTypes: TicketType[];
   lng: string;
-  status: "pending" | "confirmed" | "expired" | "cancelled" | "refunded";
+  status: "pending" | "confirmed" | "expired" | "cancelled" | "refunded" | "deleted";
   createdAt: number;
   updatedAt: number;
   paymentMethod: { type: string; data: any }[];

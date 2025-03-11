@@ -1,6 +1,5 @@
 import Stripe from "stripe";
-import { env } from "./index";
-
+require("dotenv").config();
 class StripeInstance {
   private static stripeInstance: Stripe | null = null; // Inizialmente null
 
@@ -8,7 +7,7 @@ class StripeInstance {
 
   public static getInstance(): Stripe {
     if (!this.stripeInstance) {
-      this.stripeInstance = new Stripe(env.STRIPE_SECRET_KEY!, {
+      this.stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY!, {
         apiVersion: "2025-02-24.acacia",
       });
     }
