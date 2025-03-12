@@ -400,6 +400,10 @@ export default class BookingsDAO {
     return this.db.collection("bookings").findOne({ numberOfTickets });
   }
 
+  readPendingBookingForUser(userId: string) {
+    return this.db.collection("bookings").find({ userId, status: "pending" }).toArray();
+  }
+
   async getBookingFromUser(userId: string) {
     return this.db
       .collection("bookings")
