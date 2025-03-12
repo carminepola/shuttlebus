@@ -18,8 +18,9 @@
             [class.active]="getPath() == '/'"
             aria-current="page"
             routerLink="/"
-            ><span *ngIf="getPath() == '/'">Home</span></a
           >
+            Home
+          </a>
         </li>
         <li class="nav-item cursor-pointer">
           <a
@@ -29,7 +30,7 @@
               getPath().includes('/user/') || getPath().includes('/admin/')
             "
           >
-            <span *ngIf="getPath().includes('/user/')">Account</span>
+            Account
           </a>
         </li>
         <li class="nav-item cursor-pointer">
@@ -38,7 +39,7 @@
             routerLink="/info"
             routerLinkActive="active"
           >
-            <span *ngIf="getPath().includes('/info')">Info</span></a
+            Info</a
           >
         </li>
         <li class="nav-item cursor-pointer">
@@ -46,6 +47,7 @@
             class="nav-link rounded-3"
             href="https://api.whatsapp.com/send/?phone=%2B393356910211"
           >
+            Whatsapp
           </a>
         </li>
       </ul>
