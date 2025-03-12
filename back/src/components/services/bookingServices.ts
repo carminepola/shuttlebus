@@ -10,17 +10,20 @@ import PaymentServices from "./paymentServices";
 import StripeServices from "./stripeServices";
 import { response } from "express";
 import { use } from "passport";
+import RoutesServices from "./routesServices";
 class BookingsServices {
   private bookingDao: BookingDao;
   private userServices: UserServices;
   private ticketTypeServices: TicketTypeServices;
   private paymentServices: PaymentServices;
+  private routeServices: RoutesServices;
 
   constructor(db: Db) {
     this.bookingDao = new BookingDao(db);
     this.userServices = new UserServices(db);
     this.ticketTypeServices = new TicketTypeServices(db);
     this.paymentServices = new PaymentServices(db);
+    this.routeServices = new RoutesServices(db);
   }
 
   async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0) {
@@ -39,7 +42,7 @@ class BookingsServices {
       await this.removeExpiredPendingBookings();
       let booking = await this.removePendingBooking(userId);
       if (booking.length >= 3) throw new Error("str_error_pending_booking");
-      await this.checkPrice(ticket);
+      await this.checkPriceAndTime(ticket);
     } catch (error) {
       throw error;
     }
@@ -102,11 +105,40 @@ class BookingsServices {
   async getBookingFromUser(userId: string) {
     return await this.bookingDao.getBookingFromUser(userId);
   }
-  async checkPrice(ticket: any) {
+  async checkPriceAndTime(ticket: any) {
     let totale = ticket.total;
     let newTotale = 0;
     let count = 0;
     let ticketType = await this.ticketTypeServices.getAllActiveTicketTypes();
+
+    let day = ticket.date;
+
+    let route = await this.routeServices.getRouteById(ticket.routeId);
+    if (route && route.enabled) {
+      let schedule = route.schedules.find((s: any) => s.id == ticket.scheduleId);
+      if (schedule && schedule.status == "active") {
+        if (new Date(schedule.startDate).getTime() >= new Date(day).getTime() && new Date(schedule.endDate).getTime() <= new Date(day).getTime()) {
+          let t = schedule.departureTime.split(":");
+          let time = parseInt(t[0]) * 60 + parseInt(t[1]) - 120;
+          let now = new Date().getHours() * 60 + new Date().getMinutes();
+          if (now > time) {
+            throw new ErrorModel(400, "str_error_time");
+          }
+        }
+      }
+    } else {
+      throw new ErrorModel(400, "str_error_time");
+    }
+
+    // let now = new Date();
+    // let checkTime = new Date(`${day}T${time}`);
+
+    // let threeHoursFromNow = new Date(checkTime.getTime() - 3 * 60 * 60 * 1000);
+
+    // if (now >= threeHoursFromNow) {
+    //   throw new ErrorModel(400, "str_error_time");
+    // }
+
     if (ticketType && ticket.ticketTypes.length > 0) {
       for (let t of ticket.ticketTypes) {
         let find = ticketType.find((tt: any) => tt.id === t.id);
@@ -123,7 +155,7 @@ class BookingsServices {
       return true;
     }
 
-    throw new ErrorModel(500, "str_error_check_price");
+    throw new ErrorModel(400, "str_error_check_price");
   }
 
   async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {

@@ -90,7 +90,7 @@ export default class SessionServices {
     }
   }
 
-  public async recoverPassword(email: string): Promise<void> {
+  public async recoverPassword(email: string, lng: string): Promise<void> {
     let user = await this.userServices.getUserByEmail(email);
     if (user) {
       let newPassword = Array(12)
@@ -99,13 +99,13 @@ export default class SessionServices {
         .join("");
       let insert = await this.userServices.insertRecoverPassword(email, newPassword);
       if (!insert) {
-        throw new ErrorModel(429, "Limite di richieste raggiunto, riprova più tardi");
+        throw new ErrorModel(429, "str_limite_raggiunto");
       }
 
       this.mailService.sendMail(
         new Mail({
           to: user.email,
-          type: "RECOVER_PASSWORD_ADMIN",
+          type: "RECOVER_PASSWORD",
           bodyVariables: {
             name: user.details.name,
             mail: email,
@@ -114,7 +114,7 @@ export default class SessionServices {
         })
       );
     } else {
-      throw new ErrorModel(404, "Utente non trovato");
+      throw new ErrorModel(404, "str_user_not_found");
     }
   }
 }

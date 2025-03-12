@@ -8,6 +8,24 @@ class MailSenderServices {
     this.mailService = new MailService(db);
   }
 
+  async sendRecoverPassword(email: string, name: string, newPassword: string, lng: string = "it") {
+    let type = "RECOVER_PASSWORD";
+    if (lng !== "it") {
+      type = "RECOVER_PASSWORD_EN";
+    }
+
+    this.mailService.sendMail(
+      new Mail({
+        to: email,
+        type: type,
+        bodyVariables: {
+          name: name,
+          mail: email,
+          password: newPassword,
+        },
+      })
+    );
+  }
   async sendWelcomeMail(to: string, name: string, pin: string, email: string, lng: string = "it") {
     let type = "WELCOME";
     if (lng !== "it") {
