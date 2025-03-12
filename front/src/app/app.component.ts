@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
     this.loadLng();
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        // Ottieni i dati della route attiva
+        window.scrollTo(0, 0);
         let currentRoute = this.activatedRoute;
         while (currentRoute.firstChild) {
           currentRoute = currentRoute.firstChild; // Scorri fino alla route figlia attiva
