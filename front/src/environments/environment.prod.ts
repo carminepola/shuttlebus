@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  appName: 'ShuttleBus Admin',
+  appName: 'ShuttleBus',
   logLevel: 'debug',
   apiUrl: '/api',
 };

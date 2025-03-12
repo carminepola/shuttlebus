@@ -1,4 +1,5 @@
 <nav
+  style="z-index: 999"
   class="navbar navbar-expand-sm mx-2 shadow mt-2 fixed-top rounded-4 bg-white"
 >
   <div class="container-fluid mx-2">
@@ -17,17 +18,19 @@
             [class.active]="getPath() == '/'"
             aria-current="page"
             routerLink="/"
-            >Home</a
+            ><span *ngIf="getPath() == '/'">Home</span></a
           >
         </li>
         <li class="nav-item cursor-pointer">
           <a
             class="nav-link rounded-3"
             (click)="onTicket()"
-            [class.active]="getPath().includes('/user/')"
+            [class.active]="
+              getPath().includes('/user/') || getPath().includes('/admin/')
+            "
           >
-            Account</a
-          >
+            <span *ngIf="getPath().includes('/user/')">Account</span>
+          </a>
         </li>
         <li class="nav-item cursor-pointer">
           <a
@@ -35,7 +38,7 @@
             routerLink="/info"
             routerLinkActive="active"
           >
-            Info</a
+            <span *ngIf="getPath().includes('/info')">Info</span></a
           >
         </li>
         <li class="nav-item cursor-pointer">
@@ -43,8 +46,7 @@
             class="nav-link rounded-3"
             href="https://api.whatsapp.com/send/?phone=%2B393356910211"
           >
-            Whatsapp</a
-          >
+          </a>
         </li>
       </ul>
     </div>
