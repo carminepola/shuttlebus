@@ -8,6 +8,13 @@ class MailSenderServices {
     this.mailService = new MailService(db);
   }
 
+  async sendConfimBook(email: string, name: string, lng: string = "it") {
+    let type = "CONFIRM_BOOK";
+    if (lng !== "it") {
+      type = "CONFIRM_BOOK_EN";
+    }
+  }
+
   async sendRecoverPassword(email: string, name: string, newPassword: string, lng: string = "it") {
     let type = "RECOVER_PASSWORD";
     if (lng !== "it") {

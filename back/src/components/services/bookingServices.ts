@@ -11,19 +11,21 @@ import StripeServices from "./stripeServices";
 import { response } from "express";
 import { use } from "passport";
 import RoutesServices from "./routesServices";
+import MailSenderServices from "./mailSender";
 class BookingsServices {
   private bookingDao: BookingDao;
   private userServices: UserServices;
   private ticketTypeServices: TicketTypeServices;
   private paymentServices: PaymentServices;
   private routeServices: RoutesServices;
-
+  private mailSenderServices: MailSenderServices;
   constructor(db: Db) {
     this.bookingDao = new BookingDao(db);
     this.userServices = new UserServices(db);
     this.ticketTypeServices = new TicketTypeServices(db);
     this.paymentServices = new PaymentServices(db);
     this.routeServices = new RoutesServices(db);
+    this.mailSenderServices = new MailSenderServices(db);
   }
 
   async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0) {
@@ -167,6 +169,8 @@ class BookingsServices {
   async cancelBooking(numberOfTickets: string) {
     let success = await this.bookingDao.cancelBooking(numberOfTickets);
     if (success) {
+      let book = await this.getBooking(numberOfTickets);
+
       //manda mail annullato biglietto
     }
     return success;
@@ -182,7 +186,6 @@ class BookingsServices {
   async confirmBooking(numberOfTickets: string) {
     let success = await this.bookingDao.confirmBooking(numberOfTickets);
     if (success) {
-      //manda mail confermato biglietto
     }
 
     return success;
