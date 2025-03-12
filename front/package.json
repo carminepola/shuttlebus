@@ -1,13 +1,16 @@
 {
   "name": "pintour",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "build-prod": "ng build -c production",
-    "test": "ng test"
+    "test": "ng test",
+    "version-patch": "npm version patch --no-git-tag-version",
+    "version-minor": "npm version minor",
+    "version-major": "npm version major"
   },
   "private": true,
   "dependencies": {
