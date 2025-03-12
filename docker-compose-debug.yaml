@@ -1,16 +1,33 @@
 version: "3.7"
 services:
   back:
-    image: shuttlebus2/back:latest
+    image: pintour2/back:dev
+    restart: unless-stopped
     hostname: back
     env_file:
       - ./back/.env
-    ports:
-      - "1801:1801"
   front:
     hostname: front
-    image: shuttlebus2/front:latest
+    image: pintour2/front:dev
+    restart: unless-stopped
     ports:
       - "4200:80"
+  mongodb:
+    hostname: db
+    image: mongo:latest
+    container_name: mongodb-repl
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: carmine
+      MONGO_INITDB_ROOT_PASSWORD: Spolaf92
+      MONGO_DATA_DIR: /data/db
+    command: >
+      mongod --replSet rs0 --bind_ip_all --auth
+      --keyFile /opt/keyfile/mongodb-keyfile
+    ports:
+      - "27018:27017"
 networks:
   default:
+volumes:
+  - data:/data/db
+  - ./db/keyFile:/opt/keyfile:ro
