@@ -20,7 +20,7 @@ export default function errorMiddleware(err: any, req: Request, res: Response<Me
     if (error.code) {
       delete error.code;
     }
-    if (error.stack && env.NODE_ENV != "DEV") {
+    if (error.stack && env.NODE_ENV != "DEV" && env.NODE_ENV != "TEST") {
       delete error.stack;
     }
 

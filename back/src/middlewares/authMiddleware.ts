@@ -81,8 +81,8 @@ export default async function authMiddleware(req: Request, res: Response<Message
                 res.cookie("refreshToken", newRefreshToken, {
                   maxAge: 2592000000,
                   httpOnly: true,
-                  secure: env.NODE_ENV === "PROD",
-                  sameSite: env.NODE_ENV === "PROD" ? "none" : "strict",
+                  secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
+                  sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
                 });
               });
             } catch (error) {
@@ -127,9 +127,9 @@ export default async function authMiddleware(req: Request, res: Response<Message
         let settingsJwt: CookieOptions = {
           maxAge: 2592000000,
           httpOnly: false,
-          secure: env.NODE_ENV === "PROD",
+          secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
 
-          sameSite: env.NODE_ENV === "PROD" ? "none" : "strict",
+          sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
         };
         if (!user.rememberMe) {
           settingsJwt.maxAge = undefined;
