@@ -107,9 +107,9 @@ export default class UserServices {
       throw error;
     }
   }
-  async insertRecoverPassword(email: string, password: string): Promise<boolean> {
+  async insertRecoverPassword(email: string, password: string, lng: string = "it"): Promise<boolean> {
     try {
-      return await this.userDao.insertRecoverPassword(email, password);
+      return await this.userDao.insertRecoverPassword(email, password, lng);
     } catch (error) {
       throw error;
     }
