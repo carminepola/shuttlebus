@@ -325,7 +325,7 @@ export default class BookingsDAO {
     );
   }
 
-  async cancelBooking(bookingId: string, userId?: string) {
+  async cancelBooking(bookingId: string, cancelMotivation?: string) {
     let q: any = {
       numberOfTickets: bookingId,
       status: { $in: ["confirmed"] },
@@ -337,6 +337,7 @@ export default class BookingsDAO {
         $set: {
           updatedAt: new Date().getTime(),
           status: "cancelled",
+          cancelMotivation,
         },
       })
       .then((result) => {
@@ -353,7 +354,7 @@ export default class BookingsDAO {
       .collection("bookings")
       .updateOne(
         {
-          ticketId: bookingId,
+          numberOfTickets: bookingId,
           status: "pending",
         },
         {
@@ -377,7 +378,7 @@ export default class BookingsDAO {
       .collection("bookings")
       .updateOne(
         {
-          ticketId: bookingId,
+          numberOfTickets: bookingId,
           status: { $in: ["confirmed", "cancelled"] },
         },
         {
@@ -416,6 +417,13 @@ export default class BookingsDAO {
       .project({ date: 1, createdAt: 1, numberOfTickets: 1, status: 1, from: 1, to: 1, travelDate: 1, total: 1, luggage: 1, seats: 1, name: 1, ticketType: 1 })
       .sort({ createdAt: -1 })
       .toArray();
+  }
+
+  async updatePaymentIntentId(numberOfTickets: string, paymentIntentId: string) {
+    return this.db.collection("bookings").updateOne({ numberOfTickets }, { $set: { paymentIntentId: paymentIntentId, updatedAt: new Date().getTime() } });
+  }
+  async readByPaymentIntentId(paymentIntentId: string) {
+    return this.db.collection("bookings").findOne({ paymentIntentId });
   }
   async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {
     return this.db.collection("bookings").updateOne({ numberOfTickets }, { $set: { paymentMethod: type, other: other, updatedAt: new Date().getTime() } });

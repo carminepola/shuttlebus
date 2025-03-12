@@ -75,6 +75,7 @@ router.post(
 router.get("/getBookingFromUser", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
+    await bookingServices.removeExpiredPendingBookings();
     let result = await bookingServices.getBookingFromUser(res.locals.userLogged["_id"]);
 
     res.json({ booking: result });

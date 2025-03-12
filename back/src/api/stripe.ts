@@ -14,18 +14,21 @@ import { role } from "../enum/role";
 
 const stripe = StripeInstance.getInstance();
 router.post("/webhook", express.raw({ type: "application/json" }), async (req, res, next) => {
-  const sig = req.headers["stripe-signature"];
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-
-  let event: Stripe.Event;
-
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig!, endpointSecret);
-  } catch (err) {
-    logger.error("Errore nel webhook:", err);
-    next(err);
+  logger.info("Webhook ricevuto cifrato");
+  let event = req.body;
+  // Only verify the event if you have an endpoint secret defined.
+  // Otherwise use the basic event deserialized with JSON.parse
+  if (process.env.WEBHOOK_SECRET) {
+    // Get the signature sent by Stripe
+    const signature = req.headers["stripe-signature"];
+    try {
+      event = stripe.webhooks.constructEvent(req.body, signature!, process.env.WEBHOOK_SECRET);
+    } catch (err) {
+      throw err;
+    }
   }
 
+  logger.info("Webhook ricevuto:", event!.type);
   try {
     let bookingServices = new BookingsServices(db);
     switch (event!.type) {
@@ -35,14 +38,20 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         const paymentIntentId = session.payment_intent as string;
         if (bookingId) {
           let success = await bookingServices.confirmBooking(bookingId);
-
-          if (success && paymentIntentId) {
+          await bookingServices.updatePaymentIntentId(bookingId, paymentIntentId);
+          if (paymentIntentId) {
             // Recupera il PaymentIntent per verificare lo stato del pagamento
             const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
             if (paymentIntent.status === "requires_capture") {
               // Cattura il pagamento manualmente
-              await stripe.paymentIntents.capture(paymentIntentId);
+              let res = await stripe.paymentIntents.capture(paymentIntentId);
+
+              if (res.status !== "succeeded") {
+                await bookingServices.expireTicketById(bookingId);
+                throw new ErrorModel(400, "str_payment_failed");
+              }
+
               logger.info(`Pagamento catturato con successo per la prenotazione ${bookingId}`);
             } else {
               logger.info(`Il pagamento per la prenotazione ${bookingId} è già stato addebitato.`);
@@ -87,14 +96,17 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
 
       case "charge.dispute.created": {
         const dispute = event.data.object as Stripe.Dispute;
-        const bookingId = dispute.metadata?.booking_id;
+        let book = await bookingServices.readByPaymentIntentId(dispute.payment_intent as string);
+        const bookingId = book?.numberOfTickets;
 
-        if (bookingId) {
-          await bookingServices.cancelBooking(bookingId);
+        if (bookingId && new Date(book.date) > new Date()) {
+          await bookingServices.cancelBooking(bookingId, dispute.reason as string);
         }
         logger.warn(`Contestazione aperta per la prenotazione ${bookingId}`);
         break;
       }
+      case "charge.intent.succeeded":
+        break;
 
       default:
         logger.debug(`Evento non gestito: ${event!.type}`);
@@ -173,13 +185,9 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
       const refund = await stripe.refunds.create({
         payment_intent: book.other.id,
       });
-      let success = refund.status === "succeeded";
-      if (success) {
-        await bookingServices.cancelBooking(req.body.id);
-      }
+      await bookingServices.refundBooking(req.body.id);
     }
 
-    await bookingServices.refundBooking(req.body.id);
     res.json({ message: "Intent refunded" });
   } catch (error) {
     next(error);
