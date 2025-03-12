@@ -7,6 +7,7 @@ import { ClientSession } from "mongodb";
 import TicketTypeServices from "./ticketTypeServices";
 import ErrorModel from "../../model/errorModel";
 import PaymentServices from "./paymentServices";
+import StripeServices from "./stripeServices";
 import { response } from "express";
 import { use } from "passport";
 class BookingsServices {
@@ -36,6 +37,8 @@ class BookingsServices {
     let session: ClientSession = client.startSession();
     try {
       await this.removeExpiredPendingBookings();
+      let booking = await this.removePendingBooking(userId);
+      if (booking.length >= 3) throw new Error("str_error_pending_booking");
       await this.checkPrice(ticket);
     } catch (error) {
       throw error;
@@ -157,6 +160,21 @@ class BookingsServices {
   }
   async expireTicketById(ticketId: string) {
     return await this.bookingDao.expireTicketById(ticketId);
+  }
+  async removePendingBooking(userId: string) {
+    let booking: any = await this.bookingDao.readPendingBookingForUser(userId);
+
+    return booking;
+    // if (booking) {
+    //   const stripeServices = new StripeServices();
+    //   for (let i = 0; i < booking.length; i++) {
+    //     switch (booking.type) {
+    //       case "stripe":
+    //         await stripeServices.deletePaymentSession(booking.other.id);
+    //         break;
+    //     }
+    //   }
+    // }
   }
 }
 

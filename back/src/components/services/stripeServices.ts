@@ -69,7 +69,7 @@ class StripeServices {
     }
   }
 
-  async deletePaymentSession(booking_id: string) {
+  public async deletePaymentSession(booking_id: string) {
     try {
       const session = await this.stripe.checkout.sessions.retrieve(booking_id);
       if (session && session.status !== "expired") {

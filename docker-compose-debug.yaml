@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: carmine
-      MONGO_INITDB_ROOT_PASSWORD: Spolaf92
+      MONGO_INITDB_ROOT_PASSWORD: pintour2laVendetta
       MONGO_DATA_DIR: /data/db
     command: >
       mongod --replSet rs0 --bind_ip_all --auth

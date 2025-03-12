@@ -9,7 +9,7 @@ import stripeServices from "./stripeServices";
 
 class PaymentServices {
   private paymentDao: PaymentsDAO;
-  private stripeServices: stripeServices;
+  public stripeServices: stripeServices;
 
   constructor(db: Db) {
     this.paymentDao = new PaymentsDAO(db);
