@@ -47,7 +47,7 @@ app.use(tokenRequestMiddleware);
 app.use(versionMiddleware);
 //Logga la richiesta
 app.use(requestMiddleware);
-app.use(noSqlInjectionMiddleware);
+//app.use(noSqlInjectionMiddleware);
 //Logga la risposta
 app.use(responseMiddleware);
 
