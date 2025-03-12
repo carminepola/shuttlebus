@@ -160,14 +160,20 @@ class BookingsServices {
     throw new ErrorModel(400, "str_error_check_price");
   }
 
+  async updatePaymentIntentId(numberOfTickets: string, paymentIntentId: string) {
+    return await this.bookingDao.updatePaymentIntentId(numberOfTickets, paymentIntentId);
+  }
+  async readByPaymentIntentId(paymentIntentId: string) {
+    return await this.bookingDao.readByPaymentIntentId(paymentIntentId);
+  }
   async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {
     return await this.bookingDao.updatePaymentInfo(type, other, numberOfTickets);
   }
   async getBooking(numberOfTickets: string): Promise<booking> {
     return new booking(await this.bookingDao.getBooking(numberOfTickets));
   }
-  async cancelBooking(numberOfTickets: string) {
-    let success = await this.bookingDao.cancelBooking(numberOfTickets);
+  async cancelBooking(numberOfTickets: string, cancelMotivation?: string) {
+    let success = await this.bookingDao.cancelBooking(numberOfTickets, cancelMotivation);
     if (success) {
       let book = await this.getBooking(numberOfTickets);
 
@@ -185,8 +191,6 @@ class BookingsServices {
   }
   async confirmBooking(numberOfTickets: string) {
     let success = await this.bookingDao.confirmBooking(numberOfTickets);
-    if (success) {
-    }
 
     return success;
   }
