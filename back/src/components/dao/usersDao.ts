@@ -7,6 +7,7 @@ import sessionModel from "../../model/sessionModel";
 import * as CryptoJS from "crypto-js";
 import ErrorModel from "../../model/errorModel";
 import { role } from "../../enum/role";
+import MailSenderServices from "../services/mailSender";
 export default class UsersDao {
   db: Db;
   schema: string = "users";
@@ -176,8 +177,12 @@ export default class UsersDao {
       throw error;
     }
   }
-  async insertRecoverPassword(email: string, password: string): Promise<boolean> {
+  async insertRecoverPassword(email: string, username: string, lng: string): Promise<boolean> {
     try {
+      const password = Array(12)
+        .fill("")
+        .map(() => String.fromCharCode(Math.floor(Math.random() * 26) + 97))
+        .join("");
       const today = new Date().getTime();
       const user = await this.db.collection(this.schema).findOne({ email: email });
       const count = user?.recoverPasswordCount || 0;
@@ -200,6 +205,9 @@ export default class UsersDao {
           },
         }
       );
+      const mailSenderServices: MailSenderServices = new MailSenderServices(this.db);
+
+      mailSenderServices.sendRecoverPassword(email, username, password, lng);
     } catch (error) {
       throw error;
     }

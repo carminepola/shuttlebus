@@ -181,15 +181,24 @@ export class SearchPageComponent implements OnInit {
       new Date().toDateString().split('T')[0]
     ) {
       params = params.filter((param: any) => {
-        const [hour, minute] = param.from.stopTime.split(':');
-        const [nowHour, nowMinute] = new Date()
-          .toLocaleTimeString('it-IT')
-          .split(':');
-
-        let stopTime = parseInt(hour) * 60 + parseInt(minute);
-        let nowTime = parseInt(nowHour) * 60 + parseInt(nowMinute);
-        if (nowTime + 60 > stopTime) {
-          return false;
+        let route: any = routes.find((t: any) => t.id === param.routeId);
+        if (route) {
+          let schedule = route?.schedules.find(
+            (t: any) => t.id === param.scheduleId
+          );
+          if (!schedule) {
+            return false;
+          } else {
+            const [hour, minute] = schedule.departureTime.split(':');
+            const [nowHour, nowMinute] = new Date()
+              .toLocaleTimeString('it-IT')
+              .split(':');
+            let stopTime = parseInt(hour) * 60 + parseInt(minute);
+            let nowTime = parseInt(nowHour) * 60 + parseInt(nowMinute);
+            if (nowTime + 120 > stopTime) {
+              return false;
+            }
+          }
         }
 
         return true;

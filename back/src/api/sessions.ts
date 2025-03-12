@@ -10,7 +10,7 @@ import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 import jwt from "jsonwebtoken";
 import authMiddleware from "../middlewares/authMiddleware";
 import { Mail } from "../model/mailModel";
-import MailService from "../components/services/mailServices";
+
 import UserServices from "../components/services/userServices";
 import FailToBanServices from "../components/services/failToBanServices";
 import SessionServices from "../components/services/sessionServices";
@@ -138,30 +138,15 @@ router.post(
     try {
       let userDao = new UserDao(db);
       let email = req.body.email;
+      let lng = req.body.lng ? (req.body.lng == "it" ? "it" : "en") : "en";
       let user = await userDao.getUserByEmail(email);
       if (user) {
-        let newPassword = Array(12)
-          .fill("")
-          .map(() => String.fromCharCode(Math.floor(Math.random() * 26) + 97))
-          .join("");
-        let insert = await userDao.insertRecoverPassword(email, newPassword);
+        let insert = await userDao.insertRecoverPassword(user.email, user.details.name, lng);
         if (!insert) {
           res.locals.customErrorMessage = "Limite di richieste raggiunto, riprova più tardi";
           return res.sendStatus(429);
         }
 
-        let mailService = new MailService(db);
-        mailService.sendMail(
-          new Mail({
-            to: user.email,
-            type: "RECOVER_PASSWORD_ADMIN",
-            bodyVariables: {
-              name: user.details.name,
-              mail: email,
-              password: newPassword,
-            },
-          })
-        );
         res.json({ message: "Una nuova password sarà inviata all'indirizzo email" });
       } else {
         throw new ErrorModel(404, "Utente non trovato");
