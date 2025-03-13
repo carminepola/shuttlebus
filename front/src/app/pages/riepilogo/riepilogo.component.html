@@ -69,6 +69,7 @@
                     ></div>
                   </div>
                 </div>
+
                 <hr class="w-100 my-3 d-block d-lg-none" />
                 <div class="col-12 col-lg-8">
                   <div class="list-group w-auto">
@@ -174,6 +175,18 @@
     </div>
     <div class="row mt-3">
       <div class="col" *ngIf="isLoggedIn()">
+        <div
+          class="alert alert-danger border-0 text-center"
+          *ngIf="errorMessage"
+        >
+          <div>{{ errorMessage | translate }}</div>
+          <a
+            class="cursor-pointer"
+            *ngIf="errorMessage == 'str_error_pending_booking'"
+            [innerHTML]="'str_vai_a_account' | translate"
+            routerLink="/user/myticket"
+          ></a>
+        </div>
         <button class="btn btn-lg btn-primary mb-3 w-100" (click)="bookNow()">
           {{ "str_acquista" | translate }}
         </button>

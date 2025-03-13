@@ -23,4 +23,11 @@ export class StripeService {
       })
     );
   }
+  refund(id: string): Observable<any> {
+    return this.http.post(this.apiUrl + '/refund', { id }).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
 }

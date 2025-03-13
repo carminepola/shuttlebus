@@ -168,10 +168,8 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
       throw new ErrorModel(404, "Prenotazione non trovata");
     }
 
-    if (book.status === "confirmed" && (book.user.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] === role.ADMIN)) {
-      const threeDaysAgo = new Date();
-      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-      if (new Date(book.date) < threeDaysAgo) {
+    if (book.status === "confirmed" && (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] === role.ADMIN)) {
+      if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
         throw new ErrorModel(400, "str_not_before_3_days");
       }
       if (res.locals.userLogged["role"] !== role.ADMIN) {
@@ -182,9 +180,14 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
         }
       }
 
-      const refund = await stripe.refunds.create({
-        payment_intent: book.other.id,
-      });
+      try {
+        const refund = await stripe.refunds.create({
+          payment_intent: book.paymentIntentId,
+        });
+      } catch (error) {
+        logger.debug("already refunded");
+      }
+
       await bookingServices.refundBooking(req.body.id);
     }
 

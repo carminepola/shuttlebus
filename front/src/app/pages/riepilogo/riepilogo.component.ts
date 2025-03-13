@@ -40,6 +40,7 @@ export class RiepilogoComponent implements OnInit {
 
   public loading: boolean = true;
   public param: any = {};
+  public errorMessage: string = '';
   ngOnInit() {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -75,7 +76,9 @@ export class RiepilogoComponent implements OnInit {
   goBack() {
     window.history.back();
   }
+
   bookNow() {
+    this.errorMessage = '';
     this.loading = true;
     this.bookingService.insertBooking(this.param).subscribe({
       next: (response: any) => {
@@ -85,6 +88,8 @@ export class RiepilogoComponent implements OnInit {
         window.location.href = response.url;
       },
       error: (e: any) => {
+        debugger;
+        this.errorMessage = e.error.message || e.message;
         this.loading = false;
       },
     });

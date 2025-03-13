@@ -27,31 +27,43 @@
             <h5 class="card-title text-primary fw-bold">
               {{ booking.numberOfTickets }}
             </h5>
-            <div class="card-text">
-              <strong
-                class="text-secondary"
-                [innerHTML]="'str_giorno' | translate"
-              ></strong>
-              {{ booking.date }}
-              <br />
-              <strong
-                class="text-secondary"
-                [innerHTML]="'str_partenza_da' | translate"
-              ></strong>
-              {{ booking.from.name }}
-              <span class="text-muted">({{ booking.from.stopTime }})</span>
-              <div class="text-muted">
-                {{ booking.from.description | translateName }}
-              </div>
+            <div class="row">
+              <div class="col-12 col-lg-6">
+                <strong
+                  class="text-secondary"
+                  [innerHTML]="'str_giorno' | translate"
+                ></strong>
+                {{ booking.date }}
+                <br />
+                <strong
+                  class="text-secondary"
+                  [innerHTML]="'str_partenza_da' | translate"
+                ></strong>
+                {{ booking.from.name }}
+                <span class="text-muted">({{ booking.from.stopTime }})</span>
+                <div class="text-muted">
+                  {{ booking.from.description | translateName }}
+                </div>
 
-              <strong
-                class="text-secondary"
-                [innerHTML]="'str_arrivo_a' | translate"
-              ></strong>
-              {{ booking.to.name }}
-              <span class="text-muted">({{ booking.to.stopTime }})</span>
-              <div class="text-muted">
-                {{ booking.to.description | translateName }}
+                <strong
+                  class="text-secondary"
+                  [innerHTML]="'str_arrivo_a' | translate"
+                ></strong>
+                {{ booking.to.name }}
+                <span class="text-muted">({{ booking.to.stopTime }})</span>
+                <div class="text-muted">
+                  {{ booking.to.description | translateName }}
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div>
+                  {{ "str_bagagli_aggiuntivi" | translate }}
+                  <span class="text-secondary">X</span> {{ booking.luggage }}
+                </div>
+                <div *ngFor="let ticket of booking.ticketTypes">
+                  {{ ticket.name | translateName }}
+                  <span class="text-secondary">X</span> {{ ticket.count }}
+                </div>
               </div>
 
               <div class="d-flex justify-content-end">
@@ -64,17 +76,43 @@
                 </div>
               </div>
             </div>
-            <div class="d-flex justify-content-end">
-              <span
-                class="badge"
-                [ngClass]="{
-                  'text-bg-success': booking.status === 'confirmed',
-                  'text-bg-danger': booking.status === 'cancelled',
-                  'text-bg-warning': booking.status === 'pending',
-                  'text-bg-info': booking.status === 'refunded'
-                }"
-                [innerHTML]="booking.status | translate"
-              ></span>
+            <div class="d-flex justify-content-between align-items-end">
+              <div>
+                <div>
+                  <button
+                    (click)="annulla(booking.numberOfTickets)"
+                    *ngIf="booking.status === 'pending'"
+                    class="btn btn-sm btn-outline-danger me-2"
+                    [innerHTML]="'str_annulla' | translate"
+                  ></button>
+                  <button
+                    *ngIf="booking.status === 'pending'"
+                    class="btn btn-sm btn-primary"
+                    (click)="paga(booking.other.url)"
+                    [innerHTML]="'str_pay' | translate"
+                  ></button>
+                  <button
+                    (click)="rimborsa(booking.numberOfTickets)"
+                    *ngIf="
+                      booking.status === 'confirmed' && checkDay(booking.date)
+                    "
+                    class="btn btn-info btn-sm"
+                    [innerHTML]="'str_annulla' | translate"
+                  ></button>
+                </div>
+              </div>
+              <div>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'text-bg-success': booking.status === 'confirmed',
+                    'text-bg-danger': booking.status === 'cancelled',
+                    'text-bg-warning': booking.status === 'pending',
+                    'text-bg-info': booking.status === 'refunded'
+                  }"
+                  [innerHTML]="booking.status | translate"
+                ></span>
+              </div>
             </div>
           </div>
         </div>

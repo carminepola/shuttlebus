@@ -115,11 +115,15 @@ class BookingsServices {
 
     let day = ticket.date;
 
+    if (new Date(day).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)) {
+      throw new ErrorModel(400, "str_error_time");
+    }
+
     let route = await this.routeServices.getRouteById(ticket.routeId);
     if (route && route.enabled) {
       let schedule = route.schedules.find((s: any) => s.id == ticket.scheduleId);
       if (schedule && schedule.status == "active") {
-        if (new Date(schedule.startDate).getTime() >= new Date(day).getTime() && new Date(schedule.endDate).getTime() <= new Date(day).getTime()) {
+        if (new Date(schedule.startDate).getTime() <= new Date(day).getTime() && new Date(schedule.endDate).getTime() >= new Date(day).getTime()) {
           let t = schedule.departureTime.split(":");
           let time = parseInt(t[0]) * 60 + parseInt(t[1]) - 120;
           let now = new Date().getHours() * 60 + new Date().getMinutes();
@@ -182,8 +186,12 @@ class BookingsServices {
     return success;
   }
 
-  async refundBooking(numberOfTickets: string) {
-    let success = await this.bookingDao.refundBooking(numberOfTickets);
+  async refundBooking(numberOfTickets: string, userId?: string) {
+    let book = await this.getBooking(numberOfTickets);
+    if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
+      throw new ErrorModel(400, "str_error_refund");
+    }
+    let success = await this.bookingDao.refundBooking(numberOfTickets, userId);
     if (success) {
       //manda mail rimborsato biglietto
     }

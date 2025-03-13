@@ -373,22 +373,22 @@ export default class BookingsDAO {
       });
   }
 
-  async refundBooking(bookingId: string) {
+  async refundBooking(bookingId: string, userId?: string) {
+    let q: any = {
+      numberOfTickets: bookingId,
+      status: { $in: ["confirmed", "cancelled"] },
+    };
+    if (userId) {
+      q.userId = userId;
+    }
     return this.db
       .collection("bookings")
-      .updateOne(
-        {
-          numberOfTickets: bookingId,
-          status: { $in: ["confirmed", "cancelled"] },
+      .updateOne(q, {
+        $set: {
+          updatedAt: new Date().getTime(),
+          status: "refunded",
         },
-        {
-          $set: {
-            updatedAt: new Date().getTime(),
-
-            status: "refunded",
-          },
-        }
-      )
+      })
       .then((result) => {
         if (result.matchedCount > 0) {
           return true;
@@ -414,7 +414,7 @@ export default class BookingsDAO {
           $in: ["pending", "confirmed", "cancelled", "refunded"],
         },
       })
-      .project({ date: 1, createdAt: 1, numberOfTickets: 1, status: 1, from: 1, to: 1, travelDate: 1, total: 1, luggage: 1, seats: 1, name: 1, ticketType: 1 })
+      .project({ date: 1, createdAt: 1, numberOfTickets: 1, status: 1, from: 1, to: 1, travelDate: 1, total: 1, luggage: 1, seats: 1, name: 1, ticketTypes: 1, other: 1 })
       .sort({ createdAt: -1 })
       .toArray();
   }

@@ -83,5 +83,24 @@ router.get("/getBookingFromUser", authMiddleware, checkPermissionMiddleware(role
     next(error);
   }
 });
+router.post("/refundBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.refundBooking(req.body.id, res.locals.userLogged["_id"]);
+    res.json({ message: "Rimborso effettuato" });
+  } catch (error) {
+    next(error);
+  }
+});
+router.post("/deleteBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.deleteBooking(req.body.id, res.locals.userLogged["_id"]);
+
+    res.json({ message: "Booking deleted" });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

@@ -2,5 +2,5 @@ export const environment = {
   production: false,
   appName: 'ShuttleBus',
   logLevel: 'debug',
-  apiUrl: '/api',
+  apiUrl: 'http://localhost:1801',
 };
