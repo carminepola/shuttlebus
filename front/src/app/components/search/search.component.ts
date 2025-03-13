@@ -23,7 +23,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
     bagagli?: number;
   };
 
-  public today = new Date().toISOString().split('T')[0];
+  public today = new Date(
+    Date.now() - new Date().getTimezoneOffset() * 60 * 1000
+  )
+    .toISOString()
+    .split('T')[0];
   public routes: string[] = [];
   public stops: string[] = [];
   public allStop: any = [];
@@ -51,7 +55,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
         partenza: '',
         arrivo: '',
         persone: 1,
-        data: new Date().toISOString().split('T')[0],
+        data: new Date(Date.now() - new Date().getTimezoneOffset() * 60 * 1000)
+          .toISOString()
+          .split('T')[0],
         bagagli: 0,
       };
     }

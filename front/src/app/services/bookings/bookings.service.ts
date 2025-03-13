@@ -58,4 +58,18 @@ export class BookingsService {
       })
     );
   }
+  deleteBooking(id: string): Observable<any> {
+    return this.http.post(this.apiUrl + '/deleteBooking', { id }).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
+  refundBooking(id: string): Observable<any> {
+    return this.http.post(this.apiUrl + '/refundBooking', { id }).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
 }

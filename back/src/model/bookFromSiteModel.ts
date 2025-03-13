@@ -55,6 +55,7 @@ export default class booking {
       this.user = book.user;
       this.paymentIntentId = book.paymentIntentId || "";
       this.cancelMotivation = book.cancelMotivation || "";
+      this.other = book.other;
     } catch (error) {
       throw error;
     }

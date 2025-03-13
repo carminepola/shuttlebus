@@ -54,6 +54,7 @@ class StripeServices {
           route: ` ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}))`, // Es: "Napoli - Amalfi"
           booking_id: ticket.numberOfTickets, // ID della prenotazione
           departure: ticket.date, // Data di partenza
+          userId: ticket.user.id, // ID utente
           user: ticket.user.name, // Nome utente
           lng: ticket.lng, // Lingua
           mail: ticket.user.mail, // Mail utente
