@@ -46,7 +46,7 @@ export class NavbarComponent {
       let session = this.authService.getDecodedToken();
 
       if (session.role <= 50) {
-        this.router.navigateByUrl('/admin/home');
+        this.router.navigateByUrl('/user/account');
       } else {
         this.router.navigateByUrl('/user/account');
       }
@@ -57,7 +57,7 @@ export class NavbarComponent {
     if (this.authService.isLoggedIn()) {
       let session = this.authService.getDecodedToken();
       if (session.role <= 50) {
-        this.router.navigate(['/admin/home']);
+        this.router.navigate(['/user/account']);
       } else {
         this.router.navigate(['/user/account']);
       }

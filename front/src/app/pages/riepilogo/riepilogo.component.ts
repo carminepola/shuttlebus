@@ -15,6 +15,7 @@ import { RegistrazioneComponent } from '../../components/registrazione/registraz
 import { ModalService } from '../../services/modal/modal.service';
 import { BookingsService } from '../../services/bookings/bookings.service';
 declare var bootstrap: any;
+
 @Component({
   selector: 'app-riepilogo',
   imports: [
@@ -70,8 +71,12 @@ export class RiepilogoComponent implements OnInit {
     return this.authService.isLoggedIn();
   }
   myModal: any;
-  openModal() {
-    this.modalService.openModal('modalLogin');
+  openModal(type: boolean) {
+    if (type) {
+      this.modalService.openModal('modalLogin2');
+    } else {
+      this.modalService.openModal('modalLogin');
+    }
   }
   goBack() {
     window.history.back();

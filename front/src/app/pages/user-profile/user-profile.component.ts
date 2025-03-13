@@ -8,7 +8,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 @Component({
   selector: 'app-user-profile',
-  imports: [TitlePageComponent, TranslatePipe],
+  imports: [TitlePageComponent, TranslatePipe, CommonModule],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.scss',
 })
@@ -21,6 +21,21 @@ export class UserProfileComponent {
 
   goTo(path: string) {
     this.router.navigate([path]);
+  }
+  getUser() {
+    let user = this.authService.getDecodedToken();
+    if (user) {
+      return user.email;
+    }
+    return;
+  }
+  getRole() {
+    let user = this.authService.getDecodedToken();
+    if (user) {
+      debugger;
+      return parseInt(user.role);
+    }
+    return 999;
   }
   logout() {
     Swal.fire({
