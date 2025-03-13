@@ -123,12 +123,14 @@ class BookingsServices {
     if (route && route.enabled) {
       let schedule = route.schedules.find((s: any) => s.id == ticket.scheduleId);
       if (schedule && schedule.status == "active") {
-        if (new Date(schedule.startDate).getTime() <= new Date(day).getTime() && new Date(schedule.endDate).getTime() >= new Date(day).getTime()) {
-          let t = schedule.departureTime.split(":");
-          let time = parseInt(t[0]) * 60 + parseInt(t[1]) - 120;
-          let now = new Date().getHours() * 60 + new Date().getMinutes();
-          if (now > time) {
-            throw new ErrorModel(400, "str_error_time");
+        if (new Date(day).setHours(0, 0, 0, 0) == new Date().setHours(0, 0, 0, 0)) {
+          if (new Date(schedule.startDate).getTime() <= new Date(day).getTime() && new Date(schedule.endDate).getTime() >= new Date(day).getTime()) {
+            let t = schedule.departureTime.split(":");
+            let time = parseInt(t[0]) * 60 + parseInt(t[1]) - 120;
+            let now = new Date().getHours() * 60 + new Date().getMinutes();
+            if (now > time) {
+              throw new ErrorModel(400, "str_error_time");
+            }
           }
         }
       }

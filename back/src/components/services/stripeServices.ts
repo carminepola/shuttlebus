@@ -11,7 +11,7 @@ class StripeServices {
 
   async getPaymentSession(ticket: booking) {
     try {
-      let name = `${ticket.lng == "it" ? ticket.name.it : ticket.name.en} • ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}))`;
+      let name = `${ticket.lng == "it" ? ticket.name.it : ticket.name.en} • ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime})`;
       let items = ticket.ticketTypes.map((item: TicketType) => {
         return {
           price_data: {
