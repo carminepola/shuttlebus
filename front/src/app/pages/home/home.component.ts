@@ -100,6 +100,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.biglietti();
       this.prenotazioni();
     }, 500);
+    setInterval(() => {
+      this.andamento();
+      this.routeToday();
+      this.biglietti();
+      this.prenotazioni();
+    }, 10000);
   }
 
   prenotazioni() {
@@ -145,40 +151,46 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {}
   animateNumberRoutes(max: number, duration: number) {
-    let start = 0;
-    let stepTime = Math.abs(Math.floor(duration / max)); // Tempo per ogni incremento
+    if (max != this.countRoutes) {
+      let start = 0;
+      let stepTime = Math.abs(Math.floor(duration / max)); // Tempo per ogni incremento
 
-    let interval = setInterval(() => {
-      start++;
-      this.countRoutes = start;
-      if (start >= max) clearInterval(interval);
-    }, stepTime);
+      let interval = setInterval(() => {
+        start++;
+        this.countRoutes = start;
+        if (start >= max) clearInterval(interval);
+      }, stepTime);
+    }
   }
 
   animateNumberPrenotazioni(max: number, duration: number) {
-    let start = 0;
-    let stepTime = Math.abs(Math.floor(duration / max)); // Tempo per ogni incremento
+    if (max != this.countPrenotazioni) {
+      let start = 0;
+      let stepTime = Math.abs(Math.floor(duration / max)); // Tempo per ogni incremento
 
-    let interval = setInterval(() => {
-      start++;
-      this.countPrenotazioni = start;
-      if (start >= max) clearInterval(interval);
-    }, stepTime);
+      let interval = setInterval(() => {
+        start++;
+        this.countPrenotazioni = start;
+        if (start >= max) clearInterval(interval);
+      }, stepTime);
+    }
   }
   animateNumberBiglietti(max: number, duration: number) {
-    let start = 0;
-    let stepTime = Math.abs(Math.floor(duration / max)); // Tempo per ogni incremento
+    if (max != this.countBiglietti) {
+      let start = 0;
+      let stepTime = Math.abs(Math.floor(duration / max)); // Tempo per ogni incremento
 
-    let interval = setInterval(() => {
-      start++;
-      this.countBiglietti = start;
-      if (start >= max) clearInterval(interval);
-    }, stepTime);
+      let interval = setInterval(() => {
+        start++;
+        this.countBiglietti = start;
+        if (start >= max) clearInterval(interval);
+      }, stepTime);
+    }
   }
   private createSalesChart(data: any) {
     const ctx = this.salesChart.nativeElement.getContext('2d');
 
-    // Genera i giorni del mese
+    // Genera i giorsni del mese
     const dates = this.generateDates();
 
     // Creiamo mappe per associare i dati ai giorni corretti

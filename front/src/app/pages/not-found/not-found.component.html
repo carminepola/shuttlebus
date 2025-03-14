@@ -1,10 +1,18 @@
 <div class="min-vh-100 d-flex align-items-center justify-content-center">
   <div class="text-center">
     <h1 class="display-1 fw-bold text-secondary">404</h1>
-    <p class="display-6 fw-semibold text-primary mb-3">Pagina non trovata</p>
-    <p class="text-muted mb-4">La pagina che stai cercando non esiste.</p>
-    <button routerLink="/" class="btn btn-secondary btn-lg shadow-sm px-5 py-3">
-      Torna alla Home
-    </button>
+    <p
+      class="display-6 fw-semibold text-primary mb-3"
+      [innerHTML]="'str_page_not_found' | translate"
+    ></p>
+    <p
+      class="text-muted mb-4"
+      [innerHTML]="'str_page_not_found_desc' | translate"
+    ></p>
+    <button
+      routerLink="/"
+      class="btn btn-secondary btn-lg shadow-sm px-5 py-3"
+      [innerHTML]="'str_torna_home' | translate"
+    ></button>
   </div>
 </div>

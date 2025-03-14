@@ -28,6 +28,7 @@ import { AuthGuard } from './services/guard/auth.guard';
 import { UserProfileComponent } from './pages/user-profile/user-profile.component';
 import { MyTicketsComponent } from './pages/my-tickets/my-tickets.component';
 import { PaymentComponent } from './pages/payment/payment.component';
+import { NotAuthorizedComponent } from './pages/not-authorized/not-authorized.component';
 export const routes: Routes = [
   {
     path: '',
@@ -221,6 +222,11 @@ export const routes: Routes = [
         data: { navbar: true, requiredRole: 50 },
       },
     ],
+  },
+  {
+    path: 'not-authorized',
+    component: NotAuthorizedComponent,
+    data: {},
   },
 
   { path: '', redirectTo: '/', pathMatch: 'full' },
