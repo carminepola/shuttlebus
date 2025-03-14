@@ -13,6 +13,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { BookingsService } from '../../services/bookings/bookings.service';
 import { RoutesService } from '../../services/routes/routes.service';
+import { interval } from 'rxjs';
 
 Chart.register(...registerables);
 
@@ -93,6 +94,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private routesService: RoutesService
   ) {}
 
+  private interval: any;
+  ngOnDestroy(): void {
+    clearInterval(this.interval);
+  }
   ngOnInit(): void {
     this.andamento();
     setTimeout(() => {
@@ -100,12 +105,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.biglietti();
       this.prenotazioni();
     }, 500);
+
     setInterval(() => {
       this.andamento();
       this.routeToday();
       this.biglietti();
       this.prenotazioni();
-    }, 10000);
+    }, 60000);
   }
 
   prenotazioni() {
