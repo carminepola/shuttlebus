@@ -28,7 +28,7 @@
   </div>
   <div class="row my-5" *ngIf="params.length > 0 && !loading">
     <div
-      class="col-12 col-lg-8 mx-auto"
+      class="col-12 col-lg-10 mx-auto"
       *ngFor="let param of params; let j = index"
     >
       <div class="card border-secondary rounded-4 mb-3" @fadeInOut>
@@ -59,7 +59,7 @@
                   </div>
                   <div
                     class="text-muted"
-                    [innerHTML]="param.from.address"
+                    [innerHTML]="param.from.description | translateName"
                   ></div>
                 </div>
 
@@ -75,7 +75,10 @@
                       [innerHTML]="param.to.stopTime"
                     ></div>
                   </div>
-                  <div class="text-muted" [innerHTML]="param.to.address"></div>
+                  <div
+                    class="text-muted"
+                    [innerHTML]="param.to.description | translateName"
+                  ></div>
                 </div>
               </div>
               <hr class="w-100 my-3 d-block d-lg-none" />
