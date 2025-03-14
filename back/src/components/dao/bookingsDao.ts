@@ -275,11 +275,16 @@ export default class BookingsDAO {
     return new booking(await this.db.collection("bookings").findOne({ numberOfTickets }));
   }
 
-  async readBookingConfirmed(date: string, routeId: string, scheduleId: string) {
+  async readBookingConfirmed(date: string, routeId: string, scheduleId: string, status: string) {
     let search: any = {
-      status: "confirmed",
       date,
     };
+
+    if (!status || status === "all") {
+      search.status = { $not: { $in: ["deleted", "expired"] } };
+    } else {
+      search.status = "confirmed";
+    }
 
     if (routeId) {
       search.routeId = routeId;
@@ -490,7 +495,18 @@ export default class BookingsDAO {
       ])
       .toArray();
   }
-  async andamento() {
+  /*************  ✨ Codeium Command ⭐  *************/
+  /**
+ * Computes and returns booking trends over the past and current month.
+ * 
+ * This function aggregates booking data to determine the number of confirmed
+ * bookings for each day in the past and current month. It generates a complete
+ * date range for both periods and matches confirmed bookings to these dates,
+ * populating the result with the total number of confirmed bookings per day.
+ * 
+ * Returns an array of objects, each containing a date, the total number of 
+
+/******  aa1cd54a-ea7a-4e70-8cdf-9e9d508b4592  *******/ async andamento() {
     let today = new Date();
 
     // 📅 Calcola il primo giorno del mese scorso

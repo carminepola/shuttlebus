@@ -16,81 +16,47 @@ export class BookingsService {
     data: string,
     bagagli: number
   ): Observable<any> {
-    return this.http
-      .post(this.apiUrl + '/findAvailableRoutes', {
-        fromStopId: partenza,
-        toStopId: arrivo,
-        posti: persone,
-        travelDate: data,
-        bagagli: bagagli,
-      })
-      .pipe(
-        catchError((error) => {
-          return throwError(() => error);
-        })
-      );
+    return this.http.post(this.apiUrl + '/findAvailableRoutes', {
+      fromStopId: partenza,
+      toStopId: arrivo,
+      posti: persone,
+      travelDate: data,
+      bagagli: bagagli,
+    });
   }
   insertBooking(ticket: any): Observable<any> {
-    return this.http.post(this.apiUrl + '/insertBooking', ticket).pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
+    return this.http.post(this.apiUrl + '/insertBooking', ticket);
   }
-  readBookingConfirmed(date: string, routeId: string, scheduleId: string) {
-    return this.http
-      .post(this.apiUrl + '/readBookingConfirmed', {
-        date,
-        routeId,
-        scheduleId,
-      })
-      .pipe(
-        catchError((error) => {
-          return throwError(() => error);
-        })
-      );
+  readBookingConfirmed(
+    date: string,
+    routeId: string,
+    scheduleId: string,
+    status: string
+  ) {
+    return this.http.post(this.apiUrl + '/readBookingConfirmed', {
+      date,
+      routeId,
+      scheduleId,
+      status,
+    });
   }
 
   getBookingFromUser(): Observable<any> {
-    return this.http.get(this.apiUrl + '/getBookingFromUser').pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
+    return this.http.get(this.apiUrl + '/getBookingFromUser');
   }
   deleteBooking(id: string): Observable<any> {
-    return this.http.post(this.apiUrl + '/deleteBooking', { id }).pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
+    return this.http.post(this.apiUrl + '/deleteBooking', { id });
   }
   refundBooking(id: string): Observable<any> {
-    return this.http.post(this.apiUrl + '/refundBooking', { id }).pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
+    return this.http.post(this.apiUrl + '/refundBooking', { id });
   }
   ticketToDay() {
-    return this.http.get(this.apiUrl + '/ticketToDay').pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
+    return this.http.get(this.apiUrl + '/ticketToDay');
   }
   seatsToDay() {
-    return this.http.get(this.apiUrl + '/seatsToDay').pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
+    return this.http.get(this.apiUrl + '/seatsToDay');
   }
   andamento() {
-    return this.http.get(this.apiUrl + '/andamento').pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
+    return this.http.get(this.apiUrl + '/andamento');
   }
 }

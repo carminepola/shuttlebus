@@ -12,10 +12,12 @@ import { TicketTypeService } from '../../services/ticket-type/ticket-type.servic
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { UserService } from '../../services/user/user.service';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { TranslatePipe } from '../../pipe/translate.pipe';
 @Component({
   selector: 'app-reservation',
   imports: [
     TitlePageComponent,
+    TranslatePipe,
     LoadingComponent,
     CommonModule,
     TranslateNamePipe,
@@ -37,6 +39,7 @@ export class ReservationComponent implements OnInit {
     date: new Date().toISOString().split('T')[0],
     routeId: '',
     scheduleId: '',
+    show: 'confirmed',
   };
   public filterSchedule: any = [];
 
@@ -78,7 +81,8 @@ export class ReservationComponent implements OnInit {
       this.bookingsService.readBookingConfirmed(
         this.filter.date,
         this.filter.routeId,
-        this.filter.scheduleId
+        this.filter.scheduleId,
+        this.filter.show
       )
     );
     ris = ris.ticket || [];
@@ -87,6 +91,8 @@ export class ReservationComponent implements OnInit {
       return {
         total: t.total,
         ticketId: t.numberOfTickets,
+        status: t.status,
+        paymentMethod: t.paymentMethod,
         ticket: t.ticketTypes,
         route: t.name.it,
         from: t.from.name + ' (' + t.from.stopTime + ')',
@@ -98,6 +104,8 @@ export class ReservationComponent implements OnInit {
       };
     });
 
-    this.loading = false;
+    setTimeout(() => {
+      this.loading = false;
+    }, 300);
   }
 }

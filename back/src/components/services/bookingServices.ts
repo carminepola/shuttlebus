@@ -101,8 +101,8 @@ class BookingsServices {
   async removeExpiredPendingBookings() {
     return await this.bookingDao.removeExpiredPendingBookings();
   }
-  async readBookingConfirmed(date: string, routeId: string, scheduleId: string) {
-    return await this.bookingDao.readBookingConfirmed(date, routeId, scheduleId);
+  async readBookingConfirmed(date: string, routeId: string, scheduleId: string, status: string) {
+    return await this.bookingDao.readBookingConfirmed(date, routeId, scheduleId, status);
   }
   async getBookingFromUser(userId: string) {
     return await this.bookingDao.getBookingFromUser(userId);

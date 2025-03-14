@@ -16,11 +16,13 @@
     <!-- Header Section -->
     <div class="card-header bg-white rounded-top-4 border-bottom py-4">
       <div class="row align-items-center gy-3">
-        <div class="col-md">
+        <div class="col-12 col-lg">
+          <label>Giorno</label>
           <div class="input-group">
             <span class="input-group-text bg-light border-0 icon-container">
               <i class="fas fa-calendar-alt"></i>
             </span>
+
             <input
               [(ngModel)]="filter.date"
               type="date"
@@ -30,7 +32,8 @@
           </div>
         </div>
 
-        <div class="col-md">
+        <div class="col-12 col-lg">
+          <label>Tratta</label>
           <select
             [(ngModel)]="filter.routeId"
             (change)="
@@ -38,7 +41,7 @@
             "
             class="form-select form-select-lg bg-light border-0"
           >
-            <option selected value="">Filtra per tratta</option>
+            <option selected value="">Seleziona</option>
             <option
               [value]="route.id"
               *ngFor="let route of routes"
@@ -46,12 +49,13 @@
             ></option>
           </select>
         </div>
-        <div class="col-md">
+        <div class="col-12 col-lg">
+          <label>Schedulazione</label>
           <select
             [(ngModel)]="filter.scheduleId"
             class="form-select form-select-lg bg-light border-0"
           >
-            <option value="">Filtra per schedulazione</option>
+            <option value="">Seleziona</option>
             <option
               [value]="s.id"
               *ngFor="let s of filterSchedule"
@@ -59,7 +63,18 @@
             ></option>
           </select>
         </div>
-        <div class="col-md-auto">
+        <div class="col-12 col-lg">
+          <label>Stato</label>
+          <select
+            [(ngModel)]="filter.show"
+            class="form-select form-select-lg bg-light border-0"
+          >
+            <option value="all">Tutti</option>
+            <option value="confirmed">Confermati</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg">
+          <label>&nbsp;</label>
           <button
             class="btn btn-primary btn-lg h-100 rounded-3 w-100"
             (click)="filterButton()"
@@ -85,48 +100,83 @@
     </div>
 
     <!-- Mobile View (Cards) -->
-    <div class="mobile-cards p-3 d-block d-lg-none">
+    <div class="mobile-cards p-3 d-block d-lg-none" *ngFor="let b of booking">
       <div class="card mb-3 shadow-sm rounded-4">
         <div class="card-body">
-          <h5 class="card-title mb-3">Napoli - Roma (9:00)</h5>
+          <h5 class="card-title mb-3 text-primary fw-bold">{{ b.ticketId }}</h5>
           <p class="mb-2">
-            Stazione scelta:
-            <span class="text-secondary">Via Romani (10:00)</span>
+            Tratta:
+            <span class="text-secondary">{{ b.route }}</span>
           </p>
           <p class="mb-2">
-            Scende a: <span class="text-secondary">Roma (12:00)</span>
+            Sale a:
+            <span class="text-secondary">{{ b.from }}</span>
           </p>
           <p class="mb-2">
-            Nome: <span class="text-secondary">Mario Rossi</span>
+            Scende a: <span class="text-secondary">{{ b.to }}</span>
+          </p>
+          <p class="mb-2">
+            Nome: <span class="text-secondary">{{ b.name }}</span>
           </p>
           <p class="mb-2">
             Email:
-            <span
-              class="text-secondary"
-              [innerHTML]="'mario.rossi@example.com'"
-            ></span>
+            <span class="text-secondary" [innerHTML]="b.mail"></span>
           </p>
-          <p class="mb-2">
-            Telefono: <span class="text-secondary">+39 333 123 4567</span>
+          <p class="mb-2" *ngIf="b.telefono">
+            Telefono: <span class="text-secondary">{{ b.telefono }}</span>
           </p>
-          <p class="mb-2">
-            Posti: <span class="text-secondary">2 adulti, 1 bambino</span>
+
+          <p class="mb-2" *ngIf="b.bagagli > 0">
+            Bagagli: <span class="text-secondary">{{ b.bagagli }}</span>
           </p>
-          <p class="mb-2">Bagagli: <span class="text-secondary">2</span></p>
+          <p *ngFor="let t of b.ticket">
+            <span [innerHTML]="t.name.it"></span>:
+            <span class="text-secondary">X</span>
+            <span [innerHTML]="t.count"></span>
+          </p>
           <p class="mb-0">
-            Totale pagato: <span class="text-secondary">€50</span>
+            Totale pagato: <span class="text-secondary">{{ b.total }}€</span>
           </p>
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+              <div *ngIf="b.status === 'confirmed'">
+                <button class="btn btn-info btn-sm rounded-3 me-2">
+                  <i class="fa-solid fa-money-bill"></i>
+                </button>
+                <button class="btn btn-danger btn-sm rounded-3">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="my-auto">
+              <div
+                class="badge float-end"
+                [ngClass]="{
+                  'text-bg-success': b.status === 'confirmed',
+                  'text-bg-danger': b.status === 'cancelled',
+                  'text-bg-warning': b.status === 'pending',
+                  'text-bg-info': b.status === 'refunded'
+                }"
+                [innerHTML]="b.status | translate"
+              ></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Desktop View (Table) -->
-    <div class="desktop-table p-4 d-none d-lg-block">
+    <div
+      class="desktop-table p-4 d-none d-lg-block"
+      *ngIf="booking.length > 0 && !loading"
+    >
       <div class="table-responsive">
         <table class="table table-borderless table-striped align-middle">
           <thead class="bg-light">
             <tr>
               <th>N.Biglietto</th>
+              <th>Stato</th>
+              <th>T.Pagamento</th>
               <th scope="col">Tratta</th>
               <th scope="col">Partenza</th>
               <th scope="col">Arrivo</th>
@@ -141,22 +191,39 @@
           <tbody>
             <tr class="bg-white" *ngFor="let b of booking">
               <td [innerHTML]="b.ticketId"></td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'text-bg-success': b.status === 'confirmed',
+                    'text-bg-danger': b.status === 'cancelled',
+                    'text-bg-warning': b.status === 'pending',
+                    'text-bg-info': b.status === 'refunded'
+                  }"
+                  [innerHTML]="b.status | translate"
+                ></span>
+              </td>
+              <td [innerHTML]="b.paymentMethod" class="text-uppercase"></td>
               <td [innerHTML]="b.route"></td>
               <td [innerHTML]="b.from"></td>
               <td [innerHTML]="b.to"></td>
 
               <td>
                 <div *ngIf="b.name" [innerHTML]="b.name"></div>
-                <a
-                  [href]="'tel:' + b.phone"
-                  *ngIf="b.phone"
-                  [innerHTML]="b.phone"
-                ></a>
-                <a
-                  [href]="'mailto:' + b.mail"
-                  *ngIf="b.mail"
-                  [innerHTML]="b.mail"
-                ></a>
+                <div>
+                  <a
+                    [href]="'tel:' + b.phone"
+                    *ngIf="b.phone"
+                    [innerHTML]="b.phone"
+                  ></a>
+                </div>
+                <div>
+                  <a
+                    [href]="'mailto:' + b.mail"
+                    *ngIf="b.mail"
+                    [innerHTML]="b.mail"
+                  ></a>
+                </div>
               </td>
 
               <td>
@@ -176,14 +243,23 @@
                 ><span class="text-secondary">€</span>
               </td>
               <td>
-                <button disabled class="btn btn-danger btn-sm rounded-3">
-                  <i class="fas fa-trash"></i>
-                </button>
+                <div class="d-flex" *ngIf="b.status === 'confirmed'">
+                  <button class="btn btn-info btn-sm rounded-3 me-2">
+                    <i class="fa-solid fa-money-bill"></i>
+                  </button>
+                  <button class="btn btn-danger btn-sm rounded-3">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+
+    <h3 *ngIf="!booking.length" class="text-center fw-bold text-primary my-5">
+      Nessun biglietto
+    </h3>
   </div>
 </div>

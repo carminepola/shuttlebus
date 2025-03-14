@@ -64,7 +64,7 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let bookingServices = new BookingServices(db);
-      let result = await bookingServices.readBookingConfirmed(req.body.date, req.body.routeId, req.body.scheduleId);
+      let result = await bookingServices.readBookingConfirmed(req.body.date, req.body.routeId, req.body.scheduleId, req.body.status);
       res.json({ ticket: result });
     } catch (error) {
       next(error);

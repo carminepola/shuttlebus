@@ -55,6 +55,9 @@ export default class FailToBanDao {
     try {
       let result = undefined;
 
+      if (process.env.ENVIRONMENT != "PROD") {
+        return true;
+      }
       result = await this.db.collection(this.schema).insertOne({ ip: ip });
 
       if (result) {
