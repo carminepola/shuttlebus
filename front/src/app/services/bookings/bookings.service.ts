@@ -72,4 +72,25 @@ export class BookingsService {
       })
     );
   }
+  ticketToDay() {
+    return this.http.get(this.apiUrl + '/ticketToDay').pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
+  seatsToDay() {
+    return this.http.get(this.apiUrl + '/seatsToDay').pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
+  andamento() {
+    return this.http.get(this.apiUrl + '/andamento').pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
 }

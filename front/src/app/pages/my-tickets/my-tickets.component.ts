@@ -9,6 +9,7 @@ import { lastValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
 import { LngService } from '../../services/lng/lng.service';
 import { StripeService } from '../../services/stripe/stripe.service';
+import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-my-tickets',
   imports: [
@@ -18,6 +19,7 @@ import { StripeService } from '../../services/stripe/stripe.service';
     TitlePageComponent,
     CommonModule,
   ],
+  animations: [fadeAnimation],
   templateUrl: './my-tickets.component.html',
   styleUrl: './my-tickets.component.scss',
 })

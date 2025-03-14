@@ -452,4 +452,127 @@ export default class BookingsDAO {
         }
       });
   }
+  async ticketToDay() {
+    return this.db
+      .collection("bookings")
+      .aggregate([
+        {
+          $match: {
+            date: new Date().toISOString().split("T")[0],
+            status: "confirmed", // Imposta automaticamente la data di oggi in formato YYYY-MM-DD
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalTickets: { $sum: 1 }, // Conta il numero totale di biglietti prenotati oggi
+          },
+        },
+      ])
+      .toArray();
+  }
+  async seatsToDay() {
+    return this.db
+      .collection("bookings")
+      .aggregate([
+        {
+          $match: {
+            date: new Date().toISOString().split("T")[0],
+            status: "confirmed", // Imposta automaticamente la data di oggi in formato YYYY-MM-DD
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalTickets: { $sum: "$seats" }, // Conta il numero totale di biglietti prenotati oggi
+          },
+        },
+      ])
+      .toArray();
+  }
+  async andamento() {
+    let today = new Date();
+
+    // 📅 Calcola il primo giorno del mese scorso
+    let startDatePast = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    startDatePast.setHours(0, 0, 0, 0);
+
+    // 📅 Calcola l'ultimo giorno del mese scorso
+    let endDatePast = new Date(today.getFullYear(), today.getMonth(), 0);
+    endDatePast.setHours(23, 59, 59, 999);
+
+    // 📅 Calcola il primo giorno del mese corrente
+    let startDateCurrent = new Date(today.getFullYear(), today.getMonth(), 1);
+    startDateCurrent.setHours(0, 0, 0, 0);
+
+    // 📅 Calcola l'ultimo giorno del mese corrente
+    let endDateCurrent = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    endDateCurrent.setHours(23, 59, 59, 999);
+
+    // 📆 Funzione per formattare le date in "YYYY-MM-DD"
+    const formatDate = (date: any) => date.toISOString().split("T")[0];
+
+    // 📆 Genera tutti i giorni tra due date con valore di default `totalTickets: 0`
+    const generateDateRange = (start: any, end: any, period: any) => {
+      let dates = [];
+      let currentDate = new Date(start);
+
+      while (currentDate <= end) {
+        dates.push({ date: formatDate(currentDate), totalTickets: 0, period });
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      return dates;
+    };
+
+    // 📆 Crea la struttura completa con tutti i giorni
+    let allDates = [...generateDateRange(startDatePast, endDatePast, "past"), ...generateDateRange(startDateCurrent, endDateCurrent, "current")];
+
+    // 📊 Aggregazione MongoDB per ottenere solo le prenotazioni confermate
+    let bookings = await this.db
+      .collection("bookings")
+      .aggregate([
+        {
+          $match: {
+            date: {
+              $gte: formatDate(startDatePast),
+              $lte: formatDate(endDateCurrent),
+            },
+            status: { $eq: "confirmed" }, // ✅ Filtra SOLO i confermati
+          },
+        },
+        {
+          $addFields: {
+            period: {
+              $cond: {
+                if: { $lt: ["$date", formatDate(startDateCurrent)] },
+                then: "past",
+                else: "current",
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: { date: "$date", period: "$period" },
+            totalTickets: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            date: "$_id.date",
+            totalTickets: 1,
+            period: "$_id.period",
+          },
+        },
+      ])
+      .toArray();
+
+    // 🛠️ Unisce i risultati con la struttura completa
+    let resultMap = new Map(bookings.map((b) => [b.date, b]));
+
+    let completeData = allDates.map((entry) => (resultMap.has(entry.date) ? resultMap.get(entry.date) : entry));
+
+    return completeData;
+  }
 }

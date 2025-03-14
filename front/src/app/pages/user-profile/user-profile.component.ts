@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
@@ -6,19 +6,29 @@ import { LngService } from '../../services/lng/lng.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { LoadingComponent } from '../../components/loading/loading/loading.component';
+import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-user-profile',
-  imports: [TitlePageComponent, TranslatePipe, CommonModule],
+  animations: [fadeAnimation],
+  imports: [TitlePageComponent, TranslatePipe, CommonModule, LoadingComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.scss',
 })
-export class UserProfileComponent {
+export class UserProfileComponent implements OnInit {
   constructor(
     private lng: LngService,
     private authService: AuthService,
     private router: Router
   ) {}
 
+  loading = true;
+
+  ngOnInit(): void {
+    setTimeout(() => {
+      this.loading = false;
+    }, 10);
+  }
   goTo(path: string) {
     this.router.navigate([path]);
   }
@@ -32,7 +42,6 @@ export class UserProfileComponent {
   getRole() {
     let user = this.authService.getDecodedToken();
     if (user) {
-      debugger;
       return parseInt(user.role);
     }
     return 999;

@@ -11,6 +11,7 @@ import { lastValueFrom } from 'rxjs';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { UserService } from '../../services/user/user.service';
+import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-reservation',
   imports: [
@@ -20,6 +21,7 @@ import { UserService } from '../../services/user/user.service';
     TranslateNamePipe,
     FormsModule,
   ],
+  animations: [fadeAnimation],
   templateUrl: './reservation.component.html',
   styleUrl: './reservation.component.scss',
 })
@@ -82,7 +84,6 @@ export class ReservationComponent implements OnInit {
     ris = ris.ticket || [];
 
     this.booking = ris.map((t: any) => {
-      debugger;
       return {
         total: t.total,
         ticketId: t.numberOfTickets,

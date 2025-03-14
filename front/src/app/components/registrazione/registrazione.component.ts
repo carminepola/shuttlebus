@@ -152,7 +152,6 @@ export class RegistrazioneComponent implements OnInit {
             this.pinMode = true;
           },
           error: (e: any) => {
-            debugger;
             this.isLoading = false;
             console.error(e);
             //'Credenziali non valide. Riprova.'

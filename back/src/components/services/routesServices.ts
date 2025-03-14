@@ -53,4 +53,7 @@ export default class RoutesServices {
   updateSchedule(scheduleId: string, schedule: Partial<Schedule>, routeId: string) {
     return this.routeDao.updateSchedule(scheduleId, schedule, routeId);
   }
+  getRoutesToDay() {
+    return this.routeDao.routesToDay();
+  }
 }

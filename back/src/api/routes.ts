@@ -19,16 +19,6 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    let routesServices = new RoutesServices(db);
-    const result = await routesServices.getRouteById(req.params.id);
-    res.json({ route: result });
-  } catch (error) {
-    next(error);
-  }
-});
-
 router.post("/", [check("route").notEmpty().withMessage("route data is required")], authMiddleware, validateDataMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
@@ -113,4 +103,22 @@ router.put(
     }
   }
 );
+router.get("/routesToday", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let routesServices = new RoutesServices(db);
+    const result = await routesServices.getRoutesToDay();
+    res.json({ routes: result[0].active_schedules_today || 0 });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let routesServices = new RoutesServices(db);
+    const result = await routesServices.getRouteById(req.params.id);
+    res.json({ route: result });
+  } catch (error) {
+    next(error);
+  }
+});
 export default router;

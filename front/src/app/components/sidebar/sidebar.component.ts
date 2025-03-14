@@ -38,7 +38,6 @@ export class SidebarComponent implements OnInit {
   image = '';
 
   ngOnInit(): void {
-    debugger;
     this.user = this.authService.getDecodedToken();
 
     this.cookieService.watchCookie().subscribe((newJwtToken) => {

@@ -102,5 +102,126 @@ router.post("/deleteBooking", authMiddleware, checkPermissionMiddleware(role.USE
     next(error);
   }
 });
+router.get("/ticketToDay", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.ticketToDay();
+    res.json({ ticket: result[0].totalTickets || 0 });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/seatsToDay", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.seatsToDay();
+    res.json({ seats: result[0].totalTickets || 0 });
+  } catch (error) {
+    next(error);
+  }
+});
 
+router.get("/andamento", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.andamento();
+    res.json({ andamento: result });
+  } catch (error) {
+    next(error);
+  }
+});
 export default router;
+
+/*
+db.routes.aggregate([
+  {
+    $match: {
+      "schedules.startDate": { $lte: "2025-12-31" },
+      "schedules.endDate": { $gte: "2025-12-31" },
+      "schedules.status": "active"
+    }
+  },
+  {
+    $unwind: "$schedules"
+  },
+  {
+    $match: {
+      "schedules.startDate": { $lte: "2025-12-31" },
+      "schedules.endDate": { $gte: "2025-12-31" },
+      "schedules.status": "active"
+    }
+  },
+  {
+    $unwind: "$schedules.stops"
+  },
+  {
+    $addFields: {
+      "schedules.stops.stopTime": {
+        $dateFromString: {
+          dateString: { $concat: ["2025-12-31", " ", "$schedules.stops.stopTime"] },
+          format: "%Y-%m-%d %H:%M"
+        }
+      }
+    }
+  },
+  {
+    $group: {
+      _id: "$_id",
+      name: { $first: "$name" },
+      routeId: { $first: "$id" },
+      scheduleId: { $first: "$schedules.id" },
+      stops: { $push: "$schedules.stops" }
+    }
+  },
+  {
+    $addFields: {
+      sortedStops: {
+        $sortArray: {
+          input: "$stops",
+          sortBy: { stopTime: 1 }
+        }
+      }
+    }
+  },
+  {
+    $addFields: {
+      previousStop: {
+        $arrayElemAt: [
+          {
+            $filter: {
+              input: "$sortedStops",
+              as: "stop",
+              cond: { $lte: ["$$stop.stopTime", new Date("2025-12-31T18:29:00Z")] }
+            }
+          },
+          -1
+        ]
+      },
+      nextStop: {
+        $arrayElemAt: [
+          {
+            $filter: {
+              input: "$sortedStops",
+              as: "stop",
+              cond: { $gt: ["$$stop.stopTime", new Date("2025-12-31T18:29:00Z")] }
+            }
+          },
+          0
+        ]
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      routeId: 1,
+      scheduleId: 1,
+      "previousStop.id": 1,
+      "previousStop.stopTime": 1,
+      "nextStop.id": 1,
+      "nextStop.stopTime": 1
+    }
+  }
+]);
+
+*/

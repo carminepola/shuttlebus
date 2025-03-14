@@ -99,4 +99,59 @@ export class RouteDAO {
       throw error;
     }
   }
+
+  async routesToDay() {
+    let todayDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
+    let todayDayOfWeek = (new Date().getDay() + 6) % 7; // Converti: Lunedì = 0, Domenica = 6
+
+    return this.db
+      .collection("routes")
+      .aggregate([
+        // 1️⃣ Espandi le `schedules`
+        { $unwind: "$schedules" },
+
+        // 2️⃣ Filtra solo le `schedules` attive e valide per oggi
+        {
+          $match: {
+            "schedules.status": "active",
+
+            // Se la data di oggi è tra `startDate` e `endDate`
+            "schedules.startDate": { $lte: todayDate },
+            "schedules.endDate": { $gte: todayDate },
+
+            $or: [
+              {
+                // Caso in cui oggi è una extraDate
+                "schedules.extraDates": { $elemMatch: { $eq: todayDate } },
+              },
+              {
+                $and: [
+                  {
+                    "schedules.daysOfWeek": {
+                      $not: {
+                        $elemMatch: { $eq: todayDayOfWeek },
+                      },
+                    },
+                  },
+                  {
+                    // Caso in cui la travelDate non è esclusa dalle excludedDates
+
+                    "schedules.excludedDates": { $nin: [todayDate] },
+                  },
+
+                  {
+                    "schedules.startDate": { $lte: todayDate },
+                    "schedules.endDate": { $gte: todayDate },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+
+        // 3️⃣ Conta il numero di corse attive oggi
+        { $count: "active_schedules_today" },
+      ])
+      .toArray();
+  }
 }

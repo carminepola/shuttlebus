@@ -3,7 +3,6 @@ import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { ModalService } from '../../services/modal/modal.service';
 import { CommonModule } from '@angular/common';
-
 import { LoginFormComponent } from '../login-form/login-form.component';
 import { RegistrazioneComponent } from '../registrazione/registrazione.component';
 @Component({
@@ -51,6 +50,10 @@ export class NavbarComponent {
         this.router.navigateByUrl('/user/account');
       }
     }
+  }
+
+  goPath(path: string) {
+    this.router.navigate([path]);
   }
 
   onTicket() {

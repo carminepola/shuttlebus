@@ -225,6 +225,15 @@ class BookingsServices {
     //   }
     // }
   }
+  async ticketToDay() {
+    return await this.bookingDao.ticketToDay();
+  }
+  async seatsToDay() {
+    return await this.bookingDao.seatsToDay();
+  }
+  async andamento() {
+    return await this.bookingDao.andamento();
+  }
 }
 
 export default BookingsServices;
