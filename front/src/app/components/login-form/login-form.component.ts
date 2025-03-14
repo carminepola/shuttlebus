@@ -69,7 +69,6 @@ export class LoginFormComponent implements OnInit {
       this.authService.login(email, md5Password, rememberMe).subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          debugger;
 
           // this.router.navigate(['/user/account']);
 

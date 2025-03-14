@@ -13,6 +13,7 @@ import { LoadingComponent } from '../../components/loading/loading/loading.compo
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { LngService } from '../../services/lng/lng.service';
+import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-search-page',
   imports: [
@@ -26,6 +27,7 @@ import { LngService } from '../../services/lng/lng.service';
     FooterComponent,
     LoadingComponent,
   ],
+  animations: [fadeAnimation],
   templateUrl: './search-page.component.html',
   styleUrl: './search-page.component.scss',
 })

@@ -4,9 +4,14 @@
     [subtitle]="getUser()"
     back="true"
   ></app-title-page>
-
-  <div>
-    <ol class="list-group border-0 rounded-4 shadow" @fadeInOut>
+  <div
+    *ngIf="loading"
+    class="w-100 d-flex align-items-center justify-content-center"
+  >
+    <app-loading></app-loading>
+  </div>
+  <div *ngIf="!loading" @fadeInOut>
+    <ol class="list-group border-0 rounded-4 shadow">
       <li
         *ngIf="getRole() <= 50"
         (click)="goTo('/admin/home')"
@@ -41,6 +46,7 @@
       </li>
 
       <li
+        (click)="goTo('/user/settings')"
         class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
       >
         <i class="fa-solid fa-user me-3 fs-3"></i>

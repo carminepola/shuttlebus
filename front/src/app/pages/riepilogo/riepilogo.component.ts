@@ -87,13 +87,11 @@ export class RiepilogoComponent implements OnInit {
     this.loading = true;
     this.bookingService.insertBooking(this.param).subscribe({
       next: (response: any) => {
-        debugger;
         console.log(response);
         this.loading = false;
         window.location.href = response.url;
       },
       error: (e: any) => {
-        debugger;
         this.errorMessage = e.error.message || e.message;
         this.loading = false;
       },

@@ -35,6 +35,13 @@ export class RoutesService {
     );
   }
 
+  getRoutesToDay(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/routesToday`).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
   updateRoute(
     nameIt: string,
     nameEn: string,

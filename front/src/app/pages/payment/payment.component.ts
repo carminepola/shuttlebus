@@ -23,9 +23,7 @@ export class PaymentComponent implements OnInit {
   public actions: string = '';
   public id: string = '';
   async ngOnInit(): Promise<void> {
-    debugger;
     this.route.params.subscribe((params) => {
-      debugger;
       this.id = params['id'];
       this.methods = params['type'];
       this.actions = params['action'];

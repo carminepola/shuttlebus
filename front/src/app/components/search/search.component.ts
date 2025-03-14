@@ -6,13 +6,14 @@ import { RoutesService } from '../../services/routes/routes.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
-
+import { fadeAnimation } from '../../animations/fade.animation';
 declare var bootstrap: any;
 @Component({
   selector: 'app-search',
   imports: [TranslatePipe, CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
+  animations: [fadeAnimation],
 })
 export class SearchComponent implements OnInit, AfterViewInit {
   @Input() ricerca?: {

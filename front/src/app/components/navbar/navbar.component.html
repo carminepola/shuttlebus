@@ -17,7 +17,7 @@
             class="nav-link rounded-3"
             [class.active]="getPath() == '/'"
             aria-current="page"
-            routerLink="/"
+            (click)="goPath('/')"
           >
             Home
           </a>
@@ -36,7 +36,7 @@
         <li class="nav-item cursor-pointer">
           <a
             class="nav-link rounded-3"
-            routerLink="/info"
+            (click)="goPath('/info')"
             routerLinkActive="active"
           >
             Info</a

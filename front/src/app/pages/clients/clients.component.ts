@@ -29,7 +29,6 @@ export class ClientsComponent implements OnInit {
   constructor(private router: Router, private userService: UserService) {}
   async ngOnInit(): Promise<void> {
     try {
-      debugger;
       let r = await lastValueFrom(this.userService.getNormalUser());
       this.clients = r.listUser;
     } catch (error) {

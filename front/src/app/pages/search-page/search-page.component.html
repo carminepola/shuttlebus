@@ -31,13 +31,7 @@
       class="col-12 col-lg-8 mx-auto"
       *ngFor="let param of params; let j = index"
     >
-      <div>posti disponibili : {{ param.availableSeats }}</div>
-      <div>
-        bagagli disponibili :
-        {{ param.availableLuggage }}
-      </div>
-
-      <div class="card border-secondary rounded-4 mb-3">
+      <div class="card border-secondary rounded-4 mb-3" @fadeInOut>
         <div class="card-body">
           <div class="card-text">
             <div class="row">
@@ -180,7 +174,14 @@
               </div>
             </div>
             <div class="row mt-3">
-              <div class="col-12">
+              <div class="col-6">
+                <div>posti disponibili : {{ param.availableSeats }}</div>
+                <div>
+                  bagagli disponibili :
+                  {{ param.availableLuggage }}
+                </div>
+              </div>
+              <div class="col-6">
                 <button
                   class="btn btn-secondary btn-lg float-end w-sm-100"
                   [disabled]="param.seats != ricerca.persone"

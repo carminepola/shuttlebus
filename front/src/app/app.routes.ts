@@ -80,6 +80,12 @@ export const routes: Routes = [
         data: { lowBar: true, requiredRole: 100 },
       },
       {
+        path: 'settings',
+        component: UserSettingsComponent,
+        canActivate: [AuthGuard],
+        data: { lowBar: true, requiredRole: 100 },
+      },
+      {
         path: 'mytickets',
         component: MyTicketsComponent,
         canActivate: [AuthGuard],

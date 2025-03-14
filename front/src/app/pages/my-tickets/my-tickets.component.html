@@ -21,7 +21,7 @@
       </div>
 
       <div *ngFor="let booking of bookings" class="col-12 col-lg-6">
-        <div class="card h-100">
+        <div class="card h-100" @fadeInOut>
           <div class="card-body">
             <h5 class="card-title text-primary fw-bold">
               {{ booking.numberOfTickets }}
