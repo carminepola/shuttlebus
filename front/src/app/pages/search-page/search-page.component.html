@@ -175,9 +175,12 @@
             </div>
             <div class="row mt-3">
               <div class="col-6">
-                <div>posti disponibili : {{ param.availableSeats }}</div>
                 <div>
-                  bagagli disponibili :
+                  <i class="fa-solid fa-person me-2 text-primary"></i>
+                  {{ param.availableSeats }}
+                </div>
+                <div>
+                  <i class="fa-solid fa-suitcase-rolling me-2 text-primary"></i>
                   {{ param.availableLuggage }}
                 </div>
               </div>
