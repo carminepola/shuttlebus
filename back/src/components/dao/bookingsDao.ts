@@ -157,15 +157,8 @@ export default class BookingsDAO {
                       $in: ["$status", ["confirmed", "pending"]],
                     },
                     {
+                      //questo filtra quelle che non coinvolgono la tratta
                       $or: [
-                        {
-                          $gt: [
-                            {
-                              $indexOfArray: ["$$stops.id", "$to.id"],
-                            },
-                            "$$fromStopIndex",
-                          ],
-                        },
                         {
                           $and: [
                             {
@@ -180,6 +173,26 @@ export default class BookingsDAO {
                               $lt: [
                                 {
                                   $indexOfArray: ["$$stops.id", "$from.id"],
+                                },
+                                "$$toStopIndex",
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          $and: [
+                            {
+                              $gte: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "to.id"],
+                                },
+                                "$$fromStopIndex",
+                              ],
+                            },
+                            {
+                              $lt: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "to.id"],
                                 },
                                 "$$toStopIndex",
                               ],
