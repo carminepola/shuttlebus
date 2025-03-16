@@ -12,6 +12,7 @@ import { response } from "express";
 import { use } from "passport";
 import RoutesServices from "./routesServices";
 import MailSenderServices from "./mailSender";
+import TelegramServices from "./telegramServices";
 class BookingsServices {
   private bookingDao: BookingDao;
   private userServices: UserServices;
@@ -19,6 +20,8 @@ class BookingsServices {
   private paymentServices: PaymentServices;
   private routeServices: RoutesServices;
   private mailSenderServices: MailSenderServices;
+  private telegramServices: TelegramServices;
+
   constructor(db: Db) {
     this.bookingDao = new BookingDao(db);
     this.userServices = new UserServices(db);
@@ -26,6 +29,7 @@ class BookingsServices {
     this.paymentServices = new PaymentServices(db);
     this.routeServices = new RoutesServices(db);
     this.mailSenderServices = new MailSenderServices(db);
+    this.telegramServices = new TelegramServices();
   }
 
   async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0) {
@@ -184,6 +188,10 @@ class BookingsServices {
       let book = await this.getBooking(numberOfTickets);
 
       //manda mail annullato biglietto
+
+      //notifiche di supporto
+
+      this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "🛑 *Annullo Prenotazione* 🛑"));
     }
     return success;
   }
@@ -196,13 +204,21 @@ class BookingsServices {
     let success = await this.bookingDao.refundBooking(numberOfTickets, userId);
     if (success) {
       //manda mail rimborsato biglietto
+
+      this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Prenotazione* 💸"));
     }
     return success;
   }
   async confirmBooking(numberOfTickets: string) {
     let success = await this.bookingDao.confirmBooking(numberOfTickets);
 
+    //l'invio di questa notifica è demandato altrove
+
     return success;
+  }
+  async sendConfirmation(numberOfTickets: string) {
+    let book = await this.getBooking(numberOfTickets);
+    this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "✅ *Prenotazione Confermata* ✅"));
   }
   async deleteBooking(numberOfTickets: string, userId?: string) {
     return await this.bookingDao.deleteBooking(numberOfTickets, userId);
@@ -214,16 +230,6 @@ class BookingsServices {
     let booking: any = await this.bookingDao.readPendingBookingForUser(userId);
 
     return booking;
-    // if (booking) {
-    //   const stripeServices = new StripeServices();
-    //   for (let i = 0; i < booking.length; i++) {
-    //     switch (booking.type) {
-    //       case "stripe":
-    //         await stripeServices.deletePaymentSession(booking.other.id);
-    //         break;
-    //     }
-    //   }
-    // }
   }
   async ticketToDay() {
     return await this.bookingDao.ticketToDay();
