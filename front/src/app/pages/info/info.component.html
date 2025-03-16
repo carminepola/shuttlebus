@@ -1,1 +1,66 @@
-<p>info works!</p>
+<div class="container-fluid container-lg marginTopBar">
+  <app-title-page
+    [title]="'str_info' | translate"
+    [subtitle]="'str_info_desc'"
+    back="true"
+  ></app-title-page>
+
+  <div @fadeInOut>
+    <ol class="list-group border-0 rounded-4 shadow">
+      <li
+        (click)="goTo('/admin/home')"
+        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+      >
+        <i class="fa-regular fa-clock me-3 fs-3"></i>
+        <div class="ms-2 me-auto">
+          <div
+            class="fw-bold"
+            [innerHTML]="'str_tabelle_orarie' | translate"
+          ></div>
+          <span [innerHTML]="'str_tabelle_orarie_desc' | translate"></span>
+        </div>
+      </li>
+      <li
+        (click)="goTo('/terms-and-conditions')"
+        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+      >
+        <i class="fa-solid fa-file-contract me-3 fs-3"></i>
+        <div class="ms-2 me-auto">
+          <div
+            class="fw-bold"
+            [innerHTML]="'str_termini_condizioni' | translate"
+          ></div>
+          <span [innerHTML]="'str_termini_condizioni_desc' | translate"></span>
+        </div>
+      </li>
+      <li
+        (click)="goTo('/policies')"
+        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+      >
+        <i class="fa-solid fa-money-bill-wave me-2 fs-3"></i>
+        <div class="ms-2 me-auto">
+          <div
+            class="fw-bold"
+            [innerHTML]="'str_politiche_acquisto_restituzione' | translate"
+          ></div>
+          <span
+            [innerHTML]="'str_politiche_acquisto_restituzione_desc' | translate"
+          ></span>
+        </div>
+      </li>
+      <li
+        (click)="goTo('/privacy-policy')"
+        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+      >
+        <i class="fa-solid fa-shield-alt me-2 fs-3"></i>
+        <div class="ms-2 me-auto">
+          <div
+            class="fw-bold"
+            [innerHTML]="'str_informativa_privacy' | translate"
+          ></div>
+          <span [innerHTML]="'str_informativa_privacy_desc' | translate"></span>
+        </div>
+      </li>
+    </ol>
+  </div>
+</div>

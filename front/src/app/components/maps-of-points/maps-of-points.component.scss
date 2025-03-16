@@ -1,0 +1,17 @@
+google-map {
+    display: block;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+:host {
+    display: block;
+    height: 600px; // obbligatorio se non è stato settato in altro modo
+    width: 100%;
+}
+
+google-map {
+    display: block;
+    height: 100%;
+    width: 100%;
+}

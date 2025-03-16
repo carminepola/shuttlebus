@@ -211,6 +211,7 @@ export class SearchPageComponent implements OnInit {
     this.loading = false;
   }
   acquista(param: any) {
+    debugger;
     param.ticketTypes = param.ticketTypes.filter((t: any) => t.count > 0);
     param.lng = this.lngService.getLng();
     delete param['to']['image'];
