@@ -16,10 +16,6 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   return next(modifiedReq).pipe(
     tap({
       next: (event: any) => {
-        if (event instanceof HttpResponse) {
-          console.log('Interceptor - Risposta ricevuta:', event.status);
-        }
-
         if (event instanceof HttpResponse && event.status === 205) {
           authService.refreshToken().subscribe();
         }
@@ -30,8 +26,6 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
       },
     }),
     catchError((error: HttpErrorResponse) => {
-      console.error('Interceptor - Errore HTTP:', error);
-
       if (error.status === 401) {
         router.navigate(['/not-authorized']);
       }
