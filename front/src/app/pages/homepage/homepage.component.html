@@ -82,27 +82,18 @@
           class="text-muted"
           [innerHTML]="'str_non_sai_text' | translate"
         ></div>
+        <div class="text-center float-lg-end">
+          <button class="btn btn-primary mt-3 btn-sm">
+            <i class="fa-solid fa-map-location-dot me-2"></i>
+            <span [innerHTML]="'str_consulta_tratte' | translate"></span>
+          </button>
+        </div>
       </div>
     </div>
     <div
       class="col-12 col-lg-6 d-flex align-items-center justify-content-center mb-5 mt-5 my-lg-5 py-lg-5"
     >
-      <form>
-        <div class="input-group">
-          <input
-            type="text"
-            formControlName="indirizzo"
-            class="form-control form-control-lg"
-            [placeholder]="'str_indirizzo_placeholder' | translate"
-          />
-          <a
-            class="btn btn-primary btn-lg"
-            style="z-index: 0"
-            type="submit"
-            [innerHTML]="'str_search' | translate"
-          ></a>
-        </div>
-      </form>
+      <app-maps-of-points></app-maps-of-points>
     </div>
   </div>
 </div>

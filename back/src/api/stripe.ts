@@ -108,7 +108,7 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         logger.warn(`Contestazione aperta per la prenotazione ${bookingId}`);
         break;
       }
-      case "charge.intent.succeeded":
+      case "payment_intent.intent.succeeded":
         break;
 
       default:
