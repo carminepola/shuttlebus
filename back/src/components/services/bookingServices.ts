@@ -2,7 +2,7 @@ import { Db } from "mongodb";
 import BookingDao from "../dao/bookingsDao";
 import booking from "../../model/bookFromSiteModel";
 import UserServices from "./userServices";
-import { client } from "../../index";
+import { client, logger } from "../../index";
 import { ClientSession } from "mongodb";
 import TicketTypeServices from "./ticketTypeServices";
 import ErrorModel from "../../model/errorModel";
@@ -217,6 +217,7 @@ class BookingsServices {
     return success;
   }
   async sendConfirmation(numberOfTickets: string) {
+    logger.info(`Invio conferma per la prenotazione ${numberOfTickets}`);
     let book = await this.getBooking(numberOfTickets);
     this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "✅ *Prenotazione Confermata* ✅"));
   }
