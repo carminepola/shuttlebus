@@ -8,6 +8,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 import UserServices from "../components/services/userServices";
 import ErrorModel from "../model/errorModel";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
+import TelegramServices from "../components/services/telegramServices";
 require("dotenv").config();
 const router = express.Router();
 import { role } from "../enum/role";
@@ -51,6 +52,8 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
                 await bookingServices.expireTicketById(bookingId);
                 throw new ErrorModel(400, "str_payment_failed");
               }
+
+              bookingServices.sendConfirmation(bookingId);
 
               logger.info(`Pagamento catturato con successo per la prenotazione ${bookingId}`);
             } else {
