@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 import booking from "../../model/bookFromSiteModel";
+import { logger } from "../..";
 dotenv.config();
 const token = process.env.TELEGRAM_TOKEN;
 const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -8,6 +9,7 @@ export default class TelegramServices {
   constructor() {}
 
   async sendMessage(message: string) {
+    logger.info("Invio messaggio al bot " + message);
     if (botEnabled && token && chatId) {
       fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: "POST",
@@ -18,6 +20,7 @@ export default class TelegramServices {
           parse_mode: "MarkdownV2",
         }),
       });
+      logger.info("Messaggio inviato" + message);
     } else {
       return true;
     }
