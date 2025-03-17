@@ -437,6 +437,14 @@ export default class BookingsDAO {
       .toArray();
   }
 
+  /*************  ✨ Codeium Command ⭐  *************/
+  /**
+   * Update the paymentIntentId for a booking
+   * @param numberOfTickets The ID of the booking
+   * @param paymentIntentId The ID of the payment intent
+   * @returns A promise that resolves if the update was successful
+
+/******  d2a0a905-b603-4fe3-8309-fb15dfbcf992  *******/
   async updatePaymentIntentId(numberOfTickets: string, paymentIntentId: string) {
     return this.db.collection("bookings").updateOne({ numberOfTickets }, { $set: { paymentIntentId: paymentIntentId, updatedAt: new Date().getTime() } });
   }

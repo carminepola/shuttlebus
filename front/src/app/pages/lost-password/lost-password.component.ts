@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
+import { LngService } from '../../services/lng/lng.service';
 @Component({
   selector: 'app-lost-password',
   standalone: true,
@@ -22,7 +23,8 @@ export class LostPasswordComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private lngService: LngService
   ) {}
 
   goBack() {
@@ -44,7 +46,8 @@ export class LostPasswordComponent implements OnInit {
     this.isLoading = true;
     const email = this.lostPasswordForm.get('email')?.value;
 
-    this.authService.recoverPassword(email).subscribe({
+    const lng = this.lngService.getLng();
+    this.authService.recoverPassword(email, lng).subscribe({
       next: (response: any) => {
         this.isLoading = false;
         this.success = true;

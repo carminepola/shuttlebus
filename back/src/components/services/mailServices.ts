@@ -25,6 +25,11 @@ class MailService {
       id: mail.id,
       from: mailConfig.auth.user,
       to: mail.to,
+      headers: {
+        "Content-Type": "text/html; charset=UTF-8",
+        "Content-Transfer-Encoding": "base64",
+      },
+      encoding: "base64",
       subject: "",
       html: "",
     };
@@ -34,7 +39,7 @@ class MailService {
       if (!templateMail) {
         mail.type = "default";
       } else {
-        for (const [key, value] of Object.entries(mail.titleVariables || {})) {
+        for (const [key, value] of Object.entries(mail.bodyVariables || {})) {
           templateMail.title = templateMail.title.replaceAll(`{${key}}`, value);
         }
         for (const [key, value] of Object.entries(mail.bodyVariables || {})) {
@@ -63,6 +68,7 @@ class MailService {
       id,
       attempts,
     };
+
     try {
       do {
         transporter = nodemailer.createTransport(mailConfig as nodemailer.TransportOptions);

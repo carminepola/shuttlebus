@@ -13,6 +13,9 @@ import { use } from "passport";
 import RoutesServices from "./routesServices";
 import MailSenderServices from "./mailSender";
 import TelegramServices from "./telegramServices";
+import dotenv from "dotenv";
+dotenv.config();
+
 class BookingsServices {
   private bookingDao: BookingDao;
   private userServices: UserServices;
@@ -189,9 +192,11 @@ class BookingsServices {
 
       //manda mail annullato biglietto
 
-      //notifiche di supporto
+      await this.mailSenderServices.sendCancelBook(book.user.mail, book.user.name, numberOfTickets, book.lng);
 
-      this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "🛑 *Annullo Prenotazione* 🛑"));
+      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Annullamento", this.mailSenderServices.transformBookGeneric(book));
+
+      await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "🛑 *Annullo Prenotazione* 🛑"));
     }
     return success;
   }
@@ -204,8 +209,9 @@ class BookingsServices {
     let success = await this.bookingDao.refundBooking(numberOfTickets, userId);
     if (success) {
       //manda mail rimborsato biglietto
-
-      this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Prenotazione* 💸"));
+      await this.mailSenderServices.sendRefoundBook(book.user.mail, book.user.name, book.total.toString(), numberOfTickets, book.lng);
+      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Rimborso", this.mailSenderServices.transformBookGeneric(book));
+      await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Prenotazione* 💸"));
     }
     return success;
   }
@@ -216,10 +222,21 @@ class BookingsServices {
 
     return success;
   }
-  async sendConfirmation(numberOfTickets: string) {
+  async sendConfirmation(numberOfTickets: string, typePayment?: string) {
     logger.info(`Invio conferma per la prenotazione ${numberOfTickets}`);
     let book = await this.getBooking(numberOfTickets);
-    this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "✅ *Prenotazione Confermata* ✅"));
+
+    await this.mailSenderServices.sendConfirmBook(
+      book.user.mail,
+      book.user.name,
+      numberOfTickets,
+      book.total.toString(),
+      typePayment || "stripe",
+      this.mailSenderServices.transformBook(book),
+      book.lng
+    );
+    await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Conferma Prenotazione", this.mailSenderServices.transformBookGeneric(book));
+    await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "✅ *Prenotazione Confermata* ✅"));
   }
   async deleteBooking(numberOfTickets: string, userId?: string) {
     return await this.bookingDao.deleteBooking(numberOfTickets, userId);
