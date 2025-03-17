@@ -29,10 +29,21 @@ import { UserProfileComponent } from './pages/user-profile/user-profile.componen
 import { MyTicketsComponent } from './pages/my-tickets/my-tickets.component';
 import { PaymentComponent } from './pages/payment/payment.component';
 import { NotAuthorizedComponent } from './pages/not-authorized/not-authorized.component';
+import { BusLineComponent } from './pages/bus-line/bus-line.component';
 export const routes: Routes = [
   {
     path: '',
     component: HomepageComponent,
+    data: { lowBar: true },
+  },
+  {
+    path: 'busLine/:id',
+    component: BusLineComponent,
+    data: { lowBar: true },
+  },
+  {
+    path: 'busLine/:id/:name',
+    component: BusLineComponent,
     data: { lowBar: true },
   },
   {
