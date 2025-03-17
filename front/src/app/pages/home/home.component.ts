@@ -105,13 +105,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.biglietti();
       this.prenotazioni();
     }, 500);
-
-    setInterval(() => {
-      this.andamento();
-      this.routeToday();
-      this.biglietti();
-      this.prenotazioni();
-    }, 60000);
   }
 
   prenotazioni() {
@@ -246,6 +239,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       },
       options: {
         responsive: true,
+        aspectRatio: 1.5,
+        maintainAspectRatio: true,
         plugins: {
           legend: {
             position: 'top',
