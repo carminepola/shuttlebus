@@ -1,0 +1,171 @@
+<div class="container marginTopBar">
+  <app-title-page
+    [title]="'str_bus_line' | translate"
+    [subtitle]="'str_bus_line_desc' | translate"
+    back="true"
+  >
+  </app-title-page>
+</div>
+<div
+  *ngIf="routes.length == 0"
+  style="min-height: 40vh"
+  class="container-fluid container-lg d-flex justify-content-center align-items-center"
+>
+  <app-loading></app-loading>
+</div>
+<div
+  *ngIf="routes.length > 0"
+  class="container-fluid pt-3 pb-4"
+  style="min-height: 40vh"
+>
+  <ul
+    class="nav nav-pills mb-3 w-100 d-flex justify-content-center"
+    id="busLines"
+    role="tablist"
+  >
+    <li
+      class="nav-item"
+      role="presentation"
+      *ngFor="let line of routes; let i = index"
+    >
+      <button
+        [ngClass]="i == lineSelected ? 'active fw-bold' : ''"
+        class="nav-link"
+        id="linea1-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#linea1"
+        type="button"
+        role="tab"
+        (click)="changePage(i)"
+      >
+        {{ line.name | translateName }}
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="busLinesContent">
+    <!-- Linea 1 -->
+    <div class="tab-pane fade show active" id="linea1" role="tabpanel">
+      <!-- Visualizzazione tabella per schermi più grandi -->
+      <div class="d-none d-lg-block">
+        <table class="table table-striped">
+          <thead class="table-secondary rounded-3">
+            <tr>
+              <th
+                [innerText]="'str_stop' | translate"
+                class="fw-bold text-primary"
+              ></th>
+              <th class="text-center fw-bold text-primary">
+                {{ "str_position" | translate }}
+              </th>
+              <th
+                *ngFor="
+                  let stop of routes[lineSelected].schedules;
+                  let i = index
+                "
+                class="text-center fw-bold text-primary text-truncate"
+              >
+                {{ "str_corsa" | translate }} {{ i + 1 }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let stop of routes[lineSelected].stops; let j = index">
+              <td [innerHTML]="stop.name.trim()" class="fw-bold"></td>
+              <td class="text-center">
+                <button
+                  class="btn btn-link"
+                  (click)="
+                    openMaps(stop.location.latitude, stop.location.longitude)
+                  "
+                >
+                  <i class="fas fa-location-dot me-2 text-primary"></i>
+                  {{ stop.description | translateName }}
+                </button>
+              </td>
+              <td
+                *ngFor="
+                  let stop of routes[lineSelected].schedules;
+                  let i = index
+                "
+                class="text-center"
+              >
+                <div *ngIf="stop.stops[j].status == 'active'">
+                  {{ stop.stops[j].stopTime }}
+                </div>
+                <div *ngIf="stop.stops[j].status != 'active'">--</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Visualizzazione accordion per dispositivi mobili -->
+      <div class="d-lg-none pb-4">
+        <div class="accordion" id="fermate-accordion">
+          <!-- Fermata 1 -->
+          <div
+            class="accordion-item"
+            *ngFor="let stop of routes[lineSelected].stops; let j = index"
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed fw-bold"
+                type="button"
+                data-bs-toggle="collapse"
+                [attr.data-bs-target]="'#fermata' + j"
+              >
+                {{ stop.name }}
+              </button>
+            </h2>
+            <div
+              [id]="'fermata' + j"
+              class="accordion-collapse collapse"
+              data-bs-parent="#fermate-accordion"
+            >
+              <div class="accordion-body">
+                <div class="row row-cols-2 row-cols-sm-3 g-2">
+                  <div
+                    class="col"
+                    *ngFor="
+                      let stop of routes[lineSelected].schedules;
+                      let i = index
+                    "
+                  >
+                    <div class="p-2 border rounded text-center">
+                      <span class="text-primary fw-bold">
+                        {{ "str_corsa" | translate }} {{ i + 1 }}</span
+                      >
+
+                      <div *ngIf="stop.stops[j].status == 'active'">
+                        {{ stop.stops[j].stopTime }}
+                      </div>
+                      <div *ngIf="stop.stops[j].status != 'active'">--</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row mt-4">
+                  <div
+                    class="col text-center"
+                    (click)="
+                      openMaps(stop.location.latitude, stop.location.longitude)
+                    "
+                  >
+                    <button class="btn btn-link">
+                      <i class="fas fa-location-dot me-2 text-primary"></i>
+                      {{ stop.description | translateName }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="alert alert-danger border-0" role="alert">
+    {{ "str_alert_orari" | translate }}
+  </div>
+</div>
+<app-footer></app-footer>
