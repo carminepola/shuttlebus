@@ -21,9 +21,10 @@ export class AuthService {
     });
   }
 
-  recoverPassword(email: string): Observable<any> {
+  recoverPassword(email: string, lng: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${this.path}/recoverPassword`, {
       email,
+      lng,
     });
   }
   logout(): Observable<any> {

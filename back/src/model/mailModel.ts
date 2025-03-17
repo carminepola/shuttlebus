@@ -38,6 +38,9 @@ export class Mail implements MailModel {
   public bodyVariables?: { [key: string]: string };
   public cc?: string[];
   public bcc?: string[];
+  public encoding?: string;
+  public headers?: { [key: string]: string };
+  public html?: string;
   public attachments?: Array<{
     filename: string;
     path?: string;
@@ -53,7 +56,7 @@ export class Mail implements MailModel {
     this.id = mail.id || Guid.create().toString();
     this.to = mail.to;
     this.title = mail.title;
-    this.message = mail.message;
+
     this.cc = mail.cc;
     this.bcc = mail.bcc;
     this.attachments = mail.attachments;
@@ -68,5 +71,11 @@ export class Mail implements MailModel {
 
     this.type = mail.type || "default";
     this.sended = false;
+    this.html = mail.message;
+    this.encoding = "base64";
+    this.headers = {
+      "Content-Type": "text/html; charset=UTF-8",
+      "Content-Transfer-Encoding": "base64",
+    };
   }
 }

@@ -39,7 +39,9 @@ export default class TelegramServices {
       passeggeri += `🎟 ${book.ticketTypes[i].count}x ${book.ticketTypes[i].name.it}   \n`.replace(/([\_\*\[\]\(\)\~\`\>\#\+\-\=\|\{\}\.\!])/g, "\\$1");
     }
     let numBiglietto = book.numberOfTickets.replace(/([\_\*\[\]\(\)\~\`\>\#\+\-\=\|\{\}\.\!])/g, "\\$1");
-    let data = book.date.replace(/([\_\*\[\]\(\)\~\`\>\#\+\-\=\|\{\}\.\!])/g, "\\$1");
+    let data1 = book.date.split("-");
+    let data = `${data1[2]}/${data1[1]}/${data1[0]}`;
+    data = data.replace(/([\_\*\[\]\(\)\~\`\>\#\+\-\=\|\{\}\.\!])/g, "\\$1");
     let linea = book.name.it.replace(/([\_\*\[\]\(\)\~\`\>\#\+\-\=\|\{\}\.\!])/g, "\\$1");
     let da = `${book.from.name} (${book.from.stopTime})`.replace(/([\_\*\[\]\(\)\~\`\>\#\+\-\=\|\{\}\.\!])/g, "\\$1");
     let a = `${book.to.name} (${book.to.stopTime})`.replace(/([\_\*\[\]\(\)\~\`\>\#\+\-\=\|\{\}\.\!])/g, "\\$1");
