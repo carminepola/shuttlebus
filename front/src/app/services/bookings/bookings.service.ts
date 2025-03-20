@@ -50,6 +50,9 @@ export class BookingsService {
   refundBooking(id: string): Observable<any> {
     return this.http.post(this.apiUrl + '/refundBooking', { id });
   }
+  cancelBooking(id: string): Observable<any> {
+    return this.http.post(this.apiUrl + '/cancelBooking', { id });
+  }
   ticketToDay() {
     return this.http.get(this.apiUrl + '/ticketToDay');
   }

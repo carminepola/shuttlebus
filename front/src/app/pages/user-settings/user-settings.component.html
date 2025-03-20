@@ -78,16 +78,16 @@
               </div>
             </div>
             <div class="mb-3">
-              <label for="repeatPassword" class="form-label"
-                >Ripeti la nuova Password</label
-              >
+              <label for="repeatPassword" class="form-label">{{
+                "str_ripeti_password" | translate
+              }}</label>
               <input
                 id="repeatPassword"
                 type="password"
                 formControlName="repeatPassword"
                 class="form-control"
                 required
-                placeholder="Ripeti la nuova password"
+                [placeholder]="'str_ripeti_password' | translate"
               />
               <div
                 *ngIf="

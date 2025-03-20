@@ -107,6 +107,50 @@ export class ReservationComponent implements OnInit {
       }
     });
   }
+  cancella(numberOfTickets: number) {
+    Swal.fire({
+      title: 'Vuoi cancellare questo biglietto?',
+      showDenyButton: true,
+      position: 'top',
+      icon: 'warning',
+      showClass: {
+        popup: `
+                animate__animated
+                animate__slideInDown   
+                animate__faster
+              `,
+      },
+      hideClass: {
+        popup: `
+                animate__animated
+                animate__slideOutUp
+                animate__faster
+              `,
+      },
+      customClass: {
+        confirmButton: 'btn btn-primary btn-lg mr-2',
+        denyButton: 'btn btn-danger btn-lg',
+        popup: 'rounded-4',
+      },
+
+      showCancelButton: false,
+      confirmButtonText: 'Confermo',
+      denyButtonText: `Annulla`,
+    }).then((result: any) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        this.bookingsService
+          .cancelBooking(numberOfTickets.toString())
+          .subscribe(() => {
+            let bookIndex = this.booking.findIndex(
+              (b: any) => b.ticketId === numberOfTickets
+            );
+            this.booking[bookIndex].status = 'cancelled';
+          });
+      } else if (result.isDenied) {
+      }
+    });
+  }
   calculateSchedules(routeId: string) {
     if (routeId === '') this.filterSchedule = [];
     let route = this.routes.find((t: any) => t.id === routeId);
