@@ -78,6 +78,7 @@ class MailSenderServices {
           name,
           order_id,
           amount,
+          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
         },
       })
     );
@@ -98,6 +99,7 @@ class MailSenderServices {
           amount,
           payment_method,
           route,
+          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
           url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + process.env.CLIENT_URL + "/ticket/check/" + order_id,
         },
       })
@@ -116,6 +118,7 @@ class MailSenderServices {
         bodyVariables: {
           name,
           order_id,
+          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
         },
       })
     );
@@ -135,6 +138,7 @@ class MailSenderServices {
           name: name,
           mail: email,
           password: newPassword,
+          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
         },
       })
     );
@@ -152,6 +156,7 @@ class MailSenderServices {
         bodyVariables: {
           name: name,
           pin: pin,
+          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
         },
       })
     );
@@ -165,6 +170,7 @@ class MailSenderServices {
         bodyVariables: {
           title: title,
           body: body,
+          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
         },
       })
     );
