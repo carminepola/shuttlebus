@@ -53,7 +53,7 @@ class MailSenderServices {
      <div><strong>${lng === "it" ? "Linea" : "Route"}:</strong> ${linea}  </div>
       <div><strong>${lng === "it" ? "Da" : "From"}:</strong> ${da}  </div>
       <div><strong>${lng === "it" ? "A" : "To"}:</strong> ${a}  </div>
-      <div> <strong>${lng === "it" ? "Passeggeri" : "Passengers"}:"</strong> <br> ${passeggeri} </div>
+      <div> <strong>${lng === "it" ? "Passeggeri" : "Passengers"}:</strong> <br> ${passeggeri} </div>
       
     
     `;
