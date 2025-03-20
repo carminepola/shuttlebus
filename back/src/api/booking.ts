@@ -130,6 +130,29 @@ router.get("/andamento", authMiddleware, checkPermissionMiddleware(role.ADMIN, [
     next(error);
   }
 });
+
+router.post("/currentDayBookingsFromScheduleId", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+
+    let scheduleId: string = req.body.scheduleId;
+    let result = await bookingServices.currentDayBookingsFromScheduleId(scheduleId);
+    res.json({ bookings: result });
+  } catch (error) {
+    next(error);
+  }
+});
+router.post("/readBookingById", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+
+    let id: string = req.body.id;
+    let result = await bookingServices.getBooking(id);
+    res.json({ bookings: result });
+  } catch (error) {
+    next(error);
+  }
+});
 export default router;
 
 /*

@@ -84,7 +84,7 @@ export class BusLineComponent implements OnInit {
   }
   changePage(index: number) {
     this.lineSelected = index;
-    let a = this.routes[this.lineSelected].name[this.lng.getLng()]
+    let a = this.routes[this.lineSelected].name['en']
       .replace('-', 'to')
       .replace(/[^\w\s]|[\s]+/gi, '_');
     a = a

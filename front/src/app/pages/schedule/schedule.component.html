@@ -59,6 +59,16 @@
               required
             />
           </div>
+          <div class="col-12 col-md-6">
+            <label>BusId</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="form.busId"
+              name="busId"
+              required
+            />
+          </div>
         </div>
         <div class="row mt-3" *ngFor="let stop of form.stops; let i = index">
           <div class="col-12" *ngIf="stops.length > 0">

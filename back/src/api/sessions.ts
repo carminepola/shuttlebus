@@ -130,6 +130,16 @@ router.get("/refreshToken", authMiddleware, async (req: Request, res: Response, 
   result = { message: "User upgraded" };
   res.json(result);
 });
+
+router.patch("/terms", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+  let result = {};
+  let userServices = new UserServices(db);
+
+  userServices.acceptTerms(res.locals.userLogged["_id"]);
+
+  result = { message: "User upgraded" };
+  res.json(result);
+});
 router.post(
   "/recoverPassword",
   [check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format")],
@@ -156,4 +166,5 @@ router.post(
     }
   }
 );
+
 export default router;

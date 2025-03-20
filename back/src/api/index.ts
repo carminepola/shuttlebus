@@ -13,6 +13,7 @@ import routes from "./routes";
 import booking from "./booking";
 import google from "./google";
 import stripe from "./stripe";
+import momap from "./momap";
 const router = express.Router();
 
 router.get<{}, messageResponse>("/", (req, res, next) => {
@@ -22,6 +23,7 @@ router.get<{}, messageResponse>("/", (req, res, next) => {
     next(error);
   }
 });
+router.use("/momap", momap);
 router.use("/lng", lng);
 router.use("/test", test);
 router.use("/auth", session);
