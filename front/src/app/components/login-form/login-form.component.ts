@@ -72,12 +72,8 @@ export class LoginFormComponent implements OnInit {
         next: (response: any) => {
           this.isLoading = false;
 
-          if (response.status === 200) {
-            this.loginSuccess.emit();
-            this.loginError = '';
-          } else {
-            this.loginError = this.lngService.traslate('str_login_error');
-          }
+          this.loginSuccess.emit();
+          this.loginError = '';
           // this.router.navigate(['/user/account']);
         },
         error: (e: any) => {
