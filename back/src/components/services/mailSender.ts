@@ -98,7 +98,7 @@ class MailSenderServices {
           amount,
           payment_method,
           route,
-          url: process.env.CLIENT_URL + "/ticket/check/" + order_id,
+          url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + process.env.CLIENT_URL + "/ticket/check/" + order_id,
         },
       })
     );
