@@ -16,12 +16,16 @@ export default class userModel {
   password?: string;
   sessions: sessionModel[];
   role: number;
+  privacyAndPolicy: boolean;
+  privacyAndPolicyConfirmDate: number;
   permissions?: permissionModel[];
   disabled?: boolean;
   createdAt: number;
   updatedAt: number;
   constructor(user: any = {}) {
     this.email = user.email || "";
+    this.privacyAndPolicy = user.privacyAndPolicy || false;
+    this.privacyAndPolicyConfirmDate = user.privacyAndPolicyConfirmDate || "";
     this.details = user.details || {};
     if (user.password) {
       this.password = user.password || "";

@@ -577,4 +577,13 @@ export default class UsersDao {
       throw error; // Rilancia l'errore
     }
   }
+  async acceptTerms(id: string): Promise<boolean> {
+    try {
+      this.db.collection<userModel>(this.schema).updateOne({ _id: new ObjectId(id) }, { $set: { privacyAndPolicy: true, privacyAndPolicyConfirmDate: new Date().getTime() } });
+      return true;
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento dell'utente:", error);
+      throw error; // Rilancia l'errore
+    }
+  }
 }

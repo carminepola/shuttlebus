@@ -172,6 +172,15 @@
                   </div>
                 </div>
               </div>
+
+              <div
+                *ngIf="isToLate()"
+                class="alert mt-4 alert-warning border-0"
+                role="alert"
+                [innerHTML]="
+                  'str_attenzione_biglietto_non_rimborsabile' | translate
+                "
+              ></div>
             </div>
           </div>
         </div>
@@ -191,7 +200,22 @@
             routerLink="/user/myticket"
           ></a>
         </div>
-        <button class="btn btn-lg btn-primary mb-3 w-100" (click)="bookNow()">
+        <div class="form-check my-2">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="acceptTerms"
+            [(ngModel)]="acceptTerms"
+          />
+          <label class="form-check-label" for="acceptTerms">
+            {{ "str_ho_letto_e_accetto" | translate }}
+          </label>
+        </div>
+        <button
+          class="btn btn-lg btn-primary mb-3 w-100"
+          [disabled]="!acceptTerms"
+          (click)="bookNow()"
+        >
           {{ "str_acquista" | translate }}
         </button>
       </div>

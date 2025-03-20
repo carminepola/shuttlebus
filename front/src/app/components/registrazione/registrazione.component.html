@@ -274,12 +274,12 @@
         <label class="form-check-label" for="termsAndConditions">
           {{ "str_terms_and_conditions_accept" | translate }}
         </label>
-        <span
+        <a
+          routerLink="/info"
           class="text-underline cursor-pointer text-secondary ms-2"
-          (click)="privacy = !privacy"
           [innerHTML]="'str_qui_riportati' | translate"
         >
-        </span>
+        </a>
         <div
           *ngIf="isSubmitted && formControls['termsAndConditions'].errors"
           class="invalid-feedback"
@@ -290,9 +290,7 @@
         </div>
       </div>
     </div>
-    <div *ngIf="privacy" class="my-3">
-      <p>{{ "str_privacy_policy" | translate }}</p>
-    </div>
+
     <div>
       <div *ngIf="loginError" class="alert alert-danger border-0 mb-2">
         {{ loginError }}

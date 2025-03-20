@@ -98,6 +98,7 @@ class MailSenderServices {
           amount,
           payment_method,
           route,
+          url: process.env.CLIENT_URL + "/ticket/check/" + order_id,
         },
       })
     );
