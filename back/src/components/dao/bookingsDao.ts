@@ -82,6 +82,7 @@ export default class BookingsDAO {
       {
         $match: {
           "stops.id": { $all: [fromStopId, toStopId] },
+          enabled: true,
         },
       },
       // 3️⃣ Estrai le `schedules` dalla route
