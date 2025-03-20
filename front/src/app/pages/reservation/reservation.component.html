@@ -244,7 +244,10 @@
               </td>
               <td>
                 <div class="d-flex" *ngIf="b.status === 'confirmed'">
-                  <button class="btn btn-info btn-sm rounded-3 me-2">
+                  <button
+                    class="btn btn-info btn-sm rounded-3 me-2"
+                    (click)="rimborsa(b.ticketId)"
+                  >
                     <i class="fa-solid fa-money-bill"></i>
                   </button>
                   <button class="btn btn-danger btn-sm rounded-3">
