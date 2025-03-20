@@ -92,6 +92,15 @@ router.post("/refundBooking", authMiddleware, checkPermissionMiddleware(role.USE
     next(error);
   }
 });
+router.post("/cancelBooking", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.cancelBooking(req.body.id);
+    res.json({ message: "Rimborso effettuato" });
+  } catch (error) {
+    next(error);
+  }
+});
 router.post("/deleteBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
