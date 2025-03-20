@@ -246,7 +246,7 @@ export class MyTicketsComponent implements OnInit {
       // Generazione QR Code
       try {
         const qrCodeDataUrl = await QRCode.toDataURL(
-          `${this.url}/ticket/check/${booking.id}`
+          `${this.url}/ticket/check/${booking.numberOfTickets}`
         );
         doc.addImage(qrCodeDataUrl, 'PNG', marginLeft, yPosition, 50, 50);
         yPosition += 60;
@@ -276,7 +276,7 @@ export class MyTicketsComponent implements OnInit {
       doc.text(this.url + '/info/refund-policy', marginLeft, yPosition);
 
       // Salvataggio del biglietto
-      doc.save(`biglietto_${booking.id}.pdf`);
+      doc.save(`biglietto_${booking.numberOfTickets}.pdf`);
     } catch (error) {
       alert(error);
     }
