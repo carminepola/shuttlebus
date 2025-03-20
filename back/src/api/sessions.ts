@@ -34,7 +34,7 @@ router.post(
           }
         });
         if (!valid) {
-          throw new ErrorModel(400, "Utente già autenticato");
+          throw new ErrorModel(409, "Utente già autenticato");
         }
       }
 
@@ -85,7 +85,7 @@ router.post(
         result = { message: "Accesso autorizzato" };
       } else {
         failToBanServices.insertIp(res.locals.log.ip);
-        throw new ErrorModel(401, "Credenziali non valide. Riprova.");
+        throw new ErrorModel(400, "Credenziali non valide. Riprova.");
       }
       res.json(result);
     } catch (error: ErrorModel | any) {

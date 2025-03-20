@@ -52,7 +52,7 @@ export default class SessionServices {
     } else {
       this.failToBan.insertIp(email);
       //new Error().stack
-      throw new ErrorModel(401, "Credenziali non valide. Riprova.");
+      throw new ErrorModel(400, "Credenziali non valide. Riprova.");
     }
   }
   public async loginGoogle(email: string): Promise<{
