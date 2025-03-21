@@ -189,12 +189,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private createSalesChart(data: any) {
     const ctx = this.salesChart.nativeElement.getContext('2d');
 
-    // Genera i giorsni del mese
+    // Genera i giorsni del mesez
     const dates = this.generateDates();
 
     // Creiamo mappe per associare i dati ai giorni corretti
     const previousMonthMap: { [key: string]: number } = {};
     const currentMonthMap: { [key: string]: number } = {};
+    const nextMonthMap: { [key: string]: number } = {};
 
     // Popoliamo le mappe con i dati
     data.forEach((item: any) => {
@@ -203,16 +204,20 @@ export class HomeComponent implements OnInit, AfterViewInit {
         previousMonthMap[day] = item.totalTickets;
       } else if (item.period === 'current') {
         currentMonthMap[day] = item.totalTickets;
+      } else if (item.period === 'future') {
+        nextMonthMap[day] = item.totalTickets;
       }
     });
 
     // Allineiamo i dati ai giorni del mese
     const previousMonthData = dates.map((day) => previousMonthMap[day] || 0);
     const currentMonthData = dates.map((day) => currentMonthMap[day] || 0);
+    const nextMonthData = dates.map((day) => nextMonthMap[day] || 0);
 
     console.log('Date:', dates);
     console.log('Mese Precedente:', previousMonthData);
     console.log('Mese Corrente:', currentMonthData);
+    console.log('Mese Successivo:', nextMonthData);
 
     new Chart(ctx, {
       type: 'line',
@@ -232,6 +237,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
             data: currentMonthData, // Dati allineati
             borderColor: '#ec2a7a',
             backgroundColor: 'rgba(236, 42, 122, 0.1)',
+            tension: 0.4,
+            fill: true,
+          },
+          {
+            label: 'Mese Successivo',
+            data: nextMonthData, // Dati allineati
+            borderColor: '#34d399',
+            backgroundColor: 'rgba(52, 211, 153, 0.1)',
             tension: 0.4,
             fill: true,
           },
