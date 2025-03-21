@@ -3,6 +3,7 @@ import { environment } from '../../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ import { catchError, map } from 'rxjs/operators';
 export class LngService {
   private apiUrl = environment.apiUrl + '/lng';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   get(): Observable<any> {
     return this.http.get(this.apiUrl).pipe(
@@ -44,7 +45,12 @@ export class LngService {
     let obj = JSON.parse(sessionStorage['lng']);
     if (obj.length > 0) {
       let find = obj.find((x: any) => x.txt === id);
+
       if (find) {
+        if (find[this.getLng()] == '') {
+          return id;
+        }
+
         return find[this.getLng()];
       }
       return id;

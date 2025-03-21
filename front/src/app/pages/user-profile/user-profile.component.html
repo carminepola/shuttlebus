@@ -23,15 +23,19 @@
           <span>Da qui si può gestire tutta la piattaforma</span>
         </div>
       </li>
+
       <li
-        *ngIf="getRole() > 50 && getRole() <= 75"
-        (click)="goTo('/admin/home')"
+        *ngIf="getRole() <= 75"
+        (click)="goTo('/driver/routes')"
         class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
       >
-        <i class="fa fa-dashboard me-3 fs-3"></i>
+        <i class="fa fa-route me-3 fs-3"></i>
         <div class="ms-2 me-auto">
-          <div class="fw-bold">Area amministrativa</div>
-          <span>Da qui si può vedere le corse</span>
+          <div class="fw-bold">Corse di oggi</div>
+          <span
+            >Da qui si possono vedere le prenotazioni per ogni corsa di
+            oggi</span
+          >
         </div>
       </li>
       <li

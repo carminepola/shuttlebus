@@ -56,4 +56,13 @@ export default class RoutesServices {
   getRoutesToDay() {
     return this.routeDao.routesToDay();
   }
+  getRoutesToDayList() {
+    return this.routeDao.routesToDayList();
+  }
+  getCurrentSchedules() {
+    return this.routeDao.currentSchedules();
+  }
+  getListScheduleForBusId() {
+    return this.routeDao.listScheduleForBusId();
+  }
 }

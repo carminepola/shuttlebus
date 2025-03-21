@@ -36,6 +36,7 @@ interface Schedule {
   excludedDates: string[]; // Date in cui la corsa è disabilitata (YYYY-MM-DD)
   extraDates: string[]; // Date in cui la corsa è attiva anche se normalmente disabilitata
   status: "active" | "disabled" | "deleted"; // Stato della corsa
+  busId: string;
 }
 
 export { Stop, Route, ScheduleStop, Schedule };

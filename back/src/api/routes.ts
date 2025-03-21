@@ -112,6 +112,24 @@ router.get("/routesToday", authMiddleware, async (req: Request, res: Response, n
     next(error);
   }
 });
+router.get("/getCurrentSchedule", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let routesServices = new RoutesServices(db);
+    const result = await routesServices.getCurrentSchedules();
+    res.json({ schedules: result });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/routesTodayList", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let routesServices = new RoutesServices(db);
+    const result = await routesServices.getRoutesToDayList();
+    res.json({ routes: result[0].active_schedules_today || 0 });
+  } catch (error) {
+    next(error);
+  }
+});
 router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
@@ -121,4 +139,5 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 });
+
 export default router;

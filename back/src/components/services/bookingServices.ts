@@ -258,6 +258,9 @@ class BookingsServices {
   async andamento() {
     return await this.bookingDao.andamento();
   }
+  async currentDayBookingsFromScheduleId(bookingId: string) {
+    return await this.bookingDao.currentDayBookingsFromScheduleId(bookingId);
+  }
 }
 
 export default BookingsServices;

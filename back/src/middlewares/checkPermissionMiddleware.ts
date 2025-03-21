@@ -31,8 +31,7 @@ const checkPermissionMiddleware = (requiredRoles: RequiredRole, requiredPermissi
     } else {
       if (superPass && reqSuperPass && superPass == reqSuperPass) {
         next();
-      }
-      if (res.locals.userLogged) {
+      } else if (res.locals.userLogged) {
         let user = res.locals.userLogged;
         // Verifica se i ruoli dell'utente corrispondono ai ruoli richiesti
         const roles = requiredRoles;

@@ -39,6 +39,7 @@ export class RiepilogoComponent implements OnInit {
     private bookingService: BookingsService
   ) {}
 
+  public acceptTerms: boolean = false;
   public loading: boolean = true;
   public param: any = {};
   public errorMessage: string = '';
@@ -96,5 +97,12 @@ export class RiepilogoComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+  isToLate() {
+    const today = new Date();
+    const threeDaysFromNow = new Date(
+      today.getTime() + 3 * 24 * 60 * 60 * 1000
+    );
+    return new Date(this.param.date).getTime() < threeDaysFromNow.getTime();
   }
 }

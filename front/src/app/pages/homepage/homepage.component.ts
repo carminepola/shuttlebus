@@ -7,6 +7,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 import { MapsOfPointsComponent } from '../../components/maps-of-points/maps-of-points.component';
 import { FormsModule } from '@angular/forms';
 import { SearchComponent } from '../../components/search/search.component';
+import { Router, RouterModule } from '@angular/router';
 @Component({
   selector: 'app-homepage',
   imports: [
@@ -15,12 +16,14 @@ import { SearchComponent } from '../../components/search/search.component';
     TranslatePipe,
     SearchComponent,
     MapsOfPointsComponent,
+    RouterModule,
   ],
   animations: [fadeAnimation],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.scss',
 })
 export class HomepageComponent implements OnInit {
+  constructor(public router: Router) {}
   ngOnInit(): void {
     localStorage.removeItem('ticket');
   }

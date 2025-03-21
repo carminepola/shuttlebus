@@ -1,0 +1,24 @@
+import { Router, Request, Response, NextFunction } from "express";
+import { check, validationResult } from "express-validator";
+
+import validateDataMiddleware from "../middlewares/validateDataMiddleware";
+
+import { db } from "../index"; // Assuming db is exported from index.ts
+
+import authMiddleware from "../middlewares/authMiddleware";
+import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
+import { role } from "../enum/role";
+import momapServices from "../components/services/momapServices";
+const router = Router();
+
+router.post("/cron", authMiddleware, checkPermissionMiddleware(role.ROOT, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let momap: momapServices = new momapServices(db);
+
+    momap.cron();
+  } catch (error) {
+    next(error);
+  }
+});
+
+export default router;

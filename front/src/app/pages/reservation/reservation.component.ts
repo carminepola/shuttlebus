@@ -12,7 +12,9 @@ import { TicketTypeService } from '../../services/ticket-type/ticket-type.servic
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { UserService } from '../../services/user/user.service';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { StripeService } from '../../services/stripe/stripe.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import Swal from 'sweetalert2';
 @Component({
   selector: 'app-reservation',
   imports: [
@@ -47,7 +49,8 @@ export class ReservationComponent implements OnInit {
     public stopsService: StopsService,
     public routesService: RoutesService,
     public bookingsService: BookingsService,
-    public ticketTypeService: TicketTypeService
+    public ticketTypeService: TicketTypeService,
+    public stripeService: StripeService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -61,6 +64,92 @@ export class ReservationComponent implements OnInit {
     this.stops = await lastValueFrom(this.stopsService.getAllActiveStops());
 
     this.filterButton();
+  }
+  rimborsa(numberOfTickets: number) {
+    Swal.fire({
+      title: 'Vuoi rimborsare questo biglietto?',
+      showDenyButton: true,
+      position: 'top',
+      icon: 'warning',
+      showClass: {
+        popup: `
+                animate__animated
+                animate__slideInDown   
+                animate__faster
+              `,
+      },
+      hideClass: {
+        popup: `
+                animate__animated
+                animate__slideOutUp
+                animate__faster
+              `,
+      },
+      customClass: {
+        confirmButton: 'btn btn-primary btn-lg mr-2',
+        denyButton: 'btn btn-danger btn-lg',
+        popup: 'rounded-4',
+      },
+
+      showCancelButton: false,
+      confirmButtonText: 'Confermo',
+      denyButtonText: `Annulla`,
+    }).then((result: any) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        this.stripeService.refund(numberOfTickets.toString()).subscribe(() => {
+          let bookIndex = this.booking.findIndex(
+            (b: any) => b.ticketId === numberOfTickets
+          );
+          this.booking[bookIndex].status = 'refunded';
+        });
+      } else if (result.isDenied) {
+      }
+    });
+  }
+  cancella(numberOfTickets: number) {
+    Swal.fire({
+      title: 'Vuoi cancellare questo biglietto?',
+      showDenyButton: true,
+      position: 'top',
+      icon: 'warning',
+      showClass: {
+        popup: `
+                animate__animated
+                animate__slideInDown   
+                animate__faster
+              `,
+      },
+      hideClass: {
+        popup: `
+                animate__animated
+                animate__slideOutUp
+                animate__faster
+              `,
+      },
+      customClass: {
+        confirmButton: 'btn btn-primary btn-lg mr-2',
+        denyButton: 'btn btn-danger btn-lg',
+        popup: 'rounded-4',
+      },
+
+      showCancelButton: false,
+      confirmButtonText: 'Confermo',
+      denyButtonText: `Annulla`,
+    }).then((result: any) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        this.bookingsService
+          .cancelBooking(numberOfTickets.toString())
+          .subscribe(() => {
+            let bookIndex = this.booking.findIndex(
+              (b: any) => b.ticketId === numberOfTickets
+            );
+            this.booking[bookIndex].status = 'cancelled';
+          });
+      } else if (result.isDenied) {
+      }
+    });
   }
   calculateSchedules(routeId: string) {
     if (routeId === '') this.filterSchedule = [];
