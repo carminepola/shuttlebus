@@ -525,44 +525,37 @@ export default class BookingsDAO {
       ])
       .toArray();
   }
-  /*************  ✨ Codeium Command ⭐  *************/
-  /**
- * Computes and returns booking trends over the past and current month.
- * 
- * This function aggregates booking data to determine the number of confirmed
- * bookings for each day in the past and current month. It generates a complete
- * date range for both periods and matches confirmed bookings to these dates,
- * populating the result with the total number of confirmed bookings per day.
- * 
- * Returns an array of objects, each containing a date, the total number of 
-
-/******  aa1cd54a-ea7a-4e70-8cdf-9e9d508b4592  *******/ async andamento() {
+  async andamento() {
     let today = new Date();
 
-    // 📅 Calcola il primo giorno del mese scorso
+    // 📅 Mese scorso
     let startDatePast = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     startDatePast.setHours(0, 0, 0, 0);
 
-    // 📅 Calcola l'ultimo giorno del mese scorso
     let endDatePast = new Date(today.getFullYear(), today.getMonth(), 0);
     endDatePast.setHours(23, 59, 59, 999);
 
-    // 📅 Calcola il primo giorno del mese corrente
+    // 📅 Mese corrente
     let startDateCurrent = new Date(today.getFullYear(), today.getMonth(), 1);
     startDateCurrent.setHours(0, 0, 0, 0);
 
-    // 📅 Calcola l'ultimo giorno del mese corrente
     let endDateCurrent = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     endDateCurrent.setHours(23, 59, 59, 999);
 
-    // 📆 Funzione per formattare le date in "YYYY-MM-DD"
+    // 📅 Mese successivo
+    let startDateNext = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    startDateNext.setHours(0, 0, 0, 0);
+
+    let endDateNext = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+    endDateNext.setHours(23, 59, 59, 999);
+
+    // 📆 Formatter
     const formatDate = (date: any) => date.toISOString().split("T")[0];
 
-    // 📆 Genera tutti i giorni tra due date con valore di default `totalTickets: 0`
+    // 📆 Range date
     const generateDateRange = (start: any, end: any, period: any) => {
       let dates = [];
       let currentDate = new Date(start);
-
       while (currentDate <= end) {
         dates.push({ date: formatDate(currentDate), totalTickets: 0, period });
         currentDate.setDate(currentDate.getDate() + 1);
@@ -570,10 +563,14 @@ export default class BookingsDAO {
       return dates;
     };
 
-    // 📆 Crea la struttura completa con tutti i giorni
-    let allDates = [...generateDateRange(startDatePast, endDatePast, "past"), ...generateDateRange(startDateCurrent, endDateCurrent, "current")];
+    // 📆 Tutte le date dei 3 mesi
+    let allDates = [
+      ...generateDateRange(startDatePast, endDatePast, "past"),
+      ...generateDateRange(startDateCurrent, endDateCurrent, "current"),
+      ...generateDateRange(startDateNext, endDateNext, "next"),
+    ];
 
-    // 📊 Aggregazione MongoDB per ottenere solo le prenotazioni confermate
+    // 📊 Aggregazione
     let bookings = await this.db
       .collection("bookings")
       .aggregate([
@@ -581,18 +578,28 @@ export default class BookingsDAO {
           $match: {
             date: {
               $gte: formatDate(startDatePast),
-              $lte: formatDate(endDateCurrent),
+              $lte: formatDate(endDateNext),
             },
-            status: { $eq: "confirmed" }, // ✅ Filtra SOLO i confermati
+            status: { $eq: "confirmed" },
           },
         },
         {
           $addFields: {
             period: {
-              $cond: {
-                if: { $lt: ["$date", formatDate(startDateCurrent)] },
-                then: "past",
-                else: "current",
+              $switch: {
+                branches: [
+                  {
+                    case: { $lt: ["$date", formatDate(startDateCurrent)] },
+                    then: "past",
+                  },
+                  {
+                    case: {
+                      $and: [{ $gte: ["$date", formatDate(startDateCurrent)] }, { $lte: ["$date", formatDate(endDateCurrent)] }],
+                    },
+                    then: "current",
+                  },
+                ],
+                default: "next",
               },
             },
           },
@@ -614,9 +621,8 @@ export default class BookingsDAO {
       ])
       .toArray();
 
-    // 🛠️ Unisce i risultati con la struttura completa
+    // 🛠️ Merge
     let resultMap = new Map(bookings.map((b) => [b.date, b]));
-
     let completeData = allDates.map((entry) => (resultMap.has(entry.date) ? resultMap.get(entry.date) : entry));
 
     return completeData;
