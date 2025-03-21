@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import * as CryptoJS from 'crypto-js';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
+import { LngService } from '../../services/lng/lng.service';
 declare var bootstrap: any;
 
 @Component({
@@ -29,7 +30,8 @@ export class LoginFormComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private googleAuthService: GoogleAuthService
+    private googleAuthService: GoogleAuthService,
+    private lngService: LngService
   ) {}
   @Output() loginSuccess = new EventEmitter<void>();
 
@@ -70,16 +72,15 @@ export class LoginFormComponent implements OnInit {
         next: (response: any) => {
           this.isLoading = false;
 
-          // this.router.navigate(['/user/account']);
-
           this.loginSuccess.emit();
           this.loginError = '';
+          // this.router.navigate(['/user/account']);
         },
         error: (e: any) => {
           this.isLoading = false;
           console.error(e);
           //'Credenziali non valide. Riprova.'
-          this.loginError = 'Credenziali non valide. Riprova.';
+          this.loginError = this.lngService.traslate('str_login_error');
         },
       });
     } catch (e: any) {

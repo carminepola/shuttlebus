@@ -92,6 +92,15 @@ router.post("/refundBooking", authMiddleware, checkPermissionMiddleware(role.USE
     next(error);
   }
 });
+router.post("/cancelBooking", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.cancelBooking(req.body.id);
+    res.json({ message: "Rimborso effettuato" });
+  } catch (error) {
+    next(error);
+  }
+});
 router.post("/deleteBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
@@ -126,6 +135,29 @@ router.get("/andamento", authMiddleware, checkPermissionMiddleware(role.ADMIN, [
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.andamento();
     res.json({ andamento: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/currentDayBookingsFromScheduleId", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+
+    let scheduleId: string = req.body.scheduleId;
+    let result = await bookingServices.currentDayBookingsFromScheduleId(scheduleId);
+    res.json({ bookings: result });
+  } catch (error) {
+    next(error);
+  }
+});
+router.post("/readBookingById", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+
+    let id: string = req.body.id;
+    let result = await bookingServices.getBooking(id);
+    res.json({ bookings: result });
   } catch (error) {
     next(error);
   }

@@ -50,6 +50,9 @@ export class BookingsService {
   refundBooking(id: string): Observable<any> {
     return this.http.post(this.apiUrl + '/refundBooking', { id });
   }
+  cancelBooking(id: string): Observable<any> {
+    return this.http.post(this.apiUrl + '/cancelBooking', { id });
+  }
   ticketToDay() {
     return this.http.get(this.apiUrl + '/ticketToDay');
   }
@@ -58,5 +61,13 @@ export class BookingsService {
   }
   andamento() {
     return this.http.get(this.apiUrl + '/andamento');
+  }
+  currentDayBookingsFromScheduleId(scheduleId: string) {
+    return this.http.post(this.apiUrl + '/currentDayBookingsFromScheduleId', {
+      scheduleId,
+    });
+  }
+  readBookingById(id: string) {
+    return this.http.post(this.apiUrl + '/readBookingById', { id });
   }
 }

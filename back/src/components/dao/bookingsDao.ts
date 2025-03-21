@@ -9,6 +9,14 @@ export default class BookingsDAO {
   constructor(db: Db) {
     this.db = db;
   }
+  async currentDayBookingsFromScheduleId(scheduleId: string) {
+    let q = {
+      scheduleId: scheduleId,
+      date: new Date().toISOString().split("T")[0],
+      status: "confirmed",
+    };
+    return this.db.collection("bookings").find(q).toArray();
+  }
   async availableSeats(travelDate: string, routeId: string, scheduleId: string, session?: ClientSession) {
     let q = [
       { $match: { id: routeId } },
@@ -74,6 +82,7 @@ export default class BookingsDAO {
       {
         $match: {
           "stops.id": { $all: [fromStopId, toStopId] },
+          enabled: true,
         },
       },
       // 3️⃣ Estrai le `schedules` dalla route

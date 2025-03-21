@@ -30,6 +30,10 @@ import { MyTicketsComponent } from './pages/my-tickets/my-tickets.component';
 import { PaymentComponent } from './pages/payment/payment.component';
 import { NotAuthorizedComponent } from './pages/not-authorized/not-authorized.component';
 import { BusLineComponent } from './pages/bus-line/bus-line.component';
+import { InfoPageComponent } from './pages/info-page/info-page.component';
+import { DriverRoutesComponent } from './pages/driver-routes/driver-routes.component';
+import { TicketForRoutesComponent } from './pages/ticket-for-routes/ticket-for-routes.component';
+import { TicketCheckComponent } from './pages/ticket-check/ticket-check.component';
 export const routes: Routes = [
   {
     path: '',
@@ -61,6 +65,12 @@ export const routes: Routes = [
   {
     path: 'info',
     component: InfoComponent,
+    canActivate: [],
+    data: { lowBar: true },
+  },
+  {
+    path: 'info/:id',
+    component: InfoPageComponent,
     canActivate: [],
     data: { lowBar: true },
   },
@@ -102,6 +112,35 @@ export const routes: Routes = [
         component: MyTicketsComponent,
         canActivate: [AuthGuard],
         data: { lowBar: true, requiredRole: 100 },
+      },
+    ],
+  },
+
+  {
+    path: 'ticket',
+    children: [
+      {
+        path: 'check/:id',
+        component: TicketCheckComponent,
+
+        data: { requiredRole: 75 },
+      },
+    ],
+  },
+  {
+    path: 'driver',
+    children: [
+      {
+        path: 'routes',
+        component: DriverRoutesComponent,
+
+        data: { lowBar: true, requiredRole: 75 },
+      },
+      {
+        path: 'routes/:id',
+        component: TicketForRoutesComponent,
+
+        data: { lowBar: true, requiredRole: 75 },
       },
     ],
   },

@@ -140,10 +140,16 @@
           <div class="d-flex justify-content-between align-items-center mt-3">
             <div>
               <div *ngIf="b.status === 'confirmed'">
-                <button class="btn btn-info btn-sm rounded-3 me-2">
+                <button
+                  class="btn btn-info btn-sm rounded-3 me-2"
+                  (click)="rimborsa(b.ticketId)"
+                >
                   <i class="fa-solid fa-money-bill"></i>
                 </button>
-                <button class="btn btn-danger btn-sm rounded-3">
+                <button
+                  class="btn btn-danger btn-sm rounded-3"
+                  (click)="cancella(b.ticketId)"
+                >
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -244,10 +250,16 @@
               </td>
               <td>
                 <div class="d-flex" *ngIf="b.status === 'confirmed'">
-                  <button class="btn btn-info btn-sm rounded-3 me-2">
+                  <button
+                    class="btn btn-info btn-sm rounded-3 me-2"
+                    (click)="rimborsa(b.ticketId)"
+                  >
                     <i class="fa-solid fa-money-bill"></i>
                   </button>
-                  <button class="btn btn-danger btn-sm rounded-3">
+                  <button
+                    class="btn btn-danger btn-sm rounded-3"
+                    (click)="cancella(b.ticketId)"
+                  >
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>

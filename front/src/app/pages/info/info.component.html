@@ -1,7 +1,7 @@
 <div class="container-fluid container-lg marginTopBar">
   <app-title-page
     [title]="'str_info' | translate"
-    [subtitle]="'str_info_desc'"
+    [subtitle]="'str_info_desc' | translate"
     back="true"
   ></app-title-page>
 
@@ -21,7 +21,7 @@
         </div>
       </li>
       <li
-        (click)="goTo('/terms-and-conditions')"
+        (click)="goTo('/info/terms-and-conditions')"
         class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
       >
         <i class="fa-solid fa-file-contract me-3 fs-3"></i>
@@ -34,7 +34,7 @@
         </div>
       </li>
       <li
-        (click)="goTo('/policies')"
+        (click)="goTo('/info/refund-policy')"
         class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
       >
         <i class="fa-solid fa-money-bill-wave me-2 fs-3"></i>
@@ -49,7 +49,7 @@
         </div>
       </li>
       <li
-        (click)="goTo('/privacy-policy')"
+        (click)="goTo('/info/privacy-policy')"
         class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
       >
         <i class="fa-solid fa-shield-alt me-2 fs-3"></i>

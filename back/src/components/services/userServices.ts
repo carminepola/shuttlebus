@@ -180,4 +180,14 @@ export default class UserServices {
     }
     return false;
   }
+  async acceptTerms(id: string) {
+    try {
+      let u = await this.userDao.acceptTerms(id);
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+    return false;
+  }
 }

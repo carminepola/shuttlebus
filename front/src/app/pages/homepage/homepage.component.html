@@ -12,7 +12,7 @@
           <img
             src="../../../assets/pintour-logo.png"
             alt="pintour-logo"
-            style="max-height: 15px"
+            style="max-height: 35px"
           />
         </div>
       </div>
@@ -83,10 +83,10 @@
           [innerHTML]="'str_non_sai_text' | translate"
         ></div>
         <div class="text-center float-lg-end">
-          <button class="btn btn-primary mt-3 btn-sm">
+          <a class="btn btn-primary mt-3 btn-sm" [routerLink]="['/busLine/0']">
             <i class="fa-solid fa-map-location-dot me-2"></i>
             <span [innerHTML]="'str_consulta_tratte' | translate"></span>
-          </button>
+          </a>
         </div>
       </div>
     </div>

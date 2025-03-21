@@ -48,6 +48,8 @@ router.post(
       user.role = role.NO_PERMISSION;
       user.disabled = false;
       user.options.lng = language;
+      user.privacyAndPolicy = true;
+      user.privacyAndPolicyConfirmDate = new Date().getTime();
       user.options.pin = Array(6)
         .fill(0)
         .map(() => Math.floor(Math.random() * 10))
