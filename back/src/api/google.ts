@@ -36,7 +36,7 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
       let sessionToken = loginResponse.sessionToken;
       let userSession = loginResponse.userSession;
       let token: any = jwt.sign(userSession, secretKey, {
-        expiresIn: "3h",
+        expiresIn: "72h",
       });
       let refreshToken: any = jwt.sign(
         {
