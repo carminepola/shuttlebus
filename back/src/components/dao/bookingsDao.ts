@@ -600,7 +600,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: { date: "$date", period: "$period" },
-            totalTickets: { $sum: 1 },
+            totalTickets: { $sum: "$seats" },
           },
         },
         {
