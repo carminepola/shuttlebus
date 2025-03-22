@@ -47,6 +47,7 @@ export class LowBarComponent {
     if (page) {
       localStorage.removeItem('authUrl');
       this.router.navigateByUrl(page);
+      this.modalService.closeModal();
     } else {
       let session = this.authService.getDecodedToken();
       this.modalService.closeModal();
