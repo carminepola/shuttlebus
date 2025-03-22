@@ -91,6 +91,22 @@ export default class UsersDao {
       throw error;
     }
   }
+  async getUserByEmailAll(email: string) {
+    try {
+      let json = {};
+      json = {
+        email: email,
+      };
+      let element = await this.db.collection(this.schema).findOne(json);
+      delete element?.password;
+      delete element?.recoverPassword;
+      delete element?.recoverPasswordCount;
+
+      return element;
+    } catch (error) {
+      throw error;
+    }
+  }
   async getUserByEmailNotPermission(email: string) {
     try {
       let json = {};

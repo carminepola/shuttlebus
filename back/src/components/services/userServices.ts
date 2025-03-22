@@ -30,7 +30,14 @@ export default class UserServices {
       throw error;
     }
   }
-
+  async getUserByEmailAll(email: string) {
+    try {
+      const result = await this.userDao.getUserByEmailAll(email);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
   async getUsers() {
     try {
       const result = await this.userDao.getUsers();
