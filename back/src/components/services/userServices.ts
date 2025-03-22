@@ -160,7 +160,7 @@ export default class UserServices {
   }
   async validateEmail(email: string, pin: string): Promise<boolean> {
     try {
-      let u = await this.userDao.getUserByEmail(email);
+      let u = await this.userDao.getUserByEmailNotPermission(email);
       let user = new userModel(u);
 
       if (!user) {
