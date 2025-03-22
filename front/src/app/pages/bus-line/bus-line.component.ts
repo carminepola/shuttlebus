@@ -45,6 +45,9 @@ export class BusLineComponent implements OnInit {
     }
     for (let j = 0; j < this.routes.length; j++) {
       this.routes[j];
+      this.routes[j].schedules = this.routes[j].schedules.filter(
+        (x: any) => x.status === 'active'
+      );
       for (let i = 0; i < this.routes[j].stops.length; i++) {
         let stop = this.stops.find(
           (t: any) => t.id === this.routes[j].stops[i].id
@@ -52,6 +55,8 @@ export class BusLineComponent implements OnInit {
         this.routes[j].stops[i] = stop;
       }
     }
+    this.routes = this.routes.filter((x) => x.enabled == true);
+
     let a = this.routes[this.lineSelected].name[this.lng.getLng()]
       .replace('-', 'to')
       .replace(/[^\w\s]|[\s]+/gi, '_');

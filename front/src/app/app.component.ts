@@ -46,9 +46,13 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     console.log(this.getVersion());
     this.loadLng();
+
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        window.scrollTo(0, 0);
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }, 10);
+
         let currentRoute = this.activatedRoute;
         while (currentRoute.firstChild) {
           currentRoute = currentRoute.firstChild; // Scorri fino alla route figlia attiva

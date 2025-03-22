@@ -119,7 +119,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
         delete user.iat;
 
         let newToken = jwt.sign(user, secretKey, {
-          expiresIn: "3h",
+          expiresIn: "72h",
         });
         // Set user information in response locals and set new token
 

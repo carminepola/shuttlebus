@@ -36,7 +36,7 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
       let sessionToken = loginResponse.sessionToken;
       let userSession = loginResponse.userSession;
       let token: any = jwt.sign(userSession, secretKey, {
-        expiresIn: "3h",
+        expiresIn: "30d",
       });
       let refreshToken: any = jwt.sign(
         {
@@ -53,15 +53,14 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
         sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
         secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
       };
-      if (req.body.rememberMe) {
-        settingsJwt.maxAge = 2592000000;
-        res.cookie("refreshToken", refreshToken, {
-          maxAge: 2592000000,
-          httpOnly: true,
-          sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
-          secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
-        });
-      }
+
+      settingsJwt.maxAge = 2592000000;
+      res.cookie("refreshToken", refreshToken, {
+        maxAge: 2592000000,
+        httpOnly: true,
+        sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
+        secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
+      });
 
       res.cookie("jwt", token, settingsJwt);
       res.json({ message: "Accesso autorizzato" });
@@ -88,7 +87,7 @@ router.get("/auth/callback", passport.authenticate("google", { failureRedirect: 
 
   const googleSessionServices = new GoogleSessionServices(db);
 
-  let userExists = await userServices.getUserByEmail(user.email);
+  let userExists = await userServices.getUserByEmailAll(user.email);
 
   if (!userExists) {
     userServices.createUser(user);

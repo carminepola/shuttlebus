@@ -41,9 +41,9 @@ export class NavbarComponent {
     if (page) {
       localStorage.removeItem('authUrl');
       this.router.navigateByUrl(page);
-    } else {
-      this.router.navigateByUrl('/user/account');
+      this.modalService.closeModal();
     }
+    this.modalService.closeModal();
   }
 
   goPath(path: string) {
