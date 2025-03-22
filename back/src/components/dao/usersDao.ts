@@ -79,6 +79,40 @@ export default class UsersDao {
       let json = {};
       json = {
         email: email,
+        role: { $ne: role.NO_PERMISSION },
+      };
+      let element = await this.db.collection(this.schema).findOne(json);
+      delete element?.password;
+      delete element?.recoverPassword;
+      delete element?.recoverPasswordCount;
+
+      return element;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getUserByEmailAll(email: string) {
+    try {
+      let json = {};
+      json = {
+        email: email,
+      };
+      let element = await this.db.collection(this.schema).findOne(json);
+      delete element?.password;
+      delete element?.recoverPassword;
+      delete element?.recoverPasswordCount;
+
+      return element;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getUserByEmailNotPermission(email: string) {
+    try {
+      let json = {};
+      json = {
+        email: email,
+        role: { $eq: role.NO_PERMISSION },
       };
       let element = await this.db.collection(this.schema).findOne(json);
       delete element?.password;
@@ -241,6 +275,9 @@ export default class UsersDao {
    */
   async createUser(user: any) {
     try {
+      if (!user.password) {
+        user.password = "ewrt3wq4reyt45wrety";
+      }
       user.password = bcrypt.hashSync(user.password, 10);
       const result = await this.db.collection(this.schema).insertOne(user);
       if (result && result.insertedId) {

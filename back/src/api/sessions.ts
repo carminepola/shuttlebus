@@ -52,7 +52,7 @@ router.post(
         let userSession = loginResponse.userSession;
 
         let token: any = jwt.sign(userSession, secretKey, {
-          expiresIn: "3h",
+          expiresIn: "74h",
         });
 
         let refreshToken: any = jwt.sign(

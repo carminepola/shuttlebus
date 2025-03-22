@@ -30,7 +30,14 @@ export default class UserServices {
       throw error;
     }
   }
-
+  async getUserByEmailAll(email: string) {
+    try {
+      const result = await this.userDao.getUserByEmailAll(email);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
   async getUsers() {
     try {
       const result = await this.userDao.getUsers();
@@ -160,7 +167,7 @@ export default class UserServices {
   }
   async validateEmail(email: string, pin: string): Promise<boolean> {
     try {
-      let u = await this.userDao.getUserByEmail(email);
+      let u = await this.userDao.getUserByEmailNotPermission(email);
       let user = new userModel(u);
 
       if (!user) {
