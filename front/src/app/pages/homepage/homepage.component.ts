@@ -25,6 +25,15 @@ import { Router, RouterModule } from '@angular/router';
 export class HomepageComponent implements OnInit {
   constructor(public router: Router) {}
   ngOnInit(): void {
-    localStorage.removeItem('ticket');
+    if (localStorage.getItem('authUrl')) {
+      let url = localStorage.getItem('authUrl');
+      if (url) {
+        this.router.navigateByUrl(url);
+      } else {
+        localStorage.removeItem('ticket');
+      }
+    } else {
+      localStorage.removeItem('ticket');
+    }
   }
 }
