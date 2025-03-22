@@ -276,7 +276,7 @@ export default class UsersDao {
   async createUser(user: any) {
     try {
       if (!user.password) {
-        user.password = "stocazzo";
+        user.password = "ewrt3wq4reyt45wrety";
       }
       user.password = bcrypt.hashSync(user.password, 10);
       const result = await this.db.collection(this.schema).insertOne(user);
