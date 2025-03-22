@@ -91,6 +91,23 @@ export default class UsersDao {
       throw error;
     }
   }
+  async getUserByEmailNotPermission(email: string) {
+    try {
+      let json = {};
+      json = {
+        email: email,
+        role: { $eq: role.NO_PERMISSION },
+      };
+      let element = await this.db.collection(this.schema).findOne(json);
+      delete element?.password;
+      delete element?.recoverPassword;
+      delete element?.recoverPasswordCount;
+
+      return element;
+    } catch (error) {
+      throw error;
+    }
+  }
   /**
    * Retrieves the role and permissions of a user from the database by its email.
    *
