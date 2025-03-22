@@ -79,6 +79,7 @@ export default class UsersDao {
       let json = {};
       json = {
         email: email,
+        role: { $ne: role.NO_PERMISSION },
       };
       let element = await this.db.collection(this.schema).findOne(json);
       delete element?.password;

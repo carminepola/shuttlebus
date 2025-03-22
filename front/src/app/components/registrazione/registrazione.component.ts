@@ -39,11 +39,54 @@ export class RegistrazioneComponent implements OnInit {
       pin: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
+  async getPhonePrefix() {
+    const regionPrefixes: any = {
+      US: '+1',
+      GB: '+44',
+      IT: '+39',
+      FR: '+33',
+      DE: '+49',
+      ES: '+34',
+      CA: '+1',
+      JP: '+81',
+      CN: '+86',
+      IN: '+91',
+      RU: '+7',
+      BR: '+55',
+      AU: '+61',
+      PT: '+351',
+      // aggiungi altri se vuoi
+    };
 
-  ngOnInit(): void {
+    // STEP 1: tentativo con la lingua del browser
+    const locale = navigator.language; // es: "it-IT"
+    const region = locale.split('-')[1]?.toUpperCase();
+    if (region && regionPrefixes[region]) {
+      return regionPrefixes[region];
+    }
+
+    // STEP 2: fallback con IP geolocation (gratuito)
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      const countryCode = data.country_code?.toUpperCase();
+      if (countryCode && regionPrefixes[countryCode]) {
+        return regionPrefixes[countryCode];
+      }
+    } catch (err) {
+      console.warn('Impossibile ottenere geolocalizzazione via IP:', err);
+    }
+
+    // STEP 3: fallback finale
+    return '+39'; // Default: Italia
+  }
+
+  async ngOnInit(): Promise<void> {
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/admin/home']);
     }
+    let prefix = await this.getPhonePrefix();
+
     this.loginForm = this.formBuilder.group({
       name: ['', [Validators.required]],
 
@@ -52,8 +95,8 @@ export class RegistrazioneComponent implements OnInit {
         '',
         [Validators.required, Validators.email, matchValues('email')],
       ],
-      prefixPhone: ['', []],
-      phoneNumber: ['', [Validators.minLength(10)]],
+      prefixPhone: [prefix, [Validators.required]],
+      phoneNumber: ['', [Validators.required, Validators.minLength(10)]],
       repeatPassword: [
         '',
         [Validators.required, Validators.minLength(6), matchValues('password')],

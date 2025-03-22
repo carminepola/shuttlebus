@@ -49,23 +49,15 @@ export class LowBarComponent {
       this.router.navigateByUrl(page);
     } else {
       let session = this.authService.getDecodedToken();
-
-      if (session.role <= 50) {
-        this.router.navigateByUrl('/user/account');
-      } else {
-        this.router.navigateByUrl('/user/account');
-      }
+      this.modalService.closeModal();
     }
   }
 
   onTicket() {
     if (this.authService.isLoggedIn()) {
       let session = this.authService.getDecodedToken();
-      if (session.role <= 50) {
-        this.router.navigate(['/user/account']);
-      } else {
-        this.router.navigate(['/user/account']);
-      }
+
+      this.router.navigate(['/user/account']);
     } else {
       this.modalService.openModal('modalLogin2');
     }

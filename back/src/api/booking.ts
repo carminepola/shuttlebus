@@ -115,7 +115,7 @@ router.get("/ticketToDay", authMiddleware, checkPermissionMiddleware(role.ADMIN,
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.ticketToDay();
-    res.json({ ticket: result[0].totalTickets || 0 });
+    res.json({ ticket: result[0]?.totalTickets || 0 });
   } catch (error) {
     next(error);
   }
@@ -124,7 +124,7 @@ router.get("/seatsToDay", authMiddleware, checkPermissionMiddleware(role.ADMIN, 
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.seatsToDay();
-    res.json({ seats: result[0].totalTickets || 0 });
+    res.json({ seats: result[0]?.totalTickets || 0 });
   } catch (error) {
     next(error);
   }
