@@ -204,11 +204,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
         previousMonthMap[day] = item.totalTickets;
       } else if (item.period === 'current') {
         currentMonthMap[day] = item.totalTickets;
-      } else if (item.period === 'future') {
+      } else if (item.period === 'next') {
         nextMonthMap[day] = item.totalTickets;
       }
     });
 
+    debugger;
     // Allineiamo i dati ai giorni del mese
     const previousMonthData = dates.map((day) => previousMonthMap[day] || 0);
     const currentMonthData = dates.map((day) => currentMonthMap[day] || 0);
