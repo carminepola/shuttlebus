@@ -6,10 +6,10 @@ import { ActivatedRoute } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
-
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-ticket-check',
-  imports: [CommonModule, LoadingComponent, TranslatePipe],
+  imports: [CommonModule, LoadingComponent, TranslatePipe, RouterLink],
   templateUrl: './ticket-check.component.html',
   styleUrl: './ticket-check.component.scss',
 })
