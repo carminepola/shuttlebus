@@ -1,6 +1,6 @@
 <div class="w-100 vh-100 d-flex justify-content-center align-items-center">
   <app-loading *ngIf="loading"></app-loading>
-  <div *ngIf="!loading">
+  <div *ngIf="!loading && !notDriver">
     <div *ngIf="book && book.status === 'confirmed'" class="text-center">
       <h2>
         <i class="fa-solid fa-ticket me-2"></i>
@@ -44,5 +44,16 @@
         <i class="fa-solid fa-ban me-2"></i>Non valido
       </h1>
     </div>
+  </div>
+  <div *ngIf="!loading && notDriver" class="text-center">
+    <h1 class="text-primary">
+      <span [innerHTML]="'str_not_driver'"></span>
+    </h1>
+
+    <button
+      routerLink="/"
+      class="btn btn-secondary btn-lg shadow-sm px-5 mt-3 py-3"
+      [innerHTML]="'str_torna_home' | translate"
+    ></button>
   </div>
 </div>
