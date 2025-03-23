@@ -4,19 +4,23 @@ import { CommonModule } from '@angular/common';
 import { BookingsService } from '../../services/bookings/bookings.service';
 import { ActivatedRoute } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
+import { AuthService } from '../../services/auth/auth.service';
+import { TranslatePipe } from '../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-ticket-check',
-  imports: [CommonModule, LoadingComponent],
+  imports: [CommonModule, LoadingComponent, TranslatePipe],
   templateUrl: './ticket-check.component.html',
   styleUrl: './ticket-check.component.scss',
 })
 export class TicketCheckComponent implements OnInit {
   public loading: boolean = true;
   public book: any;
+  public notDriver: boolean = false;
   constructor(
     private bookingsService: BookingsService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   todayDate(date: string) {
@@ -24,15 +28,30 @@ export class TicketCheckComponent implements OnInit {
     let dateConfronto = new Date(date).setHours(0, 0, 0, 0);
     return today == dateConfronto;
   }
+  getRole() {
+    let user = this.authService.getDecodedToken();
+    if (user) {
+      return parseInt(user.role);
+    }
+    return 9999;
+  }
+
   async ngOnInit(): Promise<any> {
     let id = '';
+
+    if (this.getRole() > 75) {
+      this.notDriver = true;
+      this.loading = false;
+      return false;
+    }
+
     this.route.params.subscribe((params) => {
       id = params['id'];
     });
     let ris: any = await lastValueFrom(
       this.bookingsService.readBookingById(id)
     );
-    console.log(ris);
+
     this.book = ris.bookings;
     this.loading = false;
   }
