@@ -107,7 +107,7 @@ router.get("/routesToday", authMiddleware, async (req: Request, res: Response, n
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.getRoutesToDay();
-    res.json({ routes: result[0].active_schedules_today || 0 });
+    res.json({ routes: result[0]?.active_schedules_today || 0 });
   } catch (error) {
     next(error);
   }
@@ -125,7 +125,7 @@ router.get("/routesTodayList", authMiddleware, async (req: Request, res: Respons
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.getRoutesToDayList();
-    res.json({ routes: result[0].active_schedules_today || 0 });
+    res.json({ routes: result[0]?.active_schedules_today || 0 });
   } catch (error) {
     next(error);
   }
