@@ -63,7 +63,7 @@ export default class SessionServices {
     };
   }> {
     this.failToBan.deleteIp(email);
-    let userFind = await this.userServices.getUserByEmail(email);
+    let userFind = await this.userServices.getUserByEmailAll(email);
 
     if (userFind?.sessions) {
       //va oltre le possibilità del cookie
@@ -75,7 +75,7 @@ export default class SessionServices {
       rememberMe: true,
       session: sessionToken.newSession,
       email: email,
-      role: userFind?.role >= 0 && userFind?.role != undefined && userFind?.role != null ? userFind.role : 9999,
+      role: userFind?.role >= 0 && userFind?.role != undefined && userFind?.role != null ? userFind.role : 100,
       permissions: userFind?.permissions ? userFind.permissions : [],
     };
 
