@@ -39,20 +39,21 @@ export class TicketCheckComponent implements OnInit {
   async ngOnInit(): Promise<any> {
     let id = '';
 
-    if (this.getRole() > 75) {
-      this.notDriver = true;
+    if (this.getRole() <= 75) {
+      this.route.params.subscribe((params) => {
+        id = params['id'];
+      });
+      let ris: any = await lastValueFrom(
+        this.bookingsService.readBookingById(id)
+      );
+
+      this.book = ris.bookings;
       this.loading = false;
-      return false;
+      return true;
     }
 
-    this.route.params.subscribe((params) => {
-      id = params['id'];
-    });
-    let ris: any = await lastValueFrom(
-      this.bookingsService.readBookingById(id)
-    );
-
-    this.book = ris.bookings;
+    this.notDriver = true;
     this.loading = false;
+    return false;
   }
 }
