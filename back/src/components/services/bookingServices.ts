@@ -40,8 +40,8 @@ class BookingsServices {
     return await this.bookingDao.findAvailableRoutes(travelDate, fromStopId, toStopId, posti, bagagli);
   }
 
-  async availableSeats(travelDate: string, routeId: string, scheduleId: string, session?: ClientSession) {
-    let ris = await this.bookingDao.availableSeats(travelDate, routeId, scheduleId, session);
+  async availableSeats(travelDate: string, routeId: string, scheduleId: string, fromStopId: string, toStopId: string, session?: ClientSession) {
+    let ris = await this.bookingDao.availableSeats(travelDate, routeId, scheduleId, fromStopId, toStopId, session);
     return ris.length > 0 ? ris[0] : { availableSeats: 0, availableLuggage: 0 };
   }
 
@@ -70,7 +70,7 @@ class BookingsServices {
 
       let book: booking = new booking(ticket);
 
-      let numeroPosti: any = await this.availableSeats(book.date, book.routeId, book.scheduleId, session);
+      let numeroPosti: any = await this.availableSeats(book.date, book.routeId, book.scheduleId, book.from.id, book.to.id, session);
 
       if (book.seats > numeroPosti.availableSeats) {
         throw new Error("str_error_seats");
