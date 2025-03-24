@@ -49,6 +49,26 @@ export default class BookingsDAO {
                         {
                           $and: [
                             {
+                              $lte: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "$from.id"],
+                                },
+                                "$$fromStopIndex",
+                              ],
+                            },
+                            {
+                              $gte: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "$to.id"],
+                                },
+                                "$$toStopIndex",
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          $and: [
+                            {
                               $gte: [
                                 {
                                   $indexOfArray: ["$$stops.id", "$from.id"],
@@ -226,6 +246,26 @@ export default class BookingsDAO {
                     {
                       //questo filtra quelle che non coinvolgono la tratta
                       $or: [
+                        {
+                          $and: [
+                            {
+                              $lte: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "$from.id"],
+                                },
+                                "$$fromStopIndex",
+                              ],
+                            },
+                            {
+                              $gte: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "$to.id"],
+                                },
+                                "$$toStopIndex",
+                              ],
+                            },
+                          ],
+                        },
                         {
                           $and: [
                             {
