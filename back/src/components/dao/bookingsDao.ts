@@ -31,7 +31,8 @@ export default class BookingsDAO {
       {
         $lookup: {
           from: "bookings",
-          let: { routeId: "$id", scheduleId: "$schedules.id" },
+          let: { routeId: "$id", scheduleId: "$schedules.id", fromStopIndex: "$fromStopIndex", toStopIndex: "$toStopIndex", travelDate: travelDate },
+
           pipeline: [
             {
               $match: {
@@ -39,7 +40,9 @@ export default class BookingsDAO {
                   $and: [
                     { $eq: ["$routeId", "$$routeId"] },
                     { $eq: ["$scheduleId", "$$scheduleId"] },
-                    { $eq: ["$date", travelDate] },
+                    {
+                      $eq: ["$date", "$$travelDate"],
+                    },
                     { $in: ["$status", ["pending", "confirmed"]] },
                     {
                       $or: [
