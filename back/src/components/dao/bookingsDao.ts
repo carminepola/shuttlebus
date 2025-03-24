@@ -171,6 +171,26 @@ export default class BookingsDAO {
                         {
                           $and: [
                             {
+                              $lte: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "$from.id"],
+                                },
+                                "$$fromStopIndex",
+                              ],
+                            },
+                            {
+                              $gte: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "$from.id"],
+                                },
+                                "$$toStopIndex",
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          $and: [
+                            {
                               $gte: [
                                 {
                                   $indexOfArray: ["$$stops.id", "$from.id"],
