@@ -17,11 +17,17 @@ export default class BookingsDAO {
     };
     return this.db.collection("bookings").find(q).toArray();
   }
-  async availableSeats(travelDate: string, routeId: string, scheduleId: string, session?: ClientSession) {
+  async availableSeats(travelDate: string, routeId: string, scheduleId: string, fromStopId: string, toStopId: string, session?: ClientSession) {
     let q = [
       { $match: { id: routeId } },
       { $unwind: "$schedules" },
       { $match: { "schedules.id": scheduleId } },
+      {
+        $addFields: {
+          fromStopIndex: { $indexOfArray: ["$schedules.stops.id", fromStopId] },
+          toStopIndex: { $indexOfArray: ["$schedules.stops.id", toStopId] },
+        },
+      },
       {
         $lookup: {
           from: "bookings",
@@ -30,7 +36,56 @@ export default class BookingsDAO {
             {
               $match: {
                 $expr: {
-                  $and: [{ $eq: ["$routeId", "$$routeId"] }, { $eq: ["$scheduleId", "$$scheduleId"] }, { $eq: ["$date", travelDate] }, { $in: ["$status", ["pending", "confirmed"]] }],
+                  $and: [
+                    { $eq: ["$routeId", "$$routeId"] },
+                    { $eq: ["$scheduleId", "$$scheduleId"] },
+                    { $eq: ["$date", travelDate] },
+                    { $in: ["$status", ["pending", "confirmed"]] },
+                    {
+                      $or: [
+                        {
+                          $and: [
+                            {
+                              $gte: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "$from.id"],
+                                },
+                                "$$fromStopIndex",
+                              ],
+                            },
+                            {
+                              $lt: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "$from.id"],
+                                },
+                                "$$toStopIndex",
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          $and: [
+                            {
+                              $gte: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "to.id"],
+                                },
+                                "$$fromStopIndex",
+                              ],
+                            },
+                            {
+                              $lt: [
+                                {
+                                  $indexOfArray: ["$$stops.id", "to.id"],
+                                },
+                                "$$toStopIndex",
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
                 },
               },
             },
@@ -168,26 +223,6 @@ export default class BookingsDAO {
                     {
                       //questo filtra quelle che non coinvolgono la tratta
                       $or: [
-                        {
-                          $and: [
-                            {
-                              $lte: [
-                                {
-                                  $indexOfArray: ["$$stops.id", "$from.id"],
-                                },
-                                "$$fromStopIndex",
-                              ],
-                            },
-                            {
-                              $gte: [
-                                {
-                                  $indexOfArray: ["$$stops.id", "$to.id"],
-                                },
-                                "$$toStopIndex",
-                              ],
-                            },
-                          ],
-                        },
                         {
                           $and: [
                             {
@@ -627,7 +662,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: { date: "$date", period: "$period" },
-            totalTickets: { $sum: "$seats" },
+            totalTickets: { $sum: 1 },
           },
         },
         {
