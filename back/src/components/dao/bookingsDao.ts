@@ -31,7 +31,7 @@ export default class BookingsDAO {
       {
         $lookup: {
           from: "bookings",
-          let: { routeId: "$id", scheduleId: "$schedules.id", fromStopIndex: "$fromStopIndex", toStopIndex: "$toStopIndex", travelDate: travelDate },
+          let: { routeId: "$id", scheduleId: "$schedules.id", fromStopIndex: "$fromStopIndex", toStopIndex: "$toStopIndex", travelDate: travelDate, stops: "$stops" },
 
           pipeline: [
             {
