@@ -179,8 +179,7 @@ export class SearchPageComponent implements OnInit {
     }
 
     if (
-      new Date(this.ricerca.data).toDateString().split('T')[0] ==
-      new Date().toDateString().split('T')[0]
+      new Date(this.ricerca.data).toDateString() == new Date().toDateString()
     ) {
       params = params.filter((param: any) => {
         let route: any = routes.find((t: any) => t.id === param.routeId);
