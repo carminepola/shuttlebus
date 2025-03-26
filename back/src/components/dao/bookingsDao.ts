@@ -389,6 +389,8 @@ export default class BookingsDAO {
     return this.db.collection("routes").aggregate(q).toArray();
   }
   async insertBooking(booking: booking, session?: ClientSession) {
+    booking.status = "pending";
+
     return this.db.collection("bookings").insertOne(booking, { session });
   }
   async getBookingFromNumber(numberOfTickets: string): Promise<booking> {
