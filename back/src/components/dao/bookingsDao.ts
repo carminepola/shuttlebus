@@ -17,98 +17,20 @@ export default class BookingsDAO {
     };
     return this.db.collection("bookings").find(q).toArray();
   }
-  async availableSeats(travelDate: string, routeId: string, scheduleId: string, fromStopId: string, toStopId: string, session?: ClientSession) {
+  async availableSeats(travelDate: string, routeId: string, scheduleId: string, session?: ClientSession) {
     let q = [
       { $match: { id: routeId } },
       { $unwind: "$schedules" },
       { $match: { "schedules.id": scheduleId } },
       {
-        $addFields: {
-          fromStopIndex: { $indexOfArray: ["$schedules.stops.id", fromStopId] },
-          toStopIndex: { $indexOfArray: ["$schedules.stops.id", toStopId] },
-        },
-      },
-      {
         $lookup: {
           from: "bookings",
-          let: { routeId: "$id", scheduleId: "$schedules.id", fromStopIndex: "$fromStopIndex", toStopIndex: "$toStopIndex", travelDate: travelDate, stops: "$stops" },
-
+          let: { routeId: "$id", scheduleId: "$schedules.id" },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  $and: [
-                    { $eq: ["$routeId", "$$routeId"] },
-                    { $eq: ["$scheduleId", "$$scheduleId"] },
-                    {
-                      $eq: ["$date", "$$travelDate"],
-                    },
-                    { $in: ["$status", ["pending", "confirmed"]] },
-                    {
-                      $or: [
-                        {
-                          $and: [
-                            {
-                              $lte: [
-                                {
-                                  $indexOfArray: ["$$stops.id", "$from.id"],
-                                },
-                                "$$fromStopIndex",
-                              ],
-                            },
-                            {
-                              $gte: [
-                                {
-                                  $indexOfArray: ["$$stops.id", "$to.id"],
-                                },
-                                "$$toStopIndex",
-                              ],
-                            },
-                          ],
-                        },
-                        {
-                          $and: [
-                            {
-                              $gte: [
-                                {
-                                  $indexOfArray: ["$$stops.id", "$from.id"],
-                                },
-                                "$$fromStopIndex",
-                              ],
-                            },
-                            {
-                              $lt: [
-                                {
-                                  $indexOfArray: ["$$stops.id", "$from.id"],
-                                },
-                                "$$toStopIndex",
-                              ],
-                            },
-                          ],
-                        },
-                        {
-                          $and: [
-                            {
-                              $gte: [
-                                {
-                                  $indexOfArray: ["$$stops.id", "to.id"],
-                                },
-                                "$$fromStopIndex",
-                              ],
-                            },
-                            {
-                              $lt: [
-                                {
-                                  $indexOfArray: ["$$stops.id", "to.id"],
-                                },
-                                "$$toStopIndex",
-                              ],
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
+                  $and: [{ $eq: ["$routeId", "$$routeId"] }, { $eq: ["$scheduleId", "$$scheduleId"] }, { $eq: ["$date", travelDate] }, { $in: ["$status", ["pending", "confirmed"]] }],
                 },
               },
             },
@@ -389,8 +311,10 @@ export default class BookingsDAO {
     return this.db.collection("routes").aggregate(q).toArray();
   }
   async insertBooking(booking: booking, session?: ClientSession) {
+    booking.status = "pending";
     return this.db.collection("bookings").insertOne(booking, { session });
   }
+
   async getBookingFromNumber(numberOfTickets: string): Promise<booking> {
     return new booking(await this.db.collection("bookings").findOne({ numberOfTickets }));
   }
@@ -705,7 +629,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: { date: "$date", period: "$period" },
-            totalTickets: { $sum: 1 },
+            totalTickets: { $sum: "$seats" },
           },
         },
         {
