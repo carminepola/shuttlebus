@@ -6,7 +6,7 @@ stages:
 
 compilazione_back:
   stage: compilazione_back
-  image: node:22.11
+  image: node:22.14
   script:
     - "cd back"
     - "rm package-lock.json"
@@ -21,7 +21,7 @@ compilazione_back:
 
 compilazione_front:
   stage: compila_front
-  image: node:22.11
+  image: node:22.14
   script:
     - "cd front"
     - "rm package-lock.json"
@@ -39,7 +39,7 @@ compila_dockerfile_back:
   script:
     - "cd back" 
     - "docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD" 
-    - "docker build -no-cache -t back ."
+    - "docker build -n -t back ."
     - |
       if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
         docker tag back $REGISTRY/pintour2/back:dev
@@ -63,7 +63,7 @@ compila_dockerfile_front:
   script:
     - "cd front"  
     - "docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-    - "docker build -no-cache -t front ."
+    - "docker build -n -t front ."
     - |
       if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
         docker tag front  $REGISTRY/pintour2/front:dev
