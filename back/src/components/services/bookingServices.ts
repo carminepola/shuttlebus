@@ -166,7 +166,7 @@ class BookingsServices {
       }
     }
     newTotale += ticket.luggage * 2;
-    if (count == ticket.seats && newTotale == totale) {
+    if (count == ticket.seats && newTotale == totale && totale > 0 && ticket.seats>0) {
       return true;
     }
 
