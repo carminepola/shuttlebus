@@ -153,7 +153,13 @@ export default class UserServices {
   }
   async updateGoogleInfo(email: string, googleInfo: any) {
     try {
-      return await this.userDao.updateGoogleInfo(email, googleInfo);
+      let google = {
+        photos: googleInfo.photos,
+        email: googleInfo.email,
+        displayName: googleInfo.displayName,
+        id: googleInfo.id,
+      };
+      return await this.userDao.updateGoogleInfo(email, google);
     } catch (error) {
       throw error;
     }

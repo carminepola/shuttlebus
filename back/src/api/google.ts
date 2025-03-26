@@ -55,6 +55,7 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
       };
 
       settingsJwt.maxAge = 2592000000;
+      res.cookie("jwt", token, settingsJwt);
       res.cookie("refreshToken", refreshToken, {
         maxAge: 2592000000,
         httpOnly: true,
@@ -62,7 +63,6 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
         secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
       });
 
-      res.cookie("jwt", token, settingsJwt);
       res.json({ message: "Accesso autorizzato" });
     }
   } catch (error) {
