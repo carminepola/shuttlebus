@@ -211,25 +211,12 @@ export default class UsersDao {
       throw error;
     }
   }
-  generatePin() {
-    // Usa un valore casuale (puoi anche usare Date.now o simili come seed)
-    const randomBytes = CryptoJS.lib.WordArray.random(4); // 4 byte = 32 bit
-
-    // Convertilo in un numero usando l'hash (puoi anche usare direttamente il valore raw)
-    const hash = CryptoJS.SHA256(randomBytes).toString(CryptoJS.enc.Hex);
-
-    // Prendi solo una parte dell'hash per ottenere un numero
-    const number = parseInt(hash.slice(0, 8), 16); // Primi 8 caratteri = 32 bit
-
-    // Riduci a un numero tra 0 e 999999
-    const pin = number % 1000000;
-
-    // Ritorna una stringa con zeri iniziali se necessario
-    return pin.toString().padStart(6, "0");
-  }
   async insertRecoverPassword(email: string, username: string, lng: string): Promise<boolean> {
     try {
-      const password = this.generatePin();
+      const password = Array(12)
+        .fill("")
+        .map(() => String.fromCharCode(Math.floor(Math.random() * 26) + 97))
+        .join("");
       const today = new Date().getTime();
       const user = await this.db.collection(this.schema).findOne({ email: email });
       const count = user?.recoverPasswordCount || 0;
