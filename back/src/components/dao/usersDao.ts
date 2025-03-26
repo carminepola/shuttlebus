@@ -118,6 +118,8 @@ export default class UsersDao {
       delete element?.password;
       delete element?.recoverPassword;
       delete element?.recoverPasswordCount;
+      delete element?.options?.google?._raw;
+      delete element?.options?.google?._json;
 
       return element;
     } catch (error) {
@@ -413,15 +415,15 @@ export default class UsersDao {
       // Ottieni le sessioni attuali ordinate per data (dal più recente al più vecchio)
       const user = await this.db.collection<userModel>(this.schema).findOne({ email: email }, { projection: { sessions: 1 } });
 
-      if (user && user.sessions.length > 10) {
+      if (user && user.sessions.length > 5) {
         // Tieni solo le ultime 10 sessioni ordinate per updatedAt
-        const recentSessions = user.sessions.sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 10);
+        const recentSessions = user.sessions.sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 5);
 
         // Sostituisci l'array delle sessioni con i soli ultimi 10 elementi
         await this.db.collection<userModel>(this.schema).updateOne({ email: email }, { $set: { sessions: recentSessions } });
       }
 
-      logger.info(`Sessioni aggiornate per l'utente ${email}, mantenendo solo le ultime 10`, this.loggerInfo);
+      logger.info(`Sessioni aggiornate per l'utente ${email}, mantenendo solo le ultime 5`, this.loggerInfo);
       return true;
     } catch (error) {
       throw error;
