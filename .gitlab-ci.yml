@@ -39,7 +39,7 @@ compila_dockerfile_back:
   script:
     - "cd back" 
     - "docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD" 
-    - "docker build -n -t back ."
+    - "docker build -t back ."
     - |
       if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
         docker tag back $REGISTRY/pintour2/back:dev
@@ -63,7 +63,7 @@ compila_dockerfile_front:
   script:
     - "cd front"  
     - "docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-    - "docker build -n -t front ."
+    - "docker build -t front ."
     - |
       if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
         docker tag front  $REGISTRY/pintour2/front:dev
