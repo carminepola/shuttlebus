@@ -3,8 +3,6 @@
     {{ "str_registra_account" | translate }}
   </div>
 
-  {{ loginForm | json }}
-
   <div
     class="text-muted"
     [innerHTML]="'str_registra_account_desc' | translate"
@@ -140,7 +138,6 @@
       <div class="row">
         <div class="col-4">
           <div>
-            {{ loginForm.prefixPhone }}
             <label
               for="prefixPhone"
               class="form-label"
