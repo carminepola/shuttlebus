@@ -85,7 +85,7 @@ export default class UsersDao {
       delete element?.password;
       delete element?.recoverPassword;
       delete element?.recoverPasswordCount;
-
+1
       return element;
     } catch (error) {
       throw error;
