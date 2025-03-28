@@ -1,44 +1,51 @@
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { CommonModule, NgFor } from '@angular/common';
+
+import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { UserService } from '../../services/user/user.service';
 import * as CryptoJS from 'crypto-js';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { LngService } from '../../services/lng/lng.service';
-import { matchValues } from '../../pipe/matchValidator';
+
 @Component({
   selector: 'app-registrazione',
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    TranslatePipe,
+    FormsModule,
+  ],
   templateUrl: './registrazione.component.html',
   styleUrl: './registrazione.component.scss',
 })
 export class RegistrazioneComponent implements OnInit {
-  loginForm!: FormGroup;
-  pinForm: FormGroup;
   isSubmitted = false;
   loginError = '';
   isLoading = false;
   privacy = false;
   pinMode = false;
+  pin = '';
+  public loginForm = {
+    email: '',
+    password: '',
+    name: '',
+    repeatEmail: '',
+    repeatPassword: '',
+    phoneNumber: '',
+    prefixPhone: '',
+  };
+
   @Output() registerSuccess = new EventEmitter<void>();
   constructor(
-    private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
     private userService: UserService,
     private lngService: LngService
-  ) {
-    this.pinForm = this.formBuilder.group({
-      pin: ['', [Validators.required, Validators.minLength(6)]],
-    });
-  }
+  ) {}
+
   async getPhonePrefix() {
     const regionPrefixes: any = {
       US: '+1',
@@ -55,7 +62,6 @@ export class RegistrazioneComponent implements OnInit {
       BR: '+55',
       AU: '+61',
       PT: '+351',
-      // aggiungi altri se vuoi
     };
 
     // STEP 1: tentativo con la lingua del browser
@@ -77,70 +83,42 @@ export class RegistrazioneComponent implements OnInit {
       console.warn('Impossibile ottenere geolocalizzazione via IP:', err);
     }
 
-    // STEP 3: fallback finale
     return '+39'; // Default: Italia
   }
 
   async ngOnInit(): Promise<void> {
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/admin/home']);
-    }
-    let prefix = await this.getPhonePrefix();
-
-    this.loginForm = this.formBuilder.group({
-      name: ['', [Validators.required]],
-
-      email: ['', [Validators.required, Validators.email]],
-      repeatEmail: [
-        '',
-        [Validators.required, Validators.email, matchValues('email')],
-      ],
-      prefixPhone: [prefix, [Validators.required]],
-      phoneNumber: ['', [Validators.required, Validators.minLength(10)]],
-      repeatPassword: [
-        '',
-        [Validators.required, Validators.minLength(6), matchValues('password')],
-      ],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      termsAndConditions: ['', [Validators.required]],
-    });
+    this.loginForm.prefixPhone = await this.getPhonePrefix();
   }
 
-  get pinFormControls() {
-    return this.pinForm.controls;
-  }
-  get formControls() {
-    return this.loginForm.controls;
-  }
-
-  onSubmitPin(event: Event): void {
+  onSubmitPin(f: NgForm): void {
     try {
-      event.preventDefault();
-      event.stopPropagation();
-
-      this.isSubmitted = true;
-
-      if (this.pinForm.invalid) {
-        return;
-      }
-
       this.isLoading = true;
-
-      const { pin } = this.pinForm.value;
+      let pin = this.pin;
 
       this.userService
-        .validateMail({ email: this.loginForm.value.email, pin })
+        .validateMail({ email: this.loginForm.email, pin })
         .subscribe({
           next: (response: any) => {
-            const { email, password, name, phoneNumber, prefixPhone } =
-              this.loginForm.value;
-            const md5Password = CryptoJS.MD5(password).toString();
+            const md5Password = CryptoJS.MD5(
+              this.loginForm.password
+            ).toString();
 
-            this.authService.login(email, md5Password, false).subscribe({
-              next: (response: any) => {
-                this.isLoading = false;
-              },
-            });
+            this.authService
+              .login(this.loginForm.email, md5Password, false)
+              .subscribe({
+                next: (response: any) => {
+                  this.isLoading = false;
+                  this.loginForm = {
+                    email: '',
+                    password: '',
+                    name: '',
+                    repeatEmail: '',
+                    repeatPassword: '',
+                    phoneNumber: '',
+                    prefixPhone: '',
+                  };
+                },
+              });
 
             this.registerSuccess.emit();
           },
@@ -160,38 +138,38 @@ export class RegistrazioneComponent implements OnInit {
   emitEvent() {
     this.registerSuccess.emit();
   }
-  onSubmit(event: Event): void {
+
+  onSubmit(f: NgForm): void {
     try {
-      event.preventDefault();
-      event.stopPropagation();
-
-      this.isSubmitted = true;
-
-      if (this.loginForm.invalid) {
+      if (!f.valid) {
+        return;
+      }
+      if (this.loginForm.password !== this.loginForm.repeatPassword) {
+        this.loginError = this.lngService.traslate('str_password_not_match');
+        return;
+      }
+      if (this.loginForm.email !== this.loginForm.repeatEmail) {
+        this.loginError = this.lngService.traslate('str_email_not_match');
         return;
       }
 
       this.isLoading = true;
 
-      const { email, password, name, phoneNumber, prefixPhone } =
-        this.loginForm.value;
-      const md5Password = CryptoJS.MD5(password).toString();
+      const md5Password = CryptoJS.MD5(this.loginForm.password).toString();
 
       this.userService
         .register({
-          email,
+          email: this.loginForm.email,
           password: md5Password,
-          name,
-          phoneNumber: prefixPhone + phoneNumber,
+          name: this.loginForm.name,
+          phoneNumber: this.loginForm.prefixPhone + this.loginForm.phoneNumber,
           lng: this.lngService.getLng(),
         })
         .subscribe({
           next: (response: any) => {
             this.isLoading = false;
 
-            this.pinForm = this.formBuilder.group({
-              pin: ['', [Validators.required, Validators.minLength(6)]],
-            });
+            this.pin = '';
             this.pinMode = true;
           },
           error: (e: any) => {

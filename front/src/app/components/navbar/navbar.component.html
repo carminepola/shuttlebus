@@ -88,7 +88,7 @@
         ></app-login-form>
         <app-registrazione
           (registerSuccess)="onComplete()"
-          *ngIf="!login"
+          [hidden]="login"
         ></app-registrazione>
       </div>
     </div>

@@ -3,16 +3,13 @@
     {{ "str_registra_account" | translate }}
   </div>
 
+  {{ loginForm | json }}
+
   <div
     class="text-muted"
     [innerHTML]="'str_registra_account_desc' | translate"
   ></div>
-  <!-- <a
-    *ngIf="!pinMode"
-    class="cursor-pointer text-secondary"
-    (click)="pinMode = !pinMode"
-    [innerHTML]="'str_ho_pin' | translate"
-  ></a> -->
+
   <a
     *ngIf="pinMode"
     class="cursor-pointer text-secondary"
@@ -20,32 +17,22 @@
     [innerHTML]="'str_non_ho_pin' | translate"
   ></a>
 </div>
-<div *ngIf="pinMode">
-  <form [formGroup]="pinForm" (submit)="onSubmitPin($event)" novalidate>
+<div [hidden]="!pinMode">
+  <form #f2="ngForm" (submit)="onSubmitPin(f2)" ngNativeValidate>
     <label for="name" class="form-label">Pin</label>
     <input
       id="pin"
-      formControlName="pin"
+      [(ngModel)]="pin"
+      [ngModelOptions]="{ standalone: true }"
       type="text"
+      minlength="6"
+      maxlength="6"
+      required=""
       autocomplete="pin"
       class="form-control"
       [placeholder]="'pin'"
-      [ngClass]="{
-              'is-invalid': isSubmitted && pinFormControls['pin'].invalid,
-          
-            }"
     />
-    <div
-      *ngIf="isSubmitted && pinFormControls['pin'].errors"
-      class="invalid-feedback"
-    >
-      <div *ngIf="pinFormControls['pin'].errors['required']">
-        {{ "str_pin_obbligatorio" | translate }}
-      </div>
-      <div *ngIf="pinFormControls['pin'].errors['email']">
-        {{ "str_pin_non_valido" | translate }}
-      </div>
-    </div>
+
     <div></div>
     <div *ngIf="loginError" class="alert alert-danger border-0 mb-2">
       {{ loginError }}
@@ -66,13 +53,8 @@
     </button>
   </form>
 </div>
-<div *ngIf="!pinMode">
-  <form
-    [formGroup]="loginForm"
-    (submit)="onSubmit($event)"
-    novalidate
-    *ngIf="!pinMode"
-  >
+<div [hidden]="pinMode">
+  <form #f="ngForm" (submit)="onSubmit(f)" ngNativeValidate>
     <div class="mb-3">
       <label
         for="name"
@@ -81,53 +63,27 @@
       ></label>
       <input
         id="name"
-        formControlName="name"
         type="text"
         autocomplete="name"
+        [(ngModel)]="loginForm.name"
+        [ngModelOptions]="{ standalone: true }"
+        required
         class="form-control"
         [placeholder]="'str_name' | translate"
-        [ngClass]="{
-              'is-invalid': isSubmitted && formControls['name'].invalid,
-          
-            }"
       />
-      <div
-        *ngIf="isSubmitted && formControls['name'].errors"
-        class="invalid-feedback"
-      >
-        <div *ngIf="formControls['name'].errors['required']">
-          {{ "str_name_obbligatorio" | translate }}
-        </div>
-        <div *ngIf="formControls['name'].errors['email']">
-          {{ "str_name_non_valido" | translate }}
-        </div>
-      </div>
     </div>
     <div class="mb-3">
       <label for="email" class="form-label">Email</label>
       <input
         id="email"
-        formControlName="email"
         type="email"
+        [(ngModel)]="loginForm.email"
+        [ngModelOptions]="{ standalone: true }"
         autocomplete="email"
         class="form-control"
+        required
         [placeholder]="'str_email' | translate"
-        [ngClass]="{
-              'is-invalid': isSubmitted && formControls['email'].invalid,
-          
-            }"
       />
-      <div
-        *ngIf="isSubmitted && formControls['email'].errors"
-        class="invalid-feedback"
-      >
-        <div *ngIf="formControls['email'].errors['required']">
-          {{ "str_email_obbligatoria" | translate }}
-        </div>
-        <div *ngIf="formControls['email'].errors['email']">
-          {{ "str_email_non_valida" | translate }}
-        </div>
-      </div>
     </div>
     <div class="mb-3">
       <label
@@ -138,93 +94,53 @@
       >
       <input
         id="repeatEmail"
-        formControlName="repeatEmail"
         type="repeatEmail"
+        [(ngModel)]="loginForm.repeatEmail"
+        [ngModelOptions]="{ standalone: true }"
         autocomplete="repeatEmail"
         class="form-control"
         [placeholder]="'str_ripeti_email' | translate"
-        [ngClass]="{
-              'is-invalid': isSubmitted && formControls['repeatEmail'].invalid,
-          
-            }"
+        required
       />
-      <div
-        *ngIf="isSubmitted && formControls['repeatEmail'].errors"
-        class="invalid-feedback"
-      >
-        <div *ngIf="formControls['repeatEmail'].errors['required']">
-          {{ "str_email_obbligatoria" | translate }}
-        </div>
-        <div *ngIf="formControls['repeatEmail'].errors['email']">
-          {{ "str_email_non_valida" | translate }}
-        </div>
-        <div *ngIf="loginForm.get('repeatEmail')?.hasError('notMatching')">
-          {{ "str_email_non_uguali" | translate }}
-        </div>
-      </div>
     </div>
     <div class="mb-3">
       <label for="password" class="form-label">Password</label>
       <input
         id="password"
-        formControlName="password"
         type="password"
         autocomplete="password"
         class="form-control"
+        minlength="6"
+        [(ngModel)]="loginForm.password"
+        [ngModelOptions]="{ standalone: true }"
         [placeholder]="'str_password' | translate"
-        [ngClass]="{ 'is-invalid': isSubmitted &&
-    formControls['password'].invalid, }"
+        required
       />
-      <div
-        *ngIf="isSubmitted && formControls['password'].errors"
-        class="invalid-feedback"
-      >
-        <div *ngIf="formControls['password'].errors['required']">
-          {{ "str_password_obbligatoria" | translate }}
-        </div>
-        <div *ngIf="formControls['password'].errors['minlength']">
-          {{ "str_password_lunghezza_minima" | translate }}
-        </div>
-      </div>
     </div>
     <div class="mb-3">
       <label
         for="repeatPassword"
         class="form-label"
+        minlength="6"
         [innerHTML]="'str_ripeti_password' | translate"
         >Password'"></label
       >
       <input
         id="repeatPassword"
-        formControlName="repeatPassword"
+        [(ngModel)]="loginForm.repeatPassword"
+        [ngModelOptions]="{ standalone: true }"
         type="password"
         autocomplete="repeatPassword"
         class="form-control"
         [placeholder]="'str_ripeti_password' | translate"
-        [ngClass]="{
-              'is-invalid': isSubmitted && formControls['repeatPassword'].invalid,
-             
-            }"
+        required
       />
-      <div
-        *ngIf="isSubmitted && formControls['repeatPassword'].errors"
-        class="invalid-feedback"
-      >
-        <div *ngIf="formControls['repeatPassword'].errors['required']">
-          {{ "str_password_obbligatoria" | translate }}
-        </div>
-        <div *ngIf="formControls['repeatPassword'].errors['minlength']">
-          {{ "str_password_lunghezza_minima" | translate }}
-        </div>
-        <div *ngIf="loginForm.get('repeatPassword')?.hasError('notMatching')">
-          {{ "str_password_non_uguali" | translate }}
-        </div>
-      </div>
     </div>
     <div class="mb-3">
       <div class="row">
         <div class="col-4">
           <div>
+            {{ loginForm.prefixPhone }}
             <label
               for="prefixPhone"
               class="form-label"
@@ -232,17 +148,14 @@
             >
             </label>
             <select
-              [ngClass]="{
-              'is-invalid': isSubmitted && formControls['prefixPhone'].invalid,
-             
-            }"
-              class="form-select"
               required
+              class="form-select"
               id="prefixPhone"
-              formControlName="prefixPhone"
               type="prefixPhone"
               autocomplete="prefixPhone"
               class="form-control"
+              [(ngModel)]="loginForm.prefixPhone"
+              [ngModelOptions]="{ standalone: true }"
             >
               <option
                 value=""
@@ -443,14 +356,6 @@
               <option value="+260">Zambia (+260)</option>
               <option value="+263">Zimbabwe (+263)</option>
             </select>
-            <div
-              *ngIf="isSubmitted && formControls['prefixPhone'].errors"
-              class="invalid-feedback"
-            >
-              <div *ngIf="formControls['prefixPhone'].errors['required']">
-                {{ "str_password_obbligatoria" | translate }}
-              </div>
-            </div>
           </div>
         </div>
         <div class="col">
@@ -462,31 +367,14 @@
             >
             </label>
             <input
-              [ngClass]="{
-              'is-invalid': isSubmitted && formControls['phoneNumber'].invalid,
-             
-            }"
+              required
               id="phone"
               required
-              formControlName="phoneNumber"
               type="phoneNumber"
               autocomplete="phoneNumber"
               class="form-control"
               [placeholder]="'str_phone_number' | translate"
             />
-            <div
-              *ngIf="isSubmitted && formControls['phoneNumber'].errors"
-              class="invalid-feedback"
-            >
-              <div
-                *ngIf="
-                  formControls['phoneNumber'].errors['required'] ||
-                  formControls['phoneNumber'].errors['minlength']
-                "
-              >
-                {{ "str_password_obbligatoria" | translate }}
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -498,11 +386,6 @@
           type="checkbox"
           required
           id="termsAndConditions"
-          formControlName="termsAndConditions"
-          [ngClass]="{
-              'is-invalid': isSubmitted && formControls['termsAndConditions'].invalid,
-             
-            }"
         />
         <label class="form-check-label" for="termsAndConditions">
           {{ "str_terms_and_conditions_accept" | translate }}
@@ -513,14 +396,6 @@
           [innerHTML]="'str_qui_riportati' | translate"
         >
         </a>
-        <div
-          *ngIf="isSubmitted && formControls['termsAndConditions'].errors"
-          class="invalid-feedback"
-        >
-          <div *ngIf="formControls['termsAndConditions'].errors['required']">
-            {{ "str_terms_and_conditions_required" | translate }}
-          </div>
-        </div>
       </div>
     </div>
 
@@ -529,8 +404,8 @@
         {{ loginError }}
       </div>
       <button
-        type="submit"
         [disabled]="isLoading"
+        type="submit"
         class="btn btn-secondary w-100 d-flex justify-content-center align-items-center"
       >
         <span *ngIf="!isLoading">{{ "str_registrati" | translate }}</span>
