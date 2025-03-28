@@ -91,7 +91,7 @@ export default class UserServices {
   async register(user: userModel, lng: string) {
     try {
       let oldUser = await this.userDao.getUserByEmailAll(user.email);
-      if (oldUser && user.role !== role.NO_PERMISSION) {
+      if (oldUser && oldUser.role !== role.NO_PERMISSION) {
         throw new ErrorModel(409, "Utente già esistente");
       } else {
         if (oldUser) {
