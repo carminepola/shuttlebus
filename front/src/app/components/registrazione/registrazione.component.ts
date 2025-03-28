@@ -152,6 +152,18 @@ export class RegistrazioneComponent implements OnInit {
         this.loginError = this.lngService.traslate('str_email_not_match');
         return;
       }
+      if (this.loginForm.password.trim().length < 6) {
+        return;
+      }
+      if (this.loginForm.email.trim() == '') {
+        return;
+      }
+      if (this.loginForm.prefixPhone.trim() == '') {
+        return;
+      }
+      if (this.loginForm.phoneNumber.trim() == '') {
+        return;
+      }
 
       this.isLoading = true;
 
@@ -159,10 +171,11 @@ export class RegistrazioneComponent implements OnInit {
 
       this.userService
         .register({
-          email: this.loginForm.email,
-          password: md5Password,
-          name: this.loginForm.name,
-          phoneNumber: this.loginForm.prefixPhone + this.loginForm.phoneNumber,
+          email: this.loginForm.email.trim(),
+          password: md5Password.trim(),
+          name: this.loginForm.name.trim(),
+          phoneNumber:
+            this.loginForm.prefixPhone + this.loginForm.phoneNumber.trim(),
           lng: this.lngService.getLng(),
         })
         .subscribe({
