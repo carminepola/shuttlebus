@@ -14,6 +14,7 @@ import { UserService } from '../../services/user/user.service';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { StripeService } from '../../services/stripe/stripe.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { FilterPipe } from '../../pipe/filter.pipe';
 import Swal from 'sweetalert2';
 @Component({
   selector: 'app-reservation',
