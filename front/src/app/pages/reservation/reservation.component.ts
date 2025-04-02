@@ -24,6 +24,7 @@ import Swal from 'sweetalert2';
     LoadingComponent,
     CommonModule,
     TranslateNamePipe,
+    FilterPipe,
     FormsModule,
   ],
   animations: [fadeAnimation],
