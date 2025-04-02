@@ -34,10 +34,13 @@
     <!-- Mobile View (Cards) -->
     <div class="mobile-cards p-3 d-block d-lg-none">
       <!-- Card 1 -->
-      <div class="card mb-3 shadow-sm rounded-4">
+      <div
+        class="card mb-3 shadow-sm rounded-4"
+        *ngFor="let client of clients | filter : search"
+      >
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <h5 class="card-title mb-0">Mario Rossi</h5>
+            <h5 class="card-title mb-0" [innerHTML]="client.name"></h5>
             <div>
               <button class="btn btn-info btn-sm me-2 rounded-3">
                 <i class="fas fa-info-circle"></i>
@@ -49,14 +52,11 @@
           </div>
           <p class="mb-2">
             Email:
-            <span
-              class="text-secondary"
-              [innerHTML]="'mario.rossi@example.com'"
-            ></span>
+            <span class="text-secondary" [innerHTML]="client.email"></span>
           </p>
-          <p class="mb-2">
+          <p class="mb-2" *ngIf="client.phone">
             Numero:
-            <span class="text-secondary">+39 333 123 4567</span>
+            <span class="text-secondary" [innerHTML]="client.phone"></span>
           </p>
         </div>
       </div>

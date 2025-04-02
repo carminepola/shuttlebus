@@ -91,6 +91,7 @@
             ></span>
             <input
               type="text"
+              [(ngModel)]="search"
               class="form-control form-control-lg bg-light border-0"
               placeholder="Cerca biglietto..."
             />
@@ -100,7 +101,10 @@
     </div>
 
     <!-- Mobile View (Cards) -->
-    <div class="mobile-cards p-3 d-block d-lg-none" *ngFor="let b of booking">
+    <div
+      class="mobile-cards p-3 d-block d-lg-none"
+      *ngFor="let b of booking | filter : search"
+    >
       <div class="card mb-3 shadow-sm rounded-4">
         <div class="card-body">
           <h5 class="card-title mb-3 text-primary fw-bold">{{ b.ticketId }}</h5>
@@ -195,7 +199,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="bg-white" *ngFor="let b of booking">
+            <tr class="bg-white" *ngFor="let b of booking | filter : search">
               <td [innerHTML]="b.ticketId"></td>
               <td>
                 <span
