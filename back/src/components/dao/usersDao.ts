@@ -32,6 +32,8 @@ export default class UsersDao {
         delete element.password;
         delete element.recoverPassword;
         delete element.recoverPasswordCount;
+        delete element?.options?.google?._raw;
+        delete element?.options?.google?._json;
       });
       return list;
     } catch (error) {
@@ -59,6 +61,8 @@ export default class UsersDao {
       delete element?.password;
       delete element?.recoverPassword;
       delete element?.recoverPasswordCount;
+      delete element?.options?.google?._raw;
+      delete element?.options?.google?._json;
 
       return element;
     } catch (error) {
@@ -85,7 +89,7 @@ export default class UsersDao {
       delete element?.password;
       delete element?.recoverPassword;
       delete element?.recoverPasswordCount;
-1
+      1;
       return element;
     } catch (error) {
       throw error;
@@ -101,6 +105,8 @@ export default class UsersDao {
       delete element?.password;
       delete element?.recoverPassword;
       delete element?.recoverPasswordCount;
+      delete element?.options?.google?._raw;
+      delete element?.options?.google?._json;
 
       return element;
     } catch (error) {

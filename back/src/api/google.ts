@@ -79,7 +79,8 @@ router.get("/auth/callback", passport.authenticate("google", { failureRedirect: 
   const user = new userModel();
   user.email = req.user.emails[0].value;
   user.details.name = req.user.displayName;
-  user.options.google = req.user;
+  user.options.google = { image: req.user.photos[0].value, email: req.user.emails[0].value, name: req.user.displayName };
+
   user.role = role.USER;
   user.disabled = false;
 
