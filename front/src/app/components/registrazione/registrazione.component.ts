@@ -195,7 +195,7 @@ export class RegistrazioneComponent implements OnInit {
         .subscribe({
           next: (response: any) => {
             this.isLoading = false;
-
+            this.loginError = '';
             this.pin = '';
             this.pinMode = true;
           },
