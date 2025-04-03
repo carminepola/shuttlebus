@@ -21,5 +21,14 @@ router.post("/cron", authMiddleware, checkPermissionMiddleware(role.ROOT, []), a
     next(error);
   }
 });
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let momap: momapServices = new momapServices(db);
 
+    let position = await momap.getCurrent();
+    res.json({ position: position });
+  } catch (error) {
+    next(error);
+  }
+});
 export default router;

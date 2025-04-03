@@ -21,7 +21,7 @@ class momapServices {
   async created() {
     try {
       let schedules: any = await this.routeServices.getListScheduleForBusId();
-      let stops = await this.stopsServices.getAllStops();
+      let stops = await this.stopsServices.getAllActiveStops();
       let day = new Date().toISOString().split("T")[0];
       for (let i = 0; i < schedules.length; i++) {
         schedules[i].day = day;
@@ -52,6 +52,14 @@ class momapServices {
     }
   }
 
+  async getCurrent() {
+    try {
+      let momap = await this.momapDao.getCurrent();
+      return momap;
+    } catch (error) {
+      logger.error(error);
+    }
+  }
   async cron() {
     try {
       let momap = await this.momapDao.get();
