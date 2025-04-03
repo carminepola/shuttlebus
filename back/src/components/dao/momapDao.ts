@@ -31,6 +31,18 @@ export default class MomapDao {
       throw error;
     }
   }
+  async getCurrent() {
+    try {
+      return await this.db
+        .collection(this.schema)
+        .find({ day: new Date().toISOString().split("T")[0] })
+        .project({ busId: 1, currentLat: 1, currentLng: 1, currentAngle: 1 })
+        .toArray();
+    } catch (error) {
+      logger.error("Error retrieving all ticketType:", error);
+      throw error;
+    }
+  }
   async update(obj: any) {
     try {
       const result = await this.db.collection(this.schema).updateOne({ day: obj.day, busId: obj.busId }, { $set: obj }, { upsert: true });
