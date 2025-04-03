@@ -132,6 +132,7 @@ class momapServices {
               }
             }
 
+            schedule.nextStep = schedule.stops[findIndex];
             await this.momapDao.update(schedule);
           }
         }
