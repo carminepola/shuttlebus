@@ -46,6 +46,7 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
             lat: stop.location.latitude,
             lng: stop.location.longitude,
           },
+          info: stop.name,
         }));
 
         console.log(this.markers); // Verifica i markers
@@ -74,17 +75,19 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
         if (momap && momap.position.length > 0) {
           for (let i = 0; i < momap.position.length; i++) {
             let point = momap.position[i];
-            this.markers.push({
-              position: { lat: point.currentLat, lng: point.currentLng }, // Prima freccia
-              bus: true,
-              icon: {
-                url: this.getArrowIcon(point.currentAngle), // Icona freccia
-                scaledSize: new google.maps.Size(40, 40), // Dimensione
-                anchor: new google.maps.Point(20, 20), // Punto di ancoraggio
-                rotation: point.currentAngle, // Angolo di rotazione della freccia
-              },
-            });
-            console.log(point);
+            if (point.currentLat > 0) {
+              this.markers.push({
+                position: { lat: point.currentLat, lng: point.currentLng }, // Prima freccia
+                bus: true,
+                icon: {
+                  url: this.getArrowIcon(point.currentAngle), // Icona freccia
+                  scaledSize: new google.maps.Size(40, 40), // Dimensione
+                  anchor: new google.maps.Point(20, 20), // Punto di ancoraggio
+                  rotation: point.currentAngle, // Angolo di rotazione della freccia
+                },
+                info: '',
+              });
+            }
           }
         }
       }, 60000);
@@ -93,6 +96,9 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
     }
   }
 
+  openInfo(marker: any) {
+    //alert(marker.info);
+  }
   ngOnDestroy(): void {
     clearInterval(this.intervalId);
   }

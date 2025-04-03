@@ -69,8 +69,9 @@ class momapServices {
         for (let i = 0; i < momap.length; i++) {
           let schedule = momap[i];
           let busId = schedule.busId;
-
-          let findIndex = schedule.stops.findIndex((t: any) => t.arrivalTime === "");
+          let now = new Date();
+          let nowMinutes = now.getHours() * 60 + now.getMinutes();
+          let findIndex = schedule.stops.findIndex((t: any) => t.arrivalTime === "" && t.stopTimeMinutes > nowMinutes - 10);
 
           schedule.currentLat = 0;
           schedule.currentLng = 0;
@@ -83,7 +84,8 @@ class momapServices {
             let nowMinutes = now.getHours() * 60 + now.getMinutes();
 
             if (findIndex == 0) {
-              if (nowMinutes + 30 < stopTime) {
+              if (nowMinutes + 30 < stopTime || nowMinutes + 15 > schedule.stops[schedule.stop.length - 1].stopTimeMinutes) {
+                await this.momapDao.update(schedule);
                 continue;
               }
             }
