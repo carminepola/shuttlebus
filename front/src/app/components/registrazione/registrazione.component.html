@@ -367,7 +367,9 @@
               required
               id="phone"
               required
-              type="phoneNumber"
+              type="text"
+              [(ngModel)]="loginForm.phoneNumber"
+              [ngModelOptions]="{ standalone: true }"
               autocomplete="phoneNumber"
               class="form-control"
               [placeholder]="'str_phone_number' | translate"
