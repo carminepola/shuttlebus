@@ -164,11 +164,18 @@ export class RegistrazioneComponent implements OnInit {
       }
       if (this.loginForm.prefixPhone.trim() == '') {
         console.log('prefixPhone mancante');
+        this.loginError = this.lngService.traslate('str_prefix_is_required');
         return;
       }
 
-      if (this.loginForm.phoneNumber.trim() == '') {
+      if (
+        isNaN(Number(this.loginForm.phoneNumber.trim())) ||
+        this.loginForm.phoneNumber.trim() == ''
+      ) {
         console.log('Numero di telefono mancante');
+        this.loginError = this.lngService.traslate(
+          'str_phone_number_is_required'
+        );
         return;
       }
 
