@@ -16,6 +16,7 @@ router.post("/cron", authMiddleware, checkPermissionMiddleware(role.ROOT, []), a
     let momap: momapServices = new momapServices(db);
 
     momap.cron();
+    res.json({ message: "OK" });
   } catch (error) {
     next(error);
   }
