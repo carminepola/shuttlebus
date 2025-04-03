@@ -141,9 +141,11 @@ export class RegistrazioneComponent implements OnInit {
 
   onSubmit(f: NgForm): void {
     try {
+      debugger;
       if (!f.valid) {
         return;
       }
+
       if (this.loginForm.password !== this.loginForm.repeatPassword) {
         this.loginError = this.lngService.traslate('str_password_not_match');
         return;
@@ -153,15 +155,20 @@ export class RegistrazioneComponent implements OnInit {
         return;
       }
       if (this.loginForm.password.trim().length < 6) {
+        console.log('password mancante');
         return;
       }
       if (this.loginForm.email.trim() == '') {
+        console.log('email mancante');
         return;
       }
       if (this.loginForm.prefixPhone.trim() == '') {
+        console.log('prefixPhone mancante');
         return;
       }
+
       if (this.loginForm.phoneNumber.trim() == '') {
+        console.log('Numero di telefono mancante');
         return;
       }
 
