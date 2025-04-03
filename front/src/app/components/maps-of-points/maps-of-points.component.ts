@@ -87,7 +87,7 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
             console.log(point);
           }
         }
-      }, 180000);
+      }, 60000);
     } catch (error) {
       console.error('Errore recupero stops', error);
     }
