@@ -117,7 +117,7 @@ class momapServices {
             } else {
               let beforeStop = { lat: schedule.stops[findIndex - 1].lat, lng: schedule.stops[findIndex - 1].lng };
 
-              if (this.isBusBetweenStops(currentPosition, beforeStop, nextStop)) {
+              if (this.isBusBetweenStops(currentPosition, beforeStop, nextStop) || this.isNear(currentPosition, nextStop)) {
                 schedule.stops[findIndex].arrivalTime = Math.floor(Date.now() / 1000);
               } else if (stopTime < nowMinutes) {
                 schedule.stops[findIndex].late = nowMinutes - stopTime;
@@ -141,6 +141,7 @@ class momapServices {
       logger.error("Error cron momapServices:", error);
     }
   }
+
   async getPositionFromMomap(busId: string): Promise<{ lat: string; lng: string; angle: string }> {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -161,7 +162,19 @@ class momapServices {
     }
     throw new Error("Error momap fetch");
   }
+  isNear(coord1: { lat: number; lng: number }, coord2: { lat: number; lng: number }): boolean {
+    const ERROR_MARGIN = 50; // Margine d'errore in metri (per compensare imprecisioni GPS)
 
+    // Calcola le distanze tra i due punti
+    let distance = this.haversineDistance(coord1, coord2);
+
+    // Controlla se la distanza è inferiore ai 50 metri
+    if (distance < ERROR_MARGIN) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   isBusBetweenStops(busPosition: { lat: number; lng: number }, stop1: { lat: number; lng: number }, stop2: { lat: number; lng: number }): boolean {
     const ERROR_MARGIN = 50; // Margine d'errore in metri (per compensare imprecisioni GPS)
 

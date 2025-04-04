@@ -90,7 +90,7 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
             }
           }
         }
-      }, 60000);
+      }, 30000);
     } catch (error) {
       console.error('Errore recupero stops', error);
     }
