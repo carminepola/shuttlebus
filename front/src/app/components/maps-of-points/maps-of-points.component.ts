@@ -20,7 +20,15 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
     private momapService: MomapService
   ) {}
 
-  getArrowIcon(angle: number): L.Icon {
+  // Icona per le fermate
+  private stopIcon = L.icon({
+    iconUrl: 'https://maps.google.com/mapfiles/kml/paddle/pink-blank.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+  });
+
+  // Icona freccia orientata per i bus
+  private getArrowIcon(angle: number): L.Icon {
     const normalizedAngle = ((angle % 360) + 360) % 360;
     const step = 360 / 16;
     const index = Math.round(normalizedAngle / step) % 16;
@@ -33,12 +41,17 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    // Inizializza la mappa
     this.map = L.map('map').setView([40.74894, 14.50349], 10);
+
+    // Tile layer OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
+
     this.markersLayer.addTo(this.map);
 
+    // Caricamento iniziale e avvio aggiornamento
     await this.updateMarkers();
     this.intervalId = setInterval(() => this.updateMarkers(), 30000);
   }
@@ -50,17 +63,23 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
       const stops = await lastValueFrom(this.stopsService.getAllActiveStops());
       const momap = await lastValueFrom(this.momapService.getCurrent());
 
+      // Fermate (marker rosa)
       if (stops?.stops?.length) {
         stops.stops.forEach((stop: any) => {
-          L.marker([stop.location.latitude, stop.location.longitude])
-            .addTo(this.markersLayer)
-            .bindPopup(stop.name);
+          if (stop.location?.latitude && stop.location?.longitude) {
+            L.marker([stop.location.latitude, stop.location.longitude], {
+              icon: this.stopIcon,
+            })
+              .addTo(this.markersLayer)
+              .bindPopup(stop.name);
+          }
         });
       }
 
+      // Posizioni bus (frecce orientate)
       if (momap?.position?.length) {
         momap.position.forEach((point: any) => {
-          if (point.currentLat > 0) {
+          if (point.currentLat > 0 && point.currentLng > 0) {
             L.marker([point.currentLat, point.currentLng], {
               icon: this.getArrowIcon(point.currentAngle),
             }).addTo(this.markersLayer);
