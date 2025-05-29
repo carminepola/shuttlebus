@@ -1,23 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { GoogleMapsModule } from '@angular/google-maps';
+import * as L from 'leaflet';
 import { StopsService } from '../../services/stops/stops.service';
-import { lastValueFrom } from 'rxjs';
-import { CommonModule } from '@angular/common';
 import { MomapService } from '../../services/momap.service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-maps-of-points',
   standalone: true,
-  imports: [GoogleMapsModule, CommonModule],
   templateUrl: './maps-of-points.component.html',
   styleUrl: './maps-of-points.component.scss',
 })
 export class MapsOfPointsComponent implements OnInit, OnDestroy {
-  center: google.maps.LatLngLiteral = { lat: 40.74894, lng: 14.50349 }; // es. Roma
-  zoom = 10;
-  stops: string[] = [];
-  public markers: any[] = [];
-
+  private map!: L.Map;
+  private markersLayer = L.layerGroup();
   private intervalId: any;
 
   constructor(
@@ -25,81 +20,60 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
     private momapService: MomapService
   ) {}
 
-  getArrowIcon(angle: number): string {
-    // Normalizza l'angolo tra 0 e 360
+  getArrowIcon(angle: number): L.Icon {
     const normalizedAngle = ((angle % 360) + 360) % 360;
+    const step = 360 / 16;
+    const index = Math.round(normalizedAngle / step) % 16;
 
-    // Ogni icona copre un intervallo di 22.5°
-    const step = 360 / 16; // 22.5°
-    const index = Math.round(normalizedAngle / step) % 16; // Trova l'indice tra 0 e 15
-
-    return `https://earth.google.com/images/kml-icons/track-directional/track-${index}.png`;
+    return L.icon({
+      iconUrl: `https://earth.google.com/images/kml-icons/track-directional/track-${index}.png`,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+    });
   }
+
   async ngOnInit(): Promise<void> {
+    this.map = L.map('map').setView([40.74894, 14.50349], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+    }).addTo(this.map);
+    this.markersLayer.addTo(this.map);
+
+    await this.updateMarkers();
+    this.intervalId = setInterval(() => this.updateMarkers(), 30000);
+  }
+
+  async updateMarkers() {
+    this.markersLayer.clearLayers();
+
     try {
-      let stops = await lastValueFrom(this.stopsService.getAllActiveStops());
-      let momap = await lastValueFrom(this.momapService.getCurrent());
+      const stops = await lastValueFrom(this.stopsService.getAllActiveStops());
+      const momap = await lastValueFrom(this.momapService.getCurrent());
 
-      if (stops.stops && stops.stops.length > 0) {
-        this.markers = stops.stops.map((stop: any) => ({
-          position: {
-            lat: stop.location.latitude,
-            lng: stop.location.longitude,
-          },
-          info: stop.name,
-        }));
-
-        console.log(this.markers); // Verifica i markers
-      }
-      let stopMarkers = JSON.parse(JSON.stringify(this.markers));
-      if (momap && momap.position.length > 0) {
-        for (let i = 0; i < momap.position.length; i++) {
-          let point = momap.position[i];
-          this.markers.push({
-            position: { lat: point.currentLat, lng: point.currentLng }, // Prima freccia
-            bus: true,
-            icon: {
-              url: this.getArrowIcon(point.currentAngle), // Icona freccia
-              scaledSize: new google.maps.Size(40, 40), // Dimensione
-              anchor: new google.maps.Point(20, 20), // Punto di ancoraggio
-              rotation: point.currentAngle, // Angolo di rotazione della freccia
-            },
-          });
-          console.log(point);
-        }
+      if (stops?.stops?.length) {
+        stops.stops.forEach((stop: any) => {
+          L.marker([stop.location.latitude, stop.location.longitude])
+            .addTo(this.markersLayer)
+            .bindPopup(stop.name);
+        });
       }
 
-      this.intervalId = setInterval(async () => {
-        let momap = await lastValueFrom(this.momapService.getCurrent());
-        this.markers = JSON.parse(JSON.stringify(stopMarkers));
-        if (momap && momap.position.length > 0) {
-          for (let i = 0; i < momap.position.length; i++) {
-            let point = momap.position[i];
-            if (point.currentLat > 0) {
-              this.markers.push({
-                position: { lat: point.currentLat, lng: point.currentLng }, // Prima freccia
-                bus: true,
-                icon: {
-                  url: this.getArrowIcon(point.currentAngle), // Icona freccia
-                  scaledSize: new google.maps.Size(40, 40), // Dimensione
-                  anchor: new google.maps.Point(20, 20), // Punto di ancoraggio
-                  rotation: point.currentAngle, // Angolo di rotazione della freccia
-                },
-                info: '',
-              });
-            }
+      if (momap?.position?.length) {
+        momap.position.forEach((point: any) => {
+          if (point.currentLat > 0) {
+            L.marker([point.currentLat, point.currentLng], {
+              icon: this.getArrowIcon(point.currentAngle),
+            }).addTo(this.markersLayer);
           }
-        }
-      }, 30000);
-    } catch (error) {
-      console.error('Errore recupero stops', error);
+        });
+      }
+    } catch (err) {
+      console.error('Errore nel caricamento dei marker', err);
     }
   }
 
-  openInfo(marker: any) {
-    //alert(marker.info);
-  }
   ngOnDestroy(): void {
     clearInterval(this.intervalId);
+    this.map.remove();
   }
 }
