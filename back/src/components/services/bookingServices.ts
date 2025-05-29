@@ -75,7 +75,7 @@ class BookingsServices {
       if (book.seats > numeroPosti.availableSeats) {
         throw new Error("str_error_seats");
       }
-      if (book.luggage > numeroPosti.availableLuggage) {
+      if (book.luggage > 0 && book.luggage > numeroPosti.availableLuggage) {
         throw new Error("str_error_luggage");
       }
 
@@ -166,7 +166,7 @@ class BookingsServices {
       }
     }
     newTotale += ticket.luggage * 2;
-    if (count == ticket.seats && newTotale == totale && totale > 0 && ticket.seats>0) {
+    if (count == ticket.seats && newTotale == totale && totale > 0 && ticket.seats > 0) {
       return true;
     }
 
