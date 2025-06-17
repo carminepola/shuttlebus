@@ -28,6 +28,7 @@ router.get("/email/:email", authMiddleware, checkPermissionMiddleware(role.ADMIN
     next(error);
   }
 });
+
 router.post(
   "/register",
   [
@@ -50,10 +51,7 @@ router.post(
       user.options.lng = language;
       user.privacyAndPolicy = true;
       user.privacyAndPolicyConfirmDate = new Date().getTime();
-      user.options.pin = Array(6)
-        .fill(0)
-        .map(() => Math.floor(Math.random() * 10))
-        .join("");
+  
 
       let userServices = new UserServices(db);
       result = await userServices.register(user, language);

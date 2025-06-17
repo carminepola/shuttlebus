@@ -225,22 +225,7 @@ export default class UsersDao {
       throw error;
     }
   }
-  generatePin() {
-    // Usa un valore casuale (puoi anche usare Date.now o simili come seed)
-    const randomBytes = CryptoJS.lib.WordArray.random(4); // 4 byte = 32 bit
 
-    // Convertilo in un numero usando l'hash (puoi anche usare direttamente il valore raw)
-    const hash = CryptoJS.SHA256(randomBytes).toString(CryptoJS.enc.Hex);
-
-    // Prendi solo una parte dell'hash per ottenere un numero
-    const number = parseInt(hash.slice(0, 8), 16); // Primi 8 caratteri = 32 bit
-
-    // Riduci a un numero tra 0 e 999999
-    const pin = number % 1000000;
-
-    // Ritorna una stringa con zeri iniziali se necessario
-    return pin.toString().padStart(6, "0");
-  }
   generateSecurePassword ()  {
     const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const bytes = CryptoJS.lib.WordArray.random(6); // 6 byte = 6 caratteri
@@ -257,7 +242,7 @@ export default class UsersDao {
   async insertRecoverPassword(email: string, username: string, lng: string): Promise<boolean> {
     try {
       email = email.toLowerCase();
-      const password = generateSecurePassword(); 
+      const password = this.generateSecurePassword(); 
 
       const today = new Date().getTime();
       const user = await this.db.collection(this.schema).findOne({ email: email });
@@ -320,7 +305,7 @@ export default class UsersDao {
     try {
       user.email = user.email.toLowerCase()
       if (!user.password) {
-        user.password = "ewrt3wq4reyt45wrety";
+        user.password = this.generateSecurePassword();
       }
       user.password = bcrypt.hashSync(user.password, 10);
       const result = await this.db.collection(this.schema).insertOne(user);
