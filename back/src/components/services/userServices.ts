@@ -5,6 +5,8 @@ import { role } from "../../enum/role";
 import ErrorModel from "../../model/errorModel";
 import MailSenderServices from "./mailSender";
 
+import * as CryptoJS from "crypto-js";
+
 export default class UserServices {
   private userDao: UsersDao;
   private mailSenderServices: MailSenderServices;
