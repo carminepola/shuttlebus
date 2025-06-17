@@ -80,6 +80,7 @@ export default class UsersDao {
    */
   async getUserByEmail(email: string) {
     try {
+      email = email.toLowerCase();
       let json = {};
       json = {
         email: email,
@@ -97,6 +98,7 @@ export default class UsersDao {
   }
   async getUserByEmailAll(email: string) {
     try {
+      email = email.toLowerCase();
       let json = {};
       json = {
         email: email,
@@ -115,6 +117,7 @@ export default class UsersDao {
   }
   async getUserByEmailNotPermission(email: string) {
     try {
+      email = email.toLowerCase();
       let json = {};
       json = {
         email: email,
@@ -141,6 +144,7 @@ export default class UsersDao {
    */
   async getUserPermissionsFormEmail(email: string) {
     try {
+      email = email.toLowerCase();
       let user = await this.db.collection(this.schema).findOne(
         {
           email: email,
@@ -155,6 +159,7 @@ export default class UsersDao {
   }
   async setFalseUserPermissions(email: string, session: string) {
     try {
+      email = email.toLowerCase();
       let user = await this.db.collection(this.schema).findOneAndUpdate(
         {
           email: email,
@@ -182,6 +187,7 @@ export default class UsersDao {
    */
   async checkPassword(email: string, password: string): Promise<boolean> {
     try {
+      email = email.toLowerCase();
       let json = {};
       json = {
         email: email,
@@ -235,9 +241,23 @@ export default class UsersDao {
     // Ritorna una stringa con zeri iniziali se necessario
     return pin.toString().padStart(6, "0");
   }
+  generateSecurePassword = () => {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const bytes = CryptoJS.lib.WordArray.random(6); // 6 byte = 6 caratteri
+    let password = '';
+  
+    for (let i = 0; i < 6; i++) {
+      // Usa ogni byte per indicizzare nel charset
+      const byte = bytes.words[Math.floor(i / 4)] >>> (24 - 8 * (i % 4));
+      password += charset.charAt(byte % charset.length);
+    }
+  
+    return password;
+  };
   async insertRecoverPassword(email: string, username: string, lng: string): Promise<boolean> {
     try {
-      const password = this.generatePin();
+      email = email.toLowerCase();
+      const password = generateSecurePassword(); 
 
       const today = new Date().getTime();
       const user = await this.db.collection(this.schema).findOne({ email: email });
@@ -272,6 +292,7 @@ export default class UsersDao {
 
   async updateOptions(email: string, key: string, value: string): Promise<boolean> {
     try {
+      email = email.toLowerCase();
       await this.db.collection(this.schema).updateOne(
         { email: email },
         {
@@ -297,6 +318,7 @@ export default class UsersDao {
    */
   async createUser(user: any) {
     try {
+      user.email = user.email.toLowerCase()
       if (!user.password) {
         user.password = "ewrt3wq4reyt45wrety";
       }
@@ -323,6 +345,7 @@ export default class UsersDao {
    */
   async updatePassword(user: any) {
     try {
+      user.email = user.email.toLowerCase()
       user.password = bcrypt.hashSync(user.password, 10);
       const result = await this.db.collection(this.schema).findOneAndUpdate({ email: user.email }, { $set: { password: user.password } });
       if (result) {
@@ -346,6 +369,7 @@ export default class UsersDao {
    */
   async createSession(email: string): Promise<{ newSession: String; refreshToken: String }> {
     try {
+      email = email.toLowerCase();
       let newSession = Guid.create().toString();
       let refreshToken = Guid.create().toString();
       const result = await this.db.collection<userModel>(this.schema).updateOne(
@@ -388,6 +412,7 @@ export default class UsersDao {
    */
   async deleteSession(email: string, sessionId: string): Promise<boolean> {
     try {
+      email = email.toLowerCase();
       const result = await this.db.collection<userModel>(this.schema).updateOne(
         { email: email },
         {
@@ -410,6 +435,7 @@ export default class UsersDao {
     try {
       const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
+      email = email.toLowerCase();
       // Rimuove sessioni più vecchie di 30 giorni
       await this.db.collection<userModel>(this.schema).updateOne(
         { email: email },
@@ -437,6 +463,7 @@ export default class UsersDao {
   }
   async checkSession(email: string, sessionID: string): Promise<number> {
     try {
+      email = email.toLowerCase();
       // Esegui la query per trovare e aggiornare la sessione
       const result = await this.db.collection(this.schema).findOneAndUpdate(
         {
@@ -482,6 +509,8 @@ export default class UsersDao {
    */
   async checkRefreshTokenAndSession(email: string, refreshToken: string, userSession: string): Promise<boolean> {
     try {
+
+      email = email.toLowerCase();
       // Esegui la query per trovare e controllare la sessione
       const result = await this.db.collection(this.schema).findOne({
         email: email,
@@ -511,6 +540,7 @@ export default class UsersDao {
    */
   async deleteAllExceptCurrentSession(email: string, currentSessionId: string): Promise<number> {
     try {
+      email = email.toLowerCase();
       // Verifica e rimuove tutte le sessioni tranne quella corrente
       const result = await this.db.collection<userModel>(this.schema).updateMany(
         {
@@ -549,6 +579,7 @@ export default class UsersDao {
   }
   async updateGoogleInfo(email: string, googleInfo: any) {
     try {
+      email = email.toLowerCase();
       // Aggiorna la sessione google dell'utente
       const result = await this.db.collection<userModel>(this.schema).updateOne(
         {
@@ -585,6 +616,7 @@ export default class UsersDao {
   }
   async deleteUser(email: string): Promise<boolean> {
     try {
+      email = email.toLowerCase();
       // Cancella l'utente
       const result = await this.db.collection<userModel>(this.schema).deleteOne({ email: email });
       // Verifica se `result` è nullo o se `result.value` è nullo
@@ -600,6 +632,7 @@ export default class UsersDao {
   }
   async validateEmail(email: string): Promise<void> {
     try {
+      email = email.toLowerCase();
       // Trova l'utente con l'email specificata
       const result = await this.db.collection<userModel>(this.schema).updateOne(
         { email: email },
@@ -621,6 +654,7 @@ export default class UsersDao {
     try {
       // Aggiorna l'utente
 
+      user.email = user.email.toLowerCase();
       if (!user.password) {
         delete user.password;
       }
