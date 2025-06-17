@@ -241,7 +241,7 @@ export default class UsersDao {
     // Ritorna una stringa con zeri iniziali se necessario
     return pin.toString().padStart(6, "0");
   }
-  generateSecurePassword = () => {
+  generateSecurePassword ()  {
     const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const bytes = CryptoJS.lib.WordArray.random(6); // 6 byte = 6 caratteri
     let password = '';
