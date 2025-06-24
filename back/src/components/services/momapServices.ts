@@ -48,11 +48,13 @@ class momapServices {
 
   async cron() {
     try {
+      //let routes = this.routeServices.getRoutesToDayList();
+
       let momapEntries = await this.momapDao.get();
       const today = new Date().toISOString().split("T")[0];
 
       // Se non ci sono corse per oggi, crea i dati iniziali
-      if (momapEntries.length === 0 || !momapEntries.some((e) => e.day === today)) {
+      if (momapEntries.length === 0 || !momapEntries.some((e: any) => e.day === today)) {
         await this.created();
         momapEntries = await this.momapDao.get(); // ricarica i dati
       }
@@ -80,9 +82,20 @@ class momapServices {
             schedule.positions = [];
           }
 
-          schedule.positions.push(newPosition);
-
-          await this.momapDao.update(schedule);
+          let update = false;
+          if (schedule.position.length > 0) {
+            let lastPosition = schedule.position[schedule.position.length - 1];
+            if (lastPosition.angle != newPosition.angle || lastPosition.lat != newPosition.lat || lastPosition.lng != newPosition.lng) {
+              schedule.positions.push(newPosition);
+              update = true;
+            }
+          } else {
+            update = true;
+            schedule.positions.push(newPosition);
+          }
+          if (update) {
+            await this.momapDao.update(schedule);
+          }
         } catch (err) {
           logger.error(`Errore nel recupero posizione per bus ${busId}:`, err);
         }
