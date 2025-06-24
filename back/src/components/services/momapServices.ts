@@ -82,18 +82,15 @@ class momapServices {
             schedule.positions = [];
           }
 
-          let update = false;
+          let update = true;
           if (schedule.position.length > 0) {
             let lastPosition = schedule.position[schedule.position.length - 1];
-            if (lastPosition.angle != newPosition.angle || lastPosition.lat != newPosition.lat || lastPosition.lng != newPosition.lng) {
-              schedule.positions.push(newPosition);
-              update = true;
+            if (lastPosition.angle == newPosition.angle && lastPosition.lat == newPosition.lat && lastPosition.lng == newPosition.lng) {
+              update = false;
             }
-          } else {
-            update = true;
-            schedule.positions.push(newPosition);
           }
           if (update) {
+            schedule.positions.push(newPosition);
             await this.momapDao.update(schedule);
           }
         } catch (err) {
