@@ -165,6 +165,7 @@ router.post("/forceDelete", authMiddleware, checkPermissionMiddleware(role.ADMIN
 router.post("/refund", authMiddleware, async (req, res, next) => {
   try {
     let bookingServices = new BookingsServices(db);
+    let risposta = false;
 
     let book = await bookingServices.getBooking(req.body.id);
     if (!book) {
@@ -192,13 +193,19 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
       }
 
       if (role.ADMIN !== res.locals.userLogged["role"]) {
-        await bookingServices.refundBooking(req.body.id);
+        logger.info("Rimborso effettuato per la prenotazione " + req.body.id);
+        risposta = await bookingServices.refundBooking(req.body.id);
       } else {
-        await bookingServices.refundBookingAdmin(req.body.id);
+        logger.info("Rimborso amministratore effettuato per la prenotazione " + req.body.id);
+        risposta = await bookingServices.refundBookingAdmin(req.body.id);
       }
     }
 
-    res.json({ message: "Intent refunded" });
+    if (risposta) {
+      res.json({ message: "Intent refunded" });
+    } else {
+      throw new ErrorModel(400, "str_refund_error");
+    }
   } catch (error) {
     next(error);
   }
