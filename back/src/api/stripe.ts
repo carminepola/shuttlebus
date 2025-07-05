@@ -176,7 +176,7 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
 
     logger.info("preso il book ", book);
     logger.info("ruolo" + res.locals.userLogged["role"]);
-    if (book.status === "confirmed" && (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] === role.ADMIN)) {
+    if (book.status === "confirmed" && (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] <= role.ADMIN)) {
       logger.info("check permessi rimborso 1 " + req.body.id);
       if (res.locals.userLogged["role"] !== role.ADMIN) {
         logger.info("check permessi rimborso  2" + req.body.id);
