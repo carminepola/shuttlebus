@@ -48,15 +48,12 @@ class momapServices {
 
   async cron() {
     try {
-      //let routes = this.routeServices.getRoutesToDayList();
-
       let momapEntries = await this.momapDao.get();
       const today = new Date().toISOString().split("T")[0];
 
-      // Se non ci sono corse per oggi, crea i dati iniziali
-      if (momapEntries.length === 0 || !momapEntries.some((e: any) => e.day === today)) {
+      if (!Array.isArray(momapEntries) || momapEntries.length === 0 || !momapEntries.some((e: any) => e.day === today)) {
         await this.created();
-        momapEntries = await this.momapDao.get(); // ricarica i dati
+        momapEntries = await this.momapDao.get();
       }
 
       const now = Math.floor(Date.now() / 1000);
@@ -83,9 +80,9 @@ class momapServices {
           }
 
           let update = true;
-          if (schedule.position.length > 0) {
-            let lastPosition = schedule.position[schedule.position.length - 1];
-            if (lastPosition.angle == newPosition.angle && lastPosition.lat == newPosition.lat && lastPosition.lng == newPosition.lng) {
+          if (schedule.positions.length > 0) {
+            let lastPosition = schedule.positions[schedule.positions.length - 1];
+            if (lastPosition.angle === newPosition.angle && lastPosition.lat === newPosition.lat && lastPosition.lng === newPosition.lng) {
               update = false;
             }
           }
