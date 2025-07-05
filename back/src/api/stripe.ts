@@ -164,6 +164,7 @@ router.post("/forceDelete", authMiddleware, checkPermissionMiddleware(role.ADMIN
 });
 router.post("/refund", authMiddleware, async (req, res, next) => {
   try {
+    logger.info("Rimborso tentativo per la prenotazione " + req.body.id);
     let bookingServices = new BookingsServices(db);
     let risposta = false;
 
@@ -184,7 +185,7 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
         }
       }
 
-      logger.info("Rimborso tentativo per la prenotazione " + req.body.id);
+      logger.info("Rimborso tentativo iniziato per la prenotazione " + req.body.id);
       try {
         const refund = await stripe.refunds.create({
           payment_intent: book.paymentIntentId,
@@ -192,7 +193,7 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
       } catch (error) {
         logger.debug("already refunded " + req.body.id);
       }
-
+      logger.info("Rimborso in corso iniziato per la prenotazione " + req.body.id);
       if (role.ADMIN !== res.locals.userLogged["role"]) {
         logger.info("Rimborso effettuato per la prenotazione " + req.body.id);
         risposta = await bookingServices.refundBooking(req.body.id);
@@ -203,8 +204,10 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
     }
 
     if (risposta) {
+      logger.info("Rimborso effettuato" + req.body.id);
       res.json({ message: "Intent refunded" });
     } else {
+      logger.info("Rimborso non riuscito " + req.body.id);
       throw new ErrorModel(400, "str_refund_error");
     }
   } catch (error) {
