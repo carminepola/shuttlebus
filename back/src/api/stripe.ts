@@ -172,7 +172,7 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
     }
 
     if (book.status === "confirmed" && (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] === role.ADMIN)) {
-      if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
+      if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime() && res.locals.userLogged["role"] !== role.ADMIN) {
         throw new ErrorModel(400, "str_not_before_3_days");
       }
       if (res.locals.userLogged["role"] !== role.ADMIN) {
@@ -191,7 +191,11 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
         logger.debug("already refunded");
       }
 
-      await bookingServices.refundBooking(req.body.id);
+      if (role.ADMIN !== res.locals.userLogged["role"]) {
+        await bookingServices.refundBooking(req.body.id);
+      } else {
+        await bookingServices.refundBookingAdmin(req.body.id);
+      }
     }
 
     res.json({ message: "Intent refunded" });
