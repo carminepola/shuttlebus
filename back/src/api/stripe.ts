@@ -199,7 +199,7 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
         logger.debug("already refunded " + req.body.id);
       }
       logger.info("Rimborso in corso iniziato per la prenotazione " + req.body.id);
-      if (role.ADMIN !== res.locals.userLogged["role"]) {
+      if (res.locals.userLogged["role"] > role.ADMIN) {
         logger.info("Rimborso effettuato per la prenotazione " + req.body.id);
         risposta = await bookingServices.refundBooking(req.body.id);
       } else {
