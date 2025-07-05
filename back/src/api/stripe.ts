@@ -173,11 +173,11 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
       throw new ErrorModel(404, "Prenotazione non trovata");
     }
 
-    if (book.status === "confirmed" && book.userId === res.locals.userLogged["_id"] && res.locals.userLogged["role"] !== role.ADMIN) {
-      if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
-        throw new ErrorModel(400, "str_not_before_3_days");
-      }
+    if (book.status === "confirmed" && (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] === role.ADMIN)) {
       if (res.locals.userLogged["role"] !== role.ADMIN) {
+        if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
+          throw new ErrorModel(400, "str_not_before_3_days");
+        }
         const today = new Date().setHours(0, 0, 0, 0);
 
         if (new Date(book.date).setHours(0, 0, 0, 0) <= today) {
