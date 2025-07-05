@@ -184,12 +184,13 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
         }
       }
 
+      logger.info("Rimborso tentativo per la prenotazione " + req.body.id);
       try {
         const refund = await stripe.refunds.create({
           payment_intent: book.paymentIntentId,
         });
       } catch (error) {
-        logger.debug("already refunded");
+        logger.debug("already refunded " + req.body.id);
       }
 
       if (role.ADMIN !== res.locals.userLogged["role"]) {
