@@ -12,6 +12,7 @@ import TelegramServices from "../components/services/telegramServices";
 require("dotenv").config();
 const router = express.Router();
 import { role } from "../enum/role";
+import { log } from "console";
 
 const stripe = StripeInstance.getInstance();
 router.post("/webhook", express.raw({ type: "application/json" }), async (req, res, next) => {
@@ -174,6 +175,7 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
     }
 
     logger.info("preso il book ", book);
+    logger.info("ruolo" + res.locals.userLogged["role"]);
     if (book.status === "confirmed" && (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] === role.ADMIN)) {
       logger.info("check permessi rimborso 1 " + req.body.id);
       if (res.locals.userLogged["role"] !== role.ADMIN) {
