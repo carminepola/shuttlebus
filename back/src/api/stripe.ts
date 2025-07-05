@@ -173,8 +173,11 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
       throw new ErrorModel(404, "Prenotazione non trovata");
     }
 
+    logger.info("preso il book ", book);
     if (book.status === "confirmed" && (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] === role.ADMIN)) {
+      logger.info("check permessi rimborso 1 " + req.body.id);
       if (res.locals.userLogged["role"] !== role.ADMIN) {
+        logger.info("check permessi rimborso  2" + req.body.id);
         if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
           throw new ErrorModel(400, "str_not_before_3_days");
         }
