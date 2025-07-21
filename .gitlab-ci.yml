@@ -35,49 +35,65 @@ compilazione_front:
     - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_TAG'
 compila_dockerfile_back:
   stage: compila_dockerfile_back
-  image: docker:dind
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
   script:
-    - "cd back" 
-    - "docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD" 
-    - "docker build -t back ."
+    - cd back
+    - docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - export GUID_TAG=$(uuidgen || echo $CI_PIPELINE_ID)
+    - docker build -t $REGISTRY/pintour2/back:$GUID_TAG .
+    - docker push $REGISTRY/pintour2/back:$GUID_TAG
+
+    # Tag addizionali
     - |
       if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
-        docker tag back $REGISTRY/pintour2/back:dev
+        docker tag $REGISTRY/pintour2/back:$GUID_TAG $REGISTRY/pintour2/back:dev
         docker push $REGISTRY/pintour2/back:dev
       fi
     - |
       if [ "$CI_COMMIT_TAG" ] && [ "$CI_COMMIT_REF_NAME" == "main" ]; then
-        docker tag back $REGISTRY/pintour2/back:$CI_COMMIT_TAG
+        docker tag $REGISTRY/pintour2/back:$GUID_TAG $REGISTRY/pintour2/back:$CI_COMMIT_TAG
         docker push $REGISTRY/pintour2/back:$CI_COMMIT_TAG
       fi
     - |
       if [ "$CI_COMMIT_REF_NAME" == "main" ] && [ -z "$CI_COMMIT_TAG" ]; then
-        docker tag back  $REGISTRY/pintour2/back:latest
-        docker push  $REGISTRY/pintour2/back:latest
+        docker tag $REGISTRY/pintour2/back:$GUID_TAG $REGISTRY/pintour2/back:latest
+        docker push $REGISTRY/pintour2/back:latest
       fi
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_TAG'
+
 compila_dockerfile_front:
   stage: compila_dockerfile_front
-  image: docker:dind
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
   script:
-    - "cd front"  
-    - "docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-    - "docker build -t front ."
+    - cd front
+    - docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - export GUID_TAG=$(uuidgen || echo $CI_PIPELINE_ID)
+    - docker build -t $REGISTRY/pintour2/front:$GUID_TAG .
+    - docker push $REGISTRY/pintour2/front:$GUID_TAG
+
     - |
       if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
-        docker tag front  $REGISTRY/pintour2/front:dev
-        docker push  $REGISTRY/pintour2/front:dev
+        docker tag $REGISTRY/pintour2/front:$GUID_TAG $REGISTRY/pintour2/front:dev
+        docker push $REGISTRY/pintour2/front:dev
       fi
     - |
       if [ "$CI_COMMIT_TAG" ] && [ "$CI_COMMIT_REF_NAME" == "main" ]; then
-        docker tag front r $REGISTRY/pintour2/front:$CI_COMMIT_TAG
-        docker push  $REGISTRY/pintour2/front:$CI_COMMIT_TAG
+        docker tag $REGISTRY/pintour2/front:$GUID_TAG $REGISTRY/pintour2/front:$CI_COMMIT_TAG
+        docker push $REGISTRY/pintour2/front:$CI_COMMIT_TAG
       fi
     - |
       if [ "$CI_COMMIT_REF_NAME" == "main" ] && [ -z "$CI_COMMIT_TAG" ]; then
-        docker tag front  $REGISTRY/pintour2/front:latest
-        docker push  $REGISTRY/pintour2/front:latest
+        docker tag $REGISTRY/pintour2/front:$GUID_TAG $REGISTRY/pintour2/front:latest
+        docker push $REGISTRY/pintour2/front:latest
       fi
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_TAG'
