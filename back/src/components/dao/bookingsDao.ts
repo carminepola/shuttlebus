@@ -727,4 +727,114 @@ export default class BookingsDAO {
 
     return completeData;
   }
+  async andamentoVendite() {
+    let today = new Date();
+
+    // 📅 Mese scorso
+    let startDatePast = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    startDatePast.setHours(0, 0, 0, 0);
+
+    let endDatePast = new Date(today.getFullYear(), today.getMonth(), 0);
+    endDatePast.setHours(23, 59, 59, 999);
+
+    // 📅 Mese corrente
+    let startDateCurrent = new Date(today.getFullYear(), today.getMonth(), 1);
+    startDateCurrent.setHours(0, 0, 0, 0);
+
+    let endDateCurrent = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    endDateCurrent.setHours(23, 59, 59, 999);
+
+    // 📅 Mese successivo
+    let startDateNext = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    startDateNext.setHours(0, 0, 0, 0);
+
+    let endDateNext = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+    endDateNext.setHours(23, 59, 59, 999);
+
+    // 📆 Formatter
+    const formatDate = (date: any) => date.toISOString().split("T")[0];
+
+    // 📆 Range date
+    const generateDateRange = (start: any, end: any, period: any) => {
+      let dates = [];
+      let currentDate = new Date(start);
+      while (currentDate <= end) {
+        dates.push({ date: formatDate(currentDate), totalTickets: 0, period });
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      return dates;
+    };
+
+    // 📆 Tutte le date dei 3 mesi
+    let allDates = [
+      ...generateDateRange(startDatePast, endDatePast, "past"),
+      ...generateDateRange(startDateCurrent, endDateCurrent, "current"),
+      ...generateDateRange(startDateNext, endDateNext, "next"),
+    ];
+
+    // 📊 Aggregazione
+    let bookings = await this.db
+      .collection("bookings")
+      .aggregate([
+        {
+          $match: {
+            date: {
+              $gte: formatDate(startDatePast),
+              $lte: formatDate(endDateNext),
+            },
+            status: { $eq: "confirmed" },
+          },
+        },
+        {
+          $addFields: {
+            period: {
+              $switch: {
+                branches: [
+                  {
+                    case: { $lt: ["$date", formatDate(startDateCurrent)] },
+                    then: "past",
+                  },
+                  {
+                    case: {
+                      $and: [{ $gte: ["$date", formatDate(startDateCurrent)] }, { $lte: ["$date", formatDate(endDateCurrent)] }],
+                    },
+                    then: "current",
+                  },
+                ],
+                default: "next",
+              },
+            },
+            // qui calcoliamo il valore totale di ogni prenotazione
+            bookingValue: {
+              $add: [
+                "$total", // prezzo biglietti
+                { $multiply: ["$luggage", 2] }, // bagagli * 2€
+              ],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: { date: "$date", period: "$period" },
+            totalRevenue: { $sum: "$bookingValue" }, // somma prezzi + bagagli
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            date: "$_id.date",
+            period: "$_id.period",
+
+            totalRevenue: 1,
+          },
+        },
+      ])
+      .toArray();
+
+    // 🛠️ Merge
+    let resultMap = new Map(bookings.map((b) => [b.date, b]));
+    let completeData = allDates.map((entry) => (resultMap.has(entry.date) ? resultMap.get(entry.date) : entry));
+
+    return completeData;
+  }
 }

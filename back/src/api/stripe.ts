@@ -199,5 +199,31 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
     next(error);
   }
 });
-
+router.get("/getPayouts", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let pay = await stripeServices.getPayouts();
+    res.json({ result: pay });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/getBalance", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let pay = await stripeServices.getBalance();
+    res.json({ result: pay });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/getAccountSchedule", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let pay = await stripeServices.getAccountSchedule();
+    res.json({ result: pay });
+  } catch (error) {
+    next(error);
+  }
+});
 export default router;

@@ -62,6 +62,9 @@ export class BookingsService {
   andamento() {
     return this.http.get(this.apiUrl + '/andamento');
   }
+  andamentoVendite() {
+    return this.http.get(this.apiUrl + '/andamentoVendite');
+  }
   currentDayBookingsFromScheduleId(scheduleId: string) {
     return this.http.post(this.apiUrl + '/currentDayBookingsFromScheduleId', {
       scheduleId,

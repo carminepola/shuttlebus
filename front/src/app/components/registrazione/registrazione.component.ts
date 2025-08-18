@@ -141,7 +141,6 @@ export class RegistrazioneComponent implements OnInit {
 
   onSubmit(f: NgForm): void {
     try {
-      debugger;
       if (!f.valid) {
         return;
       }

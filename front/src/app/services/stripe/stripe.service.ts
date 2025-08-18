@@ -30,4 +30,25 @@ export class StripeService {
       })
     );
   }
+  getPayouts(): Observable<any> {
+    return this.http.get(this.apiUrl + '/getPayouts').pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
+  getBalance(): Observable<any> {
+    return this.http.get(this.apiUrl + '/getBalance').pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
+  getAccountSchedule(): Observable<any> {
+    return this.http.get(this.apiUrl + '/getAccountSchedule').pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
 }
