@@ -7,14 +7,9 @@ import { ClientSession } from "mongodb";
 import TicketTypeServices from "./ticketTypeServices";
 import ErrorModel from "../../model/errorModel";
 import PaymentServices from "./paymentServices";
-import StripeServices from "./stripeServices";
-import { response } from "express";
-import { use } from "passport";
 import RoutesServices from "./routesServices";
 import MailSenderServices from "./mailSender";
 import TelegramServices from "./telegramServices";
-import dotenv from "dotenv";
-dotenv.config();
 
 class BookingsServices {
   private bookingDao: BookingDao;
@@ -260,6 +255,9 @@ class BookingsServices {
   }
   async currentDayBookingsFromScheduleId(bookingId: string) {
     return await this.bookingDao.currentDayBookingsFromScheduleId(bookingId);
+  }
+  async andamentoVendite() {
+    return await this.bookingDao.andamentoVendite();
   }
 }
 

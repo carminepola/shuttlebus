@@ -139,7 +139,15 @@ router.get("/andamento", authMiddleware, checkPermissionMiddleware(role.ADMIN, [
     next(error);
   }
 });
-
+router.get("/andamentoVendite", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.andamentoVendite();
+    res.json({ andamento: result });
+  } catch (error) {
+    next(error);
+  }
+});
 router.post("/currentDayBookingsFromScheduleId", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);

@@ -30,7 +30,6 @@ export class BusLineComponent implements OnInit {
   public routes: any[] = [];
   public stops: any[] = [];
   async ngOnInit(): Promise<void> {
-    debugger;
     let stops: any = await lastValueFrom(this.stopsService.getAllActiveStops());
     let route: any = await lastValueFrom(this.routesService.getRoutes());
     this.route.params.subscribe((params) => {

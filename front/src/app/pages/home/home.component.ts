@@ -8,13 +8,13 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
-import { AuthService } from '../../services/auth/auth.service';
+
 import { fadeAnimation } from '../../animations/fade.animation';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { BookingsService } from '../../services/bookings/bookings.service';
 import { RoutesService } from '../../services/routes/routes.service';
-import { interval } from 'rxjs';
 
+import { StripeService } from '../../services/stripe/stripe.service';
 Chart.register(...registerables);
 
 interface DashboardCard {
@@ -41,16 +41,23 @@ interface MenuItem {
 })
 export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('salesChart') salesChart!: ElementRef;
-
+  @ViewChild('salesChartVendite') salesChartVendite!: ElementRef;
   loadCorse = true;
   loadPrenotazioni = true;
   loadBiglietti = true;
   loadAndamento = true;
+  loadAndamentoVendite = true;
+  loadBalance = true;
+  loadPayouts = true;
+  loadAccountSchedule = true;
 
   public andamentoMese: any = [];
   public countRoutes: number = 0;
   public countPrenotazioni: number = 0;
   public countBiglietti: number = 0;
+  public payouts: any;
+  public balance: any;
+  public accountSchedule: any;
 
   user: any;
   username = '';
@@ -89,9 +96,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ];
 
   constructor(
-    private authService: AuthService,
     private bookingsService: BookingsService,
-    private routesService: RoutesService
+    private routesService: RoutesService,
+    private stripeService: StripeService
   ) {}
 
   private interval: any;
@@ -99,7 +106,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     clearInterval(this.interval);
   }
   ngOnInit(): void {
+    this.andamentoVendite();
     this.andamento();
+    this.getPayouts();
+    this.getBalance();
+    this.getAccountSchedule();
     setTimeout(() => {
       this.routeToday();
       this.biglietti();
@@ -107,6 +118,24 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }, 500);
   }
 
+  getPayouts() {
+    this.stripeService.getPayouts().subscribe((res: any) => {
+      this.payouts = res;
+      this.loadPayouts = false;
+    });
+  }
+  getBalance() {
+    this.stripeService.getBalance().subscribe((res: any) => {
+      this.balance = res;
+      this.loadBalance = false;
+    });
+  }
+  getAccountSchedule() {
+    this.stripeService.getAccountSchedule().subscribe((res: any) => {
+      this.accountSchedule = res;
+      this.loadAccountSchedule = false;
+    });
+  }
   prenotazioni() {
     this.bookingsService.seatsToDay().subscribe((res: any) => {
       this.loadPrenotazioni = false;
@@ -121,7 +150,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.bookingsService.ticketToDay().subscribe((res: any) => {
       this.loadBiglietti = false;
       if (res) {
-        debugger;
         setTimeout(() => {
           this.animateNumberPrenotazioni(res.ticket, 100);
         }, 100);
@@ -135,6 +163,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
       if (res) {
         setTimeout(() => {
           this.createSalesChart(res.andamento);
+        }, 100);
+      }
+    });
+  }
+  andamentoVendite() {
+    this.bookingsService.andamentoVendite().subscribe((res: any) => {
+      this.loadAndamentoVendite = false;
+      if (res) {
+        setTimeout(() => {
+          this.createSalesChartVendite(res.andamento);
         }, 100);
       }
     });
@@ -188,18 +226,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
   private createSalesChart(data: any) {
     const ctx = this.salesChart.nativeElement.getContext('2d');
-
-    // Genera i giorsni del mesez
     const dates = this.generateDates();
 
-    // Creiamo mappe per associare i dati ai giorni corretti
     const previousMonthMap: { [key: string]: number } = {};
     const currentMonthMap: { [key: string]: number } = {};
     const nextMonthMap: { [key: string]: number } = {};
 
-    // Popoliamo le mappe con i dati
     data.forEach((item: any) => {
-      const day = new Date(item.date).getDate(); // Estraggo il giorno dal timestamp
+      const day = new Date(item.date).getDate();
       if (item.period === 'past') {
         previousMonthMap[day] = item.totalTickets;
       } else if (item.period === 'current') {
@@ -209,45 +243,44 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     });
 
-    debugger;
-    // Allineiamo i dati ai giorni del mese
     const previousMonthData = dates.map((day) => previousMonthMap[day] || 0);
     const currentMonthData = dates.map((day) => currentMonthMap[day] || 0);
     const nextMonthData = dates.map((day) => nextMonthMap[day] || 0);
 
-    console.log('Date:', dates);
-    console.log('Mese Precedente:', previousMonthData);
-    console.log('Mese Corrente:', currentMonthData);
-    console.log('Mese Successivo:', nextMonthData);
-
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: dates, // Etichette = Giorni del mese
+        labels: dates,
         datasets: [
           {
             label: 'Mese Precedente',
-            data: previousMonthData, // Dati allineati
+            data: previousMonthData,
             borderColor: '#8b5cf6',
             backgroundColor: 'rgba(139, 92, 246, 0.1)',
             tension: 0.4,
             fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
           },
           {
             label: 'Mese Corrente',
-            data: currentMonthData, // Dati allineati
+            data: currentMonthData,
             borderColor: '#ec2a7a',
             backgroundColor: 'rgba(236, 42, 122, 0.1)',
             tension: 0.4,
             fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
           },
           {
             label: 'Mese Successivo',
-            data: nextMonthData, // Dati allineati
+            data: nextMonthData,
             borderColor: '#34d399',
             backgroundColor: 'rgba(52, 211, 153, 0.1)',
             tension: 0.4,
             fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
           },
         ],
       },
@@ -266,13 +299,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
               size: 16,
             },
           },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+          },
+        },
+        interaction: {
+          mode: 'index',
+          intersect: false,
         },
         scales: {
           y: {
             beginAtZero: true,
             title: {
               display: true,
-              text: 'Numero di Vendite',
+              text: 'Numero di biglietti venduti',
             },
           },
           x: {
@@ -285,7 +326,125 @@ export class HomeComponent implements OnInit, AfterViewInit {
       },
     });
   }
+  private createSalesChartVendite(data: any) {
+    const ctx = this.salesChartVendite.nativeElement.getContext('2d');
+    const dates = this.generateDates();
 
+    const previousMonthMap: { [key: string]: number } = {};
+    const currentMonthMap: { [key: string]: number } = {};
+    const nextMonthMap: { [key: string]: number } = {};
+
+    data.forEach((item: any) => {
+      const day = new Date(item.date).getDate();
+      if (item.period === 'past') {
+        previousMonthMap[day] = item.totalRevenue;
+      } else if (item.period === 'current') {
+        currentMonthMap[day] = item.totalRevenue;
+      } else if (item.period === 'next') {
+        nextMonthMap[day] = item.totalRevenue;
+      }
+    });
+
+    const previousMonthData = dates.map((day) => previousMonthMap[day] || 0);
+    const currentMonthData = dates.map((day) => currentMonthMap[day] || 0);
+    const nextMonthData = dates.map((day) => nextMonthMap[day] || 0);
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: 'Mese Precedente',
+            data: previousMonthData,
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 0, // Nasconde i pallini
+            pointHoverRadius: 6, // Mostra il pallino solo in hover
+          },
+          {
+            label: 'Mese Corrente',
+            data: currentMonthData,
+            borderColor: '#ec2a7a',
+            backgroundColor: 'rgba(236, 42, 122, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+          },
+          {
+            label: 'Mese Successivo',
+            data: nextMonthData,
+            borderColor: '#34d399',
+            backgroundColor: 'rgba(52, 211, 153, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        aspectRatio: 1.5,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: true,
+            text: 'Andamento incasso',
+            font: {
+              size: 16,
+            },
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            callbacks: {
+              label: function (context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ': ';
+                }
+                if (context.parsed.y !== null) {
+                  label += context.parsed.y + ' €';
+                }
+                return label;
+              },
+            },
+          },
+        },
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Euro €',
+            },
+            ticks: {
+              callback: function (value) {
+                return value + ' €';
+              },
+            },
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Giorno del Mese',
+            },
+          },
+        },
+      },
+    });
+  }
   private generateDates(): string[] {
     const dates = [];
     for (let i = 1; i <= 31; i++) {
