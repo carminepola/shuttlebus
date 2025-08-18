@@ -516,13 +516,7 @@ export default class BookingsDAO {
           status: "refunded",
         },
       })
-      .then((result) => {
-        if (result.matchedCount > 0) {
-          return true;
-        } else {
-          return false;
-        }
-      });
+      .then((result) => result.matchedCount > 0);
   }
   async getBooking(numberOfTickets: string) {
     return this.db.collection("bookings").findOne({ numberOfTickets });

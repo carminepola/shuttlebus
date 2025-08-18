@@ -12,6 +12,7 @@ import TelegramServices from "../components/services/telegramServices";
 require("dotenv").config();
 const router = express.Router();
 import { role } from "../enum/role";
+import { log } from "console";
 
 const stripe = StripeInstance.getInstance();
 router.post("/webhook", express.raw({ type: "application/json" }), async (req, res, next) => {
@@ -164,18 +165,24 @@ router.post("/forceDelete", authMiddleware, checkPermissionMiddleware(role.ADMIN
 });
 router.post("/refund", authMiddleware, async (req, res, next) => {
   try {
+    logger.info("Rimborso tentativo per la prenotazione " + req.body.id);
     let bookingServices = new BookingsServices(db);
+    let risposta = false;
 
     let book = await bookingServices.getBooking(req.body.id);
     if (!book) {
       throw new ErrorModel(404, "Prenotazione non trovata");
     }
 
-    if (book.status === "confirmed" && (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] === role.ADMIN)) {
-      if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime() && res.locals.userLogged["role"] !== role.ADMIN) {
-        throw new ErrorModel(400, "str_not_before_3_days");
-      }
-      if (res.locals.userLogged["role"] !== role.ADMIN) {
+    logger.info("preso il book ", book);
+    logger.info("ruolo" + res.locals.userLogged["role"]);
+    if (book.status === "confirmed" && (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] <= role.ADMIN)) {
+      logger.info("check permessi rimborso 1 " + req.body.id);
+      if (res.locals.userLogged["role"] > role.ADMIN) {
+        logger.info("check permessi rimborso  2" + req.body.id);
+        if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
+          throw new ErrorModel(400, "str_not_before_3_days");
+        }
         const today = new Date().setHours(0, 0, 0, 0);
 
         if (new Date(book.date).setHours(0, 0, 0, 0) <= today) {
@@ -183,22 +190,31 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
         }
       }
 
+      logger.info("Rimborso tentativo iniziato per la prenotazione " + req.body.id);
       try {
         const refund = await stripe.refunds.create({
           payment_intent: book.paymentIntentId,
         });
       } catch (error) {
-        logger.debug("already refunded");
+        logger.debug("already refunded " + req.body.id);
       }
-
-      if (role.ADMIN !== res.locals.userLogged["role"]) {
-        await bookingServices.refundBooking(req.body.id);
+      logger.info("Rimborso in corso iniziato per la prenotazione " + req.body.id);
+      if (res.locals.userLogged["role"] > role.ADMIN) {
+        logger.info("Rimborso effettuato per la prenotazione " + req.body.id);
+        risposta = await bookingServices.refundBooking(req.body.id);
       } else {
-        await bookingServices.refundBookingAdmin(req.body.id);
+        logger.info("Rimborso amministratore effettuato per la prenotazione " + req.body.id);
+        risposta = await bookingServices.refundBookingAdmin(req.body.id);
       }
     }
 
-    res.json({ message: "Intent refunded" });
+    if (risposta) {
+      logger.info("Rimborso effettuato" + req.body.id);
+      res.json({ message: "Intent refunded" });
+    } else {
+      logger.info("Rimborso non riuscito " + req.body.id);
+      throw new ErrorModel(400, "str_refund_error");
+    }
   } catch (error) {
     next(error);
   }
