@@ -120,6 +120,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   getPayouts() {
     this.stripeService.getPayouts().subscribe((res: any) => {
+      res.result = res.result.slice(0, 4);
       this.payouts = res;
       this.loadPayouts = false;
     });
