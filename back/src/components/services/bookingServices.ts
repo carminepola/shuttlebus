@@ -210,6 +210,18 @@ class BookingsServices {
     }
     return success;
   }
+  async refundBookingAdmin(numberOfTickets: string, userId?: string) {
+    let book = await this.getBooking(numberOfTickets);
+
+    let success = await this.bookingDao.refundBooking(numberOfTickets, userId);
+    if (success) {
+      //manda mail rimborsato biglietto
+      await this.mailSenderServices.sendRefoundBook(book.user.mail, book.user.name, book.total.toString(), numberOfTickets, book.lng);
+      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Rimborso", this.mailSenderServices.transformBookGeneric(book));
+      await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Prenotazione* 💸"));
+    }
+    return success;
+  }
   async confirmBooking(numberOfTickets: string) {
     let success = await this.bookingDao.confirmBooking(numberOfTickets);
 
