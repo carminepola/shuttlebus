@@ -27,6 +27,7 @@ services:
     ports:
       - "27018:27017"
   prerender:
+    hostname: prerender
     image: ramnkl/prerender-host:v2
     container_name: prerender
     restart: unless-stopped
