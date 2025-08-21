@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+
+import { ActivatedRoute } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { TranslatePipe } from '../../pipe/translate.pipe';
@@ -11,6 +12,7 @@ import { lastValueFrom } from 'rxjs';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { ImagesService } from '../../services/images/images.service';
 import { LngService } from '../../services/lng/lng.service';
+import { Title, Meta, MetaDefinition } from '@angular/platform-browser';
 @Component({
   selector: 'app-bus-line',
   imports: [
@@ -29,6 +31,9 @@ export class BusLineComponent implements OnInit {
   public lineSelected: number = 0;
   public routes: any[] = [];
   public stops: any[] = [];
+  public title: string = '';
+  public description: string = '';
+
   async ngOnInit(): Promise<void> {
     let stops: any = await lastValueFrom(this.stopsService.getAllActiveStops());
     let route: any = await lastValueFrom(this.routesService.getRoutes());
@@ -65,8 +70,11 @@ export class BusLineComponent implements OnInit {
       .replace(/_$/, '')
       .trim();
 
-    console.log(a);
     this.changePage(this.lineSelected);
+
+    this.title = this.routes[this.lineSelected].name[this.lng.getLng()];
+    this.description = this.routes[this.lineSelected].name[this.lng.getLng()];
+    this.setMeta(this.title, this.description);
   }
 
   public getUrl(name: string) {
@@ -78,9 +86,34 @@ export class BusLineComponent implements OnInit {
     private routesService: RoutesService,
     private route: ActivatedRoute,
     public imageService: ImagesService,
-    private lng: LngService
+    private lng: LngService,
+    private titleService: Title,
+    private metaService: Meta
   ) {}
 
+  setMeta(title: string, description: string) {
+    this.titleService.setTitle(title);
+    this.metaService.updateTag({
+      property: 'og:description',
+      content: description,
+    });
+    this.metaService.updateTag({
+      property: 'description',
+      content: description,
+    });
+    let keywords = [];
+
+    for (let i = 0; i < this.routes[this.lineSelected].stops.length; i++) {
+      keywords.push(this.routes[i].stops[this.lng.getLng()].name);
+      keywords.push(
+        this.routes[i].stops[this.lng.getLng()].description[this.lng.getLng()]
+      );
+    }
+    this.metaService.updateTag({
+      property: 'keywords',
+      content: keywords.join(', '),
+    });
+  }
   openMaps(lat: string, lng: string) {
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`

@@ -26,6 +26,13 @@ services:
       --keyFile /opt/keyfile/mongodb-keyfile
     ports:
       - "27018:27017"
+  prerender:
+    image: ramnkl/prerender-host:v2
+    container_name: prerender
+    restart: unless-stopped
+    # ports:
+    #   - "3000:3000"
+
 networks:
   default:
 volumes:
