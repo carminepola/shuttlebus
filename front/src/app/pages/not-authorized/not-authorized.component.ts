@@ -19,7 +19,7 @@ export class NotAuthorizedComponent implements OnInit {
   getRole() {
     let user = this.authService.getDecodedToken();
     if (user) {
-      if (parseInt(user.role) >= 9999) {
+      if (parseInt(user.role) > 9999) {
         return parseInt(user.role);
       }
 
