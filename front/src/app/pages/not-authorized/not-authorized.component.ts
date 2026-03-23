@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
+
 @Component({
   selector: 'app-not-authorized',
   imports: [RouterLink, TranslatePipe],
