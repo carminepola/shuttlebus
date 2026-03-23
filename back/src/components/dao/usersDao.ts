@@ -149,7 +149,7 @@ export default class UsersDao {
         {
           email: email,
         },
-        { projection: { permissions: 1, role: 1, _id: 0, options: 1, details: 1 } }
+        { projection: { permissions: 1, role: 1, _id: 0, options: 1, details: 1 } },
       );
 
       return user;
@@ -169,7 +169,7 @@ export default class UsersDao {
           $set: {
             "sessions.$.update": false,
           },
-        }
+        },
       );
 
       return user;
@@ -192,6 +192,7 @@ export default class UsersDao {
       json = {
         email: email,
         disabled: false,
+        role: { $eq: role.NO_PERMISSION },
       };
       let user = await this.db.collection(this.schema).findOne(json);
 
@@ -212,7 +213,7 @@ export default class UsersDao {
                     recoverPassword: null,
                     password: user.recoverPassword,
                   },
-                }
+                },
               );
             }
           }
@@ -226,23 +227,23 @@ export default class UsersDao {
     }
   }
 
-  generateSecurePassword ()  {
-    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  generateSecurePassword() {
+    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const bytes = CryptoJS.lib.WordArray.random(6); // 6 byte = 6 caratteri
-    let password = '';
-  
+    let password = "";
+
     for (let i = 0; i < 6; i++) {
       // Usa ogni byte per indicizzare nel charset
       const byte = bytes.words[Math.floor(i / 4)] >>> (24 - 8 * (i % 4));
       password += charset.charAt(byte % charset.length);
     }
-  
+
     return password;
-  };
+  }
   async insertRecoverPassword(email: string, username: string, lng: string): Promise<boolean> {
     try {
       email = email.toLowerCase();
-      const password = this.generateSecurePassword(); 
+      const password = this.generateSecurePassword();
 
       const today = new Date().getTime();
       const user = await this.db.collection(this.schema).findOne({ email: email });
@@ -264,7 +265,7 @@ export default class UsersDao {
             recoverPasswordCount: newCount,
             recoverPasswordLastUpdate: today,
           },
-        }
+        },
       );
       const mailSenderServices: MailSenderServices = new MailSenderServices(this.db);
 
@@ -287,7 +288,7 @@ export default class UsersDao {
             },
             "sessions.$[].update": true,
           },
-        }
+        },
       );
     } catch (error) {
       throw error;
@@ -303,7 +304,7 @@ export default class UsersDao {
    */
   async createUser(user: any) {
     try {
-      user.email = user.email.toLowerCase()
+      user.email = user.email.toLowerCase();
       if (!user.password) {
         user.password = this.generateSecurePassword();
       }
@@ -330,7 +331,7 @@ export default class UsersDao {
    */
   async updatePassword(user: any) {
     try {
-      user.email = user.email.toLowerCase()
+      user.email = user.email.toLowerCase();
       user.password = bcrypt.hashSync(user.password, 10);
       const result = await this.db.collection(this.schema).findOneAndUpdate({ email: user.email }, { $set: { password: user.password } });
       if (result) {
@@ -373,7 +374,7 @@ export default class UsersDao {
               ],
             },
           },
-        }
+        },
       );
       if (result.modifiedCount > 0) {
         logger.info(`Sessione aggiunta per l'utente ${email}, sessione: ${newSession}`, this.loggerInfo);
@@ -404,7 +405,7 @@ export default class UsersDao {
           $pull: {
             sessions: { id: sessionId }, // Rimuove l'oggetto che ha il campo id uguale a sessionId
           },
-        }
+        },
       );
       if (result.modifiedCount > 0) {
         logger.info(`Sessione rimossa per l'utente ${email}, session: ${sessionId}`, this.loggerInfo);
@@ -426,7 +427,7 @@ export default class UsersDao {
         { email: email },
         {
           $pull: { sessions: { updatedAt: { $lte: thirtyDaysAgo } } },
-        }
+        },
       );
 
       // Ottieni le sessioni attuali ordinate per data (dal più recente al più vecchio)
@@ -459,7 +460,7 @@ export default class UsersDao {
           $set: {
             "sessions.$.updatedAt": new Date().getTime(), // Aggiorna l'updatedAt della sessione
           },
-        }
+        },
       );
 
       // Verifica se `result` è nullo o se `result.value` è nullo
@@ -494,7 +495,6 @@ export default class UsersDao {
    */
   async checkRefreshTokenAndSession(email: string, refreshToken: string, userSession: string): Promise<boolean> {
     try {
-
       email = email.toLowerCase();
       // Esegui la query per trovare e controllare la sessione
       const result = await this.db.collection(this.schema).findOne({
@@ -536,7 +536,7 @@ export default class UsersDao {
           $pull: {
             sessions: { id: { $ne: currentSessionId } }, // Rimuovi tutte le sessioni con id diverso dal corrente
           },
-        }
+        },
       );
 
       // Ritorna il numero di documenti modificati
@@ -574,7 +574,7 @@ export default class UsersDao {
           $set: {
             "options.google": googleInfo,
           },
-        }
+        },
       );
 
       // Verifica se `result` è nullo o se `result.value` è nullo
@@ -625,7 +625,7 @@ export default class UsersDao {
           $set: {
             "options.pin": "",
           },
-        }
+        },
       );
       // Verifica se `result`è nullo o se `result.value`è nullo
       if (!result) {
