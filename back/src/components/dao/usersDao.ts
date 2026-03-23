@@ -192,7 +192,7 @@ export default class UsersDao {
       json = {
         email: email,
         disabled: false,
-        role: { $eq: role.NO_PERMISSION },
+    
       };
       let user = await this.db.collection(this.schema).findOne(json);
 
