@@ -9,7 +9,6 @@ import { Request, Response, NextFunction } from "express";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 import jwt from "jsonwebtoken";
 import authMiddleware from "../middlewares/authMiddleware";
-import { Mail } from "../model/mailModel";
 
 import UserServices from "../components/services/userServices";
 import FailToBanServices from "../components/services/failToBanServices";
@@ -62,7 +61,7 @@ router.post(
           secretKey,
           {
             expiresIn: "30d",
-          }
+          },
         );
         let settingsJwt: CookieOptions = {
           maxAge: undefined,
@@ -91,7 +90,7 @@ router.post(
     } catch (error: ErrorModel | any) {
       next(error);
     }
-  }
+  },
 );
 router.delete("/", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -164,7 +163,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 export default router;

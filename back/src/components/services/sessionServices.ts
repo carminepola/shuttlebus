@@ -3,7 +3,7 @@ import FailToBanServices from "./failToBanServices";
 import { Db } from "mongodb";
 import ErrorModel from "../../model/errorModel";
 import MailService from "./mailServices";
-
+import { role } from "../../enum/role";
 import { Mail } from "../../model/mailModel";
 export default class SessionServices {
   private userServices: UserServices;
@@ -18,7 +18,7 @@ export default class SessionServices {
   public async login(
     email: string,
     password: string,
-    rememberMe: boolean
+    rememberMe: boolean,
   ): Promise<{
     userSession: any;
     sessionToken: {
@@ -29,6 +29,10 @@ export default class SessionServices {
     if (await this.userServices.checkPassword(email, password)) {
       this.failToBan.deleteIp(email);
       let userFind = await this.userServices.getUserByEmail(email);
+
+      if (!userFind || userFind?.role == role.NO_PERMISSION) {
+        throw new ErrorModel(400, "Credenziali non valide. Riprova.");
+      }
 
       let sessionToken = await this.userServices.createSession(email);
 
@@ -111,7 +115,7 @@ export default class SessionServices {
             mail: email,
             password: newPassword,
           },
-        })
+        }),
       );
     } else {
       throw new ErrorModel(404, "str_user_not_found");
