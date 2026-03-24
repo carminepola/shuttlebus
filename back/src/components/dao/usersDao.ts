@@ -62,16 +62,25 @@ export default class UsersDao {
       const searchRegex = new RegExp(searchTerm, "i");
 
       let json = {
+        role: { $eq: role.USER },
         $or: [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
       };
 
       let list = await this.db.collection(this.schema).find(json).skip(skip).limit(limit).toArray();
-      list.forEach((element) => {
-        delete element.password;
-        delete element.recoverPassword;
-        delete element.recoverPasswordCount;
-        delete element?.options?.google?._raw;
-        delete element?.options?.google?._json;
+      list = list.map((user) => {
+        delete user.password;
+        delete user.recoverPassword;
+        delete user.recoverPasswordCount;
+        delete user?.options?.google?._raw;
+        delete user?.options?.google?._json;
+
+        // Flatten the user object for frontend compatibility
+        return {
+          _id: user._id,
+          name: user.details?.name || "",
+          email: user.email,
+          phone: user.details?.phone || "",
+        };
       });
 
       // Get total count for pagination

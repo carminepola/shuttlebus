@@ -1,5 +1,5 @@
 export enum role {
-  ROOT = 0,
+  ROOT = 1,
   ADMIN = 50,
   DRIVER = 75,
   USER = 100,

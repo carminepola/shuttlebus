@@ -120,9 +120,24 @@
         </div>
       </div>
 
-      <!-- Pagination Controls -->
+      <!-- Infinite Scroll Loading Indicator -->
+      @if (loadingMore) {
+        <div
+          class="w-100 d-flex align-items-center justify-content-center py-4"
+        >
+          <app-loading></app-loading>
+        </div>
+      }
+
+      <!-- Infinite Scroll Sentinel -->
+      <div
+        id="users-infinite-scroll-sentinel"
+        style="height: 50px; width: 100%"
+      ></div>
+
+      <!-- Pagination Controls (Hidden when using infinite scroll) -->
       @if (totalPages > 1) {
-        <div class="p-4">
+        <div class="p-4" style="display: none">
           <nav aria-label="Navigazione pagine">
             <ul class="pagination justify-content-center">
               <li class="page-item" [class.disabled]="currentPage === 1">

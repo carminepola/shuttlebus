@@ -12,6 +12,7 @@ import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle
 import { AuthService } from '../../services/auth/auth.service';
 import { UserService } from '../../services/user/user.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import * as CryptoJS from 'crypto-js';
 @Component({
   selector: 'app-user-settings',
   imports: [
@@ -103,28 +104,33 @@ export class UserSettingsComponent implements OnInit {
       return;
     }
 
-    this.userService.changePassword(email, oldPassword, newPassword).subscribe(
-      (res) => {
-        this.loading = false;
-        this.successMessage = 'Password cambiata con successo!';
-        this.changePasswordForm.reset();
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 3000);
-      },
-      (err) => {
-        this.loading = false;
-        console.error('Error changing password:', err);
-        if (err.error?.message) {
-          this.errorMessage = err.error.message;
-        } else if (err.status === 400) {
-          this.errorMessage = 'La vecchia password non è corretta';
-        } else {
-          this.errorMessage =
-            'Si è verificato un errore durante il cambio password';
-        }
-      },
-    );
+    const md5OldPassword = CryptoJS.MD5(oldPassword).toString();
+    const md5NewPassword = CryptoJS.MD5(newPassword).toString();
+
+    this.userService
+      .changePassword(email, md5OldPassword, md5NewPassword)
+      .subscribe(
+        (res) => {
+          this.loading = false;
+          this.successMessage = 'Password cambiata con successo!';
+          this.changePasswordForm.reset();
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 3000);
+        },
+        (err) => {
+          this.loading = false;
+          console.error('Error changing password:', err);
+          if (err.error?.message) {
+            this.errorMessage = err.error.message;
+          } else if (err.status === 400) {
+            this.errorMessage = 'La vecchia password non è corretta';
+          } else {
+            this.errorMessage =
+              'Si è verificato un errore durante il cambio password';
+          }
+        },
+      );
   }
 
   onSubmitDetails(): void {
