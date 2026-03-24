@@ -36,6 +36,20 @@ export class UserService {
     );
   }
 
+  getCurrentUser(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${this.path}/me`);
+  }
+
+  searchUsers(
+    searchTerm: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/${this.path}/search?search=${encodeURIComponent(searchTerm)}&page=${page}&limit=${limit}`,
+    );
+  }
+
   changePassword(
     email: string,
     oldPassword: string,

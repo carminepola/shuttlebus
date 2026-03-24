@@ -26,8 +26,45 @@ export default class UsersDao {
 
   async getUsers(page: number = 1, limit: number = 10) {
     try {
-      let json = {};
+      let json = {
+        role: { $gt: role.USER },
+      };
       const skip = (page - 1) * limit;
+      let list = await this.db.collection(this.schema).find(json).skip(skip).limit(limit).toArray();
+      list.forEach((element) => {
+        delete element.password;
+        delete element.recoverPassword;
+        delete element.recoverPasswordCount;
+        delete element?.options?.google?._raw;
+        delete element?.options?.google?._json;
+      });
+
+      // Get total count for pagination
+      const totalCount = await this.db.collection(this.schema).countDocuments(json);
+
+      return {
+        users: list,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+        },
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchUsers(searchTerm: string, page: number = 1, limit: number = 10) {
+    try {
+      const skip = (page - 1) * limit;
+      const searchRegex = new RegExp(searchTerm, "i");
+
+      let json = {
+        $or: [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
+      };
+
       let list = await this.db.collection(this.schema).find(json).skip(skip).limit(limit).toArray();
       list.forEach((element) => {
         delete element.password;
