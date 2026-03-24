@@ -9,6 +9,7 @@ import { MapsOfPointsComponent } from '../../components/maps-of-points/maps-of-p
 import { FormsModule } from '@angular/forms';
 import { SearchComponent } from '../../components/search/search.component';
 import { Router, RouterModule } from '@angular/router';
+import { BusStatusComponent } from '../../components/bus-status/bus-status.component';
 @Component({
   selector: 'app-homepage',
   imports: [
@@ -16,8 +17,9 @@ import { Router, RouterModule } from '@angular/router';
     TranslatePipe,
     SearchComponent,
     MapsOfPointsComponent,
-    RouterModule
-],
+    RouterModule,
+    BusStatusComponent,
+  ],
   animations: [fadeAnimation],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.scss',
@@ -26,7 +28,7 @@ export class HomepageComponent implements OnInit {
   constructor(
     public router: Router,
     private titleService: Title,
-    private metaService: Meta
+    private metaService: Meta,
   ) {}
   ngOnInit(): void {
     if (localStorage.getItem('authUrl')) {
