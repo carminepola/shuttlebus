@@ -1,13 +1,13 @@
 <nav
   style="z-index: 999"
   class="navbar navbar-expand-sm mx-2 shadow mt-2 fixed-top rounded-4 bg-white"
->
+  >
   <div class="container-fluid mx-2">
     <a class="navbar-brand" href="#"
       ><img
-        src="../../../assets/pintour-logo.png"
-        style="max-width: 125px; max-height: 150px"
-        alt="pintour-logo"
+      src="../../../assets/pintour-logo.png"
+      style="max-width: 125px; max-height: 150px"
+      alt="pintour-logo"
     /></a>
 
     <div class="collapse navbar-collapse d-flex" id="navbar">
@@ -18,7 +18,7 @@
             [class.active]="getPath() == '/'"
             aria-current="page"
             (click)="goPath('/')"
-          >
+            >
             Home
           </a>
         </li>
@@ -29,7 +29,7 @@
             [class.active]="
               getPath().includes('/user/') || getPath().includes('/admin/')
             "
-          >
+            >
             Account
           </a>
         </li>
@@ -38,59 +38,60 @@
             class="nav-link rounded-3"
             (click)="goPath('/info')"
             routerLinkActive="active"
-          >
+            >
             Info</a
-          >
-        </li>
-        <li class="nav-item cursor-pointer">
-          <a
-            class="nav-link rounded-3"
-            href="https://api.whatsapp.com/send/?phone=%2B393356910211"
-          >
-            Whatsapp
-          </a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-<div class="modal fade show" tabindex="-1" id="modalLogin">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="d-flex justify-content-between align-items-center py-2 px-3">
-        <nav class="nav nav-pills nav-fill">
-          <a
-            (click)="login = true"
-            class="nav-link cursor-pointer"
-            [ngClass]="{ active: login }"
-            aria-current="page"
-            >LOGIN</a
-          >
-          <a
-            (click)="login = false"
-            class="nav-link cursor-pointer"
-            [ngClass]="{ active: !login }"
-            aria-current="page"
-            >REGISTRATI</a
-          >
-        </nav>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <app-login-form
-          *ngIf="login"
-          (loginSuccess)="onEvent()"
-        ></app-login-form>
-        <app-registrazione
-          (registerSuccess)="onComplete()"
-          [hidden]="login"
-        ></app-registrazione>
+            >
+          </li>
+          <li class="nav-item cursor-pointer">
+            <a
+              class="nav-link rounded-3"
+              href="https://api.whatsapp.com/send/?phone=%2B393356910211"
+              >
+              Whatsapp
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
-  </div>
-</div>
+  </nav>
+  <div class="modal fade show" tabindex="-1" id="modalLogin">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="d-flex justify-content-between align-items-center py-2 px-3">
+          <nav class="nav nav-pills nav-fill">
+            <a
+              (click)="login = true"
+              class="nav-link cursor-pointer"
+              [ngClass]="{ active: login }"
+              aria-current="page"
+              >LOGIN</a
+              >
+              <a
+                (click)="login = false"
+                class="nav-link cursor-pointer"
+                [ngClass]="{ active: !login }"
+                aria-current="page"
+                >REGISTRATI</a
+                >
+              </nav>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              @if (login) {
+                <app-login-form
+                  (loginSuccess)="onEvent()"
+                ></app-login-form>
+              }
+              <app-registrazione
+                (registerSuccess)="onComplete()"
+                [hidden]="login"
+              ></app-registrazione>
+            </div>
+          </div>
+        </div>
+      </div>

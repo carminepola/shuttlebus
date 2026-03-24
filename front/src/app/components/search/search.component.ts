@@ -3,14 +3,14 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 import { StopsService } from '../../services/stops/stops.service';
 import { RoutesService } from '../../services/routes/routes.service';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { fadeAnimation } from '../../animations/fade.animation';
 declare var bootstrap: any;
 @Component({
   selector: 'app-search',
-  imports: [TranslatePipe, CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [TranslatePipe, ReactiveFormsModule, FormsModule],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
   animations: [fadeAnimation],

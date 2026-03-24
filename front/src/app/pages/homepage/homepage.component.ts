@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { LngService } from '../../services/lng/lng.service';
-import { CommonModule } from '@angular/common';
+
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { Title, Meta, MetaDefinition } from '@angular/platform-browser';
 import { MapsOfPointsComponent } from '../../components/maps-of-points/maps-of-points.component';
@@ -13,12 +13,11 @@ import { Router, RouterModule } from '@angular/router';
   selector: 'app-homepage',
   imports: [
     FooterComponent,
-    CommonModule,
     TranslatePipe,
     SearchComponent,
     MapsOfPointsComponent,
-    RouterModule,
-  ],
+    RouterModule
+],
   animations: [fadeAnimation],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.scss',

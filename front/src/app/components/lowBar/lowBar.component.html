@@ -9,38 +9,40 @@
             [ngClass]="{ active: login }"
             aria-current="page"
             >LOGIN</a
-          >
-          <a
-            (click)="login = false"
-            class="nav-link cursor-pointer"
-            [ngClass]="{ active: !login }"
-            aria-current="page"
-            >REGISTRATI</a
-          >
-        </nav>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <app-login-form
-          *ngIf="login"
-          (loginSuccess)="onEvent()"
-        ></app-login-form>
-        <app-registrazione
-          (registerSuccess)="onComplete()"
-          *ngIf="!login"
-        ></app-registrazione>
+            >
+            <a
+              (click)="login = false"
+              class="nav-link cursor-pointer"
+              [ngClass]="{ active: !login }"
+              aria-current="page"
+              >REGISTRATI</a
+              >
+            </nav>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            @if (login) {
+              <app-login-form
+                (loginSuccess)="onEvent()"
+              ></app-login-form>
+            }
+            @if (!login) {
+              <app-registrazione
+                (registerSuccess)="onComplete()"
+              ></app-registrazione>
+            }
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-<div class="space-lowBar d-block d-lg-none"></div>
-<nav
-  class="card rounded-4 bg-white shadow d-block d-lg-none"
+    <div class="space-lowBar d-block d-lg-none"></div>
+    <nav
+      class="card rounded-4 bg-white shadow d-block d-lg-none"
   style="
     max-height: 58px;
     height: 58px;
@@ -50,57 +52,61 @@
     right: 5px;
     z-index: 999;
   "
->
-  <div class="row h-100">
-    <div class="col">
-      <a
-        [class.active]="getPath() == '/'"
-        routerLink="/"
-        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
       >
-        <i class="fa fa-home"></i>
-        <span class="ms-2 fw-bold d-none d-md-block" *ngIf="getPath() == '/'"
-          >Home</span
-        >
-      </a>
-    </div>
+      <div class="row h-100">
+        <div class="col">
+          <a
+            [class.active]="getPath() == '/'"
+            routerLink="/"
+            class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+            >
+            <i class="fa fa-home"></i>
+            @if (getPath() == '/') {
+              <span class="ms-2 fw-bold d-none d-md-block"
+                >Home</span
+                >
+              }
+            </a>
+          </div>
 
-    <div class="col">
-      <a
-        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
-        (click)="onTicket()"
-        [class.active]="getPath().includes('/user/')"
-      >
-        <i class="fa-solid fa-user"></i>
-        <span
-          class="ms-2 fw-bold d-none d-md-block"
-          *ngIf="getPath().includes('/user/') || getPath().includes('/admin/')"
-        >
-          Account</span
-        >
-      </a>
-    </div>
-    <div class="col">
-      <a
-        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
-        routerLink="/info"
-        routerLinkActive="active"
-      >
-        <i class="fa-solid fa-circle-info"></i>
-        <span
-          class="ms-2 fw-bold d-none d-md-block"
-          *ngIf="getPath().includes('/info/')"
-          >Info</span
-        >
-      </a>
-    </div>
-    <div class="col">
-      <a
-        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
-        href="https://api.whatsapp.com/send/?phone=%2B393356910211"
-      >
-        <i class="fa-brands fa-whatsapp"></i>
-      </a>
-    </div>
-  </div>
-</nav>
+          <div class="col">
+            <a
+              class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+              (click)="onTicket()"
+              [class.active]="getPath().includes('/user/')"
+              >
+              <i class="fa-solid fa-user"></i>
+              @if (getPath().includes('/user/') || getPath().includes('/admin/')) {
+                <span
+                  class="ms-2 fw-bold d-none d-md-block"
+                  >
+                  Account</span
+                  >
+                }
+              </a>
+            </div>
+            <div class="col">
+              <a
+                class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+                routerLink="/info"
+                routerLinkActive="active"
+                >
+                <i class="fa-solid fa-circle-info"></i>
+                @if (getPath().includes('/info/')) {
+                  <span
+                    class="ms-2 fw-bold d-none d-md-block"
+                    >Info</span
+                    >
+                  }
+                </a>
+              </div>
+              <div class="col">
+                <a
+                  class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+                  href="https://api.whatsapp.com/send/?phone=%2B393356910211"
+                  >
+                  <i class="fa-brands fa-whatsapp"></i>
+                </a>
+              </div>
+            </div>
+          </nav>

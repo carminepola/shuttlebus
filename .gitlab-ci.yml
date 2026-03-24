@@ -28,10 +28,10 @@ compilazione_back:
 ########################
 compilazione_front:
   stage: compilazione_front
-  image: node:22.14
+  image: node:24.13
   script:
     - cd front
-    - npm install -g @angular/cli@19.1.8
+    - npm install -g @angular/cli@21.2.3
     - npm ci
     - npm run build-prod
   artifacts:

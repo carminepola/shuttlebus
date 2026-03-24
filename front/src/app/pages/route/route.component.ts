@@ -5,7 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FilterPipe } from '../../pipe/filter.pipe';
 import { FormsModule } from '@angular/forms';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
-import { CommonModule } from '@angular/common';
+
 import { StopsService } from '../../services/stops/stops.service';
 import { lastValueFrom } from 'rxjs';
 @Component({
@@ -14,10 +14,9 @@ import { lastValueFrom } from 'rxjs';
     TitlePageComponent,
     RouterModule,
     FilterPipe,
-    CommonModule,
     LoadingComponent,
-    FormsModule,
-  ],
+    FormsModule
+],
   templateUrl: './route.component.html',
   styleUrls: ['./route.component.scss'],
 })

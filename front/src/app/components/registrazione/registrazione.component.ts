@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
-import { CommonModule, NgFor } from '@angular/common';
+
 
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -12,12 +12,11 @@ import { LngService } from '../../services/lng/lng.service';
 @Component({
   selector: 'app-registrazione',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterModule,
     TranslatePipe,
-    FormsModule,
-  ],
+    FormsModule
+],
   templateUrl: './registrazione.component.html',
   styleUrl: './registrazione.component.scss',
 })

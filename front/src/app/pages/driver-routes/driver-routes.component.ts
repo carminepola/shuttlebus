@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
-import { CommonModule } from '@angular/common';
+
 import { lastValueFrom } from 'rxjs';
 import { RoutesService } from '../../services/routes/routes.service';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
@@ -9,7 +9,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-driver-routes',
-  imports: [CommonModule, TitlePageComponent],
+  imports: [TitlePageComponent],
   templateUrl: './driver-routes.component.html',
   styleUrl: './driver-routes.component.scss',
   animations: [fadeAnimation],

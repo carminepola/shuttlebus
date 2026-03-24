@@ -7,213 +7,217 @@
 </div>
 
 <div class="container" style="min-height: 50vh">
-  <div class="row h-100 my-5" *ngIf="loading">
-    <div class="col text-center h-100 d-flex flex-column align-items-center">
-      <app-loading></app-loading>
+  @if (loading) {
+    <div class="row h-100 my-5">
+      <div class="col text-center h-100 d-flex flex-column align-items-center">
+        <app-loading></app-loading>
+      </div>
     </div>
-  </div>
-  <div class="row" *ngIf="params.length == 0 && !loading">
-    <div class="col text-center my-5">
-      <img
-        src="../../../assets/no-results.png"
-        class="img-fluid"
-        style="max-width: 200px"
-        alt="not-found"
-      />
-      <h1
-        class="text-primary mt-4"
-        [innerText]="'search_not_found' | translate"
-      ></h1>
+  }
+  @if (params.length == 0 && !loading) {
+    <div class="row">
+      <div class="col text-center my-5">
+        <img
+          src="../../../assets/no-results.png"
+          class="img-fluid"
+          style="max-width: 200px"
+          alt="not-found"
+          />
+        <h1
+          class="text-primary mt-4"
+          [innerText]="'search_not_found' | translate"
+        ></h1>
+      </div>
     </div>
-  </div>
-  <div class="row my-5" *ngIf="params.length > 0 && !loading">
-    <div
-      class="col-12 col-lg-10 mx-auto"
-      *ngFor="let param of params; let j = index"
-    >
-      <div class="card border-secondary rounded-4 mb-3" @fadeInOut>
-        <div class="card-body">
-          <div class="card-text">
-            <div class="row">
-              <div class="col-12 col-lg-4 align-self-start">
-                <div>
-                  <h5
-                    class="fw-bold text-primary"
-                    [innerHTML]="param.name | translateName"
-                  ></h5>
-                </div>
-                <div>
-                  <div
-                    class="fw-bold text-secondary"
-                    [innerHTML]="'str_partenza_da' | translate"
-                  ></div>
-                  <div class="d-flex justify-content-between">
-                    <div
-                      class="text-primary"
-                      [innerHTML]="param.from.name"
-                    ></div>
-                    <div
-                      class="text-primary fw-bold"
-                      [innerHTML]="param.from.stopTime"
-                    ></div>
+  }
+  @if (params.length > 0 && !loading) {
+    <div class="row my-5">
+      @for (param of params; track param; let j = $index) {
+        <div
+          class="col-12 col-lg-10 mx-auto"
+          >
+          <div class="card border-secondary rounded-4 mb-3" @fadeInOut>
+            <div class="card-body">
+              <div class="card-text">
+                <div class="row">
+                  <div class="col-12 col-lg-4 align-self-start">
+                    <div>
+                      <h5
+                        class="fw-bold text-primary"
+                        [innerHTML]="param.name | translateName"
+                      ></h5>
+                    </div>
+                    <div>
+                      <div
+                        class="fw-bold text-secondary"
+                        [innerHTML]="'str_partenza_da' | translate"
+                      ></div>
+                      <div class="d-flex justify-content-between">
+                        <div
+                          class="text-primary"
+                          [innerHTML]="param.from.name"
+                        ></div>
+                        <div
+                          class="text-primary fw-bold"
+                          [innerHTML]="param.from.stopTime"
+                        ></div>
+                      </div>
+                      <div
+                        class="text-muted"
+                        [innerHTML]="param.from.description | translateName"
+                      ></div>
+                    </div>
+                    <div class="mt-2">
+                      <div
+                        class="fw-bold text-secondary"
+                        [innerHTML]="'str_arrivo_a' | translate"
+                      ></div>
+                      <div class="d-flex justify-content-between">
+                        <div class="text-primary" [innerHTML]="param.to.name"></div>
+                        <div
+                          class="text-primary fw-bold"
+                          [innerHTML]="param.to.stopTime"
+                        ></div>
+                      </div>
+                      <div
+                        class="text-muted"
+                        [innerHTML]="param.to.description | translateName"
+                      ></div>
+                    </div>
                   </div>
-                  <div
-                    class="text-muted"
-                    [innerHTML]="param.from.description | translateName"
-                  ></div>
-                </div>
-
-                <div class="mt-2">
-                  <div
-                    class="fw-bold text-secondary"
-                    [innerHTML]="'str_arrivo_a' | translate"
-                  ></div>
-                  <div class="d-flex justify-content-between">
-                    <div class="text-primary" [innerHTML]="param.to.name"></div>
+                  <hr class="w-100 my-3 d-block d-lg-none" />
+                  <div class="col-12 col-lg-8">
                     <div
-                      class="text-primary fw-bold"
-                      [innerHTML]="param.to.stopTime"
-                    ></div>
-                  </div>
-                  <div
-                    class="text-muted"
-                    [innerHTML]="param.to.description | translateName"
-                  ></div>
-                </div>
-              </div>
-              <hr class="w-100 my-3 d-block d-lg-none" />
-
-              <div class="col-12 col-lg-8">
-                <div
-                  class="mb-2 ps-0 fst-italic"
+                      class="mb-2 ps-0 fst-italic"
                   [innerHTML]="
                     'str_seleziona_biglietti_per_acquisto' | translate
                   "
-                ></div>
-
-                <div class="list-group w-auto">
-                  <a
-                    *ngFor="let ticket of param.ticketTypes; let i = index"
-                    class="list-group-item list-group-item-action gap-3 py-3"
-                    aria-current="true"
-                  >
-                    <div class="d-flex gap-2 w-100 justify-content-between">
-                      <div>
-                        <h6
-                          class="mb-0"
-                          [innerHTML]="ticket.name | translateName"
-                        ></h6>
-
-                        <p
-                          class="mb-0 opacity-75"
-                          [innerHTML]="ticket.description | translateName"
-                        ></p>
-                      </div>
-
-                      <div class="fw-bold text-primary fs-3">
-                        <span [innerHTML]="ticket.cost"></span
-                        ><span class="text-secondary">€</span>
-                      </div>
-                    </div>
-                    <div class="w-100">
-                      <div
-                        class="d-flex mt-2 justify-content-center align-items-center"
-                      >
-                        <button
-                          class="btn btn-link me-3"
-                          [disabled]="ticket.count == 0"
-                          (click)="removeTicket(j, i)"
-                        >
-                          <i class="fa fa-minus"></i>
-                        </button>
-                        <div>
-                          <h3 [innerHTML]="ticket.count"></h3>
-                        </div>
-                        <button
-                          class="btn btn-link ms-3"
-                          (click)="addTicket(j, i)"
-                          [disabled]="param.seats == ricerca.persone"
-                        >
-                          <i class="fa fa-plus"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a
-                    *ngIf="ricerca.bagagli > 0"
-                    class="list-group-item list-group-item-action gap-3 py-3"
-                  >
-                    <div class="d-flex gap-2 w-100 justify-content-between">
-                      <div>
-                        <h6
-                          class="mb-0"
-                          [innerHTML]="'str_bagagli_aggiuntivi' | translate"
-                        ></h6>
-
-                        <p
-                          class="mb-0 opacity-75"
+                    ></div>
+                    <div class="list-group w-auto">
+                      @for (ticket of param.ticketTypes; track ticket; let i = $index) {
+                        <a
+                          class="list-group-item list-group-item-action gap-3 py-3"
+                          aria-current="true"
+                          >
+                          <div class="d-flex gap-2 w-100 justify-content-between">
+                            <div>
+                              <h6
+                                class="mb-0"
+                                [innerHTML]="ticket.name | translateName"
+                              ></h6>
+                              <p
+                                class="mb-0 opacity-75"
+                                [innerHTML]="ticket.description | translateName"
+                              ></p>
+                            </div>
+                            <div class="fw-bold text-primary fs-3">
+                              <span [innerHTML]="ticket.cost"></span
+                                ><span class="text-secondary">€</span>
+                              </div>
+                            </div>
+                            <div class="w-100">
+                              <div
+                                class="d-flex mt-2 justify-content-center align-items-center"
+                                >
+                                <button
+                                  class="btn btn-link me-3"
+                                  [disabled]="ticket.count == 0"
+                                  (click)="removeTicket(j, i)"
+                                  >
+                                  <i class="fa fa-minus"></i>
+                                </button>
+                                <div>
+                                  <h3 [innerHTML]="ticket.count"></h3>
+                                </div>
+                                <button
+                                  class="btn btn-link ms-3"
+                                  (click)="addTicket(j, i)"
+                                  [disabled]="param.seats == ricerca.persone"
+                                  >
+                                  <i class="fa fa-plus"></i>
+                                </button>
+                              </div>
+                            </div>
+                          </a>
+                        }
+                        @if (ricerca.bagagli > 0) {
+                          <a
+                            class="list-group-item list-group-item-action gap-3 py-3"
+                            >
+                            <div class="d-flex gap-2 w-100 justify-content-between">
+                              <div>
+                                <h6
+                                  class="mb-0"
+                                  [innerHTML]="'str_bagagli_aggiuntivi' | translate"
+                                ></h6>
+                                <p
+                                  class="mb-0 opacity-75"
                           [innerHTML]="
                             'str_bagagli_aggiuntivi_descrizione' | translate
                           "
-                        ></p>
-                      </div>
-
-                      <div class="fw-bold text-primary fs-3">
-                        <span>2</span><span class="text-secondary">€</span>
+                                ></p>
+                              </div>
+                              <div class="fw-bold text-primary fs-3">
+                                <span>2</span><span class="text-secondary">€</span>
+                              </div>
+                            </div>
+                            <div class="w-100">
+                              <div
+                                class="d-flex mt-2 justify-content-center align-items-center"
+                                >
+                                <div>
+                                  <h3 [innerHTML]="ricerca.bagagli"></h3>
+                                </div>
+                              </div>
+                            </div>
+                          </a>
+                        }
                       </div>
                     </div>
-                    <div class="w-100">
-                      <div
-                        class="d-flex mt-2 justify-content-center align-items-center"
-                      >
-                        <div>
-                          <h3 [innerHTML]="ricerca.bagagli"></h3>
-                        </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-6">
+                      <div>
+                        <i class="fa-solid fa-person me-2 text-primary"></i>
+                        {{ param.availableSeats }}
+                      </div>
+                      <div>
+                        <i class="fa-solid fa-suitcase-rolling me-2 text-primary"></i>
+                        {{ param.availableLuggage }}
                       </div>
                     </div>
-                  </a>
+                    <div class="col-6">
+                      <button
+                        class="btn btn-secondary btn-lg float-end w-sm-100"
+                        [disabled]="param.seats != ricerca.persone"
+                        (click)="acquista(param)"
+                        >
+                        @if (param.seats != ricerca.persone) {
+                          <span
+                            [innerHTML]="'str_acquista' | translate"
+                          ></span>
+                        }
+                        @if (param.seats == ricerca.persone) {
+                          <span
+                            [innerHTML]="'str_acquista_per' | translate"
+                            class="me-1"
+                          ></span>
+                        }
+                        @if (param.seats == ricerca.persone) {
+                          <span>
+                            {{ param.total }} €</span
+                            >
+                          }
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- {{ param | json }} -->
                 </div>
               </div>
             </div>
-            <div class="row mt-3">
-              <div class="col-6">
-                <div>
-                  <i class="fa-solid fa-person me-2 text-primary"></i>
-                  {{ param.availableSeats }}
-                </div>
-                <div>
-                  <i class="fa-solid fa-suitcase-rolling me-2 text-primary"></i>
-                  {{ param.availableLuggage }}
-                </div>
-              </div>
-              <div class="col-6">
-                <button
-                  class="btn btn-secondary btn-lg float-end w-sm-100"
-                  [disabled]="param.seats != ricerca.persone"
-                  (click)="acquista(param)"
-                >
-                  <span
-                    *ngIf="param.seats != ricerca.persone"
-                    [innerHTML]="'str_acquista' | translate"
-                  ></span>
-                  <span
-                    *ngIf="param.seats == ricerca.persone"
-                    [innerHTML]="'str_acquista_per' | translate"
-                    class="me-1"
-                  ></span>
-                  <span *ngIf="param.seats == ricerca.persone">
-                    {{ param.total }} €</span
-                  >
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- {{ param | json }} -->
+          }
         </div>
-      </div>
+      }
     </div>
-  </div>
-</div>
-<app-footer></app-footer>
+    <app-footer></app-footer>

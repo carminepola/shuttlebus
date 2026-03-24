@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
@@ -14,11 +14,10 @@ import { fadeAnimation } from '../../animations/fade.animation';
   imports: [
     TitlePageComponent,
     RouterModule,
-    CommonModule,
     LoadingComponent,
     FormsModule,
-    FilterPipe,
-  ],
+    FilterPipe
+],
   animations: [fadeAnimation],
   templateUrl: './tickets-type.component.html',
   styleUrl: './tickets-type.component.scss',

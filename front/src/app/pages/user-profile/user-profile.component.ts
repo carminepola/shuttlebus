@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import Swal from 'sweetalert2';
-import { CommonModule } from '@angular/common';
+
 import { LngService } from '../../services/lng/lng.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -11,7 +11,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-user-profile',
   animations: [fadeAnimation],
-  imports: [TitlePageComponent, TranslatePipe, CommonModule, LoadingComponent],
+  imports: [TitlePageComponent, TranslatePipe, LoadingComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.scss',
 })

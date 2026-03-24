@@ -1,106 +1,103 @@
 <div class="container-fluid container-lg" >
-    <app-title-page
-      title="Traduzioni"
-      subtitle="Cambia le traduzioni"
-      back="true"
-    ></app-title-page>
-    <div>
+  <app-title-page
+    title="Traduzioni"
+    subtitle="Cambia le traduzioni"
+    back="true"
+  ></app-title-page>
+  <div>
+    @if (loading) {
       <div
-      *ngIf="loading"
-      class="w-100 d-flex align-items-center justify-content-center"
-    >
-      <app-loading></app-loading>
-    </div>
-    <div *ngIf="!loading">
-      <div class="card rounded-4 shadow ">
-        <div class="card-body px-0 ">
-
-       
-        <table class="table   ">
-          <thead class="">
-            <tr  >
-              <th scope="col" style="width: 50px;">#</th>
-              <th scope="col" style="width: 300px;">TXT</th>
-              <th scope="col">IT</th>
-              <th scope="col">EN</th>
-              <th scope="col">Azioni</th>
-            </tr>
-          </thead>
-        
-          <tbody>
-            <tr *ngFor="let item of traduzioni; let i = index">
-              <th scope="row">{{i+1}}</th>
-              <td>{{item.txt}}</td>
-              <td> <input
-                [(ngModel)]="item.it"
-                name="name_it"
-                type="text"
-                placeholder="IT"
-                class="form-control"
-                id="name_it"
-                required /></td>
-              <td> <input
-                [(ngModel)]="item.en"
-                name="name_en"
-                type="text"
-                placeholder="EN"
-                class="form-control"
-                id="name_en"
-                required ></td>
-              <td>
-                <button
-                class="btn btn-primary btn-sm rounded-3"
-                (click)="modificaTraduzione(item.id,item.it,item.en)"
-              >
-                <i class="fas fa-pen"></i>
-              </button>
-              </td>
-            </tr>
-            <tr>
-              
-              <th scope="row">Nuovo</th>
-              <td> <input
-                [(ngModel)]="nuovaTraduzione.txt"
-                name="name_it"
-                type="text"
-                placeholder="STR"
-                class="form-control"
-                id="name_it"
-                required /> </td>
-              <td> <input
-                [(ngModel)]="nuovaTraduzione.it"
-                name="name_it"
-                type="text"
-                placeholder="IT"
-                class="form-control"
-                id="name_it"
-                required /></td>
-              <td> <input
-                [(ngModel)]="nuovaTraduzione.en"
-                name="name_en"
-                type="text"
-                placeholder="EN"
-                class="form-control"
-                id="name_en"
-                required ></td>
-              <td>
-                <button
-                class="btn btn-success btn-sm rounded-3"
-                (click)="aggiungiTraduzione(nuovaTraduzione.txt,nuovaTraduzione.it,nuovaTraduzione.en)"
-              >
-                <i class="fas fa-pen"></i>
-              </button>
-              </td>
-            </tr>
-           
-           
-          </tbody>
-        </table>
+        class="w-100 d-flex align-items-center justify-content-center"
+        >
+        <app-loading></app-loading>
       </div>
+    }
+    @if (!loading) {
+      <div>
+        <div class="card rounded-4 shadow ">
+          <div class="card-body px-0 ">
+            <table class="table   ">
+              <thead class="">
+                <tr  >
+                  <th scope="col" style="width: 50px;">#</th>
+                  <th scope="col" style="width: 300px;">TXT</th>
+                  <th scope="col">IT</th>
+                  <th scope="col">EN</th>
+                  <th scope="col">Azioni</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of traduzioni; track item; let i = $index) {
+                  <tr>
+                    <th scope="row">{{i+1}}</th>
+                    <td>{{item.txt}}</td>
+                    <td> <input
+                      [(ngModel)]="item.it"
+                      name="name_it"
+                      type="text"
+                      placeholder="IT"
+                      class="form-control"
+                      id="name_it"
+                    required /></td>
+                    <td> <input
+                      [(ngModel)]="item.en"
+                      name="name_en"
+                      type="text"
+                      placeholder="EN"
+                      class="form-control"
+                      id="name_en"
+                    required ></td>
+                    <td>
+                      <button
+                        class="btn btn-primary btn-sm rounded-3"
+                        (click)="modificaTraduzione(item.id,item.it,item.en)"
+                        >
+                        <i class="fas fa-pen"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+                <tr>
+                  <th scope="row">Nuovo</th>
+                  <td> <input
+                    [(ngModel)]="nuovaTraduzione.txt"
+                    name="name_it"
+                    type="text"
+                    placeholder="STR"
+                    class="form-control"
+                    id="name_it"
+                  required /> </td>
+                  <td> <input
+                    [(ngModel)]="nuovaTraduzione.it"
+                    name="name_it"
+                    type="text"
+                    placeholder="IT"
+                    class="form-control"
+                    id="name_it"
+                  required /></td>
+                  <td> <input
+                    [(ngModel)]="nuovaTraduzione.en"
+                    name="name_en"
+                    type="text"
+                    placeholder="EN"
+                    class="form-control"
+                    id="name_en"
+                  required ></td>
+                  <td>
+                    <button
+                      class="btn btn-success btn-sm rounded-3"
+                      (click)="aggiungiTraduzione(nuovaTraduzione.txt,nuovaTraduzione.it,nuovaTraduzione.en)"
+                      >
+                      <i class="fas fa-pen"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
+    }
 
-    </div>
- 
   </div>
-  
- 
+

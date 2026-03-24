@@ -3,7 +3,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 import { StopsService } from '../../services/stops/stops.service';
 import { RoutesService } from '../../services/routes/routes.service';
-import { CommonModule } from '@angular/common';
+
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { SearchComponent } from '../../components/search/search.component';
@@ -21,12 +21,11 @@ import { fadeAnimation } from '../../animations/fade.animation';
     SearchComponent,
     TranslatePipe,
     TranslateNamePipe,
-    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     FooterComponent,
-    LoadingComponent,
-  ],
+    LoadingComponent
+],
   animations: [fadeAnimation],
   templateUrl: './search-page.component.html',
   styleUrl: './search-page.component.scss',
