@@ -1,6 +1,7 @@
 import { Db } from "mongodb";
 import MomapDao from "../dao/momapDao";
 import RoutesServices from "./routesServices";
+import LicensePlateServices from "./licensePlateServices";
 import dotenv from "dotenv";
 import { logger } from "../..";
 
@@ -9,10 +10,12 @@ dotenv.config();
 class momapServices {
   private momapDao: MomapDao;
   private routeServices: RoutesServices;
+  private licensePlateServices: LicensePlateServices;
 
   constructor(db: Db) {
     this.momapDao = new MomapDao(db);
     this.routeServices = new RoutesServices(db);
+    this.licensePlateServices = new LicensePlateServices(db);
   }
 
   async created() {
@@ -46,6 +49,27 @@ class momapServices {
     }
   }
 
+  async getUserDevices() {
+    try {
+      const headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("Authorization", `Bearer ${process.env.MOMAP_JWT}`);
+
+      const url = `https://auth-api.momap.it/v1/Customers/Devices/userDevices`;
+      const response = await fetch(url, { method: "GET", headers, redirect: "follow" as RequestRedirect });
+
+      const result = await response.json();
+      if (result?.success && result?.data) {
+        return result.data;
+      }
+
+      throw new Error("Dati dispositivi non validi da Momap");
+    } catch (error) {
+      logger.error("Errore nel recupero dispositivi da Momap:", error);
+      throw error;
+    }
+  }
+
   async cron() {
     try {
       let momapEntries = await this.momapDao.get();
@@ -59,10 +83,18 @@ class momapServices {
       const now = Math.floor(Date.now() / 1000);
 
       for (const schedule of momapEntries) {
-        const busId = schedule.busId;
+        const busId = schedule.busId; // This is now the license plate
 
         try {
-          const position = await this.getPositionFromMomap(busId);
+          // Get IMEI from license plate
+          const imei = await this.licensePlateServices.getImeiByLicensePlate(busId);
+
+          if (!imei) {
+            logger.warn(`Nessun IMEI trovato per la targa ${busId}`);
+            continue;
+          }
+
+          const position = await this.getPositionFromMomap(imei);
 
           const newPosition = {
             lat: parseFloat(position.lat),
@@ -99,12 +131,12 @@ class momapServices {
     }
   }
 
-  private async getPositionFromMomap(busId: string): Promise<{ lat: string; lng: string; angle: string }> {
+  private async getPositionFromMomap(imei: string): Promise<{ lat: string; lng: string; angle: string }> {
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
     headers.append("Authorization", `Bearer ${process.env.MOMAP_JWT}`);
 
-    const url = `https://auth-api.momap.it/v1/Customers/Devices/deviceData?imei=${busId}`;
+    const url = `https://auth-api.momap.it/v1/Customers/Devices/deviceData?imei=${imei}`;
     const response = await fetch(url, { method: "GET", headers, redirect: "follow" as RequestRedirect });
 
     const result = await response.json();

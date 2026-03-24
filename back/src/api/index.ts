@@ -14,6 +14,7 @@ import booking from "./booking";
 import google from "./google";
 import stripe from "./stripe";
 import momap from "./momap";
+import licensePlate from "./licensePlate";
 const router = express.Router();
 
 router.get<{}, messageResponse>("/", (req, res, next) => {
@@ -35,4 +36,5 @@ router.use("/routes", routes);
 router.use("/booking", booking);
 router.use("/google", google);
 router.use("/stripe", stripe);
+router.use("/licensePlate", licensePlate);
 export default router;

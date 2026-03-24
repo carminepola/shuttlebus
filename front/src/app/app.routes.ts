@@ -34,6 +34,7 @@ import { InfoPageComponent } from './pages/info-page/info-page.component';
 import { DriverRoutesComponent } from './pages/driver-routes/driver-routes.component';
 import { TicketForRoutesComponent } from './pages/ticket-for-routes/ticket-for-routes.component';
 import { TicketCheckComponent } from './pages/ticket-check/ticket-check.component';
+import { TargheComponent } from './pages/targhe/targhe.component';
 export const routes: Routes = [
   {
     path: '',
@@ -250,6 +251,12 @@ export const routes: Routes = [
       {
         path: 'traduzioni',
         component: TraduzioniComponent,
+
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'targhe',
+        component: TargheComponent,
 
         data: { navbar: true, requiredRole: 50 },
       },

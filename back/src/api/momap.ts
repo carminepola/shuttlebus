@@ -31,4 +31,14 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 });
+
+router.get("/devices", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let momap: momapServices = new momapServices(db);
+    let devices = await momap.getUserDevices();
+    res.json({ devices });
+  } catch (error) {
+    next(error);
+  }
+});
 export default router;
