@@ -10,7 +10,7 @@ stages:
 ########################
 compilazione_back:
   stage: compilazione_back
-  image: node:22.14
+  image: node:24.13
   script:
     - cd back
     - npm ci
