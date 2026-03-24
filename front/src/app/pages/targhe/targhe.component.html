@@ -1,0 +1,384 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    title="Targhe"
+    subtitle="Gestisci le targhe dei pullman"
+    back="true"
+  ></app-title-page>
+  <div>
+    @if (loading) {
+      <div class="w-100 d-flex align-items-center justify-content-center">
+        <app-loading></app-loading>
+      </div>
+    }
+    @if (!loading) {
+      <div>
+        <!-- Desktop Table View -->
+        <div class="card rounded-4 shadow d-none d-md-block">
+          <div class="card-body px-0">
+            <div class="table-responsive">
+              <table class="table">
+                <thead class="">
+                  <tr>
+                    <th scope="col" style="width: 50px">#</th>
+                    <th scope="col" style="min-width: 120px">Targa</th>
+                    <th scope="col" style="min-width: 150px">Dispositivo</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col" style="width: 100px">Attivo</th>
+                    <th scope="col" style="width: 120px">Azioni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (targa of targhe; track targa.id; let i = $index) {
+                    <tr>
+                      <th scope="row">{{ i + 1 }}</th>
+                      <td>
+                        <input
+                          [(ngModel)]="targa.licensePlate"
+                          name="licensePlate_{{ i }}"
+                          type="text"
+                          placeholder="Targa"
+                          class="form-control form-control-sm"
+                          id="licensePlate_{{ i }}"
+                          required
+                        />
+                      </td>
+                      <td>
+                        <select
+                          [(ngModel)]="targa.imei"
+                          name="imei_{{ i }}"
+                          class="form-select form-select-sm"
+                          id="imei_{{ i }}"
+                          required
+                          (change)="onDeviceChange($event, i)"
+                        >
+                          <option value="">Seleziona dispositivo</option>
+                          @for (device of dispositiviMomap; track device.imei) {
+                            <option
+                              [value]="device.imei"
+                              [selected]="targa.imei === device.imei"
+                            >
+                              {{ device.name }} ({{ device.imei }}) -
+                              {{ device.registrationNumber || "" }}
+                            </option>
+                          }
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          [(ngModel)]="targa.name"
+                          name="name_{{ i }}"
+                          type="text"
+                          placeholder="Nome"
+                          class="form-control form-control-sm"
+                          id="name_{{ i }}"
+                        />
+                      </td>
+                      <td>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [(ngModel)]="targa.enabled"
+                            name="enabled_{{ i }}"
+                            id="enabled_{{ i }}"
+                          />
+                          <label class="form-check-label" for="enabled_{{ i }}">
+                            Abilitato
+                          </label>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                          <button
+                            class="btn btn-primary btn-sm rounded-3"
+                            (click)="
+                              modificaTarga(
+                                targa.id,
+                                targa.licensePlate,
+                                targa.imei,
+                                targa.name,
+                                targa.enabled
+                              )
+                            "
+                            title="Modifica"
+                          >
+                            <i class="fas fa-pen"></i>
+                          </button>
+                          <button
+                            class="btn btn-danger btn-sm rounded-3 ms-2"
+                            (click)="eliminaTarga(targa.id)"
+                            title="Elimina"
+                          >
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                  <tr>
+                    <th scope="row">Nuovo</th>
+                    <td>
+                      <input
+                        [(ngModel)]="nuovaTarga.licensePlate"
+                        name="new_licensePlate"
+                        type="text"
+                        placeholder="Targa"
+                        class="form-control form-control-sm"
+                        id="new_licensePlate"
+                        required
+                      />
+                    </td>
+                    <td>
+                      @if (loadingDevices) {
+                        <div
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                        >
+                          <span class="visually-hidden">Caricamento...</span>
+                        </div>
+                      }
+                      @if (!loadingDevices) {
+                        <select
+                          [(ngModel)]="nuovaTarga.imei"
+                          name="new_imei"
+                          class="form-select form-select-sm"
+                          id="new_imei"
+                          required
+                          (change)="onDeviceChange($event, undefined)"
+                        >
+                          <option value="">Seleziona dispositivo</option>
+                          @for (device of dispositiviMomap; track device.imei) {
+                            <option [value]="device.imei">
+                              {{ device.name }} ({{ device.imei }}) -
+                              {{ device.registrationNumber || "" }}
+                            </option>
+                          }
+                        </select>
+                      }
+                    </td>
+                    <td>
+                      <input
+                        [(ngModel)]="nuovaTarga.name"
+                        name="new_name"
+                        type="text"
+                        placeholder="Nome"
+                        class="form-control form-control-sm"
+                        id="new_name"
+                      />
+                    </td>
+                    <td>
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          [(ngModel)]="nuovaTarga.enabled"
+                          name="new_enabled"
+                          id="new_enabled"
+                        />
+                        <label class="form-check-label" for="new_enabled">
+                          Abilitato
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-secondary btn-sm rounded-3"
+                        (click)="
+                          aggiungiTarga(
+                            nuovaTarga.licensePlate,
+                            nuovaTarga.imei,
+                            nuovaTarga.name
+                          )
+                        "
+                        title="Aggiungi"
+                      >
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="d-md-none">
+          @for (targa of targhe; track targa.id; let i = $index) {
+            <div class="card rounded-4 shadow mb-3">
+              <div class="card-body">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h5 class="card-title mb-0">Targa #{{ i + 1 }}</h5>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [(ngModel)]="targa.enabled"
+                      name="enabled_mobile_{{ i }}"
+                      id="enabled_mobile_{{ i }}"
+                    />
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small mb-1">Targa</label>
+                  <input
+                    [(ngModel)]="targa.licensePlate"
+                    name="licensePlate_mobile_{{ i }}"
+                    type="text"
+                    placeholder="Targa"
+                    class="form-control form-control-sm"
+                    id="licensePlate_mobile_{{ i }}"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small mb-1">Dispositivo</label>
+                  @if (loadingDevices) {
+                    <div class="spinner-border spinner-border-sm" role="status">
+                      <span class="visually-hidden">Caricamento...</span>
+                    </div>
+                  }
+                  @if (!loadingDevices) {
+                    <select
+                      [(ngModel)]="targa.imei"
+                      name="imei_mobile_{{ i }}"
+                      class="form-select form-select-sm"
+                      id="imei_mobile_{{ i }}"
+                      required
+                      (change)="onDeviceChange($event, i)"
+                    >
+                      <option value="">Seleziona dispositivo</option>
+                      @for (device of dispositiviMomap; track device.imei) {
+                        <option
+                          [value]="device.imei"
+                          [selected]="targa.imei === device.imei"
+                        >
+                          {{ device.name }} -
+                          {{ device.registrationNumber || "" }}
+                        </option>
+                      }
+                    </select>
+                  }
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small mb-1">Nome</label>
+                  <input
+                    [(ngModel)]="targa.name"
+                    name="name_mobile_{{ i }}"
+                    type="text"
+                    placeholder="Nome"
+                    class="form-control form-control-sm"
+                    id="name_mobile_{{ i }}"
+                  />
+                </div>
+                <div class="d-flex gap-2">
+                  <button
+                    class="btn btn-primary btn-sm flex-grow-1"
+                    (click)="
+                      modificaTarga(
+                        targa.id,
+                        targa.licensePlate,
+                        targa.imei,
+                        targa.name,
+                        targa.enabled
+                      )
+                    "
+                  >
+                    <i class="fas fa-pen me-1"></i> Modifica
+                  </button>
+                  <button
+                    class="btn btn-danger btn-sm flex-grow-1"
+                    (click)="eliminaTarga(targa.id)"
+                  >
+                    <i class="fas fa-trash me-1"></i> Elimina
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Add New Card -->
+          <div class="card rounded-4 shadow mb-3 border-secondary">
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label small mb-1">Targa</label>
+                <input
+                  [(ngModel)]="nuovaTarga.licensePlate"
+                  name="new_licensePlate_mobile"
+                  type="text"
+                  placeholder="Targa"
+                  class="form-control form-control-sm"
+                  id="new_licensePlate_mobile"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label small mb-1">Dispositivo</label>
+                @if (loadingDevices) {
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Caricamento...</span>
+                  </div>
+                }
+                @if (!loadingDevices) {
+                  <select
+                    [(ngModel)]="nuovaTarga.imei"
+                    name="new_imei_mobile"
+                    class="form-select form-select-sm"
+                    id="new_imei_mobile"
+                    required
+                    (change)="onDeviceChange($event)"
+                  >
+                    <option value="">Seleziona dispositivo</option>
+                    @for (device of dispositiviMomap; track device.imei) {
+                      <option [value]="device.imei">
+                        {{ device.name }} -
+                        {{ device.registrationNumber || "" }}
+                      </option>
+                    }
+                  </select>
+                }
+              </div>
+              <div class="mb-3">
+                <label class="form-label small mb-1">Nome</label>
+                <input
+                  [(ngModel)]="nuovaTarga.name"
+                  name="new_name_mobile"
+                  type="text"
+                  placeholder="Nome"
+                  class="form-control form-control-sm"
+                  id="new_name_mobile"
+                />
+              </div>
+              <div class="form-check mb-3">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="nuovaTarga.enabled"
+                  name="new_enabled_mobile"
+                  id="new_enabled_mobile"
+                />
+                <label class="form-check-label" for="new_enabled_mobile"
+                  >Attivo</label
+                >
+              </div>
+              <button
+                class="btn btn-secondary w-100"
+                (click)="
+                  aggiungiTarga(
+                    nuovaTarga.licensePlate,
+                    nuovaTarga.imei,
+                    nuovaTarga.name
+                  )
+                "
+              >
+                <i class="fas fa-plus me-1"></i> Aggiungi Targa
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -26,7 +26,7 @@ export class SidebarComponent implements OnInit {
   constructor(
     private cookieService: CookieWatcherServiceService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {}
 
   username = '';
