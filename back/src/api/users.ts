@@ -150,6 +150,25 @@ router.patch(
   },
 );
 
+router.patch(
+  "/updateDetails",
+  [check("name").notEmpty().withMessage("name is required"), check("phone").optional().isString().withMessage("phone must be a string")],
+  authMiddleware,
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let email = res.locals.userLogged.email;
+      let userServices = new UserServices(db);
+
+      const result = await userServices.updateUserDetails(email, req.body.name, req.body.phone);
+      res.json({ message: "Dettagli aggiornati con successo", user: result });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  },
+);
+
 router.get("/getNormalUser", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let userServices = new UserServices(db);

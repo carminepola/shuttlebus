@@ -35,4 +35,23 @@ export class UserService {
       `${this.apiUrl}/${this.path}?page=${page}&limit=${limit}`,
     );
   }
+
+  changePassword(
+    email: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${this.path}/changePassword`, {
+      email,
+      password: newPassword,
+      oldPassword,
+    });
+  }
+
+  updateUserDetails(name: string, phone?: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${this.path}/updateDetails`, {
+      name,
+      phone,
+    });
+  }
 }
