@@ -17,6 +17,8 @@
               type="text"
               class="form-control form-control-lg bg-light border-0"
               placeholder="Cerca utente..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchTermChange()"
             />
           </div>
         </div>
@@ -45,7 +47,7 @@
     <!-- Mobile View (Cards) -->
     @if (!loading) {
       <div class="mobile-cards p-3 d-block d-lg-none">
-        @for (user of users; track user._id) {
+        @for (user of users | filter: searchTerm; track user._id) {
           <div class="card mb-3 border-0 shadow-sm rounded-4">
             <div class="card-body">
               <div
@@ -92,7 +94,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (user of users; track user._id) {
+              @for (user of users | filter: searchTerm; track user._id) {
                 <tr class="bg-white mb-2">
                   <td>{{ user.details?.name || "-" }}</td>
                   <td>{{ user.email }}</td>
@@ -157,9 +159,7 @@
             </ul>
           </nav>
           <div class="text-center text-muted small">
-            Pagina {{ currentPage }} di {{ totalPages }} ({{
-              totalItems
-            }}
+            Pagina {{ currentPage }} di {{ totalPages }} ({{ totalItems }}
             utenti totali)
           </div>
         </div>

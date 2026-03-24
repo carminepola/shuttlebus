@@ -6,10 +6,19 @@ import { UserService } from '../../services/user/user.service';
 import { lastValueFrom } from 'rxjs';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { FilterPipe } from '../../pipe/filter.pipe';
 
 @Component({
   selector: 'app-users',
-  imports: [TitlePageComponent, RouterModule, TitlePageComponent, CommonModule],
+  imports: [
+    TitlePageComponent,
+    RouterModule,
+    TitlePageComponent,
+    CommonModule,
+    FormsModule,
+    FilterPipe,
+  ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
 })
@@ -20,6 +29,7 @@ export class UsersComponent implements OnInit {
   itemsPerPage = 10;
   totalItems = 0;
   totalPages = 0;
+  searchTerm = '';
 
   constructor(
     private router: Router,
@@ -46,10 +56,42 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  onSearch(): void {
+    if (this.searchTerm.trim() === '') {
+      this.loadUsers();
+      return;
+    }
+
+    this.loading = true;
+    this.userService
+      .searchUsers(this.searchTerm, this.currentPage, this.itemsPerPage)
+      .subscribe({
+        next: (response: any) => {
+          this.users = response.users || [];
+          this.totalItems = response.pagination?.totalCount || 0;
+          this.totalPages = response.pagination?.totalPages || 0;
+          this.loading = false;
+        },
+        error: (error: any) => {
+          console.error('Error searching users:', error);
+          this.loading = false;
+        },
+      });
+  }
+
+  onSearchTermChange(): void {
+    this.currentPage = 1;
+    this.onSearch();
+  }
+
   onPageChange(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      this.loadUsers();
+      if (this.searchTerm.trim() === '') {
+        this.loadUsers();
+      } else {
+        this.onSearch();
+      }
     }
   }
 

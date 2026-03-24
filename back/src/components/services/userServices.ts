@@ -49,6 +49,15 @@ export default class UserServices {
     }
   }
 
+  async searchUsers(searchTerm: string, page: number = 1, limit: number = 10) {
+    try {
+      const result = await this.userDao.searchUsers(searchTerm, page, limit);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async createUser(user: userModel) {
     try {
       let oldUser = await this.userDao.getUserByEmail(user.email);

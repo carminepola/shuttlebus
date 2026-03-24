@@ -57,6 +57,21 @@ export class UserSettingsComponent implements OnInit {
   navBar = false;
   ngOnInit(): void {
     this.navBar = !window.location.pathname.includes('admin');
+    this.loadCurrentUser();
+  }
+
+  loadCurrentUser(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        this.userDetailsForm.patchValue({
+          name: user.details?.name || '',
+          phone: user.details?.phone || '',
+        });
+      },
+      error: (error) => {
+        console.error('Error loading user details:', error);
+      },
+    });
   }
 
   onSubmit(): void {
