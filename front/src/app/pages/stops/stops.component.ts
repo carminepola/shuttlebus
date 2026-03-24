@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { RouterModule, Router } from '@angular/router';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
@@ -13,11 +13,10 @@ import { fadeAnimation } from '../../animations/fade.animation';
   imports: [
     TitlePageComponent,
     RouterModule,
-    CommonModule,
     LoadingComponent,
     FormsModule,
-    FilterPipe,
-  ],
+    FilterPipe
+],
   animations: [fadeAnimation],
   templateUrl: './stops.component.html',
   styleUrl: './stops.component.scss',

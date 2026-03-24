@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { TitlePageComponent } from '../../../components/title-page/title-page.component';
 import { LoadingComponent } from '../../../components/loading/loading/loading.component';
@@ -7,7 +7,7 @@ import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 import { LngService } from '../../../services/lng/lng.service';
 @Component({
   selector: 'app-traduzioni',
-  imports: [TitlePageComponent, RouterModule, CommonModule, LoadingComponent,FormsModule,ReactiveFormsModule],
+  imports: [TitlePageComponent, RouterModule, LoadingComponent, FormsModule, ReactiveFormsModule],
   templateUrl: './traduzioni.component.html',
   styleUrl: './traduzioni.component.scss',
 })

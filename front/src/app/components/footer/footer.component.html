@@ -3,7 +3,7 @@
     <div class="row">
       <div
         class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0 d-block d-lg-flex justify-content-center"
-      >
+        >
         <div>
           <h2
             class="fw-light-bold mb-3"
@@ -21,7 +21,7 @@
       </div>
       <div
         class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0 d-block d-lg-flex justify-content-center"
-      >
+        >
         <div>
           <h2
             class="fw-light-bold mb-3"
@@ -31,74 +31,75 @@
           <div>
             <a href="tel:+390818792645" class="text-white"
               ><i class="fas fa-phone me-2 mb-3"></i>+39 0818792645</a
-            >
-          </div>
+              >
+            </div>
 
-          <div>
-            <a href="mailto:ordini@pintourbus.com" class="text-white">
-              <i class="fas fa-envelope me-2"></i
-              ><span [innerText]="'ordini@pintourbus.com'"></span>
-            </a>
+            <div>
+              <a href="mailto:ordini@pintourbus.com" class="text-white">
+                <i class="fas fa-envelope me-2"></i
+                  ><span [innerText]="'ordini@pintourbus.com'"></span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0 d-block d-lg-flex justify-content-center"
+            >
+            <div>
+              <h2 class="fw-light-bold mb-3">Social</h2>
+              <div class="d-flex">
+                <div>
+                  <a
+                    href="https://www.facebook.com/pintour"
+                    class="text-white"
+                    target="_blank"
+                    ><i class="fa-brands fa-facebook display-6 me-2"> </i
+                  ></a>
+                  <a
+                    href="https://www.instagram.com/_pintourbus_/"
+                    class="text-white"
+                    target="_blank"
+                    ><i class="fa-brands fa-instagram display-6 me-2"> </i
+                  ></a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0 d-block d-lg-flex justify-content-center"
-      >
-        <div>
-          <h2 class="fw-light-bold mb-3">Social</h2>
-          <div class="d-flex">
-            <div>
-              <a
-                href="https://www.facebook.com/pintour"
-                class="text-white"
-                target="_blank"
-                ><i class="fa-brands fa-facebook display-6 me-2"> </i
-              ></a>
-              <a
-                href="https://www.instagram.com/_pintourbus_/"
-                class="text-white"
-                target="_blank"
-                ><i class="fa-brands fa-instagram display-6 me-2"> </i
-              ></a>
+        <div class="row pt-3">
+          <div class="col-12 col-lg-2 offset-lg-10">
+            <div class="dropdown">
+              <button
+                class="btn btn-secondary"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                [innerHTML]="getSelectedLng().name"
+              ></button>
+
+              <ul class="dropdown-menu">
+                <li>
+                  @for (l of lng; track l) {
+                    <a
+                      class="dropdown-item cursor-pointer"
+                      (click)="setLng(l.lng)"
+                      [innerHtml]="l.name"
+                    ></a>
+                  }
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="row pt-3">
-      <div class="col-12 col-lg-2 offset-lg-10">
-        <div class="dropdown">
-          <button
-            class="btn btn-secondary"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            [innerHTML]="getSelectedLng().name"
-          ></button>
-
-          <ul class="dropdown-menu">
-            <li>
-              <a
-                class="dropdown-item cursor-pointer"
-                (click)="setLng(l.lng)"
-                *ngFor="let l of lng"
-                [innerHtml]="l.name"
-              ></a>
-            </li>
-          </ul>
+    <div>
+      <div class="container">
+        <div class="row">
+          <div class="col-12 my-2 d-flex justify-content-between">
+            <div class="text-muted">V<span [innerText]="getVersion()"></span></div>
+            <div class="text-muted">Created by Carmine Pola</div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-<div>
-  <div class="container">
-    <div class="row">
-      <div class="col-12 my-2 d-flex justify-content-between">
-        <div class="text-muted">V<span [innerText]="getVersion()"></span></div>
-        <div class="text-muted">Created by Carmine Pola</div>
-      </div>
-    </div>
-  </div>
-</div>

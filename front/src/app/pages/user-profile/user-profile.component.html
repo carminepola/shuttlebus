@@ -4,73 +4,76 @@
     [subtitle]="getUser()"
     back="true"
   ></app-title-page>
-  <div
-    *ngIf="loading"
-    class="w-100 d-flex align-items-center justify-content-center"
-  >
-    <app-loading></app-loading>
+  @if (loading) {
+    <div
+      class="w-100 d-flex align-items-center justify-content-center"
+      >
+      <app-loading></app-loading>
+    </div>
+  }
+  @if (!loading) {
+    <div @fadeInOut>
+      <ol class="list-group border-0 rounded-4 shadow">
+        @if (getRole() <= 50) {
+          <li
+            (click)="goTo('/admin/home')"
+            class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+            >
+            <i class="fa fa-dashboard me-3 fs-3"></i>
+            <div class="ms-2 me-auto">
+              <div class="fw-bold">Area amministrativa</div>
+              <span>Da qui si può gestire tutta la piattaforma</span>
+            </div>
+          </li>
+        }
+        @if (getRole() <= 75) {
+          <li
+            (click)="goTo('/driver/routes')"
+            class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+            >
+            <i class="fa fa-route me-3 fs-3"></i>
+            <div class="ms-2 me-auto">
+              <div class="fw-bold">Corse di oggi</div>
+              <span
+                >Da qui si possono vedere le prenotazioni per ogni corsa di
+                oggi</span
+                >
+              </div>
+            </li>
+          }
+          <li
+            (click)="goTo('/user/mytickets')"
+            class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+            >
+            <i class="fa fa-ticket me-3 fs-3"></i>
+            <div class="ms-2 me-auto">
+              <div class="fw-bold" [innerText]="'str_my_tickets' | translate"></div>
+              <span [innerText]="'str_my_tickets_desc' | translate"></span>
+            </div>
+          </li>
+          <li
+            (click)="goTo('/user/settings')"
+            class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+            >
+            <i class="fa-solid fa-user me-3 fs-3"></i>
+            <div class="ms-2 me-auto">
+              <div class="fw-bold" [innerText]="'str_profile' | translate"></div>
+              <span [innerHTML]="'str_profile_desc' | translate"></span>
+            </div>
+          </li>
+          <li
+            (click)="logout()"
+            class="list-group-item bg-danger text-white list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
+            >
+            <i class="fas fa-sign-out-alt me-3 fs-3"></i>
+            <div class="ms-2 me-auto">
+              <div class="fw-bold" [innerText]="'str_logout' | translate"></div>
+              <div>
+                <span [innerText]="'str_logout_desc' | translate"></span>
+              </div>
+            </div>
+          </li>
+        </ol>
+      </div>
+    }
   </div>
-  <div *ngIf="!loading" @fadeInOut>
-    <ol class="list-group border-0 rounded-4 shadow">
-      <li
-        *ngIf="getRole() <= 50"
-        (click)="goTo('/admin/home')"
-        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
-      >
-        <i class="fa fa-dashboard me-3 fs-3"></i>
-        <div class="ms-2 me-auto">
-          <div class="fw-bold">Area amministrativa</div>
-          <span>Da qui si può gestire tutta la piattaforma</span>
-        </div>
-      </li>
-
-      <li
-        *ngIf="getRole() <= 75"
-        (click)="goTo('/driver/routes')"
-        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
-      >
-        <i class="fa fa-route me-3 fs-3"></i>
-        <div class="ms-2 me-auto">
-          <div class="fw-bold">Corse di oggi</div>
-          <span
-            >Da qui si possono vedere le prenotazioni per ogni corsa di
-            oggi</span
-          >
-        </div>
-      </li>
-      <li
-        (click)="goTo('/user/mytickets')"
-        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
-      >
-        <i class="fa fa-ticket me-3 fs-3"></i>
-        <div class="ms-2 me-auto">
-          <div class="fw-bold" [innerText]="'str_my_tickets' | translate"></div>
-          <span [innerText]="'str_my_tickets_desc' | translate"></span>
-        </div>
-      </li>
-
-      <li
-        (click)="goTo('/user/settings')"
-        class="list-group-item list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
-      >
-        <i class="fa-solid fa-user me-3 fs-3"></i>
-        <div class="ms-2 me-auto">
-          <div class="fw-bold" [innerText]="'str_profile' | translate"></div>
-          <span [innerHTML]="'str_profile_desc' | translate"></span>
-        </div>
-      </li>
-      <li
-        (click)="logout()"
-        class="list-group-item bg-danger text-white list-group-item-action cursor-pointer d-flex p-3 justify-content-between align-items-center"
-      >
-        <i class="fas fa-sign-out-alt me-3 fs-3"></i>
-        <div class="ms-2 me-auto">
-          <div class="fw-bold" [innerText]="'str_logout' | translate"></div>
-          <div>
-            <span [innerText]="'str_logout_desc' | translate"></span>
-          </div>
-        </div>
-      </li>
-    </ol>
-  </div>
-</div>

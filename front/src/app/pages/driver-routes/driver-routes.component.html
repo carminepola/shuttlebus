@@ -4,22 +4,28 @@
     title="Corse di oggi"
     subtitle="Clicca su una corsa per visualizzare le prenotazioni"
     back="true"
-  >
+    >
   </app-title-page>
-  <div class="d-flex justify-content-center my-4" *ngIf="loading"></div>
-  <div class="row" *ngIf="!loading">
-    <div class="card my-3" *ngFor="let route of routes">
-      <div
-        class="card-body d-flex align-items-center justify-content-between w-100"
-      >
-        <div>{{ route.name }}</div>
-        <button
-          (click)="goTo('/driver/routes/' + route.id)"
-          class="btn btn-primary"
-        >
-          Visualizza
-        </button>
-      </div>
+  @if (loading) {
+    <div class="d-flex justify-content-center my-4"></div>
+  }
+  @if (!loading) {
+    <div class="row">
+      @for (route of routes; track route) {
+        <div class="card my-3">
+          <div
+            class="card-body d-flex align-items-center justify-content-between w-100"
+            >
+            <div>{{ route.name }}</div>
+            <button
+              (click)="goTo('/driver/routes/' + route.id)"
+              class="btn btn-primary"
+              >
+              Visualizza
+            </button>
+          </div>
+        </div>
+      }
     </div>
-  </div>
+  }
 </div>

@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { RouterModule } from '@angular/router';
 import { BookingsService } from '../../services/bookings/bookings.service';
 import { StripeService } from '../../services/stripe/stripe.service';
 @Component({
   selector: 'app-payment',
-  imports: [CommonModule, TranslatePipe, RouterModule],
+  imports: [TranslatePipe, RouterModule],
   templateUrl: './payment.component.html',
   styleUrl: './payment.component.scss',
 })

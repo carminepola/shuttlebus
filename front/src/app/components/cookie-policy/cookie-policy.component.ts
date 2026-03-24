@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 @Component({
   selector: 'app-cookie-policy',
-  imports: [TranslatePipe, CommonModule],
+  imports: [TranslatePipe],
   templateUrl: './cookie-policy.component.html',
   styleUrl: './cookie-policy.component.scss',
 })

@@ -1,13 +1,13 @@
 <div class="d-flex min-vh-100">
   <div
     class="d-none d-lg-block col-lg-6 bg-dark position-relative overflow-hidden"
-  >
+    >
     <div
       class="position-absolute top-0 start-0 w-100 h-100 background-gradient"
     ></div>
     <div
       class="position-relative z-index-10 d-flex flex-column justify-content-center align-items-center h-100 text-white text-center p-5"
-    >
+      >
       <i class="fas fa-user fa-8x mb-4"></i>
       <h2 class="display-4 fw-bold mb-4">Benvenuto</h2>
       <p class="fs-4 text-gray-300">
@@ -18,7 +18,7 @@
 
   <div
     class="col-12 col-lg-6 d-flex align-items-center justify-content-center p-5"
-  >
+    >
     <div class="w-100">
       <div class="mb-4 text-center">
         <h2 class="display-5 fw-bold text-primary">Accedi al tuo account</h2>
@@ -28,9 +28,11 @@
       </div>
 
       <form [formGroup]="loginForm" (submit)="onSubmit($event)" novalidate>
-        <div *ngIf="loginError" class="alert alert-danger mb-4">
-          {{ loginError }}
-        </div>
+        @if (loginError) {
+          <div class="alert alert-danger mb-4">
+            {{ loginError }}
+          </div>
+        }
 
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
@@ -45,18 +47,23 @@
               'is-invalid': isSubmitted && formControls['email'].invalid,
           
             }"
-          />
-          <div
-            *ngIf="isSubmitted && formControls['email'].errors"
-            class="invalid-feedback"
-          >
-            <div *ngIf="formControls['email'].errors['required']">
-              Email è richiesta
+            />
+          @if (isSubmitted && formControls['email'].errors) {
+            <div
+              class="invalid-feedback"
+              >
+              @if (formControls['email'].errors['required']) {
+                <div>
+                  Email è richiesta
+                </div>
+              }
+              @if (formControls['email'].errors['email']) {
+                <div>
+                  Email non valida
+                </div>
+              }
             </div>
-            <div *ngIf="formControls['email'].errors['email']">
-              Email non valida
-            </div>
-          </div>
+          }
         </div>
 
         <div class="mb-3">
@@ -72,18 +79,23 @@
               'is-invalid': isSubmitted && formControls['password'].invalid,
              
             }"
-          />
-          <div
-            *ngIf="isSubmitted && formControls['password'].errors"
-            class="invalid-feedback"
-          >
-            <div *ngIf="formControls['password'].errors['required']">
-              Password è richiesta
+            />
+          @if (isSubmitted && formControls['password'].errors) {
+            <div
+              class="invalid-feedback"
+              >
+              @if (formControls['password'].errors['required']) {
+                <div>
+                  Password è richiesta
+                </div>
+              }
+              @if (formControls['password'].errors['minlength']) {
+                <div>
+                  Password deve essere lunga almeno 6 caratteri
+                </div>
+              }
             </div>
-            <div *ngIf="formControls['password'].errors['minlength']">
-              Password deve essere lunga almeno 6 caratteri
-            </div>
-          </div>
+          }
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -94,38 +106,41 @@
               name="rememberMe"
               type="checkbox"
               class="form-check-input"
-            />
+              />
             <label for="rememberMe" class="form-check-label">Ricordami</label>
           </div>
 
           <div class="text-end">
             <a routerLink="/lostpassword" class="cursor-pointer text-secondary"
               >Password dimenticata?</a
-            >
+              >
+            </div>
           </div>
-        </div>
 
-        <div
-          class="d-flex flex-column justify-content-center align-items-center"
-        >
-          <button
-            type="submit"
-            [disabled]="isLoading"
-            class="btn btn-secondary w-100 d-flex justify-content-center align-items-center"
-          >
-            <span *ngIf="!isLoading">Accedi</span>
-            <div
-              *ngIf="isLoading"
-              class="spinner-border spinner-border-sm text-white"
-              role="status"
-            ></div>
-          </button>
+          <div
+            class="d-flex flex-column justify-content-center align-items-center"
+            >
+            <button
+              type="submit"
+              [disabled]="isLoading"
+              class="btn btn-secondary w-100 d-flex justify-content-center align-items-center"
+              >
+              @if (!isLoading) {
+                <span>Accedi</span>
+              }
+              @if (isLoading) {
+                <div
+                  class="spinner-border spinner-border-sm text-white"
+                  role="status"
+                ></div>
+              }
+            </button>
 
-          <button class="btn btn-danger w-100 mt-3" (click)="loginWithGoogle()">
-            <i class="fa-brands fa-google me-2"></i>Accedi con google
-          </button>
-        </div>
-      </form>
+            <button class="btn btn-danger w-100 mt-3" (click)="loginWithGoogle()">
+              <i class="fa-brands fa-google me-2"></i>Accedi con google
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>

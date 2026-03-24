@@ -4,7 +4,7 @@ import { TitlePageComponent } from '../../components/title-page/title-page.compo
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { UserService } from '../../services/user/user.service';
 import { lastValueFrom } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { fadeAnimation } from '../../animations/fade.animation';
 import { FilterPipe } from '../../pipe/filter.pipe';
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
@@ -13,11 +13,10 @@ import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
   imports: [
     TitlePageComponent,
     RouterModule,
-    CommonModule,
     LoadingComponent,
     FilterPipe,
-    FormsModule,
-  ],
+    FormsModule
+],
   templateUrl: './clients.component.html',
   styleUrl: './clients.component.scss',
   animations: [fadeAnimation],
