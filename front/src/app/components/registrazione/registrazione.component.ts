@@ -1,6 +1,5 @@
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 
-
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
@@ -11,12 +10,7 @@ import { LngService } from '../../services/lng/lng.service';
 
 @Component({
   selector: 'app-registrazione',
-  imports: [
-    ReactiveFormsModule,
-    RouterModule,
-    TranslatePipe,
-    FormsModule
-],
+  imports: [ReactiveFormsModule, RouterModule, TranslatePipe, FormsModule],
   templateUrl: './registrazione.component.html',
   styleUrl: './registrazione.component.scss',
 })
@@ -42,7 +36,7 @@ export class RegistrazioneComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private userService: UserService,
-    private lngService: LngService
+    private lngService: LngService,
   ) {}
 
   async getPhonePrefix() {
@@ -99,7 +93,7 @@ export class RegistrazioneComponent implements OnInit {
         .subscribe({
           next: (response: any) => {
             const md5Password = CryptoJS.MD5(
-              this.loginForm.password
+              this.loginForm.password,
             ).toString();
 
             this.authService
@@ -138,6 +132,20 @@ export class RegistrazioneComponent implements OnInit {
     this.registerSuccess.emit();
   }
 
+  onPhoneInput(event: any): void {
+    // Get the current input value
+    let value = event.target.value;
+
+    // Remove all non-numeric characters and spaces
+    value = value.replace(/[^0-9]/g, '');
+
+    // Update the model with the cleaned value
+    this.loginForm.phoneNumber = value;
+
+    // Update the input field value
+    event.target.value = value;
+  }
+
   onSubmit(f: NgForm): void {
     try {
       if (!f.valid) {
@@ -172,7 +180,7 @@ export class RegistrazioneComponent implements OnInit {
       ) {
         console.log('Numero di telefono mancante');
         this.loginError = this.lngService.traslate(
-          'str_phone_number_is_required'
+          'str_phone_number_is_required',
         );
         return;
       }
