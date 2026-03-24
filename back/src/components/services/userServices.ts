@@ -40,9 +40,9 @@ export default class UserServices {
       throw error;
     }
   }
-  async getUsers() {
+  async getUsers(page: number = 1, limit: number = 10) {
     try {
-      const result = await this.userDao.getUsers();
+      const result = await this.userDao.getUsers(page, limit);
       return result;
     } catch (error) {
       throw error;
@@ -92,22 +92,21 @@ export default class UserServices {
   generatePin() {
     // Usa un valore casuale (puoi anche usare Date.now o simili come seed)
     const randomBytes = CryptoJS.lib.WordArray.random(4); // 4 byte = 32 bit
-  
+
     // Convertilo in un numero usando l'hash (puoi anche usare direttamente il valore raw)
     const hash = CryptoJS.SHA256(randomBytes).toString(CryptoJS.enc.Hex);
-  
+
     // Prendi solo una parte dell'hash per ottenere un numero
     const number = parseInt(hash.slice(0, 8), 16); // Primi 8 caratteri = 32 bit
-  
+
     // Riduci a un numero tra 0 e 999999
     const pin = number % 1000000;
-  
+
     // Ritorna una stringa con zeri iniziali se necessario
     return pin.toString().padStart(6, "0");
   }
   async register(user: userModel, lng: string) {
     try {
-   
       let oldUser = await this.userDao.getUserByEmailAll(user.email);
       if (oldUser && oldUser.role !== role.NO_PERMISSION) {
         throw new ErrorModel(409, "Utente già esistente");
