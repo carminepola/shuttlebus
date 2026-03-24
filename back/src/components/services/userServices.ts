@@ -75,6 +75,26 @@ export default class UserServices {
       throw error;
     }
   }
+
+  async updateUserDetails(email: string, name: string, phone?: string) {
+    try {
+      const userData = await this.userDao.getUserByEmailAll(email);
+      if (!userData) {
+        throw new ErrorModel(404, "Utente non trovato");
+      }
+
+      const user = new userModel(userData);
+      user.details.name = name;
+      if (phone !== undefined) {
+        user.details.phone = phone;
+      }
+
+      const result = await this.userDao.updateUser(user);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
   async checkPassword(email: string, password: string) {
     try {
       return await this.userDao.checkPassword(email, password);

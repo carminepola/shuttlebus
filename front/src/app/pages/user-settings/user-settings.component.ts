@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
 import { AuthService } from '../../services/auth/auth.service';
+import { UserService } from '../../services/user/user.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 @Component({
   selector: 'app-user-settings',
@@ -26,8 +27,18 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 })
 export class UserSettingsComponent implements OnInit {
   changePasswordForm: FormGroup;
+  userDetailsForm: FormGroup;
+  loading = false;
+  loadingDetails = false;
+  successMessage = '';
+  errorMessage = '';
+  successMessageDetails = '';
+  errorMessageDetails = '';
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private userService: UserService,
+  ) {
     this.changePasswordForm = new FormGroup({
       oldPassword: new FormControl('', Validators.required),
       newPassword: new FormControl('', [
@@ -35,6 +46,11 @@ export class UserSettingsComponent implements OnInit {
         Validators.minLength(6),
       ]),
       repeatPassword: new FormControl('', Validators.required),
+    });
+
+    this.userDetailsForm = new FormGroup({
+      name: new FormControl('', Validators.required),
+      phone: new FormControl(''),
     });
   }
 
@@ -59,13 +75,73 @@ export class UserSettingsComponent implements OnInit {
       return;
     }
 
-    // this.authService.changePassword(oldPassword, newPassword).subscribe(
-    //   (res) => {
-    //     console.log(res);
-    //   },
-    //   (err) => {
-    //     console.log(err);
-    //   }
-    // );
+    this.loading = true;
+    this.successMessage = '';
+    this.errorMessage = '';
+
+    const decodedToken = this.authService.getDecodedToken();
+    const email = decodedToken?.email;
+
+    if (!email) {
+      this.errorMessage = "Impossibile recuperare l'email dell'utente";
+      this.loading = false;
+      return;
+    }
+
+    this.userService.changePassword(email, oldPassword, newPassword).subscribe(
+      (res) => {
+        this.loading = false;
+        this.successMessage = 'Password cambiata con successo!';
+        this.changePasswordForm.reset();
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+      },
+      (err) => {
+        this.loading = false;
+        console.error('Error changing password:', err);
+        if (err.error?.message) {
+          this.errorMessage = err.error.message;
+        } else if (err.status === 400) {
+          this.errorMessage = 'La vecchia password non è corretta';
+        } else {
+          this.errorMessage =
+            'Si è verificato un errore durante il cambio password';
+        }
+      },
+    );
+  }
+
+  onSubmitDetails(): void {
+    if (this.userDetailsForm.invalid) {
+      return;
+    }
+
+    this.loadingDetails = true;
+    this.successMessageDetails = '';
+    this.errorMessageDetails = '';
+
+    const name = this.userDetailsForm.get('name')?.value;
+    const phone = this.userDetailsForm.get('phone')?.value;
+
+    this.userService.updateUserDetails(name, phone).subscribe(
+      (res) => {
+        this.loadingDetails = false;
+        this.successMessageDetails = 'Dettagli aggiornati con successo!';
+        setTimeout(() => {
+          this.successMessageDetails = '';
+        }, 3000);
+      },
+      (err) => {
+        this.loadingDetails = false;
+        console.error('Error updating user details:', err);
+        if (err.error?.message) {
+          this.errorMessageDetails = err.error.message;
+        } else {
+          this.errorMessageDetails =
+            "Si è verificato un errore durante l'aggiornamento dei dettagli";
+        }
+      },
+    );
   }
 }

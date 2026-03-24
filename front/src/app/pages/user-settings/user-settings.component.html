@@ -4,12 +4,133 @@
     [subtitle]="'str_setting_desc' | translate"
     back="true"
   ></app-title-page>
+  <div class="card border-0 rounded-4 shadow mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div>
+          <h3 class="text-muted mb-3">Dettagli Personali</h3>
+        </div>
+
+        @if (successMessageDetails) {
+          <div
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+          >
+            {{ successMessageDetails }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="successMessageDetails = ''"
+            ></button>
+          </div>
+        }
+
+        @if (errorMessageDetails) {
+          <div
+            class="alert alert-danger alert-dismissible fade show"
+            role="alert"
+          >
+            {{ errorMessageDetails }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="errorMessageDetails = ''"
+            ></button>
+          </div>
+        }
+
+        <div class="col mb-2">
+          <form [formGroup]="userDetailsForm" (ngSubmit)="onSubmitDetails()">
+            <div class="mb-3">
+              <label for="name" class="form-label">Nome</label>
+              <input
+                id="name"
+                type="text"
+                formControlName="name"
+                class="form-control"
+                required
+                placeholder="Inserisci il tuo nome"
+              />
+              @if (
+                userDetailsForm.get("name")?.touched &&
+                userDetailsForm.get("name")?.invalid
+              ) {
+                <div class="invalid-feedback d-block">
+                  @if (userDetailsForm.get("name")?.hasError("required")) {
+                    <div>
+                      {{ "str_campo_obbligatorio" | translate }}
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <div class="mb-3">
+              <label for="phone" class="form-label">Numero di telefono</label>
+              <input
+                id="phone"
+                type="tel"
+                formControlName="phone"
+                class="form-control"
+                placeholder="Inserisci il tuo numero di telefono"
+              />
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary float-end"
+              [disabled]="loadingDetails"
+            >
+              @if (loadingDetails) {
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              } @else {
+                <i class="fas fa-save me-2"></i>
+              }
+              {{ loadingDetails ? "Salvataggio..." : "Salva" }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="card border-0 rounded-4 shadow">
     <div class="card-body">
       <div class="row">
         <div>
           <h3 class="text-muted">{{ "str_cambia_password" | translate }}</h3>
         </div>
+
+        @if (successMessage) {
+          <div
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+          >
+            {{ successMessage }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="successMessage = ''"
+            ></button>
+          </div>
+        }
+
+        @if (errorMessage) {
+          <div
+            class="alert alert-danger alert-dismissible fade show"
+            role="alert"
+          >
+            {{ errorMessage }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="errorMessage = ''"
+            ></button>
+          </div>
+        }
+
         <div class="col mb-2">
           <form [formGroup]="changePasswordForm" (ngSubmit)="onSubmit()">
             <div class="mb-3">
@@ -23,19 +144,16 @@
                 class="form-control"
                 required
                 [placeholder]="'insert_old_password' | translate"
-                />
+              />
               @if (
-                changePasswordForm.get('oldPassword')?.touched &&
-                changePasswordForm.get('oldPassword')?.invalid
-                ) {
-                <div
-                  class="invalid-feedback"
-                  >
+                changePasswordForm.get("oldPassword")?.touched &&
+                changePasswordForm.get("oldPassword")?.invalid
+              ) {
+                <div class="invalid-feedback">
                   @if (
-                    changePasswordForm.get('oldPassword')?.hasError('required')
-                    ) {
-                    <div
-                      >
+                    changePasswordForm.get("oldPassword")?.hasError("required")
+                  ) {
+                    <div>
                       {{ "str_campo_obbligatorio" | translate }}
                     </div>
                   }
@@ -55,27 +173,23 @@
                 class="form-control"
                 required
                 [placeholder]="'insert_new_password' | translate"
-                />
+              />
               @if (
-                changePasswordForm.get('newPassword')?.touched &&
-                changePasswordForm.get('newPassword')?.invalid
-                ) {
-                <div
-                  class="invalid-feedback"
-                  >
+                changePasswordForm.get("newPassword")?.touched &&
+                changePasswordForm.get("newPassword")?.invalid
+              ) {
+                <div class="invalid-feedback">
                   @if (
-                    changePasswordForm.get('newPassword')?.hasError('required')
-                    ) {
-                    <div
-                      >
+                    changePasswordForm.get("newPassword")?.hasError("required")
+                  ) {
+                    <div>
                       {{ "str_campo_obbligatorio" | translate }}
                     </div>
                   }
                   @if (
-                    changePasswordForm.get('newPassword')?.hasError('minlength')
-                    ) {
-                    <div
-                      >
+                    changePasswordForm.get("newPassword")?.hasError("minlength")
+                  ) {
+                    <div>
                       {{ "str_lng_password" | translate }}
                     </div>
                   }
@@ -93,40 +207,48 @@
                 class="form-control"
                 required
                 [placeholder]="'str_ripeti_password' | translate"
-                />
+              />
               @if (
-                changePasswordForm.get('repeatPassword')?.touched &&
-                changePasswordForm.get('repeatPassword')?.invalid
-                ) {
-                <div
-                  class="invalid-feedback"
-                  >
+                changePasswordForm.get("repeatPassword")?.touched &&
+                changePasswordForm.get("repeatPassword")?.invalid
+              ) {
+                <div class="invalid-feedback">
                   @if (
                     changePasswordForm
-                    .get('repeatPassword')
-                    ?.hasError('required')
-                    ) {
-                    <div
-                      >
+                      .get("repeatPassword")
+                      ?.hasError("required")
+                  ) {
+                    <div>
                       {{ "str_campo_obbligatorio" | translate }}
                     </div>
                   }
                   @if (
                     changePasswordForm
-                    .get('repeatPassword')
-                    ?.hasError('mustMatch')
-                    ) {
-                    <div
-                      >
+                      .get("repeatPassword")
+                      ?.hasError("mustMatch")
+                  ) {
+                    <div>
                       {{ "str_password_must_match" | translate }}
                     </div>
                   }
                 </div>
               }
             </div>
-            <button type="submit" class="btn btn-secondary float-end">
-              <i class="fas fa-save me-2"></i>
-              Salva
+            <button
+              type="submit"
+              class="btn btn-secondary float-end"
+              [disabled]="loading"
+            >
+              @if (loading) {
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              } @else {
+                <i class="fas fa-save me-2"></i>
+              }
+              {{ loading ? "Salvataggio..." : "Salva" }}
             </button>
           </form>
         </div>
