@@ -4,6 +4,7 @@ import RoutesServices from "./routesServices";
 import LicensePlateServices from "./licensePlateServices";
 import dotenv from "dotenv";
 import { logger } from "../..";
+import { log } from "console";
 
 dotenv.config();
 
@@ -70,60 +71,80 @@ class momapServices {
     }
   }
 
+  getPositionEnabled(checkHours: { minTime: any; maxTime: any }) {
+    const { minTime, maxTime } = checkHours;
+    // funzione per convertire "HH:mm" → minuti
+    const toMinutes = (time: string) => {
+      const [h, m] = time.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    // ora attuale
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // conversioni
+    const min = toMinutes(minTime);
+    const max = toMinutes(maxTime) + 30;
+
+    // check
+    const isInRange = nowMinutes >= min && nowMinutes <= max;
+    return isInRange;
+  }
+
+  getMinAndMaxDate(data: any) {
+    const times = data.flatMap((route: any) => route.schedules.map((s: any) => s.departureTime));
+
+    const minTime = times.reduce((min: any, t: any) => (t < min ? t : min));
+    const maxTime = times.reduce((max: any, t: any) => (t > max ? t : max));
+
+    return { minTime, maxTime };
+  }
   async cron() {
     try {
-      let momapEntries = await this.momapDao.get();
-      const today = new Date().toISOString().split("T")[0];
+      let route = await this.routeServices.getEnabledRoutes();
 
-      if (!Array.isArray(momapEntries) || momapEntries.length === 0 || !momapEntries.some((e: any) => e.day === today)) {
-        await this.created();
-        momapEntries = await this.momapDao.get();
+      let checkHours = this.getMinAndMaxDate(route);
+
+      if (!this.getPositionEnabled(checkHours)) {
+        return;
+      }
+      let momapEntries = await this.licensePlateServices.getAll();
+
+      if (!momapEntries || momapEntries.length === 0) {
+        return;
       }
 
-      const now = Math.floor(Date.now() / 1000);
-
-      for (const schedule of momapEntries) {
-        const busId = schedule.busId; // This is now the license plate
-
+      for (const bus of momapEntries) {
         try {
-          // Get IMEI from license plate
-          const imei = await this.licensePlateServices.getImeiByLicensePlate(busId);
-
+          // IMEI is now included in the momap entry from the database lookup
+          const imei = bus.imei;
+          if (bus.enable == false) {
+            continue;
+          }
           if (!imei) {
-            logger.warn(`Nessun IMEI trovato per la targa ${busId}`);
+            logger.warn(`Nessun IMEI trovato per la targa ${bus.name}`);
             continue;
           }
 
           const position = await this.getPositionFromMomap(imei);
 
           const newPosition = {
+            imei: bus.imei,
+            name: bus.name,
+            plate: bus.licensePlate,
+            busId: bus.id,
             lat: parseFloat(position.lat),
             lng: parseFloat(position.lng),
             angle: parseFloat(position.angle),
-            timestamp: now,
+            doors: position.doors,
+            date: new Date().toISOString().split("T")[0],
+            updatedFromMomap: position.updatedAt,
           };
 
-          schedule.currentLat = newPosition.lat;
-          schedule.currentLng = newPosition.lng;
-          schedule.currentAngle = newPosition.angle;
-
-          if (!Array.isArray(schedule.positions)) {
-            schedule.positions = [];
-          }
-
-          let update = true;
-          if (schedule.positions.length > 0) {
-            let lastPosition = schedule.positions[schedule.positions.length - 1];
-            if (lastPosition.angle === newPosition.angle && lastPosition.lat === newPosition.lat && lastPosition.lng === newPosition.lng) {
-              update = false;
-            }
-          }
-          if (update) {
-            schedule.positions.push(newPosition);
-            await this.momapDao.update(schedule);
-          }
+          await this.momapDao.update(newPosition);
         } catch (err) {
-          logger.error(`Errore nel recupero posizione per bus ${busId}:`, err);
+          logger.error(`Errore nel recupero posizione per bus ${bus.name}:`, err);
         }
       }
     } catch (error) {
@@ -131,7 +152,7 @@ class momapServices {
     }
   }
 
-  private async getPositionFromMomap(imei: string): Promise<{ lat: string; lng: string; angle: string }> {
+  private async getPositionFromMomap(imei: string): Promise<{ lat: string; lng: string; angle: string; doors: any; updatedAt: string }> {
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
     headers.append("Authorization", `Bearer ${process.env.MOMAP_JWT}`);
@@ -141,10 +162,13 @@ class momapServices {
 
     const result = await response.json();
     if (result?.data) {
+      let params = JSON.parse(result.data.params);
       return {
         lat: result.data.lat,
         lng: result.data.lng,
         angle: result.data.angle,
+        doors: params.doors,
+        updatedAt: result.data.updated_at,
       };
     }
 

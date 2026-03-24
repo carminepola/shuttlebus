@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { check, validationResult } from "express-validator";
-
+import LicensePlateServices from "../components/services/licensePlateServices";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 
 import { db } from "../index"; // Assuming db is exported from index.ts
