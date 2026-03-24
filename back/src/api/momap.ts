@@ -32,6 +32,17 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
+router.get("/busStatus", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let momap: momapServices = new momapServices(db);
+
+    let busStatus = await momap.getBusStatus();
+    res.json({ busStatus: busStatus });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/devices", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let momap: momapServices = new momapServices(db);

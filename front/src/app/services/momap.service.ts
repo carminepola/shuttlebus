@@ -13,7 +13,15 @@ export class MomapService {
     return this.http.get(this.apiUrl).pipe(
       catchError((error) => {
         return throwError(() => error);
-      })
+      }),
+    );
+  }
+
+  getBusStatus(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/busStatus`).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      }),
     );
   }
 }

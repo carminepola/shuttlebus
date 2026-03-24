@@ -12,11 +12,13 @@ class momapServices {
   private momapDao: MomapDao;
   private routeServices: RoutesServices;
   private licensePlateServices: LicensePlateServices;
+  private db: Db;
 
   constructor(db: Db) {
     this.momapDao = new MomapDao(db);
     this.routeServices = new RoutesServices(db);
     this.licensePlateServices = new LicensePlateServices(db);
+    this.db = db;
   }
 
   async created() {
@@ -43,6 +45,13 @@ class momapServices {
 
   async getCurrent() {
     try {
+      let route = await this.routeServices.getEnabledRoutes();
+
+      let checkHours = this.getMinAndMaxDate(route);
+
+      if (!this.getPositionEnabled(checkHours)) {
+        return;
+      }
       const momap = await this.momapDao.getCurrent();
       return momap;
     } catch (error) {
@@ -173,6 +182,199 @@ class momapServices {
     }
 
     throw new Error("Dati GPS non validi da Momap");
+  }
+
+  /**
+   * Calcola la distanza in metri tra due coordinate GPS usando la formula di Haversine
+   */
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371e3; // Raggio della Terra in metri
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  }
+
+  /**
+   * Converte un orario in formato "HH:mm" in minuti dalla mezzanotte
+   */
+  private timeToMinutes(time: string): number {
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours * 60 + minutes;
+  }
+
+  /**
+   * Ottiene lo stato di tutti gli autobus: linea, prossima fermata e stato di ritardo
+   */
+  async getBusStatus() {
+    try {
+      // Recupera le posizioni attuali degli autobus
+      const currentPositions = await this.momapDao.getCurrent();
+
+      // Recupera le schedule attive per oggi con i dettagli delle fermate
+      const schedules = await this.routeServices.getListScheduleForBusId();
+
+      // Recupera le rotte abilitate per ottenere i nomi delle linee
+      const routes = await this.routeServices.getEnabledRoutes();
+
+      // Crea una mappa delle fermate con le loro coordinate
+      const stopsMap = new Map<string, { name: string; lat: number; lng: number }>();
+
+      for (const route of routes) {
+        for (const stop of route.stops) {
+          // Recupera i dettagli della fermata dalla collection stops
+          const stopDetails = await this.db.collection("stops").findOne({ id: stop.id });
+          if (stopDetails) {
+            stopsMap.set(stop.id, {
+              name: stopDetails.name || stop.id,
+              lat: stopDetails.location?.latitude || 0,
+              lng: stopDetails.location?.longitude || 0,
+            });
+          }
+        }
+      }
+
+      // Crea una mappa delle rotte per ottenere i nomi
+      const routesMap = new Map<string, { id: string; name: { it: string; en: string } }>();
+      for (const route of routes) {
+        for (const schedule of route.schedules || []) {
+          routesMap.set(schedule.id, {
+            id: route.id,
+            name: route.name,
+          });
+        }
+      }
+
+      // Calcola l'orario attuale in minuti
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      // Elabora ogni autobus
+      const busStatusList = [];
+
+      for (const busPosition of currentPositions) {
+        const busId = busPosition.busId;
+        const busLat = busPosition.currentLat;
+        const busLng = busPosition.currentLng;
+        const plate = busPosition.plate || null;
+        const name = busPosition.name || null;
+
+        // Trova le schedule per questo busId
+        const busSchedules = schedules.find((s: any) => s.busId === busId);
+
+        if (!busSchedules || !busSchedules.stops || busSchedules.stops.length === 0) {
+          // Nessuna schedule trovata per questo bus
+          busStatusList.push({
+            busId: busId,
+            plate: plate,
+            name: name,
+            line: null,
+            nextStop: null,
+            status: "no_schedule",
+            delay: null,
+            currentLat: busLat,
+            currentLng: busLng,
+          });
+          continue;
+        }
+
+        // Trova la fermata più vicina all'autobus
+        let closestStop = null;
+        let minDistance = Infinity;
+
+        for (const stop of busSchedules.stops) {
+          const stopDetails = stopsMap.get(stop.stopId);
+          if (stopDetails) {
+            const distance = this.calculateDistance(busLat, busLng, stopDetails.lat, stopDetails.lng);
+            if (distance < minDistance) {
+              minDistance = distance;
+              closestStop = stop;
+            }
+          }
+        }
+
+        if (!closestStop) {
+          // Nessuna fermata trovata
+          busStatusList.push({
+            busId: busId,
+            plate: plate,
+            name: name,
+            line: null,
+            nextStop: null,
+            status: "no_stop",
+            delay: null,
+            currentLat: busLat,
+            currentLng: busLng,
+          });
+          continue;
+        }
+
+        // Determina la prossima fermata
+        const stopIndex = busSchedules.stops.findIndex((s: any) => s.stopId === closestStop.stopId);
+        let nextStop = null;
+
+        if (stopIndex >= 0 && stopIndex < busSchedules.stops.length - 1) {
+          nextStop = busSchedules.stops[stopIndex + 1];
+        } else if (stopIndex === busSchedules.stops.length - 1) {
+          // L'autobus è all'ultima fermata
+          nextStop = null;
+        }
+
+        // Calcola il ritardo
+        const stopTimeMinutes = this.timeToMinutes(closestStop.stopTime);
+        let delay = null;
+        let status = "on_time";
+
+        if (currentMinutes > stopTimeMinutes) {
+          delay = currentMinutes - stopTimeMinutes;
+          status = "late";
+        } else if (currentMinutes < stopTimeMinutes) {
+          delay = stopTimeMinutes - currentMinutes;
+          status = "early";
+        }
+
+        // Ottieni i dettagli della fermata
+        const stopDetails = stopsMap.get(closestStop.stopId);
+        const nextStopDetails = nextStop ? stopsMap.get(nextStop.stopId) : null;
+
+        // Ottieni i dettagli della linea
+        const routeDetails = routesMap.get(closestStop.scheduleId);
+
+        busStatusList.push({
+          busId: busId,
+          plate: plate,
+          name: name,
+          line: routeDetails ? routeDetails.name : null,
+          currentStop: {
+            id: closestStop.stopId,
+            name: stopDetails?.name || closestStop.stopId,
+            scheduledTime: closestStop.stopTime,
+            distance: Math.round(minDistance),
+          },
+          nextStop: nextStopDetails
+            ? {
+                id: nextStop.stopId,
+                name: nextStopDetails.name || nextStop.stopId,
+                scheduledTime: nextStop.stopTime,
+              }
+            : null,
+          status: status,
+          delay: delay,
+          currentLat: busLat,
+          currentLng: busLng,
+        });
+      }
+
+      return busStatusList;
+    } catch (error) {
+      logger.error("Errore in getBusStatus momapServices:", error);
+      throw error;
+    }
   }
 }
 

@@ -64,7 +64,7 @@ export default class MomapDao {
       return await this.db
         .collection(this.schema)
         .find({ date: new Date().toISOString().split("T")[0] })
-        .project({ busId: 1, currentLat: "$lat", currentLng: "$lng", currentAngle: "$angle" })
+        .project({ busId: 1, plate: 1, name: 1, currentLat: "$lat", currentLng: "$lng", currentAngle: "$angle" })
         .toArray();
     } catch (error) {
       logger.error("Error retrieving all ticketType:", error);
