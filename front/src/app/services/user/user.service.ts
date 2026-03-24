@@ -27,7 +27,12 @@ export class UserService {
   validateMail(data: any): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/${this.path}/validateEmail`,
-      data
+      data,
+    );
+  }
+  getUsers(page: number = 1, limit: number = 10): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/${this.path}?page=${page}&limit=${limit}`,
     );
   }
 }

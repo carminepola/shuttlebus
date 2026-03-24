@@ -24,10 +24,11 @@ export default class UsersDao {
    * @throws {Error} - Throws an error if there is an issue querying the database.
    */
 
-  async getUsers() {
+  async getUsers(page: number = 1, limit: number = 10) {
     try {
       let json = {};
-      let list = await this.db.collection(this.schema).find(json).toArray();
+      const skip = (page - 1) * limit;
+      let list = await this.db.collection(this.schema).find(json).skip(skip).limit(limit).toArray();
       list.forEach((element) => {
         delete element.password;
         delete element.recoverPassword;
@@ -35,7 +36,19 @@ export default class UsersDao {
         delete element?.options?.google?._raw;
         delete element?.options?.google?._json;
       });
-      return list;
+
+      // Get total count for pagination
+      const totalCount = await this.db.collection(this.schema).countDocuments(json);
+
+      return {
+        users: list,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+        },
+      };
     } catch (error) {
       throw error;
     }
@@ -192,7 +205,6 @@ export default class UsersDao {
       json = {
         email: email,
         disabled: false,
-    
       };
       let user = await this.db.collection(this.schema).findOne(json);
 

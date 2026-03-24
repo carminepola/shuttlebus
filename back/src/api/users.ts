@@ -51,7 +51,6 @@ router.post(
       user.options.lng = language;
       user.privacyAndPolicy = true;
       user.privacyAndPolicyConfirmDate = new Date().getTime();
-  
 
       let userServices = new UserServices(db);
       result = await userServices.register(user, language);
@@ -61,7 +60,7 @@ router.post(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
 
 router.post(
@@ -85,7 +84,7 @@ router.post(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
 router.post(
   "/",
@@ -119,7 +118,7 @@ router.post(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
 
 router.patch(
@@ -148,7 +147,7 @@ router.patch(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
 
 router.get("/getNormalUser", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
@@ -188,7 +187,7 @@ router.put(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
 router.get("/:id?", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -198,7 +197,9 @@ router.get("/:id?", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requi
       const result = await userServices.getUserById(id);
       res.json(result);
     } else {
-      const result = await userServices.getUsers();
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const result = await userServices.getUsers(page, limit);
       res.json(result);
     }
   } catch (error) {
