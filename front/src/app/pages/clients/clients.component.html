@@ -4,43 +4,43 @@
     subtitle="Gestisci i clienti"
     back="true"
   ></app-title-page>
-  @if (loading) {
-    <div
-      class="w-100 d-flex align-items-center justify-content-center"
-      >
-      <app-loading></app-loading>
-    </div>
-  }
-
-  @if (!loading) {
-    <div class="card shadow border-0 rounded-4" @fadeInOut>
-      <!-- Header Section -->
-      <div class="card-header bg-white rounded-top-4 border-bottom py-4">
-        <div class="row align-items-center gy-3">
-          <div class="col">
-            <div class="input-group">
-              <span class="input-group-text bg-light border-0 icon-container"
-                ><i class="fas fa-search"></i
-              ></span>
-              <input
-                [(ngModel)]="search"
-                type="text"
-                class="form-control form-control-lg bg-light border-0"
-                placeholder="Cerca cliente..."
-                />
-            </div>
+  <div class="card shadow border-0 rounded-4" @fadeInOut>
+    <!-- Header Section -->
+    <div class="card-header bg-white rounded-top-4 border-bottom py-4">
+      <div class="row align-items-center gy-3">
+        <div class="col">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0 icon-container"
+              ><i class="fas fa-search"></i
+            ></span>
+            <input
+              type="text"
+              class="form-control form-control-lg bg-light border-0"
+              placeholder="Cerca cliente..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchTermChange()"
+            />
           </div>
         </div>
       </div>
+    </div>
+
+    @if (loading) {
+      <div class="w-100 d-flex align-items-center justify-content-center py-5">
+        <app-loading></app-loading>
+      </div>
+    }
+
+    @if (!loading) {
       <!-- Mobile View (Cards) -->
       <div class="mobile-cards p-3 d-block d-lg-none">
         <!-- Card 1 -->
-        @for (client of clients | filter : search; track client) {
-          <div
-            class="card mb-3 shadow-sm rounded-4"
-            >
+        @for (client of clients; track client._id) {
+          <div class="card mb-3 shadow-sm rounded-4">
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-3">
+              <div
+                class="d-flex justify-content-between align-items-start mb-3"
+              >
                 <h5 class="card-title mb-0" [innerHTML]="client.name"></h5>
                 <div>
                   <button class="btn btn-info btn-sm me-2 rounded-3">
@@ -58,7 +58,10 @@
               @if (client.phone) {
                 <p class="mb-2">
                   Numero:
-                  <span class="text-secondary" [innerHTML]="client.phone"></span>
+                  <span
+                    class="text-secondary"
+                    [innerHTML]="client.phone"
+                  ></span>
                 </p>
               }
             </div>
@@ -66,6 +69,7 @@
         }
         <!-- Additional cards can be added here -->
       </div>
+
       <!-- Desktop View (Table) -->
       <div class="desktop-table p-4 d-none d-lg-block">
         <div class="table-responsive">
@@ -79,10 +83,8 @@
               </tr>
             </thead>
             <tbody>
-              @for (client of clients | filter : search; track client) {
-                <tr
-                  class="bg-white mb-2"
-                  >
+              @for (client of clients; track client._id) {
+                <tr class="bg-white mb-2">
                   <td [innerHTML]="client.name"></td>
                   <td [innerHTML]="client.email"></td>
                   <td [innerHTML]="client.phone"></td>
@@ -101,6 +103,21 @@
           </table>
         </div>
       </div>
-    </div>
-  }
+
+      <!-- Infinite Scroll Loading Indicator -->
+      @if (loadingMore) {
+        <div
+          class="w-100 d-flex align-items-center justify-content-center py-4"
+        >
+          <app-loading></app-loading>
+        </div>
+      }
+
+      <!-- Infinite Scroll Sentinel -->
+      <div
+        id="infinite-scroll-sentinel"
+        style="height: 50px; width: 100%"
+      ></div>
+    }
+  </div>
 </div>

@@ -135,3 +135,9 @@ body {
     transform: scale(1) translate(10px, -30px);
   }
 }
+.leaflet-container{
+  z-index: 500 !important;
+}
+.navbar{
+  z-index: 1000 !important;
+}

@@ -68,4 +68,20 @@ export class UserService {
       phone,
     });
   }
+
+  getClients(page: number = 1, limit: number = 10): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/${this.path}/clients?page=${page}&limit=${limit}`,
+    );
+  }
+
+  searchClients(
+    searchTerm: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/${this.path}/clients?search=${encodeURIComponent(searchTerm)}&page=${page}&limit=${limit}`,
+    );
+  }
 }

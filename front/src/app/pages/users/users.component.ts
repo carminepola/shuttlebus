@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
@@ -8,6 +8,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FilterPipe } from '../../pipe/filter.pipe';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-users',
@@ -15,6 +16,7 @@ import { FilterPipe } from '../../pipe/filter.pipe';
     TitlePageComponent,
     RouterModule,
     TitlePageComponent,
+    LoadingComponent,
     CommonModule,
     FormsModule,
     FilterPipe,
@@ -22,14 +24,17 @@ import { FilterPipe } from '../../pipe/filter.pipe';
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
   users: any[] = [];
   loading = true;
+  loadingMore = false;
   currentPage = 1;
   itemsPerPage = 10;
   totalItems = 0;
   totalPages = 0;
+  hasMore = true;
   searchTerm = '';
+  private intersectionObserver!: IntersectionObserver;
 
   constructor(
     private router: Router,
@@ -40,20 +45,102 @@ export class UsersComponent implements OnInit {
     this.loadUsers();
   }
 
+  ngAfterViewInit(): void {
+    this.setupInfiniteScroll();
+  }
+
+  ngOnDestroy(): void {
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
+  }
+
+  setupInfiniteScroll(): void {
+    const options = {
+      root: null,
+      rootMargin: '300px',
+      threshold: 0.01,
+    };
+
+    this.intersectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (
+          entry.isIntersecting &&
+          !this.loading &&
+          !this.loadingMore &&
+          this.hasMore
+        ) {
+          this.loadMoreUsers();
+        }
+      });
+    }, options);
+
+    // Use setTimeout to ensure DOM is fully rendered
+    setTimeout(() => {
+      this.observeSentinel();
+    }, 100);
+  }
+
+  observeSentinel(): void {
+    const sentinel = document.getElementById('users-infinite-scroll-sentinel');
+    if (sentinel) {
+      // Disconnect first to avoid duplicate observations
+      this.intersectionObserver.disconnect();
+      this.intersectionObserver.observe(sentinel);
+      console.log('Users infinite scroll sentinel observed');
+    } else {
+      console.error('Users infinite scroll sentinel not found');
+    }
+  }
+
   loadUsers(): void {
     this.loading = true;
-    this.userService.getUsers(this.currentPage, this.itemsPerPage).subscribe({
-      next: (response: any) => {
-        this.users = response.users || [];
-        this.totalItems = response.pagination?.totalCount || 0;
-        this.totalPages = response.pagination?.totalPages || 0;
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error('Error loading users:', error);
-        this.loading = false;
-      },
-    });
+    this.users = [];
+    this.currentPage = 1;
+    this.hasMore = true;
+
+    this.userService
+      .getUsers(this.currentPage, this.itemsPerPage)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (response: any) => {
+          this.users = response.users || [];
+          this.totalItems = response.pagination?.totalCount || 0;
+          this.totalPages = response.pagination?.totalPages || 0;
+          this.hasMore = response.users?.length === this.itemsPerPage;
+          // Re-observe sentinel after initial load
+          setTimeout(() => this.observeSentinel(), 100);
+        },
+        error: (error: any) => {
+          console.error('Error loading users:', error);
+        },
+      });
+  }
+
+  loadMoreUsers(): void {
+    if (this.loadingMore || !this.hasMore) return;
+
+    this.loadingMore = true;
+    this.currentPage++;
+
+    this.userService
+      .getUsers(this.currentPage, this.itemsPerPage)
+      .pipe(finalize(() => (this.loadingMore = false)))
+      .subscribe({
+        next: (response: any) => {
+          const newUsers = response.users || [];
+          this.users = [...this.users, ...newUsers];
+          this.totalItems = response.pagination?.totalCount || 0;
+          this.totalPages = response.pagination?.totalPages || 0;
+          this.hasMore = newUsers.length === this.itemsPerPage;
+          // Re-observe sentinel after loading more data
+          setTimeout(() => this.observeSentinel(), 100);
+        },
+        error: (error: any) => {
+          console.error('Error loading more users:', error);
+          this.currentPage--; // Revert page increment on error
+        },
+      });
   }
 
   onSearch(): void {
@@ -63,18 +150,24 @@ export class UsersComponent implements OnInit {
     }
 
     this.loading = true;
+    this.users = [];
+    this.currentPage = 1;
+    this.hasMore = true;
+
     this.userService
       .searchUsers(this.searchTerm, this.currentPage, this.itemsPerPage)
+      .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (response: any) => {
           this.users = response.users || [];
           this.totalItems = response.pagination?.totalCount || 0;
           this.totalPages = response.pagination?.totalPages || 0;
-          this.loading = false;
+          this.hasMore = response.users?.length === this.itemsPerPage;
+          // Re-observe sentinel after search
+          setTimeout(() => this.observeSentinel(), 100);
         },
         error: (error: any) => {
           console.error('Error searching users:', error);
-          this.loading = false;
         },
       });
   }

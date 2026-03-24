@@ -206,6 +206,21 @@ router.get("/search", authMiddleware, checkPermissionMiddleware(role.ADMIN, [req
   }
 });
 
+router.get("/clients", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const searchTerm = req.query.search as string;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    let userServices = new UserServices(db);
+    const result = await userServices.searchUsers(searchTerm, page, limit);
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    next(error);
+  }
+});
+
 router.put(
   "/updateOptions",
   [check("options").notEmpty().withMessage("options is required").isObject().withMessage("options must be an object"), check("options.*").exists().withMessage("options must not be empty")],

@@ -16,16 +16,22 @@
           data-bs-toggle="dropdown"
           aria-expanded="false"
           role="button"
-          >
+        >
           <i class="fa-solid fa-ellipsis-vertical"></i>
         </button>
         <ul class="dropdown-menu px-1" aria-labelledby="dropdownMenuButton">
+          <li class="mb-2">
+            <a class="dropdown-item rounded" routerLink="/">
+              <i class="fas fa-house me-3 text-secondary"></i>
+              <span>Ritorna alla home</span>
+            </a>
+          </li>
           <li class="mb-2">
             <a
               class="dropdown-item rounded"
               [routerLink]="['/admin/usersettings']"
               routerLinkActive="btn-secondary-active"
-              >
+            >
               <i class="fas fa-user-gear me-3 text-secondary"></i>
               <span>Impostazioni utente</span>
             </a>
@@ -37,8 +43,8 @@
               role="button"
               class="dropdown-item bg-secondary rounded text-white"
               (click)="onLogout()"
-              >
-              <i class="fas fa-sign-out-alt me-3"></i> Esci
+            >
+              <i class="fas fa-sign-out-alt me-3"></i> Logout
             </button>
           </li>
         </ul>
@@ -48,13 +54,13 @@
           [src]="image"
           class="rounded-circle me-3"
           style="width: 48px; height: 48px"
-          />
+        />
       }
       @if (!image) {
         <div
           class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
           style="width: 40px; height: 40px"
-          >
+        >
           <i class="fas fa-user text-white"></i>
         </div>
       }
@@ -72,12 +78,12 @@
             data-bs-toggle="dropdown"
             aria-expanded="false"
             role="button"
-            >
+          >
             @if (notification.length > 0) {
               <span
                 style="top: 80%; left: 80%; z-index: 20"
                 class="position-absolute translate-middle badge rounded-pill bg-danger"
-                >
+              >
                 {{ notification.length }}
                 <span class="visually-hidden">unread messages</span>
               </span>
@@ -90,13 +96,13 @@
               style="max-height: 60vh; overflow-y: scroll; min-width: 80vw"
               aria-labelledby="dropdownNotification"
               style="min-width: 80vw"
-              >
+            >
               <div class="list-group list-group-flush scrollarea">
                 @for (nt of notification; track nt) {
                   <a
                     class="cursor-pointer list-group-item list-group-item-action py-3 lh-tight border-bottom"
                     aria-current="true"
-                    >
+                  >
                     <div class="fw-bold">{{ nt.title }}</div>
                     <div class="fs-6">
                       {{ nt.message }}
@@ -121,7 +127,7 @@
 <aside
   class="fixed-top h-100 bg-primary sidebar"
   [ngClass]="{ show: isMenuOpen }"
-  >
+>
   <!-- Desktop Header -->
   <div class="d-none d-lg-flex align-items-center justify-content-between p-4">
     <div class="d-flex align-items-center">
@@ -130,13 +136,13 @@
           [src]="image"
           class="rounded-circle me-3"
           style="width: 48px; height: 48px"
-          />
+        />
       }
       @if (!image) {
         <div
           class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
           style="width: 48px; height: 48px"
-          >
+        >
           <i class="fas fa-user text-white"></i>
         </div>
       }
@@ -153,7 +159,7 @@
           class="btn w-100 text-white"
           routerLinkActive="btn-secondary-active"
           routerLink="/admin/usersettings"
-          >
+        >
           <i class="fas fa-user-gear"></i>
           <span class="visually-hidden">Impostazioni</span>
         </button>
@@ -202,55 +208,55 @@
         </div>
       </div>
     </div> -->
-    <div class="col-4">
-      <button class="btn w-100 text-white" routerLink="/">
-        <i class="fa-solid fa-house"></i>
-        <span class="visually-hidden">Home</span>
-      </button>
-    </div>
-    <div class="col-4">
-      <button
-        [disabled]="isLoadingLogout"
-        (click)="onLogout()"
-        class="btn btn-link text-white w-100"
+      <div class="col-4">
+        <button class="btn w-100 text-white" routerLink="/">
+          <i class="fa-solid fa-house"></i>
+          <span class="visually-hidden">Home</span>
+        </button>
+      </div>
+      <div class="col-4">
+        <button
+          [disabled]="isLoadingLogout"
+          (click)="onLogout()"
+          class="btn btn-link text-white w-100"
         >
-        @if (!isLoadingLogout) {
-          <i class="fas fa-sign-out-alt"></i>
-        }
-        @if (isLoadingLogout) {
-          <span
-            class="spinner-border spinner-border-sm"
-            role="status"
-            aria-hidden="true"
-          ></span>
-        }
-        <span class="visually-hidden">Esci</span>
-      </button>
+          @if (!isLoadingLogout) {
+            <i class="fas fa-sign-out-alt"></i>
+          }
+          @if (isLoadingLogout) {
+            <span
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+          }
+          <span class="visually-hidden">Esci</span>
+        </button>
+      </div>
     </div>
   </div>
-</div>
-<!-- Navigation -->
-<nav>
-  <ul class="nav nav-pills flex-column mb-auto mx-2">
-    @for (item of menuItems; track item) {
-      <li class="nav-item my-2">
-        <a
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          class="nav-link py-2-5"
-          (click)="onMenuItemClick()"
+  <!-- Navigation -->
+  <nav>
+    <ul class="nav nav-pills flex-column mb-auto mx-2">
+      @for (item of menuItems; track item) {
+        <li class="nav-item my-2">
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            class="nav-link py-2-5"
+            (click)="onMenuItemClick()"
           >
-          <i
-            class="fas text-secondary me-3"
-            style="min-width: 25px"
-            [ngClass]="item.icon"
-          ></i>
-          <span class="text-white" [innerHTML]="item.title"></span>
-        </a>
-      </li>
-    }
-  </ul>
-</nav>
+            <i
+              class="fas text-secondary me-3"
+              style="min-width: 25px"
+              [ngClass]="item.icon"
+            ></i>
+            <span class="text-white" [innerHTML]="item.title"></span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
 </aside>
 
 <!-- Overlay -->
