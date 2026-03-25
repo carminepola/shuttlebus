@@ -2,6 +2,7 @@ import { Db } from "mongodb";
 import MomapDao from "../dao/momapDao";
 import RoutesServices from "./routesServices";
 import LicensePlateServices from "./licensePlateServices";
+import DepotSettingsServices from "./depotSettingsServices";
 import dotenv from "dotenv";
 import { logger } from "../..";
 import { log } from "console";
@@ -12,12 +13,14 @@ class momapServices {
   private momapDao: MomapDao;
   private routeServices: RoutesServices;
   private licensePlateServices: LicensePlateServices;
+  private depotSettingsServices: DepotSettingsServices;
   private db: Db;
 
   constructor(db: Db) {
     this.momapDao = new MomapDao(db);
     this.routeServices = new RoutesServices(db);
     this.licensePlateServices = new LicensePlateServices(db);
+    this.depotSettingsServices = new DepotSettingsServices(db);
     this.db = db;
   }
 
@@ -53,7 +56,89 @@ class momapServices {
         return;
       }
       const momap = await this.momapDao.getCurrent();
-      return momap;
+
+      // Recupera le impostazioni del deposito
+      const depotSettings = await this.depotSettingsServices.get();
+      if (!depotSettings || !depotSettings.depotLatitude || !depotSettings.depotLongitude) {
+        logger.warn("Invalid depot settings retrieved, returning unfiltered bus list");
+        return momap; // Return unfiltered list as fallback
+      }
+
+      // Filtra i bus che hanno completato le loro corse del giorno
+      const now = new Date();
+      const today = now.toISOString().split("T")[0];
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const currentTime = now;
+
+      // Recupera le assegnazioni bus-schedule per oggi
+      const assignments = await this.momapDao.getBusScheduleAssignments(today);
+
+      // Crea una mappa delle assegnazioni per busId
+      const busAssignmentsMap = new Map<string, any[]>();
+      for (const assignment of assignments) {
+        if (!busAssignmentsMap.has(assignment.busId)) {
+          busAssignmentsMap.set(assignment.busId, []);
+        }
+        const assignmentsArray = busAssignmentsMap.get(assignment.busId);
+        if (assignmentsArray) {
+          assignmentsArray.push(assignment);
+        }
+      }
+
+      // Filtra i bus che non hanno completato le loro corse
+      const filteredMomap = momap.filter((bus: any) => {
+        const busAssignments = busAssignmentsMap.get(bus.busId);
+
+        // Se il bus non ha assegnazioni, includilo
+        if (!busAssignments || busAssignments.length === 0) {
+          return true;
+        }
+
+        // Verifica se il bus ha completato tutte le sue corse
+        const lastAssignment = busAssignments[busAssignments.length - 1];
+        const lastArrivalMinutes = this.timeToMinutes(lastAssignment.arrivalTime || depotSettings.defaultLastArrivalTime || "23:59");
+
+        // Se l'orario attuale è dopo l'ultima corsa del bus + tolleranza configurabile, escludilo
+        const tolerance = depotSettings.completedRouteTolerance || 30;
+        if (currentMinutes > lastArrivalMinutes + tolerance) {
+          logger.info(`❌ Bus ${bus.busId} (${bus.name}) ha completato tutte le sue corse per oggi (ultima: ${lastAssignment.arrivalTime}) - ESCLUSO DA getCurrent`);
+          return false;
+        }
+
+        // Verifica se il bus è al deposito
+        if (bus.currentLat && bus.currentLng) {
+          const distanceToDepot = this.calculateDistance(bus.currentLat, bus.currentLng, depotSettings.depotLatitude, depotSettings.depotLongitude);
+
+          if (distanceToDepot <= depotSettings.depotRadius) {
+            logger.info(`❌ Bus ${bus.busId} (${bus.name}) è al deposito (distanza: ${Math.round(distanceToDepot)}m, raggio: ${depotSettings.depotRadius}m) - ESCLUSO DA getCurrent`);
+            return false;
+          }
+        }
+
+        // Verifica se il bus ha aggiornamenti GPS recenti
+        if (bus.updatedFromMomap) {
+          const lastUpdate = new Date(bus.updatedFromMomap);
+          const minutesSinceLastUpdate = (currentTime.getTime() - lastUpdate.getTime()) / (1000 * 60);
+
+          // Validate that the time difference is non-negative
+          if (minutesSinceLastUpdate < 0) {
+            logger.error(`Invalid GPS timestamp for bus ${bus.busId}: last update is in the future. This may indicate clock synchronization issues.`);
+            return false; // Exclude the bus to avoid showing incorrect data
+          }
+
+          if (minutesSinceLastUpdate > depotSettings.gpsTimeout) {
+            logger.info(
+              `❌ Bus ${bus.busId} (${bus.name}) non ha aggiornamenti GPS recenti (ultimo: ${Math.round(minutesSinceLastUpdate)} min fa, timeout: ${depotSettings.gpsTimeout} min) - ESCLUSO DA getCurrent`,
+            );
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      logger.info(`getCurrent: ${momap.length} bus totali, ${filteredMomap.length} bus attivi dopo il filtro`);
+      return filteredMomap;
     } catch (error) {
       logger.error("Errore in getCurrent momapServices:", error);
     }
@@ -94,7 +179,9 @@ class momapServices {
 
     // conversioni
     const min = toMinutes(minTime);
-    const max = toMinutes(maxTime) + 30;
+    // Extended from 30 to 120 minutes to account for delays and ensure buses
+    // are still considered active even when running significantly behind schedule
+    const max = toMinutes(maxTime) + 120;
 
     // check
     const isInRange = nowMinutes >= min && nowMinutes <= max;
@@ -204,7 +291,31 @@ class momapServices {
    * Converte un orario in formato "HH:mm" in minuti dalla mezzanotte
    */
   private timeToMinutes(time: string): number {
-    const [hours, minutes] = time.split(":").map(Number);
+    if (!time || typeof time !== "string") {
+      const errorMsg = `Invalid time format: ${time}`;
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+    const parts = time.split(":");
+    if (parts.length !== 2) {
+      const errorMsg = `Invalid time format: ${time}`;
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+    const [hours, minutes] = parts.map(Number);
+    if (isNaN(hours) || isNaN(minutes)) {
+      const errorMsg = `Invalid time format: ${time}`;
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    // Validate time ranges
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+      const errorMsg = `Invalid time value: ${time}`;
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+
     return hours * 60 + minutes;
   }
 
@@ -445,6 +556,13 @@ class momapServices {
     try {
       logger.info("Inizio getBusStatus");
 
+      // Recupera le impostazioni del deposito
+      const depotSettings = await this.depotSettingsServices.get();
+      if (!depotSettings || !depotSettings.depotLatitude || !depotSettings.depotLongitude) {
+        logger.warn("Invalid depot settings retrieved in getBusStatus, returning empty list");
+        return []; // Return empty list as fallback to avoid errors
+      }
+
       // Recupera le posizioni attuali degli autobus
       const currentPositions = await this.momapDao.getCurrent();
       logger.info(`Recuperate ${currentPositions.length} posizioni bus attuali`);
@@ -533,19 +651,111 @@ class momapServices {
 
         logger.debug(`Bus ${busId} ha ${busAssignments.length} assegnazioni`);
 
+        // Verifica se il bus ha completato tutte le sue corse per oggi
+        const lastAssignment = busAssignments[busAssignments.length - 1];
+        const lastArrivalMinutes = lastAssignment ? this.timeToMinutes(lastAssignment.arrivalTime || depotSettings.defaultLastArrivalTime || "23:59") : 0;
+
+        logger.debug(
+          `Verifica completamento corse bus ${busId}: orario attuale=${currentMinutes}, ultima corsa=${lastArrivalMinutes}, soglia=${lastArrivalMinutes + (depotSettings.completedRouteTolerance || 30)}`,
+        );
+
+        // Se l'orario attuale è dopo l'ultima corsa del bus, non mostrarlo
+        const tolerance = depotSettings.completedRouteTolerance || 30;
+        if (lastAssignment && currentMinutes > lastArrivalMinutes + tolerance) {
+          // +tolleranza minuti di tolleranza
+          logger.info(`❌ Bus ${busId} ha completato tutte le sue corse per oggi (ultima: ${lastAssignment.arrivalTime}, attuale: ${currentMinutes}) - ESCLUSO DALLA LISTA`);
+          // Non aggiungere questo bus alla lista degli stati
+          continue;
+        }
+
+        logger.debug(`✅ Bus ${busId} NON ha completato le corse, procedo con l'elaborazione`);
+
+        // Verifica se il bus è al deposito
+        if (busLat && busLng) {
+          const distanceToDepot = this.calculateDistance(busLat, busLng, depotSettings.depotLatitude, depotSettings.depotLongitude);
+
+          if (distanceToDepot <= depotSettings.depotRadius) {
+            logger.info(`❌ Bus ${busId} (${name}) è al deposito (distanza: ${Math.round(distanceToDepot)}m, raggio: ${depotSettings.depotRadius}m) - ESCLUSO DALLA LISTA`);
+            continue;
+          }
+        }
+
+        // Verifica se il bus ha aggiornamenti GPS recenti
+        if (busPosition.updatedFromMomap) {
+          const lastUpdate = new Date(busPosition.updatedFromMomap);
+          const minutesSinceLastUpdate = (now.getTime() - lastUpdate.getTime()) / (1000 * 60);
+
+          // Validate that the time difference is non-negative
+          if (minutesSinceLastUpdate < 0) {
+            logger.error(`Invalid GPS timestamp for bus ${busId}: last update is in the future. This may indicate clock synchronization issues.`);
+            continue;
+          }
+
+          if (minutesSinceLastUpdate > depotSettings.gpsTimeout) {
+            logger.info(
+              `❌ Bus ${busId} (${name}) non ha aggiornamenti GPS recenti (ultimo: ${Math.round(minutesSinceLastUpdate)} min fa, timeout: ${depotSettings.gpsTimeout} min) - ESCLUSO DALLA LISTA`,
+            );
+            continue;
+          }
+        }
+
         // Trova la schedule attiva in questo momento per questo bus
+        // Considera la posizione reale del bus rispetto alle fermate
         let activeAssignment = null;
+        let bestAssignment = null;
+        let minDistanceToRoute = Infinity;
+
+        // Pre-calcola le coordinate delle fermate per evitare lookup ripetuti
+        const stopCoordinatesMap = new Map<string, { lat: number; lng: number }>();
+        for (const [stopId, stopDetails] of stopsMap.entries()) {
+          stopCoordinatesMap.set(stopId, { lat: stopDetails.lat, lng: stopDetails.lng });
+        }
+
         for (const assignment of busAssignments) {
           const departureMinutes = this.timeToMinutes(assignment.departureTime || "00:00");
-          const arrivalMinutes = this.timeToMinutes(assignment.arrivalTime || "23:59");
+          const arrivalMinutes = this.timeToMinutes(assignment.arrivalTime || depotSettings.defaultLastArrivalTime || "23:59");
 
           logger.debug(`Verifica schedule ${assignment.scheduleId}: ${assignment.departureTime} - ${assignment.arrivalTime} (attuale: ${currentMinutes})`);
 
-          if (currentMinutes >= departureMinutes && currentMinutes <= arrivalMinutes) {
-            activeAssignment = assignment;
-            logger.info(`Bus ${busId} assegnato a schedule attiva ${assignment.scheduleId} (${assignment.departureTime})`);
-            break;
+          // Verifica se l'orario è nell'intervallo valido
+          const isTimeValid = currentMinutes >= departureMinutes && currentMinutes <= arrivalMinutes;
+
+          if (isTimeValid) {
+            // Calcola la distanza del bus dalla prima fermata della schedule
+            let assignmentDistance = Infinity;
+            if (assignment.stops && assignment.stops.length > 0) {
+              for (const stop of assignment.stops) {
+                const coords = stopCoordinatesMap.get(stop.id);
+                if (coords) {
+                  const distance = this.calculateDistance(busLat, busLng, coords.lat, coords.lng);
+                  if (distance < assignmentDistance) {
+                    assignmentDistance = distance;
+                  }
+                }
+              }
+            }
+
+            logger.debug(`Schedule ${assignment.scheduleId}: distanza dalla route = ${assignmentDistance}m`);
+
+            // Se questa schedule è più vicina alla posizione reale del bus, usala
+            if (assignmentDistance < minDistanceToRoute) {
+              minDistanceToRoute = assignmentDistance;
+              bestAssignment = assignment;
+              logger.debug(`Schedule ${assignment.scheduleId} è la migliore (distanza: ${assignmentDistance}m)`);
+            }
+
+            // Se è già stata assegnata una schedule nell'intervallo orario, mantienila
+            if (!activeAssignment) {
+              activeAssignment = assignment;
+              logger.info(`Bus ${busId} assegnato a schedule attiva ${assignment.scheduleId} (${assignment.departureTime})`);
+            }
           }
+        }
+
+        // Se abbiamo trovato una schedule migliore basata sulla posizione, usala
+        if (bestAssignment && !activeAssignment) {
+          activeAssignment = bestAssignment;
+          logger.info(`Bus ${busId} assegnato a schedule più vicina ${activeAssignment.scheduleId} (${activeAssignment.departureTime}) basata sulla posizione`);
         }
 
         // Se non c'è una schedule attiva, prendi la prossima
@@ -625,17 +835,57 @@ class momapServices {
           nextStop = null;
         }
 
-        // Calcola il ritardo
+        // Verifica se il bus ha superato la fermata più vicina
         const stopTimeMinutes = this.timeToMinutes(closestStop.stopTime || "00:00");
+        const closestStopDetails = stopsMap.get(closestStop.id);
+        if (!closestStopDetails) {
+          logger.warn(`Stop ${closestStop.id} not found in stopsMap for bus ${busId}, skipping this bus`);
+          continue;
+        }
+        const distanceToStop = this.calculateDistance(busLat, busLng, closestStopDetails.lat, closestStopDetails.lng);
+
+        logger.debug(`Bus ${busId} distanza dalla fermata più vicina: ${distanceToStop}m, orario fermata: ${stopTimeMinutes}, attuale: ${currentMinutes}`);
+
+        // Se il bus è molto lontano dalla fermata (più della soglia configurabile), probabilmente l'ha superata
+        // In questo caso, cerca la prossima fermata sulla route
+        let effectiveStop = closestStop;
+        let effectiveStopIndex = stopIndex;
+
+        const distanceThreshold = depotSettings.stopDistanceThreshold || 500;
+        if (distanceToStop > distanceThreshold) {
+          logger.info(`Bus ${busId} ha probabilmente superato la fermata ${closestStop.id} (distanza: ${distanceToStop}m), cerco la prossima`);
+
+          // Cerca la prossima fermata sulla route
+          if (stopIndex < activeAssignment.stops.length - 1) {
+            effectiveStop = activeAssignment.stops[stopIndex + 1];
+            effectiveStopIndex = stopIndex + 1;
+            logger.debug(`Bus ${busId} assegnato alla prossima fermata ${effectiveStop.id} (${effectiveStop.stopTime})`);
+          } else if (stopIndex === activeAssignment.stops.length - 1) {
+            // L'autobus è all'ultima fermata, non ha altre fermate
+            effectiveStop = null;
+            logger.debug(`Bus ${busId} è all'ultima fermata, non ci sono altre fermate`);
+          }
+        }
+
+        // Calcola il ritardo basandosi sulla fermata effettiva
         let delay = null;
         let status = "on_time";
 
-        if (currentMinutes > stopTimeMinutes) {
-          delay = currentMinutes - stopTimeMinutes;
-          status = "late";
-        } else if (currentMinutes < stopTimeMinutes) {
-          delay = stopTimeMinutes - currentMinutes;
-          status = "early";
+        if (effectiveStop) {
+          const effectiveStopTimeMinutes = this.timeToMinutes(effectiveStop.stopTime || "00:00");
+
+          if (currentMinutes > effectiveStopTimeMinutes) {
+            delay = currentMinutes - effectiveStopTimeMinutes;
+            status = "late";
+          } else if (currentMinutes < effectiveStopTimeMinutes) {
+            delay = effectiveStopTimeMinutes - currentMinutes;
+            status = "early";
+          }
+
+          logger.debug(`Bus ${busId} calcolo ritardo: fermata ${effectiveStop.id} (${effectiveStop.stopTime}), attuale: ${currentMinutes}, ritardo: ${delay} min, status: ${status}`);
+        } else {
+          logger.debug(`Bus ${busId} nessuna fermata effettiva valida`);
+          status = "no_stop";
         }
 
         // Ottieni i dettagli della fermata

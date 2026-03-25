@@ -119,7 +119,7 @@
                   </div>
                 }
 
-                @if (bus.delay !== null) {
+                @if (bus.delay !== null && bus.status !== "early") {
                   <div
                     class="alert {{ getDelayAlertClass(bus.status) }} py-2 mb-0"
                   >

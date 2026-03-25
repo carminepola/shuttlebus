@@ -1,0 +1,246 @@
+<div class="container-fluid container-lg" @fadeInOut>
+  <app-title-page
+    title="Impostazioni deposito"
+    subtitle="Configura le coordinate del deposito e il timeout GPS"
+    back="true"
+  ></app-title-page>
+
+  @if (loading) {
+    <div class="text-center py-5">
+      <app-loading></app-loading>
+    </div>
+  }
+
+  @if (!loading) {
+    @if (mostraMessaggio) {
+      <div
+        class="alert {{
+          tipoMessaggio === 'success' ? 'alert-success' : 'alert-danger'
+        }} alert-dismissible fade show mb-4"
+        role="alert"
+      >
+        {{ messaggio }}
+        <button
+          type="button"
+          class="btn-close"
+          (click)="mostraMessaggio = false"
+          aria-label="Close"
+        ></button>
+      </div>
+    }
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form (ngSubmit)="salvaImpostazioni()">
+          <div class="mb-4">
+            <h5 class="card-title">Coordinate del deposito</h5>
+            <p class="text-muted small">
+              Inserisci le coordinate GPS del deposito dove i bus vengono
+              parcheggiati quando non sono in servizio.
+            </p>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="depotLatitude" class="form-label">Latitudine</label>
+              <input
+                type="number"
+                step="any"
+                class="form-control"
+                id="depotLatitude"
+                [(ngModel)]="settings.depotLatitude"
+                name="depotLatitude"
+                required
+                placeholder="es. 41.9028"
+              />
+              <div class="form-text">
+                Latitudine del deposito (es. 41.9028 per Roma)
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="depotLongitude" class="form-label">Longitudine</label>
+              <input
+                type="number"
+                step="any"
+                class="form-control"
+                id="depotLongitude"
+                [(ngModel)]="settings.depotLongitude"
+                name="depotLongitude"
+                required
+                placeholder="es. 12.4964"
+              />
+              <div class="form-text">
+                Longitudine del deposito (es. 12.4964 per Roma)
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="depotRadius" class="form-label"
+              >Raggio del deposito (metri)</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="depotRadius"
+              [(ngModel)]="settings.depotRadius"
+              name="depotRadius"
+              required
+              min="1"
+              placeholder="es. 500"
+            />
+            <div class="form-text">
+              Raggio in metri entro il quale un bus viene considerato al
+              deposito. I bus in questa area non verranno mostrati.
+            </div>
+          </div>
+
+          <hr class="my-4" />
+
+          <div class="mb-4">
+            <h5 class="card-title">Timeout GPS</h5>
+            <p class="text-muted small">
+              Configura dopo quanti minuti di inattività GPS un bus viene
+              considerato inattivo.
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <label for="gpsTimeout" class="form-label"
+              >Timeout GPS (minuti)</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="gpsTimeout"
+              [(ngModel)]="settings.gpsTimeout"
+              name="gpsTimeout"
+              required
+              min="1"
+              placeholder="es. 15"
+            />
+            <div class="form-text">
+              Se un bus non invia aggiornamenti GPS per questo numero di minuti,
+              verrà considerato inattivo e non mostrato.
+            </div>
+          </div>
+
+          <hr class="my-4" />
+
+          <div class="mb-4">
+            <h5 class="card-title">Impostazioni avanzate</h5>
+            <p class="text-muted small">
+              Configura parametri avanzati per il filtraggio dei bus.
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <label for="completedRouteTolerance" class="form-label"
+              >Tolleranza completamento corse (minuti)</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="completedRouteTolerance"
+              [(ngModel)]="settings.completedRouteTolerance"
+              name="completedRouteTolerance"
+              required
+              min="1"
+              placeholder="es. 30"
+            />
+            <div class="form-text">
+              Minuti di tolleranza dopo l'ultima corsa programmata prima di
+              considerare il bus fuori servizio.
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="stopDistanceThreshold" class="form-label"
+              >Soglia distanza fermata (metri)</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="stopDistanceThreshold"
+              [(ngModel)]="settings.stopDistanceThreshold"
+              name="stopDistanceThreshold"
+              required
+              min="1"
+              placeholder="es. 500"
+            />
+            <div class="form-text">
+              Se il bus è più lontano di questa soglia dalla fermata più vicina,
+              viene considerato averla superata e passa alla prossima fermata.
+              Se il bus è in ritardo ma ancora vicino alla fermata, viene
+              mostrato come "In ritardo".
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="defaultLastArrivalTime" class="form-label"
+              >Orario di arrivo predefinito</label
+            >
+            <input
+              type="time"
+              class="form-control"
+              id="defaultLastArrivalTime"
+              [(ngModel)]="settings.defaultLastArrivalTime"
+              name="defaultLastArrivalTime"
+              required
+              placeholder="es. 23:59"
+            />
+            <div class="form-text">
+              Orario di arrivo predefinito utilizzato quando non è disponibile
+              un orario di arrivo per una corsa (formato HH:mm).
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="router.navigate(['/admin/impostazioni'])"
+            >
+              Annulla
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="salvando">
+              @if (salvando) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              {{ salvando ? "Salvataggio..." : "Salva impostazioni" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <div class="card shadow-sm mt-4">
+    <div class="card-body">
+      <h5 class="card-title">Informazioni</h5>
+      <p class="card-text">
+        Queste impostazioni vengono utilizzate per filtrare i bus che hanno
+        completato le loro corse o che non sono più attivi:
+      </p>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          <i class="fa fa-info-circle me-2"></i>
+          <strong>Coordinate deposito:</strong> I bus che si trovano entro il
+          raggio specificato dal deposito vengono considerati fuori servizio.
+        </li>
+        <li class="list-group-item">
+          <i class="fa fa-info-circle me-2"></i>
+          <strong>Timeout GPS:</strong> I bus che non inviano aggiornamenti GPS
+          per il numero di minuti specificato vengono considerati inattivi.
+        </li>
+        <li class="list-group-item">
+          <i class="fa fa-info-circle me-2"></i>
+          <strong>Completamento corse:</strong> I bus che hanno completato tutte
+          le loro corse programmate per il giorno (con 30 minuti di tolleranza)
+          vengono automaticamente rimossi.
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
