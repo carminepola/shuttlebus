@@ -80,7 +80,7 @@ export default class MomapDao {
         toInsert = JSON.parse(JSON.stringify(obj));
         toInsert.positions = [JSON.parse(JSON.stringify(obj))];
       } else {
-        if (alredyExist.positions.find((t: any) => (t.updatedFromMomap = obj.updatedFromMomap))) return true;
+        if (alredyExist.positions.find((t: any) => t.updatedFromMomap == obj.updatedFromMomap)) return true;
 
         toInsert = JSON.parse(JSON.stringify(obj));
         toInsert.positions = alredyExist.positions;
