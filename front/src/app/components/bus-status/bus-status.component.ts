@@ -88,7 +88,7 @@ export class BusStatusComponent implements OnInit, OnDestroy {
       case 'late':
         return 'In ritardo';
       case 'early':
-        return 'In anticipo';
+        return 'In orario';
       case 'no_schedule':
         return 'Nessuna corsa programmata';
       case 'no_stop':

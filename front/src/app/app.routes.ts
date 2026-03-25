@@ -35,6 +35,7 @@ import { DriverRoutesComponent } from './pages/driver-routes/driver-routes.compo
 import { TicketForRoutesComponent } from './pages/ticket-for-routes/ticket-for-routes.component';
 import { TicketCheckComponent } from './pages/ticket-check/ticket-check.component';
 import { TargheComponent } from './pages/targhe/targhe.component';
+import { DepositoComponent } from './pages/deposito/deposito.component';
 export const routes: Routes = [
   {
     path: '',
@@ -257,6 +258,12 @@ export const routes: Routes = [
       {
         path: 'targhe',
         component: TargheComponent,
+
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'deposito',
+        component: DepositoComponent,
 
         data: { navbar: true, requiredRole: 50 },
       },
