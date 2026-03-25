@@ -98,4 +98,61 @@ export default class MomapDao {
       throw error;
     }
   }
+
+  /**
+   * Salva le assegnazioni bus-schedule per un dato giorno
+   */
+  async saveBusScheduleAssignments(day: string, assignments: any[]) {
+    try {
+      logger.info(`Salvataggio assegnazioni per giorno ${day}, numero assegnazioni: ${assignments.length}`);
+
+      // Elimina le assegnazioni esistenti per questo giorno
+      const deleteResult = await this.db.collection("busScheduleAssignments").deleteMany({ day });
+      logger.info(`Eliminate ${deleteResult.deletedCount} assegnazioni esistenti per ${day}`);
+
+      // Inserisci le nuove assegnazioni
+      if (assignments.length > 0) {
+        const insertResult = await this.db.collection("busScheduleAssignments").insertMany(assignments);
+        logger.info(`Inserite ${insertResult.insertedCount} nuove assegnazioni per ${day}`);
+      } else {
+        logger.warn(`Nessuna assegnazione da salvare per ${day}`);
+      }
+
+      return true;
+    } catch (error) {
+      logger.error("Error saving bus schedule assignments:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Recupera le assegnazioni bus-schedule per un dato giorno
+   */
+  async getBusScheduleAssignments(day: string) {
+    try {
+      logger.info(`Recupero assegnazioni per giorno ${day}`);
+      const assignments = await this.db.collection("busScheduleAssignments").find({ day }).toArray();
+      logger.info(`Recuperate ${assignments.length} assegnazioni per giorno ${day}`);
+      return assignments;
+    } catch (error) {
+      logger.error("Error retrieving bus schedule assignments:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Verifica se esistono assegnazioni per un dato giorno
+   */
+  async hasBusScheduleAssignments(day: string) {
+    try {
+      logger.info(`Verifica esistenza assegnazioni per giorno ${day}`);
+      const count = await this.db.collection("busScheduleAssignments").countDocuments({ day });
+      const hasAssignments = count > 0;
+      logger.info(`Assegnazioni esistenti per giorno ${day}: ${hasAssignments} (count: ${count})`);
+      return hasAssignments;
+    } catch (error) {
+      logger.error("Error checking bus schedule assignments:", error);
+      throw error;
+    }
+  }
 }
