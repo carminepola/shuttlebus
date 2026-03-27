@@ -28,6 +28,9 @@ import QRCode from 'qrcode';
 })
 export class MyTicketsComponent implements OnInit {
   bookings: any = [];
+  activeBookings: any = [];
+  oldBookings: any = [];
+  showOldTickets = false;
   url: string = '';
   constructor(
     private bookingsService: BookingsService,
@@ -47,6 +50,10 @@ export class MyTicketsComponent implements OnInit {
     console.log(bookings);
 
     this.bookings = bookings['booking'] || [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    this.activeBookings = this.bookings.filter((b: any) => new Date(b.date) >= today);
+    this.oldBookings = this.bookings.filter((b: any) => new Date(b.date) < today);
     this.loading = false;
   }
   checkDay(date: any) {
@@ -146,139 +153,357 @@ export class MyTicketsComponent implements OnInit {
   }
   async generatePDF(booking: any) {
     try {
-      const doc = new jsPDF();
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const mx = 15;
+      const contentWidth = pageWidth - mx * 2;
+      let y = 0;
 
-      // Imposta i margini di base
-      const marginLeft = 20;
-      let yPosition = 20;
+      const PRIMARY: [number, number, number] = [26, 16, 100];
+      const SECONDARY: [number, number, number] = [236, 42, 122];
+      const LIGHT_INDIGO: [number, number, number] = [243, 244, 255];
+      const LIGHT_BLUE_LINE: [number, number, number] = [181, 183, 253];
+      const GRAY_DARK: [number, number, number] = [29, 29, 32];
+      const GRAY_MID: [number, number, number] = [107, 114, 128];
+      const GRAY_LIGHT: [number, number, number] = [243, 244, 246];
+      const WHITE: [number, number, number] = [255, 255, 255];
+      const SUCCESS: [number, number, number] = [37, 134, 127];
 
-      // Logo opzionale (se hai un logo, inserisci il percorso base64)
-      try {
-        const logoDataUrl = 'data:image/png;base64,...'; // Inserisci il logo base64 qui
-        doc.addImage(logoDataUrl, 'PNG', marginLeft, yPosition, 40, 15);
-        yPosition += 20;
-      } catch (error) {
-        console.warn('Errore nel caricamento del logo', error);
-      }
+      const formatDate = (dateStr: string) => {
+        const parts = dateStr.split('-');
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      };
 
-      // Titolo del biglietto
-      doc.setFontSize(22);
+      const drawGradientRect = (
+        x: number,
+        yy: number,
+        w: number,
+        h: number,
+        color1: number[],
+        color2: number[]
+      ) => {
+        const steps = 40;
+        const stepH = h / steps;
+        for (let i = 0; i < steps; i++) {
+          const t = i / (steps - 1);
+          const r = Math.round(color1[0] + (color2[0] - color1[0]) * t);
+          const g = Math.round(color1[1] + (color2[1] - color1[1]) * t);
+          const b = Math.round(color1[2] + (color2[2] - color1[2]) * t);
+          doc.setFillColor(r, g, b);
+          doc.rect(x, yy + i * stepH, w, stepH + 0.5, 'F');
+        }
+      };
+
+      const roundedRect = (
+        x: number,
+        yy: number,
+        w: number,
+        h: number,
+        r: number,
+        style: string = 'S'
+      ) => {
+        doc.setDrawColor(...WHITE);
+        doc.setFillColor(...WHITE);
+        doc.roundedRect(x, yy, w, h, r, r, style);
+      };
+
+      // === HEADER GRADIENT BAR ===
+      drawGradientRect(0, 0, pageWidth, 48, SECONDARY, PRIMARY);
+
+      // Brand name
       doc.setFont('helvetica', 'bold');
-      doc.text(this.lng.traslate('str_biglietto'), marginLeft, yPosition);
-      yPosition += 10;
+      doc.setFontSize(26);
+      doc.setTextColor(...WHITE);
+      doc.text('PINTOUR', mx, 22);
 
-      // Linea divisoria
-      doc.setDrawColor(0);
-      doc.setLineWidth(0.5);
-      doc.line(marginLeft, yPosition, 190, yPosition);
-      yPosition += 10;
-
-      // Informazioni sul biglietto
-      doc.setFontSize(12);
+      // Ticket label top-right
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
-      doc.text(
-        `${this.lng.traslate('str_n_tickets')}: ${booking.numberOfTickets}`,
-        marginLeft,
-        yPosition
-      );
-      yPosition += 8;
-
-      doc.text(
-        `${this.lng.traslate('str_giorno')}: ${booking.date.split('-')[2]}/${
-          booking.date.split('-')[1]
-        }/${booking.date.split('-')[0]}`,
-        marginLeft,
-        yPosition
-      );
-      yPosition += 8;
-
-      doc.text(
-        `${this.lng.traslate('str_partenza_da')} ${booking.from.name} (${
-          booking.from.stopTime
-        })`,
-        marginLeft,
-        yPosition
-      );
-      yPosition += 8;
-
-      doc.text(
-        `${this.lng.traslate('str_arrivo_a')} ${booking.to.name} (${
-          booking.to.stopTime
-        })`,
-        marginLeft,
-        yPosition
-      );
-      yPosition += 10;
-
-      // Linea divisoria
-      doc.line(marginLeft, yPosition, 190, yPosition);
-      yPosition += 10;
-
-      // Biglietti dettagliati
-      booking.ticketTypes.forEach((ticket: any) => {
-        doc.text(
-          `${ticket.name[this.lng.getLng()]}: ${ticket.count}`,
-          marginLeft,
-          yPosition
-        );
-        yPosition += 8;
+      doc.setTextColor(255, 255, 255, 180);
+      doc.text(this.lng.traslate('str_biglietto'), pageWidth - mx, 18, {
+        align: 'right',
       });
 
-      // Bagagli
-      if (booking.luggage > 0) {
-        doc.text(
-          `${this.lng.traslate('str_bagagli_aggiuntivi')}: ${booking.luggage}`,
-          marginLeft,
-          yPosition
-        );
-        yPosition += 8;
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...WHITE);
+      doc.text(`#${booking.numberOfTickets}`, pageWidth - mx, 30, {
+        align: 'right',
+      });
+
+      // Status badge
+      if (booking.status === 'confirmed') {
+        const statusText = 'CONFIRMED';
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'bold');
+        const textW = doc.getTextWidth(statusText);
+        const badgeW = textW + 10;
+        const badgeH = 8;
+        const badgeX = pageWidth - mx - badgeW;
+        const badgeY = 35;
+        doc.setFillColor(...WHITE);
+        doc.setGState(new (doc as any).GState({ opacity: 0.15 }));
+        doc.roundedRect(badgeX, badgeY, badgeW, badgeH, badgeH / 2, badgeH / 2, 'F');
+        (doc as any).setGState(new (doc as any).GState({ opacity: 1 }));
+        doc.setTextColor(...WHITE);
+        doc.text(statusText, badgeX + badgeW / 2, badgeY + badgeH / 2 + 1.5, {
+          align: 'center',
+        });
       }
 
-      // Totale e stato del biglietto
-      doc.setFont('helvetica', 'bold');
-      doc.text(
-        `${this.lng.traslate('str_totale')}: ${booking.total} €`,
-        marginLeft,
-        yPosition
-      );
-      yPosition += 8;
+      y = 56;
 
-      // Generazione QR Code
+      // === DATE CARD ===
+      doc.setFillColor(...LIGHT_INDIGO);
+      roundedRect(mx, y, contentWidth, 18, 3, 'F');
+      doc.setFillColor(...PRIMARY);
+      doc.roundedRect(mx, y, 4, 18, 2, 2, 'F');
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...PRIMARY);
+      doc.text(this.lng.traslate('str_giorno').toUpperCase(), mx + 10, y + 8);
+
+      doc.setFontSize(13);
+      doc.setTextColor(...GRAY_DARK);
+      doc.text(formatDate(booking.date), mx + 10, y + 14);
+
+      // Day of week
+      const dateObj = new Date(booking.date);
+      const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+      const months = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+      const dayStr = `${days[dateObj.getDay()]} ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+
+
+      y += 24;
+
+      // === ROUTE TIMELINE SECTION ===
+      doc.setFillColor(...GRAY_LIGHT);
+      roundedRect(mx, y, contentWidth, 44, 3, 'F');
+
+      // Departure
+      const depX = mx + 20;
+      const timeY = y + 17;
+
+      doc.setFillColor(...PRIMARY);
+      doc.circle(depX, timeY - 2, 4, 'F');
+
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...PRIMARY);
+      doc.text(booking.from.stopTime, depX, timeY - 8, { align: 'center' });
+
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...GRAY_DARK);
+      const fromName = booking.from.name;
+      const fromSplitName = doc.splitTextToSize(fromName, 50);
+      doc.text(fromSplitName[0], depX, timeY + 10, { align: 'center' });
+
+      doc.setFontSize(7);
+      doc.setTextColor(...GRAY_MID);
+      const fromDesc = booking.from.description?.[this.lng.getLng()] || booking.from.description?.en || '';
+      if (fromDesc) {
+        doc.text(fromDesc, depX, timeY + 16, { align: 'center' });
+      }
+
+      // Dashed line connecting departure and arrival
+      const lineY = timeY - 2;
+      const arrX = pageWidth - mx - 20;
+      doc.setDrawColor(...PRIMARY);
+      doc.setLineDashPattern([2, 2], 0);
+      doc.setLineWidth(0.5);
+      doc.line(depX + 8, lineY, arrX - 8, lineY);
+      doc.setLineDashPattern([], 0);
+
+      // Arrival
+      doc.setFillColor(...SECONDARY);
+      doc.circle(arrX, timeY - 2, 4, 'F');
+
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...SECONDARY);
+      doc.text(booking.to.stopTime, arrX, timeY - 8, { align: 'center' });
+
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...GRAY_DARK);
+      const toName = booking.to.name;
+      const toSplitName = doc.splitTextToSize(toName, 50);
+      doc.text(toSplitName[0], arrX, timeY + 10, { align: 'center' });
+
+      doc.setFontSize(7);
+      doc.setTextColor(...GRAY_MID);
+      const toDesc = booking.to.description?.[this.lng.getLng()] || booking.to.description?.en || '';
+      if (toDesc) {
+        doc.text(toDesc, arrX, timeY + 16, { align: 'center' });
+      }
+
+      y += 50;
+
+      // === TICKET DETAILS ===
+      doc.setFillColor(...WHITE);
+      doc.setDrawColor(...LIGHT_BLUE_LINE);
+      doc.setLineWidth(0.3);
+      roundedRect(mx, y, contentWidth, 10, 2, 'FD');
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...GRAY_MID);
+      doc.text(this.lng.traslate('str_totale').toUpperCase(), mx + 4, y + 6.5);
+
+      let detailsH = 10;
+      booking.ticketTypes.forEach((ticket: any) => {
+        doc.setFillColor(...WHITE);
+        doc.setDrawColor(...LIGHT_BLUE_LINE);
+        doc.rect(mx, y + detailsH, contentWidth, 8, 'FD');
+
+        const name = ticket.name?.[this.lng.getLng()] || ticket.name?.en || ticket.name;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...GRAY_DARK);
+        doc.text(name, mx + 6, y + detailsH + 5.5);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...PRIMARY);
+        doc.text(`x${ticket.count}`, mx + contentWidth - 8, y + detailsH + 5.5, {
+          align: 'right',
+        });
+        detailsH += 8;
+      });
+
+      if (booking.luggage > 0) {
+        doc.setFillColor(...WHITE);
+        doc.setDrawColor(...LIGHT_BLUE_LINE);
+        doc.rect(mx, y + detailsH, contentWidth, 8, 'FD');
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...GRAY_DARK);
+        doc.text(this.lng.traslate('str_bagagli_aggiuntivi'), mx + 6, y + detailsH + 5.5);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...PRIMARY);
+        doc.text(`x${booking.luggage}`, mx + contentWidth - 8, y + detailsH + 5.5, {
+          align: 'right',
+        });
+        detailsH += 8;
+      }
+
+      // Total row
+      doc.setFillColor(...LIGHT_INDIGO);
+      doc.rect(mx, y + detailsH, contentWidth, 12, 'F');
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...GRAY_MID);
+      doc.text(this.lng.traslate('str_totale').toUpperCase(), mx + 6, y + detailsH + 7.5);
+
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...PRIMARY);
+      doc.text(`${booking.total}`, mx + contentWidth - 22, y + detailsH + 8.5, {
+        align: 'right',
+      });
+      doc.setFontSize(10);
+      doc.setTextColor(...GRAY_MID);
+      doc.text('€', mx + contentWidth - 6, y + detailsH + 8.5);
+
+      y += detailsH + 18;
+
+      // === QR CODE + TEAR LINE ===
+      doc.setDrawColor(...LIGHT_BLUE_LINE);
+      doc.setLineDashPattern([1.5, 1.5], 0);
+      doc.setLineWidth(0.2);
+      doc.line(mx + 4, y - 1, pageWidth - mx - 4, y - 1);
+      doc.setLineDashPattern([], 0);
+
+      y += 6;
+
+      // QR code section
       try {
         const qrCodeDataUrl = await QRCode.toDataURL(
-          `${this.url}/ticket/check/${booking.numberOfTickets}`
+          `${this.url}/ticket/check/${booking.numberOfTickets}`,
+          { margin: 1, width: 300 }
         );
-        doc.addImage(qrCodeDataUrl, 'PNG', marginLeft, yPosition, 50, 50);
-        yPosition += 60;
+
+        const qrSize = 38;
+        const qrX = (pageWidth - qrSize) / 2;
+        const qrY = y;
+
+        // QR white background with subtle border
+        doc.setFillColor(...WHITE);
+        doc.setDrawColor(...LIGHT_BLUE_LINE);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8, 3, 3, 'FD');
+
+        // Colored accent bar on top of QR
+        doc.setFillColor(...PRIMARY);
+        doc.rect(qrX - 4, qrY - 4, qrSize + 8, 2, 'F');
+
+        doc.addImage(qrCodeDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
+
+        // Scan instruction
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...GRAY_MID);
+        doc.text('Scan to verify', pageWidth / 2, qrY + qrSize + 8, {
+          align: 'center',
+        });
+
+        y = qrY + qrSize + 14;
       } catch (error) {
         console.error('Errore nella generazione del QR Code', error);
       }
 
-      // Linea divisoria
-      doc.line(marginLeft, yPosition, 190, yPosition);
-      yPosition += 10;
+      // === FOOTER ===
+      const footerY = pageHeight - 28;
 
-      // Termini e condizioni
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'italic');
-      doc.text(
-        this.lng.traslate('str_terms-and-conditions_title'),
-        marginLeft,
-        yPosition
+      doc.setDrawColor(...LIGHT_BLUE_LINE);
+      doc.setLineWidth(0.15);
+      doc.line(mx, footerY - 2, mx + contentWidth, footerY - 2);
+
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...GRAY_MID);
+
+      const termsLabel = this.lng.traslate('str_terms-and-conditions_title') || 'Terms & Conditions';
+      const policyLabel = this.lng.traslate('str_policy_subtitle') || 'Refund Policy';
+
+      doc.textWithLink(
+        `${termsLabel}: ${this.url}/info/terms-and-conditions`,
+        mx,
+        footerY + 2,
+        { url: `${this.url}/info/terms-and-conditions` }
       );
-      yPosition += 5;
-      doc.text(this.url + '/info/terms-and-conditions', marginLeft, yPosition);
 
-      // Politica di rimborso
-      yPosition += 8;
-      doc.text(this.lng.traslate('str_policy_subtitle'), marginLeft, yPosition);
-      yPosition += 5;
-      doc.text(this.url + '/info/refund-policy', marginLeft, yPosition);
+      doc.textWithLink(
+        `${policyLabel}: ${this.url}/info/refund-policy`,
+        mx,
+        footerY + 7,
+        { url: `${this.url}/info/refund-policy` }
+      );
 
-      // Salvataggio del biglietto
+      doc.text(this.url, mx, footerY + 12);
+
       doc.save(`biglietto_${booking.numberOfTickets}.pdf`);
     } catch (error) {
       alert(error);
     }
+  }
+  downloadPkPass(booking: any) {
+    this.bookingsService
+      .generatePkPass(booking.numberOfTickets)
+      .subscribe((blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `biglietto_${booking.numberOfTickets}.pkpass`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      });
   }
 }

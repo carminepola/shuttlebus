@@ -170,6 +170,20 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.ricerca!.partenza = p;
     }, 10);
   }
+  swapStops() {
+    if (!this.ricerca) return;
+    const tmpPartenza = this.ricerca.partenza;
+    const tmpArrivo = this.ricerca.arrivo;
+    this.ricerca.partenza = '';
+    this.ricerca.arrivo = '';
+    setTimeout(() => {
+      this.ricerca!.partenza = tmpArrivo;
+      this.ricerca!.arrivo = tmpPartenza;
+      this.cambioPartenza();
+      this.cambioArrivo();
+    }, 10);
+  }
+
   onSubmit(f: NgForm) {
     if (!f.valid) {
       return;

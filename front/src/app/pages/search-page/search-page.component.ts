@@ -13,6 +13,7 @@ import { LoadingComponent } from '../../components/loading/loading/loading.compo
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { LngService } from '../../services/lng/lng.service';
+import { DatePipe } from '@angular/common';
 import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-search-page',
@@ -24,8 +25,9 @@ import { fadeAnimation } from '../../animations/fade.animation';
     ReactiveFormsModule,
     FormsModule,
     FooterComponent,
-    LoadingComponent
-],
+    LoadingComponent,
+    DatePipe
+  ],
   animations: [fadeAnimation],
   templateUrl: './search-page.component.html',
   styleUrl: './search-page.component.scss',

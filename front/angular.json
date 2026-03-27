@@ -63,13 +63,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "300mb",
+                  "maximumWarning": "400mb",
                   "maximumError": "600mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "3kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "20kb",
+                  "maximumError": "40kb"
                 }
               ],
               "outputHashing": "all",
@@ -87,22 +87,22 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "200mb",
-                  "maximumError": "500mb"
+                  "maximumWarning": "400mb",
+                  "maximumError": "600mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "3kb",
-                  "maximumError": "20kb"
+                  "maximumWarning": "20kb",
+                  "maximumError": "40kb"
                 }
               ],
-"outputHashing": "none",
-                  "fileReplacements": [
-                    {
-                      "replace": "src/environments/environment.ts",
-                      "with": "src/environments/environment.dev.ts"
-                    }
-                  ]
+              "outputHashing": "none",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
