@@ -80,9 +80,22 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
       if (momap?.position?.length) {
         momap.position.forEach((point: any) => {
           if (point.currentLat > 0 && point.currentLng > 0) {
+            let popupContent = '';
+            if (point.plate) {
+              popupContent += `<strong>${point.plate}</strong>`;
+            }
+            if (point.name) {
+              if (popupContent) popupContent += '<br>';
+              popupContent += point.name;
+            }
+            if (!popupContent) {
+              popupContent = 'Autobus';
+            }
             L.marker([point.currentLat, point.currentLng], {
               icon: this.getArrowIcon(point.currentAngle),
-            }).addTo(this.markersLayer);
+            })
+              .addTo(this.markersLayer)
+              .bindPopup(popupContent);
           }
         });
       }
