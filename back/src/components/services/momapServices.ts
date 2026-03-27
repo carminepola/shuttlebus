@@ -632,8 +632,10 @@ class momapServices {
 
         logger.debug(`Elaborazione bus ${busId} (${name})`);
 
-        // Trova le schedule assegnate a questo bus
-        const busAssignments = busToScheduleMap.get(busId);
+        // Trova le schedule assegnate a questo bus, ordinate per orario di partenza
+        const busAssignments = (busToScheduleMap.get(busId) || []).sort((a, b) => {
+          return this.timeToMinutes(a.departureTime || "00:00") - this.timeToMinutes(b.departureTime || "00:00");
+        });
 
         if (!busAssignments || busAssignments.length === 0) {
           // Nessuna schedule assegnata a questo bus
@@ -760,15 +762,38 @@ class momapServices {
           logger.info(`Bus ${busId} assegnato a schedule più vicina ${activeAssignment.scheduleId} (${activeAssignment.departureTime}) basata sulla posizione`);
         }
 
-        // Se non c'è una schedule attiva, prendi la prossima
+        // Se non c'è una schedule attiva, prendi la prossima per orario
         if (!activeAssignment) {
+          let closestFutureAssignment = null;
+          let closestFutureDistance = Infinity;
+
           for (const assignment of busAssignments) {
             const departureMinutes = this.timeToMinutes(assignment.departureTime || "00:00");
             if (departureMinutes > currentMinutes) {
-              activeAssignment = assignment;
-              logger.info(`Bus ${busId} assegnato a prossima schedule ${assignment.scheduleId} (${assignment.departureTime})`);
-              break;
+              let assignmentDistance = Infinity;
+              if (assignment.stops && assignment.stops.length > 0) {
+                for (const stop of assignment.stops) {
+                  const coords = stopCoordinatesMap.get(stop.id);
+                  if (coords) {
+                    const distance = this.calculateDistance(busLat, busLng, coords.lat, coords.lng);
+                    if (distance < assignmentDistance) {
+                      assignmentDistance = distance;
+                    }
+                  }
+                }
+              }
+              logger.debug(`Schedule futura ${assignment.scheduleId} (${assignment.departureTime}): distanza = ${assignmentDistance}m`);
+
+              if (assignmentDistance < closestFutureDistance) {
+                closestFutureDistance = assignmentDistance;
+                closestFutureAssignment = assignment;
+              }
             }
+          }
+
+          if (closestFutureAssignment) {
+            activeAssignment = closestFutureAssignment;
+            logger.info(`Bus ${busId} assegnato a prossima schedule ${activeAssignment.scheduleId} (${activeAssignment.departureTime}) basata su orario e distanza (${closestFutureDistance}m)`);
           }
         }
 
@@ -829,12 +854,23 @@ class momapServices {
         // Determina la prossima fermata
         const stopIndex = activeAssignment.stops.findIndex((s: any) => s.id === closestStop.id);
         let nextStop = null;
+        let isLastStop = stopIndex === activeAssignment.stops.length - 1;
 
-        if (stopIndex >= 0 && stopIndex < activeAssignment.stops.length - 1) {
+        if (stopIndex >= 0 && !isLastStop) {
           nextStop = activeAssignment.stops[stopIndex + 1];
-        } else if (stopIndex === activeAssignment.stops.length - 1) {
-          // L'autobus è all'ultima fermata
-          nextStop = null;
+        }
+
+        // Se il bus è all'ultima fermata, cerca la prossima corsa assegnata
+        let nextAssignment = null;
+        if (isLastStop) {
+          const activeIndex = busAssignments.findIndex((a: any) => a.scheduleId === activeAssignment.scheduleId);
+          if (activeIndex >= 0 && activeIndex < busAssignments.length - 1) {
+            nextAssignment = busAssignments[activeIndex + 1];
+            if (nextAssignment && nextAssignment.stops && nextAssignment.stops.length > 0) {
+              nextStop = nextAssignment.stops[0];
+              logger.info(`Bus ${busId} all'ultima fermata, carica prossima corsa ${nextAssignment.scheduleId} - prima fermata: ${nextStop.stopTime}`);
+            }
+          }
         }
 
         // Verifica se il bus ha superato la fermata più vicina
