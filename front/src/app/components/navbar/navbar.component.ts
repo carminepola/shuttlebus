@@ -24,6 +24,7 @@ import { RegistrazioneComponent } from '../registrazione/registrazione.component
 export class NavbarComponent implements AfterViewInit, OnDestroy {
   @ViewChildren('navLink') navLinks!: QueryList<ElementRef<HTMLAnchorElement>>;
   private indicatorEl: HTMLElement | null = null;
+  private containerEl: HTMLElement | null = null;
   private resizeObs: ResizeObserver | null = null;
 
   constructor(
@@ -35,7 +36,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.modalService.closeModal();
-        this.updateIndicator();
+        setTimeout(() => this.updateIndicator(), 0);
       }
     });
   }
@@ -48,15 +49,15 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.indicatorEl = document.querySelector('.nav-indicator');
+    this.containerEl = document.querySelector('.navbar-nav-wrapper');
     this.updateIndicator();
 
     this.resizeObs = new ResizeObserver(() => {
       this.ngZone.run(() => this.updateIndicator());
     });
 
-    const nav = document.querySelector('#mainNavbar .navbar-nav');
-    if (nav) {
-      this.resizeObs.observe(nav);
+    if (this.containerEl) {
+      this.resizeObs.observe(this.containerEl);
     }
   }
 
@@ -73,10 +74,13 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
   }
 
   private moveIndicator(el: HTMLAnchorElement): void {
-    if (!this.indicatorEl) return;
-    const parent = el.parentElement!;
-    this.indicatorEl.style.width = el.offsetWidth + 'px';
-    this.indicatorEl.style.left = el.offsetLeft + 'px';
+    if (!this.indicatorEl || !this.containerEl) return;
+    const li = el.closest('.nav-item') as HTMLElement;
+    if (!li) return;
+    const containerRect = this.containerEl.getBoundingClientRect();
+    const liRect = li.getBoundingClientRect();
+    this.indicatorEl.style.width = liRect.width + 'px';
+    this.indicatorEl.style.left = (liRect.left - containerRect.left) + 'px';
     this.indicatorEl.style.opacity = '1';
   }
 

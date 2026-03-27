@@ -12,67 +12,69 @@
       />
     </a>
 
-    <ul class="navbar-nav ms-auto mb-0">
-      <li class="nav-item">
-        <a
-          #navLink
-          class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
-          [class.active]="getPath() == '/'"
-          aria-current="page"
-          (click)="goPath('/')"
-          (mouseenter)="onNavMouseEnter($any($event.target))"
-          (mouseleave)="onNavMouseLeave()"
-        >
-          <i class="fas fa-home small"></i>
-          <span>Home</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a
-          #navLink
-          class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
-          (click)="onTicket()"
-          [class.active]="
-            getPath().includes('/user/') || getPath().includes('/admin/')
-          "
-          (mouseenter)="onNavMouseEnter($any($event.target))"
-          (mouseleave)="onNavMouseLeave()"
-        >
-          <i class="fas fa-user-circle small"></i>
-          <span>Account</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a
-          #navLink
-          class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
-          (click)="goPath('/info')"
-          [class.active]="
-            getPath().includes('/info') || getPath().includes('/busLine')
-          "
-          (mouseenter)="onNavMouseEnter($any($event.target))"
-          (mouseleave)="onNavMouseLeave()"
-        >
-          <i class="fas fa-info-circle small"></i>
-          <span>Info</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a
-          #navLink
-          class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
-          href="https://api.whatsapp.com/send/?phone=%2B393356910211"
-          target="_blank"
-          rel="noopener noreferrer"
-          (mouseenter)="onNavMouseEnter($any($event.target))"
-          (mouseleave)="onNavMouseLeave()"
-        >
-          <i class="fab fa-whatsapp small"></i>
-          <span>Whatsapp</span>
-        </a>
-      </li>
+    <div class="navbar-nav-wrapper ms-auto mb-0">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a
+            #navLink
+            class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+            [class.active]="getPath() == '/'"
+            aria-current="page"
+            (click)="goPath('/')"
+            (mouseenter)="onNavMouseEnter($any($event.target))"
+            (mouseleave)="onNavMouseLeave()"
+          >
+            <i class="fas fa-home small"></i>
+            <span>Home</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            #navLink
+            class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+            (click)="onTicket()"
+            [class.active]="
+              getPath().includes('/user/') || getPath().includes('/admin/')
+            "
+            (mouseenter)="onNavMouseEnter($any($event.target))"
+            (mouseleave)="onNavMouseLeave()"
+          >
+            <i class="fas fa-user-circle small"></i>
+            <span>Account</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            #navLink
+            class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+            (click)="goPath('/info')"
+            [class.active]="
+              getPath().includes('/info') || getPath().includes('/busLine')
+            "
+            (mouseenter)="onNavMouseEnter($any($event.target))"
+            (mouseleave)="onNavMouseLeave()"
+          >
+            <i class="fas fa-info-circle small"></i>
+            <span>Info</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            #navLink
+            class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+            href="https://api.whatsapp.com/send/?phone=%2B393356910211"
+            target="_blank"
+            rel="noopener noreferrer"
+            (mouseenter)="onNavMouseEnter($any($event.target))"
+            (mouseleave)="onNavMouseLeave()"
+          >
+            <i class="fab fa-whatsapp small"></i>
+            <span>Whatsapp</span>
+          </a>
+        </li>
+      </ul>
       <div class="nav-indicator"></div>
-    </ul>
+    </div>
   </div>
 </nav>
 

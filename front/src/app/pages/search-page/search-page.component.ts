@@ -26,7 +26,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
     FormsModule,
     FooterComponent,
     LoadingComponent,
-    DatePipe
+    DatePipe,
   ],
   animations: [fadeAnimation],
   templateUrl: './search-page.component.html',
@@ -59,7 +59,7 @@ export class SearchPageComponent implements OnInit {
     private bookingService: BookingsService,
     private router: Router,
     private route: ActivatedRoute,
-    private ticketTypeService: TicketTypeService
+    private ticketTypeService: TicketTypeService,
   ) {}
 
   ngAfterViewInit(): void {}
@@ -72,6 +72,7 @@ export class SearchPageComponent implements OnInit {
       this.ricerca.bagagli = parseInt(params['bagagli']);
       this.params = [];
       this.ricercaFind = JSON.parse(JSON.stringify(this.ricerca));
+
       this.load();
     });
   }
@@ -101,7 +102,7 @@ export class SearchPageComponent implements OnInit {
     this.loading = true;
 
     let risTicketTypes = await lastValueFrom(
-      this.ticketTypeService.getAllActiveTicketTypes()
+      this.ticketTypeService.getAllActiveTicketTypes(),
     );
     let risRoutes = await lastValueFrom(this.routesService.getRoutes());
     let risStops = await lastValueFrom(this.stopsService.getAllActiveStops());
@@ -111,8 +112,8 @@ export class SearchPageComponent implements OnInit {
         this.ricerca.arrivo,
         this.ricerca.persone,
         this.ricerca.data,
-        this.ricerca.bagagli
-      )
+        this.ricerca.bagagli,
+      ),
     );
 
     let ticketTypes = risTicketTypes.ticketType;
@@ -123,7 +124,7 @@ export class SearchPageComponent implements OnInit {
       let route: any = routes.find((t: any) => t.id === res[i].routeId);
       if (route && route.schedules) {
         let schedule = route?.schedules.find(
-          (t: any) => t.id === res[i].scheduleId
+          (t: any) => t.id === res[i].scheduleId,
         );
 
         let from: any = stops.find((t: any) => t.id === this.ricerca.partenza);
@@ -145,7 +146,7 @@ export class SearchPageComponent implements OnInit {
             image: from.image,
             address: from.address,
             stopTime: schedule.stops.find(
-              (z: any) => z.id === this.ricerca.partenza
+              (z: any) => z.id === this.ricerca.partenza,
             ).stopTime,
           },
 
@@ -156,15 +157,15 @@ export class SearchPageComponent implements OnInit {
             image: to.image,
             address: to.address,
             stopTime: schedule.stops.find(
-              (z: any) => z.id === this.ricerca.arrivo
+              (z: any) => z.id === this.ricerca.arrivo,
             ).stopTime,
           },
           ticketTypes: JSON.parse(
             JSON.stringify(
               ticketTypes.map((t: any) => {
                 return ticketTypes.find((z: any) => z.id === t.id);
-              })
-            )
+              }),
+            ),
           ),
         };
 
@@ -186,7 +187,7 @@ export class SearchPageComponent implements OnInit {
         let route: any = routes.find((t: any) => t.id === param.routeId);
         if (route) {
           let schedule = route?.schedules.find(
-            (t: any) => t.id === param.scheduleId
+            (t: any) => t.id === param.scheduleId,
           );
           if (!schedule) {
             return false;
@@ -209,6 +210,10 @@ export class SearchPageComponent implements OnInit {
     this.params = params;
 
     this.loading = false;
+    const searchResult = document.getElementById('search-result');
+    if (searchResult) {
+      searchResult.scrollIntoView({ behavior: 'smooth' });
+    }
   }
   acquista(param: any) {
     param.ticketTypes = param.ticketTypes.filter((t: any) => t.count > 0);

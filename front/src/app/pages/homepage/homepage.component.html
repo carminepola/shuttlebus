@@ -20,17 +20,17 @@
 
     <!-- Card per il contenuto del form con sfondo vetro -->
     <div class="card mx-lg-5 mx-2 rounded-4 shadow border-0 card-home glass">
-      <div class="card-header rounded-4 border-0">
-        <h2
-          class="card-title text-primary fw-bold d-none d-lg-block"
-          [innerHTML]="'str_main_title' | translate"
-        ></h2>
-        <h4
-          class="card-title text-primary fw-bold d-block d-lg-none"
-          [innerHTML]="'str_main_title' | translate"
-        ></h4>
-      </div>
       <div class="card-body">
+        <div class="mb-4">
+          <h2
+            class="card-title text-primary fw-bold d-none d-lg-block"
+            [innerHTML]="'str_main_title' | translate"
+          ></h2>
+          <h4
+            class="card-title text-primary fw-bold d-block d-lg-none"
+            [innerHTML]="'str_main_title' | translate"
+          ></h4>
+        </div>
         @if (("str_alert" | translate) != "str_alert") {
           <div>
             <div

@@ -6,7 +6,7 @@
   </div>
 </div>
 
-<div class="container" style="min-height: 50vh">
+<div class="container" style="min-height: 50vh" id="search-result">
   @if (loading) {
     <div class="row h-100 my-5">
       <div class="col text-center h-100 d-flex flex-column align-items-center">
@@ -189,12 +189,16 @@
           <div class="route-card-footer">
             <div class="selected-info">
               @if (param.seats == 0) {
-                <span class="text-secondary">Seleziona i biglietti</span>
+                <span class="text-secondary">{{
+                  "str_seleziona_posti" | translate
+                }}</span>
               } @else {
                 <span class="seats-selected"
                   >{{ param.seats }}/{{ ricerca.persone }}</span
                 >
-                <span class="seats-label">posti selezionati</span>
+                <span class="seats-label">
+                  {{ "str_posti_selezionati" | translate }}
+                </span>
               }
             </div>
             <button
@@ -205,7 +209,9 @@
             >
               @if (param.seats == ricerca.persone) {
                 <span class="purchase-total">{{ param.total }}€</span>
-                <span class="purchase-action">Acquista</span>
+                <span class="purchase-action">{{
+                  "str_acquista" | translate
+                }}</span>
               } @else {
                 <span [innerHTML]="'str_acquista' | translate"></span>
               }

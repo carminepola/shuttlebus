@@ -3,7 +3,8 @@
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
   transition: box-shadow 0.25s ease;
-  margin-top: 50px;
+  margin-top: 65px;
+ 
   &:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
   }
@@ -555,5 +556,11 @@
 
   .timeline-dot {
     box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.15);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .search-bar-card {
+     margin-top: 0;
   }
 }
