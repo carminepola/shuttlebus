@@ -39,7 +39,7 @@
     <div class="row">
       @for (bus of busStatusList; track bus.busId; let i = $index) {
         <div class="col-12 col-md-6 col-lg-4 mb-4">
-          <div class="card shadow-sm border-0">
+          <div class="card shadow-sm border-0 h-100">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start">
                 <div class="flex-grow-2">
@@ -61,15 +61,15 @@
                 </div>
                 <span
                   class="badge text-secondary {{
-                    getStatusClass(bus.status)
+                    getStatusClass(getComputedStatus(bus))
                   }} fs-6 ms-2"
                 >
-                  {{ getStatusText(bus.status) }}
+                  {{ getStatusText(getComputedStatus(bus)) }}
                 </span>
               </div>
             </div>
             @if (bus.line || bus.currentStop || bus.nextStop || bus.delay) {
-              <div class="card-body">
+              <div class="card-body mt-auto">
                 @if (bus.line) {
                   <div class="mb-3">
                     <h6 class="text-secondary mb-2">
@@ -82,8 +82,7 @@
                 @if (bus.currentStop) {
                   <div class="mb-3">
                     <h6 class="text-secondary mb-2">
-                      <i class="fa-solid fa-location-dot me-2"></i>Fermata
-                      attuale
+                      <i class="fa-solid fa-location-dot me-2"></i>Partenza da
                     </h6>
                     <div
                       class="d-flex justify-content-between align-items-center"
@@ -95,10 +94,16 @@
                           >{{ bus.currentStop.scheduledTime }}
                         </small>
                       </div>
-                      <span class="badge bg-light text-dark">
-                        <i class="fa-solid fa-location-arrow me-1"></i
-                        >{{ bus.currentStop.distance }} m
-                      </span>
+                      @if (bus.currentStop.distance >= 120) {
+                        <span class="badge bg-light text-dark">
+                          <i class="fa-solid fa-location-arrow me-1"></i
+                          >{{ bus.currentStop.distance }} m
+                        </span>
+                      } @else {
+                        <span class="badge bg-success text-white">
+                          <i class="fa-solid fa-check me-1"></i>Arrivato
+                        </span>
+                      }
                     </div>
                   </div>
                 }
@@ -106,8 +111,7 @@
                 @if (bus.nextStop) {
                   <div class="mb-3">
                     <h6 class="text-secondary mb-2">
-                      <i class="fa-solid fa-location-arrow me-2"></i>Prossima
-                      fermata
+                      <i class="fa-solid fa-location-arrow me-2"></i>Arriva a
                     </h6>
                     <div>
                       <p class="mb-0 fw-medium">{{ bus.nextStop.name }}</p>
@@ -119,9 +123,9 @@
                   </div>
                 }
 
-                @if (bus.delay !== null && bus.status !== "early") {
+                @if (bus.delay !== null && getComputedStatus(bus) !== 'early' && getComputedStatus(bus) !== 'on_spot' && getComputedStatus(bus) !== 'en_route') {
                   <div
-                    class="alert {{ getDelayAlertClass(bus.status) }} py-2 mb-0"
+                    class="alert {{ getDelayAlertClass(getComputedStatus(bus)) }} py-2 mb-0"
                   >
                     <div class="d-flex align-items-center">
                       <i class="fa-solid fa-clock me-2"></i>
