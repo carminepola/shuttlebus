@@ -35,7 +35,7 @@ export class MyTicketsComponent implements OnInit {
   constructor(
     private bookingsService: BookingsService,
     private lng: LngService,
-    private stripeService: StripeService
+    private stripeService: StripeService,
   ) {}
   loading = true;
 
@@ -45,15 +45,19 @@ export class MyTicketsComponent implements OnInit {
   }
   async load() {
     let bookings: any = await lastValueFrom(
-      this.bookingsService.getBookingFromUser()
+      this.bookingsService.getBookingFromUser(),
     );
     console.log(bookings);
 
     this.bookings = bookings['booking'] || [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    this.activeBookings = this.bookings.filter((b: any) => new Date(b.date) >= today);
-    this.oldBookings = this.bookings.filter((b: any) => new Date(b.date) < today);
+    this.activeBookings = this.bookings.filter(
+      (b: any) => new Date(b.date) >= today,
+    );
+    this.oldBookings = this.bookings.filter(
+      (b: any) => new Date(b.date) < today,
+    );
     this.loading = false;
   }
   checkDay(date: any) {
@@ -181,7 +185,7 @@ export class MyTicketsComponent implements OnInit {
         w: number,
         h: number,
         color1: number[],
-        color2: number[]
+        color2: number[],
       ) => {
         const steps = 40;
         const stepH = h / steps;
@@ -201,7 +205,7 @@ export class MyTicketsComponent implements OnInit {
         w: number,
         h: number,
         r: number,
-        style: string = 'S'
+        style: string = 'S',
       ) => {
         doc.setDrawColor(...WHITE);
         doc.setFillColor(...WHITE);
@@ -244,7 +248,15 @@ export class MyTicketsComponent implements OnInit {
         const badgeY = 35;
         doc.setFillColor(...WHITE);
         doc.setGState(new (doc as any).GState({ opacity: 0.15 }));
-        doc.roundedRect(badgeX, badgeY, badgeW, badgeH, badgeH / 2, badgeH / 2, 'F');
+        doc.roundedRect(
+          badgeX,
+          badgeY,
+          badgeW,
+          badgeH,
+          badgeH / 2,
+          badgeH / 2,
+          'F',
+        );
         (doc as any).setGState(new (doc as any).GState({ opacity: 1 }));
         doc.setTextColor(...WHITE);
         doc.text(statusText, badgeX + badgeW / 2, badgeY + badgeH / 2 + 1.5, {
@@ -271,10 +283,30 @@ export class MyTicketsComponent implements OnInit {
 
       // Day of week
       const dateObj = new Date(booking.date);
-      const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
-      const months = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+      const days = [
+        'Domenica',
+        'Lunedì',
+        'Martedì',
+        'Mercoledì',
+        'Giovedì',
+        'Venerdì',
+        'Sabato',
+      ];
+      const months = [
+        'Gennaio',
+        'Febbraio',
+        'Marzo',
+        'Aprile',
+        'Maggio',
+        'Giugno',
+        'Luglio',
+        'Agosto',
+        'Settembre',
+        'Ottobre',
+        'Novembre',
+        'Dicembre',
+      ];
       const dayStr = `${days[dateObj.getDay()]} ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
-
 
       y += 24;
 
@@ -303,7 +335,10 @@ export class MyTicketsComponent implements OnInit {
 
       doc.setFontSize(7);
       doc.setTextColor(...GRAY_MID);
-      const fromDesc = booking.from.description?.[this.lng.getLng()] || booking.from.description?.en || '';
+      const fromDesc =
+        booking.from.description?.[this.lng.getLng()] ||
+        booking.from.description?.en ||
+        '';
       if (fromDesc) {
         doc.text(fromDesc, depX, timeY + 16, { align: 'center' });
       }
@@ -335,7 +370,10 @@ export class MyTicketsComponent implements OnInit {
 
       doc.setFontSize(7);
       doc.setTextColor(...GRAY_MID);
-      const toDesc = booking.to.description?.[this.lng.getLng()] || booking.to.description?.en || '';
+      const toDesc =
+        booking.to.description?.[this.lng.getLng()] ||
+        booking.to.description?.en ||
+        '';
       if (toDesc) {
         doc.text(toDesc, arrX, timeY + 16, { align: 'center' });
       }
@@ -359,7 +397,8 @@ export class MyTicketsComponent implements OnInit {
         doc.setDrawColor(...LIGHT_BLUE_LINE);
         doc.rect(mx, y + detailsH, contentWidth, 8, 'FD');
 
-        const name = ticket.name?.[this.lng.getLng()] || ticket.name?.en || ticket.name;
+        const name =
+          ticket.name?.[this.lng.getLng()] || ticket.name?.en || ticket.name;
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(...GRAY_DARK);
@@ -367,9 +406,14 @@ export class MyTicketsComponent implements OnInit {
 
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(...PRIMARY);
-        doc.text(`x${ticket.count}`, mx + contentWidth - 8, y + detailsH + 5.5, {
-          align: 'right',
-        });
+        doc.text(
+          `x${ticket.count}`,
+          mx + contentWidth - 8,
+          y + detailsH + 5.5,
+          {
+            align: 'right',
+          },
+        );
         detailsH += 8;
       });
 
@@ -381,13 +425,22 @@ export class MyTicketsComponent implements OnInit {
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(...GRAY_DARK);
-        doc.text(this.lng.traslate('str_bagagli_aggiuntivi'), mx + 6, y + detailsH + 5.5);
+        doc.text(
+          this.lng.traslate('str_bagagli_aggiuntivi'),
+          mx + 6,
+          y + detailsH + 5.5,
+        );
 
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(...PRIMARY);
-        doc.text(`x${booking.luggage}`, mx + contentWidth - 8, y + detailsH + 5.5, {
-          align: 'right',
-        });
+        doc.text(
+          `x${booking.luggage}`,
+          mx + contentWidth - 8,
+          y + detailsH + 5.5,
+          {
+            align: 'right',
+          },
+        );
         detailsH += 8;
       }
 
@@ -398,7 +451,11 @@ export class MyTicketsComponent implements OnInit {
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...GRAY_MID);
-      doc.text(this.lng.traslate('str_totale').toUpperCase(), mx + 6, y + detailsH + 7.5);
+      doc.text(
+        this.lng.traslate('str_totale').toUpperCase(),
+        mx + 6,
+        y + detailsH + 7.5,
+      );
 
       doc.setFontSize(18);
       doc.setFont('helvetica', 'bold');
@@ -425,7 +482,7 @@ export class MyTicketsComponent implements OnInit {
       try {
         const qrCodeDataUrl = await QRCode.toDataURL(
           `${this.url}/ticket/check/${booking.numberOfTickets}`,
-          { margin: 1, width: 300 }
+          { margin: 1, width: 300 },
         );
 
         const qrSize = 38;
@@ -468,21 +525,24 @@ export class MyTicketsComponent implements OnInit {
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...GRAY_MID);
 
-      const termsLabel = this.lng.traslate('str_terms-and-conditions_title') || 'Terms & Conditions';
-      const policyLabel = this.lng.traslate('str_policy_subtitle') || 'Refund Policy';
+      const termsLabel =
+        this.lng.traslate('str_terms-and-conditions_title') ||
+        'Terms & Conditions';
+      const policyLabel =
+        this.lng.traslate('str_policy_subtitle') || 'Refund Policy';
 
       doc.textWithLink(
         `${termsLabel}: ${this.url}/info/terms-and-conditions`,
         mx,
         footerY + 2,
-        { url: `${this.url}/info/terms-and-conditions` }
+        { url: `${this.url}/info/terms-and-conditions` },
       );
 
       doc.textWithLink(
         `${policyLabel}: ${this.url}/info/refund-policy`,
         mx,
         footerY + 7,
-        { url: `${this.url}/info/refund-policy` }
+        { url: `${this.url}/info/refund-policy` },
       );
 
       doc.text(this.url, mx, footerY + 12);
@@ -491,19 +551,5 @@ export class MyTicketsComponent implements OnInit {
     } catch (error) {
       alert(error);
     }
-  }
-  downloadPkPass(booking: any) {
-    this.bookingsService
-      .generatePkPass(booking.numberOfTickets)
-      .subscribe((blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `biglietto_${booking.numberOfTickets}.pkpass`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      });
   }
 }
