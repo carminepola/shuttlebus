@@ -267,6 +267,7 @@ export const routes: Routes = [
 
         data: { navbar: true, requiredRole: 50 },
       },
+
       {
         path: 'schedules/:idRoute',
         component: ScheduleListComponent,

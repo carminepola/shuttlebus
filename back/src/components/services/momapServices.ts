@@ -507,9 +507,11 @@ class momapServices {
 
     logger.info(`Inizio assegnazione bus alle schedule (${availableBuses.length} bus disponibili)`);
 
+    // Initialize busIndex outside the route loop to maintain continuity across routes
+    let busIndex = 0;
+
     for (const [routeId, schedules] of schedulesByRoute) {
       const routeAssignments: any[] = [];
-      let busIndex = 0;
 
       for (const schedule of schedules) {
         // Trova il prossimo bus disponibile (rotazione)

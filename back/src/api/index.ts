@@ -16,6 +16,7 @@ import stripe from "./stripe";
 import momap from "./momap";
 import licensePlate from "./licensePlate";
 import depotSettings from "./depotSettings";
+
 const router = express.Router();
 
 router.get<{}, messageResponse>("/", (req, res, next) => {
@@ -39,4 +40,5 @@ router.use("/google", google);
 router.use("/stripe", stripe);
 router.use("/licensePlate", licensePlate);
 router.use("/depotSettings", depotSettings);
+
 export default router;
