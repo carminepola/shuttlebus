@@ -26,7 +26,7 @@ export default class MomapDao {
         .collection(this.schema)
         .aggregate([
           {
-            $match: { day: new Date().toISOString().split("T")[0] },
+            $match: { date: new Date().toISOString().split("T")[0] },
           },
           {
             $lookup: {
@@ -90,7 +90,7 @@ export default class MomapDao {
         await this.db.collection(this.schema).insertOne(toInsert);
         return true;
       } else {
-        const result = await this.db.collection(this.schema).updateOne({ day: obj.day, imei: obj.imei }, { $set: toInsert }, { upsert: true });
+        const result = await this.db.collection(this.schema).updateOne({ date: obj.date, imei: obj.imei }, { $set: toInsert }, { upsert: true });
         return result.modifiedCount > 0;
       }
     } catch (error) {
