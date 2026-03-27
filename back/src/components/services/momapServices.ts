@@ -288,6 +288,67 @@ class momapServices {
   }
 
   /**
+   * Trova il segmento della route più vicino all'autobus proiettando
+   * la posizione del bus sui segmenti tra fermate consecutive.
+   * Usa coordinate cartesiane locali (lat, lng * cos(lat)) per il calcolo.
+   */
+  private findClosestRouteSegment(
+    busLat: number,
+    busLng: number,
+    stops: any[],
+    stopsMap: Map<string, { name: string; lat: number; lng: number }>
+  ): { prevIndex: number; nextIndex: number; progress: number } | null {
+    if (stops.length < 2) return null;
+
+    const lats: number[] = [busLat];
+    for (const stop of stops) {
+      const d = stopsMap.get(stop.id);
+      if (d) lats.push(d.lat);
+    }
+    const avgLatRad = (lats.reduce((a, b) => a + b, 0) / lats.length) * (Math.PI / 180);
+    const cosLat = Math.cos(avgLatRad);
+
+    let bestPrevIdx = 0;
+    let bestNextIdx = 1;
+    let bestDist = Infinity;
+    let bestProgress = 0;
+
+    for (let i = 0; i < stops.length - 1; i++) {
+      const a = stopsMap.get(stops[i].id);
+      const b = stopsMap.get(stops[i + 1].id);
+      if (!a || !b) continue;
+
+      const ax = a.lat;
+      const ay = a.lng * cosLat;
+      const bx = b.lat;
+      const by = b.lng * cosLat;
+      const px = busLat;
+      const py = busLng * cosLat;
+
+      const dx = bx - ax;
+      const dy = by - ay;
+      const lenSq = dx * dx + dy * dy;
+      if (lenSq === 0) continue;
+
+      let t = ((px - ax) * dx + (py - ay) * dy) / lenSq;
+      t = Math.max(0, Math.min(1, t));
+
+      const projX = ax + t * dx;
+      const projY = ay + t * dy;
+      const perpDist = Math.sqrt((px - projX) ** 2 + (py - projY) ** 2);
+
+      if (perpDist < bestDist) {
+        bestDist = perpDist;
+        bestProgress = t;
+        bestPrevIdx = i;
+        bestNextIdx = i + 1;
+      }
+    }
+
+    return { prevIndex: bestPrevIdx, nextIndex: bestNextIdx, progress: bestProgress };
+  }
+
+  /**
    * Converte un orario in formato "HH:mm" in minuti dalla mezzanotte
    */
   private timeToMinutes(time: string): number {
@@ -317,6 +378,36 @@ class momapServices {
     }
 
     return hours * 60 + minutes;
+  }
+
+  private minutesToTime(minutes: number): string {
+    const h = Math.floor(minutes / 60) % 24;
+    const m = Math.round(minutes % 60);
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  }
+
+  private calculateRouteMetrics(
+    stops: any[],
+    stopsMap: Map<string, { name: string; lat: number; lng: number }>
+  ): { totalDistance: number; scheduledTravelMinutes: number; avgSpeedMetersPerMin: number } {
+    let totalDistance = 0;
+    let prevCoords = stops.length > 0 ? stopsMap.get(stops[0].id) : null;
+
+    for (let i = 1; i < stops.length; i++) {
+      const coords = stopsMap.get(stops[i].id);
+      if (prevCoords && coords) {
+        totalDistance += this.calculateDistance(prevCoords.lat, prevCoords.lng, coords.lat, coords.lng);
+      }
+      prevCoords = coords;
+    }
+
+    const firstStopTime = this.timeToMinutes(stops[0].stopTime || "00:00");
+    const lastStopTime = this.timeToMinutes(stops[stops.length - 1].stopTime || "00:00");
+    const scheduledTravelMinutes = lastStopTime - firstStopTime;
+
+    const avgSpeedMetersPerMin = scheduledTravelMinutes > 0 ? totalDistance / scheduledTravelMinutes : 0;
+
+    return { totalDistance, scheduledTravelMinutes, avgSpeedMetersPerMin };
   }
 
   private dateToNumber(date: string): number {
@@ -646,7 +737,6 @@ class momapServices {
             line: null,
             nextStop: null,
             status: "no_schedule",
-            delay: null,
             currentLat: busLat,
             currentLng: busLng,
           });
@@ -813,30 +903,52 @@ class momapServices {
             line: null,
             nextStop: null,
             status: "no_schedule",
-            delay: null,
             currentLat: busLat,
             currentLng: busLng,
           });
           continue;
         }
 
-        // Trova la fermata più vicina all'autobus
-        let closestStop = null;
-        let minDistance = Infinity;
+        // Determina la posizione del bus lungo la route usando la proiezione sui segmenti
+        const segment = this.findClosestRouteSegment(busLat, busLng, activeAssignment.stops, stopsMap);
 
-        for (const stop of activeAssignment.stops) {
-          const stopDetails = stopsMap.get(stop.id);
-          if (stopDetails) {
-            const distance = this.calculateDistance(busLat, busLng, stopDetails.lat, stopDetails.lng);
-            if (distance < minDistance) {
-              minDistance = distance;
-              closestStop = stop;
+        let currentStop: any = null;
+        let currentStopIndex: number = -1;
+        let currentStopDistance: number = Infinity;
+
+        if (!segment || activeAssignment.stops.length < 2) {
+          for (let i = 0; i < activeAssignment.stops.length; i++) {
+            const stop = activeAssignment.stops[i];
+            const details = stopsMap.get(stop.id);
+            if (details) {
+              const dist = this.calculateDistance(busLat, busLng, details.lat, details.lng);
+              if (dist < currentStopDistance) {
+                currentStopDistance = dist;
+                currentStop = stop;
+                currentStopIndex = i;
+              }
             }
+          }
+        } else {
+          const prevStopData = activeAssignment.stops[segment.prevIndex];
+          const nextStopData = activeAssignment.stops[segment.nextIndex];
+          const prevDetails = stopsMap.get(prevStopData.id);
+          const nextDetails = stopsMap.get(nextStopData.id);
+          const distToPrev = prevDetails ? this.calculateDistance(busLat, busLng, prevDetails.lat, prevDetails.lng) : Infinity;
+          const distToNext = nextDetails ? this.calculateDistance(busLat, busLng, nextDetails.lat, nextDetails.lng) : Infinity;
+
+          if (distToNext < distToPrev) {
+            currentStop = nextStopData;
+            currentStopIndex = segment.nextIndex;
+            currentStopDistance = distToNext;
+          } else {
+            currentStop = prevStopData;
+            currentStopIndex = segment.prevIndex;
+            currentStopDistance = distToPrev;
           }
         }
 
-        if (!closestStop) {
-          // Nessuna fermata trovata
+        if (!currentStop) {
           busStatusList.push({
             busId: busId,
             plate: plate,
@@ -844,7 +956,6 @@ class momapServices {
             line: activeAssignment.routeName || null,
             nextStop: null,
             status: "no_stop",
-            delay: null,
             currentLat: busLat,
             currentLng: busLng,
           });
@@ -852,12 +963,11 @@ class momapServices {
         }
 
         // Determina la prossima fermata
-        const stopIndex = activeAssignment.stops.findIndex((s: any) => s.id === closestStop.id);
         let nextStop = null;
-        let isLastStop = stopIndex === activeAssignment.stops.length - 1;
+        let isLastStop = currentStopIndex === activeAssignment.stops.length - 1;
 
-        if (stopIndex >= 0 && !isLastStop) {
-          nextStop = activeAssignment.stops[stopIndex + 1];
+        if (currentStopIndex >= 0 && !isLastStop) {
+          nextStop = activeAssignment.stops[currentStopIndex + 1];
         }
 
         // Se il bus è all'ultima fermata, cerca la prossima corsa assegnata
@@ -873,61 +983,70 @@ class momapServices {
           }
         }
 
-        // Verifica se il bus ha superato la fermata più vicina
-        const stopTimeMinutes = this.timeToMinutes(closestStop.stopTime || "00:00");
-        const closestStopDetails = stopsMap.get(closestStop.id);
-        if (!closestStopDetails) {
-          logger.warn(`Stop ${closestStop.id} not found in stopsMap for bus ${busId}, skipping this bus`);
+        const currentStopDetails = stopsMap.get(currentStop.id);
+        if (!currentStopDetails) {
+          logger.warn(`Stop ${currentStop.id} not found in stopsMap for bus ${busId}, skipping this bus`);
           continue;
         }
-        const distanceToStop = this.calculateDistance(busLat, busLng, closestStopDetails.lat, closestStopDetails.lng);
 
-        logger.debug(`Bus ${busId} distanza dalla fermata più vicina: ${distanceToStop}m, orario fermata: ${stopTimeMinutes}, attuale: ${currentMinutes}`);
+        const today = new Date().toISOString().split("T")[0];
+        const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-        // Se il bus è molto lontano dalla fermata (più della soglia configurabile), probabilmente l'ha superata
-        // In questo caso, cerca la prossima fermata sulla route
-        let effectiveStop = closestStop;
-        let effectiveStopIndex = stopIndex;
+        const routeMetrics = this.calculateRouteMetrics(activeAssignment.stops, stopsMap);
 
-        const distanceThreshold = depotSettings.stopDistanceThreshold || 500;
-        if (distanceToStop > distanceThreshold) {
-          logger.info(`Bus ${busId} ha probabilmente superato la fermata ${closestStop.id} (distanza: ${distanceToStop}m), cerco la prossima`);
-
-          // Cerca la prossima fermata sulla route
-          if (stopIndex < activeAssignment.stops.length - 1) {
-            effectiveStop = activeAssignment.stops[stopIndex + 1];
-            effectiveStopIndex = stopIndex + 1;
-            logger.debug(`Bus ${busId} assegnato alla prossima fermata ${effectiveStop.id} (${effectiveStop.stopTime})`);
-          } else if (stopIndex === activeAssignment.stops.length - 1) {
-            // L'autobus è all'ultima fermata, non ha altre fermate
-            effectiveStop = null;
-            logger.debug(`Bus ${busId} è all'ultima fermata, non ci sono altre fermate`);
-          }
-        }
-
-        // Calcola il ritardo basandosi sulla fermata effettiva
-        let delay = null;
         let status = "on_time";
+        let estimatedArrival: string | null = null;
+        let currentStopArrivalTime: string | null = null;
+        let currentStopDepartureTime: string | null = null;
 
-        if (effectiveStop) {
-          const effectiveStopTimeMinutes = this.timeToMinutes(effectiveStop.stopTime || "00:00");
+        const isAtStop = currentStopDistance < 120;
 
-          if (currentMinutes > effectiveStopTimeMinutes) {
-            delay = currentMinutes - effectiveStopTimeMinutes;
-            status = "late";
-          } else if (currentMinutes < effectiveStopTimeMinutes) {
-            delay = effectiveStopTimeMinutes - currentMinutes;
-            status = "early";
+        if (isAtStop) {
+          status = "on_spot";
+          const existingEvent = await this.momapDao.getBusStopEvent(today, busId, activeAssignment.scheduleId, currentStop.id);
+          if (existingEvent) {
+            currentStopArrivalTime = existingEvent.arrivalTime || null;
+            currentStopDepartureTime = existingEvent.departureTime || null;
+            if (!currentStopArrivalTime) {
+              currentStopArrivalTime = currentTimeStr;
+              await this.momapDao.upsertBusStopEvent({ day: today, busId, scheduleId: activeAssignment.scheduleId, stopId: currentStop.id, arrivalTime: currentTimeStr });
+            }
+          } else {
+            currentStopArrivalTime = currentTimeStr;
+            await this.momapDao.upsertBusStopEvent({ day: today, busId, scheduleId: activeAssignment.scheduleId, stopId: currentStop.id, arrivalTime: currentTimeStr });
+          }
+        } else {
+          status = "en_route";
+
+          for (let i = 0; i <= currentStopIndex && i < activeAssignment.stops.length; i++) {
+            const stopData = activeAssignment.stops[i];
+            const prevEvent = await this.momapDao.getBusStopEvent(today, busId, activeAssignment.scheduleId, stopData.id);
+            if (prevEvent && prevEvent.arrivalTime && !prevEvent.departureTime) {
+              await this.momapDao.upsertBusStopEvent({ day: today, busId, scheduleId: activeAssignment.scheduleId, stopId: stopData.id, departureTime: prevEvent.arrivalTime });
+            }
           }
 
-          logger.debug(`Bus ${busId} calcolo ritardo: fermata ${effectiveStop.id} (${effectiveStop.stopTime}), attuale: ${currentMinutes}, ritardo: ${delay} min, status: ${status}`);
-        } else {
-          logger.debug(`Bus ${busId} nessuna fermata effettiva valida`);
-          status = "no_stop";
+          if (currentStopIndex >= 0) {
+            const prevStopEvent = await this.momapDao.getBusStopEvent(today, busId, activeAssignment.scheduleId, currentStop.id);
+            if (prevStopEvent) {
+              currentStopArrivalTime = prevStopEvent.arrivalTime || null;
+              currentStopDepartureTime = prevStopEvent.departureTime || null;
+            }
+          }
         }
 
-        // Ottieni i dettagli della fermata
-        const stopDetails = stopsMap.get(closestStop.id);
+        if (status === "en_route" && nextStop) {
+          const nextCoords = stopsMap.get(nextStop.id);
+          const distanceToNextStop = nextCoords ? this.calculateDistance(busLat, busLng, nextCoords.lat, nextCoords.lng) : 0;
+          const timeToNextStop = routeMetrics.avgSpeedMetersPerMin > 0
+            ? distanceToNextStop / routeMetrics.avgSpeedMetersPerMin
+            : 0;
+          estimatedArrival = this.minutesToTime(currentMinutes + timeToNextStop);
+        }
+
+        logger.debug(`Bus ${busId} fermata ${currentStop.id}: distanza=${currentStopDistance}m, status=${status}, arrivo_reale=${currentStopArrivalTime}, partenza_reale=${currentStopDepartureTime}, eta=${estimatedArrival}`);
+
+        const stopDetails = stopsMap.get(currentStop.id);
         const nextStopDetails = nextStop ? stopsMap.get(nextStop.id) : null;
 
         busStatusList.push({
@@ -936,10 +1055,12 @@ class momapServices {
           name: name,
           line: activeAssignment.routeName || null,
           currentStop: {
-            id: closestStop.id,
-            name: stopDetails?.name || closestStop.id,
-            scheduledTime: closestStop.stopTime,
-            distance: Math.round(minDistance),
+            id: currentStop.id,
+            name: stopDetails?.name || currentStop.id,
+            scheduledTime: currentStop.stopTime,
+            distance: Math.round(currentStopDistance),
+            arrivalTime: currentStopArrivalTime,
+            departureTime: currentStopDepartureTime,
           },
           nextStop: nextStopDetails
             ? {
@@ -949,7 +1070,7 @@ class momapServices {
               }
             : null,
           status: status,
-          delay: delay,
+          estimatedArrival: estimatedArrival,
           currentLat: busLat,
           currentLng: busLng,
         });

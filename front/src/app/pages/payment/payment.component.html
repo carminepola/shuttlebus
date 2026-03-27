@@ -1,45 +1,50 @@
-<div class="pt-5 d-flex align-items-center justify-content-center marginTopBar">
+<div class="payment-result-container marginTopBar">
   @if (actions == 'cancel') {
-    <div class="text-center">
-      <h3
-        class="display-1 fw-bold text-secondary"
-        [innerHTML]="'str_pagamento_annullato' | translate"
-      ></h3>
+    <div class="payment-result-card">
+      <div class="result-icon result-icon-cancel">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+      <h2
+        class="result-title"
+        [innerText]="'str_pagamento_annullato' | translate"
+      ></h2>
       <p
-        class="display-6 fw-semibold text-primary mb-3"
-        [innerHTML]="'str_pagamento_annullato_desc' | translate"
+        class="result-subtitle"
+        [innerText]="'str_pagamento_annullato_desc' | translate"
       ></p>
       <p
-        class="text-muted mb-4"
-        [innerHTML]="'str_pagamento_annullato_desc2' | translate"
+        class="result-desc"
+        [innerText]="'str_pagamento_annullato_desc2' | translate"
       ></p>
       <a
         routerLink="/"
-        class="btn btn-secondary btn-lg shadow-sm px-5 py-3"
-        [innerHTML]="'str_torna_home' | translate"
+        class="result-btn"
+        [innerText]="'str_torna_home' | translate"
       ></a>
     </div>
   }
   @if (actions == 'success') {
-    <div class="text-center">
-      <h3
-        class="display-1 fw-bold text-secondary"
-        [innerHTML]="'str_pagamento_riuscito' | translate"
-      ></h3>
+    <div class="payment-result-card">
+      <div class="result-icon result-icon-success">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h2
+        class="result-title"
+        [innerText]="'str_pagamento_riuscito' | translate"
+      ></h2>
       <p
-        class="display-6 fw-semibold text-primary mb-3"
-        [innerHTML]="'str_pagamento_riuscito_desc' | translate"
+        class="result-subtitle"
+        [innerText]="'str_pagamento_riuscito_desc' | translate"
       ></p>
       <p
-        class="text-muted mb-4"
-        [innerHTML]="'str_pagamento_riuscito_desc2' | translate"
+        class="result-desc"
+        [innerText]="'str_pagamento_riuscito_desc2' | translate"
       ></p>
       <a
         [routerLink]="['/user/mytickets']"
-        class="btn btn-secondary btn-lg shadow-sm px-5 py-3"
-        [innerHTML]="'str_vai_a_account' | translate"
-        >
-      </a>
+        class="result-btn"
+        [innerText]="'str_vai_a_account' | translate"
+      ></a>
     </div>
   }
 </div>

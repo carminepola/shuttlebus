@@ -1,250 +1,224 @@
-<div class="marginTopBar">
-  @if (!loading) {
-    <div class="container" style="min-height: 50vh">
-      <div class="row">
-        <div class="col">
-          <div class="my-4">
-            <a
-              class="d-flex align-items-center text-secondary cursor-pointer"
-              (click)="goBack()"
-              >
-              <i class="fas fa-arrow-left me-2"></i>
-              {{ "str_torna_indietro" | translate }}
-            </a>
-          </div>
-        </div>
+<div class="container" @fadeInOut>
+  <div class="marginTopBar">
+    @if (loading) {
+      <div
+        class="container my-5 d-flex justify-content-center align-items-center"
+        style="min-height: 50vh"
+      >
+        <app-loading></app-loading>
       </div>
-      <div class="row">
-        <div class="col">
-          <div class="card border-secondary">
-            <div class="card-body">
-              <div class="card-title">
-                <h2 class="text-secondary fw-bold">Riepilogo</h2>
-                <div class="row">
-                  <div class="col-12 col-lg-4">
-                    <div>
-                      <h5
-                        class="fw-bold text-primary"
-                        [innerHTML]="param.name | translateName"
-                      ></h5>
-                      <div
-                        class="text-muted"
-                        [innerHTML]="param.date | date : 'dd/MM/yyyy'"
-                      ></div>
-                    </div>
-                    <div>
-                      <div
-                        class="fw-bold text-secondary"
-                        [innerHTML]="'str_partenza_da' | translate"
-                      ></div>
-                      <div class="d-flex justify-content-between">
-                        <div
-                          class="text-primary"
-                          [innerHTML]="param.from.name"
-                        ></div>
-                        <div
-                          class="text-primary fw-bold"
-                          [innerHTML]="param.from.stopTime"
-                        ></div>
-                      </div>
-                      <div
-                        class="text-muted"
-                        [innerHTML]="param.from.address"
-                      ></div>
-                    </div>
-                    <div class="mt-2">
-                      <div
-                        class="fw-bold text-secondary"
-                        [innerHTML]="'str_arrivo_a' | translate"
-                      ></div>
-                      <div class="d-flex justify-content-between">
-                        <div
-                          class="text-primary"
-                          [innerHTML]="param.to.name"
-                        ></div>
-                        <div
-                          class="text-primary fw-bold"
-                          [innerHTML]="param.to.stopTime"
-                        ></div>
-                      </div>
-                      <div
-                        class="text-muted"
-                        [innerHTML]="param.to.address"
-                      ></div>
-                    </div>
-                  </div>
-                  <hr class="w-100 my-3 d-block d-lg-none" />
-                  <div class="col-12 col-lg-8">
-                    <div class="list-group w-auto">
-                      @for (ticket of param.ticketTypes; track ticket; let i = $index) {
-                        <a
-                          class="list-group-item list-group-item-action gap-3 py-3"
-                          aria-current="true"
-                          >
-                          <div class="d-flex gap-2 w-100 justify-content-between">
-                            <div>
-                              <h6
-                                class="mb-0"
-                                [innerHTML]="ticket.name | translateName"
-                              ></h6>
-                              <p
-                                class="mb-0 opacity-75"
-                                [innerHTML]="ticket.description | translateName"
-                              ></p>
-                            </div>
-                            <div class="fw-bold text-primary fs-3">
-                              <span [innerHTML]="ticket.cost"></span
-                                ><span class="text-secondary">€</span>
-                              </div>
-                            </div>
-                            <div class="w-100">
-                              <div
-                                class="d-flex mt-2 justify-content-center align-items-center"
-                                >
-                                <div>
-                                  <h3>
-                                    <span class="text-secondary me-1">X</span
-                                      ><span [innerHTML]="ticket.count"></span>
-                                    </h3>
-                                  </div>
-                                </div>
-                              </div>
-                            </a>
-                          }
-                          @if (param.luggage > 0) {
-                            <a
-                              class="list-group-item list-group-item-action gap-3 py-3"
-                              >
-                              <div class="d-flex gap-2 w-100 justify-content-between">
-                                <div>
-                                  <h6
-                                    class="mb-0"
-                                    [innerHTML]="'str_bagagli_aggiuntivi' | translate"
-                                  ></h6>
-                                  <p
-                                    class="mb-0 opacity-75"
-                            [innerHTML]="
-                              'str_bagagli_aggiuntivi_descrizione' | translate
-                            "
-                                  ></p>
-                                </div>
-                                <div class="fw-bold text-primary fs-3">
-                                  <span>2</span><span class="text-secondary">€</span>
-                                </div>
-                              </div>
-                              <div class="w-100">
-                                <div
-                                  class="d-flex mt-2 justify-content-center align-items-center"
-                                  >
-                                  <div>
-                                    <h3>
-                                      <span class="text-secondary me-1">X</span
-                                        ><span [innerHTML]="param.luggage"></span>
-                                      </h3>
-                                    </div>
-                                  </div>
-                                </div>
-                              </a>
-                            }
-                            <a
-                              class="list-group-item list-group-item-action gap-3 py-3"
-                              >
-                              <div class="d-flex gap-2 w-100 justify-content-between">
-                                <h2
-                                  class="text-primary text-uppercase"
-                                  [innerText]="'str_totale' | translate"
-                                ></h2>
-                                <div>
-                                  <h2 class="text-primary">
-                                    <span
-                                      class="fw-bold"
-                                      [innerHTML]="param.total"
-                                      ></span
-                                      ><span class="text-secondary fw-bold">€</span>
-                                    </h2>
-                                  </div>
-                                </div>
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                        @if (isToLate()) {
-                          <div
-                            class="alert mt-4 alert-warning border-0"
-                            role="alert"
-                [innerHTML]="
-                  'str_attenzione_biglietto_non_rimborsabile' | translate
-                "
-                          ></div>
-                        }
-                      </div>
-                    </div>
+    }
+    @if (!loading) {
+      <app-title-page class="mb-3" back="true"></app-title-page>
+
+      <div class="container pb-5" style="min-height: 50vh">
+        <div class="summary-title mb-4">
+          <h2 class="text-primary" [innerText]="'str_totale' | translate"></h2>
+        </div>
+
+        <div class="summary-layout">
+          <div class="summary-main">
+            <div class="summary-route-card rounded-4">
+              <div class="route-card-header">
+                <div>
+                  <h5
+                    class="route-name mb-1"
+                    [innerHTML]="param.name | translateName"
+                  ></h5>
+                  <div class="route-date">
+                    <i class="fa-regular fa-calendar me-1"></i>
+                    {{ param.date | date: "dd MMMM yyyy" }}
                   </div>
                 </div>
               </div>
-              <div class="row mt-3">
-                @if (isLoggedIn()) {
-                  <div class="col">
-                    @if (errorMessage) {
-                      <div
-                        class="alert alert-danger border-0 text-center"
-                        >
-                        <div>{{ errorMessage | translate }}</div>
-                        @if (errorMessage == 'str_error_pending_booking') {
-                          <a
-                            class="cursor-pointer"
-                            [innerHTML]="'str_vai_a_account' | translate"
-                            routerLink="/user/myticket"
-                          ></a>
-                        }
-                      </div>
-                    }
-                    <div class="form-check my-2">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="acceptTerms"
-                        [(ngModel)]="acceptTerms"
-                        />
-                      <label class="form-check-label" for="acceptTerms">
-                        {{ "str_ho_letto_e_accetto" | translate }}
-                      </label>
+
+              <div class="route-card-body">
+                <div class="route-timeline">
+                  <div class="timeline-point departure">
+                    <div class="timeline-dot"></div>
+                    <div
+                      class="timeline-time"
+                      [innerHTML]="param.from.stopTime"
+                    ></div>
+                    <div
+                      class="timeline-label"
+                      [innerHTML]="param.from.name"
+                    ></div>
+                    <div
+                      class="timeline-desc"
+                      [innerHTML]="param.from.address"
+                    ></div>
+                  </div>
+                  <div class="timeline-line">
+                    <div class="timeline-line-inner"></div>
+                    <i class="fa-solid fa-bus timeline-icon"></i>
+                  </div>
+                  <div class="timeline-point arrival">
+                    <div class="timeline-dot"></div>
+                    <div
+                      class="timeline-time"
+                      [innerHTML]="param.to.stopTime"
+                    ></div>
+                    <div
+                      class="timeline-label"
+                      [innerHTML]="param.to.name"
+                    ></div>
+                    <div
+                      class="timeline-desc"
+                      [innerHTML]="param.to.address"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-tickets-card rounded-4">
+              <div class="card-section-header">
+                <i class="fa-solid fa-ticket me-1"></i>
+                <span [innerText]="'str_totale' | translate"></span>
+              </div>
+
+              <div class="tickets-list">
+                @for (
+                  ticket of param.ticketTypes;
+                  track ticket;
+                  let i = $index
+                ) {
+                  <div class="ticket-row">
+                    <div class="ticket-row-info">
+                      <h6
+                        class="mb-0"
+                        [innerHTML]="ticket.name | translateName"
+                      ></h6>
+                      <span
+                        class="ticket-row-desc"
+                        [innerHTML]="ticket.description | translateName"
+                      ></span>
                     </div>
-                    <button
-                      class="btn btn-lg btn-primary mb-3 w-100"
-                      [disabled]="!acceptTerms"
-                      (click)="bookNow()"
-                      >
-                      {{ "str_acquista" | translate }}
-                    </button>
+                    <div class="ticket-row-right">
+                      <div class="ticket-qty">
+                        <span class="ticket-qty-x">x</span>
+                        <span [innerHTML]="ticket.count"></span>
+                      </div>
+                      <div class="ticket-row-price">
+                        {{ ticket.cost * ticket.count }}€
+                      </div>
+                    </div>
                   </div>
                 }
-                @if (!isLoggedIn()) {
-                  <div class="col">
-                    <button
-                      class="d-none d-lg-block btn btn-secondary w-100 mb-3"
-                      (click)="openModal(false)"
-                      >
-                      {{ "str_registrati_for_continue" | translate }}
-                    </button>
-                    <button
-                      class="d-block d-lg-none btn btn-secondary w-100 mb-3"
-                      (click)="openModal(true)"
-                      >
-                      {{ "str_registrati_for_continue" | translate }}
-                    </button>
+                @if (param.luggage > 0) {
+                  <div class="ticket-row">
+                    <div class="ticket-row-info">
+                      <h6
+                        class="mb-0"
+                        [innerHTML]="'str_bagagli_aggiuntivi' | translate"
+                      ></h6>
+                      <span
+                        class="ticket-row-desc"
+                        [innerHTML]="
+                          'str_bagagli_aggiuntivi_descrizione' | translate
+                        "
+                      ></span>
+                    </div>
+                    <div class="ticket-row-right">
+                      <div class="ticket-qty">
+                        <span class="ticket-qty-x">x</span>
+                        <span [innerHTML]="param.luggage"></span>
+                      </div>
+                      <div class="ticket-row-price">
+                        {{ 2 * param.luggage }}€
+                      </div>
+                    </div>
                   </div>
                 }
               </div>
+
+              <div class="ticket-total-row">
+                <div class="ticket-total-left">
+                  <span
+                    class="ticket-total-label"
+                    [innerText]="'str_totale' | translate"
+                  ></span>
+                </div>
+                <div class="ticket-total-right">
+                  <span class="ticket-total-value">{{ param.total }}</span>
+                  <span class="ticket-total-currency">€</span>
+                </div>
+              </div>
             </div>
-          }
-          @if (loading) {
-            <div
-              class="container my-5 d-flex justify-content-center align-items-center"
-              style="min-height: 50vh"
-              >
-              <app-loading></app-loading>
+          </div>
+
+          <div class="summary-sidebar">
+            <div class="sidebar-card rounded-4">
+              @if (isToLate()) {
+                <div class="alert-sidebar">
+                  <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                  <span
+                    [innerHTML]="
+                      'str_attenzione_biglietto_non_rimborsabile' | translate
+                    "
+                  ></span>
+                </div>
+              }
+
+              @if (isLoggedIn()) {
+                <div class="sidebar-body">
+                  @if (errorMessage) {
+                    <div class="error-alert">
+                      <div>{{ errorMessage | translate }}</div>
+                      @if (errorMessage == "str_error_pending_booking") {
+                        <a
+                          class="error-link"
+                          [innerHTML]="'str_vai_a_account' | translate"
+                          routerLink="/user/myticket"
+                        ></a>
+                      }
+                    </div>
+                  }
+                  <div class="form-check my-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="acceptTerms"
+                      [(ngModel)]="acceptTerms"
+                    />
+                    <label class="form-check-label" for="acceptTerms">
+                      {{ "str_ho_letto_e_accetto" | translate }}
+                    </label>
+                  </div>
+                  <button
+                    class="purchase-btn"
+                    [class.active]="acceptTerms"
+                    [disabled]="!acceptTerms"
+                    (click)="bookNow()"
+                  >
+                    <span class="purchase-total">{{ param.total }}€</span>
+                    <span [innerText]="'str_acquista' | translate"></span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                </div>
+              }
+              @if (!isLoggedIn()) {
+                <div class="sidebar-body">
+                  <button class="register-btn" (click)="openModal(false)">
+                    <i class="fa-solid fa-user-plus me-2"></i>
+                    {{ "str_registrati_for_continue" | translate }}
+                  </button>
+                  <button
+                    class="login-btn d-block d-lg-none"
+                    (click)="openModal(true)"
+                  >
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>
+                    Login
+                  </button>
+                </div>
+              }
             </div>
-          }
+          </div>
         </div>
-        <app-footer></app-footer>
+      </div>
+    }
+  </div>
+</div>
+
+<app-footer></app-footer>

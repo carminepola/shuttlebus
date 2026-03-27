@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { RegistrazioneComponent } from '../../components/registrazione/registrazione.component';
 import { ModalService } from '../../services/modal/modal.service';
 import { BookingsService } from '../../services/bookings/bookings.service';
+import { TitlePageComponent } from '../../components/title-page/title-page.component';
 declare var bootstrap: any;
 
 @Component({
@@ -24,6 +25,7 @@ declare var bootstrap: any;
     TranslateNamePipe,
     CommonModule,
     ReactiveFormsModule,
+    TitlePageComponent,
     FormsModule,
     FooterComponent,
   ],
@@ -36,7 +38,7 @@ export class RiepilogoComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private modalService: ModalService,
-    private bookingService: BookingsService
+    private bookingService: BookingsService,
   ) {}
 
   public acceptTerms: boolean = false;
@@ -101,7 +103,7 @@ export class RiepilogoComponent implements OnInit {
   isToLate() {
     const today = new Date();
     const threeDaysFromNow = new Date(
-      today.getTime() + 3 * 24 * 60 * 60 * 1000
+      today.getTime() + 3 * 24 * 60 * 60 * 1000,
     );
     return new Date(this.param.date).getTime() < threeDaysFromNow.getTime();
   }

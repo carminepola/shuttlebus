@@ -4,151 +4,301 @@
     [subtitle]="'str_my_tickets_subtitle' | translate"
     back="true"
   ></app-title-page>
+
   @if (loading) {
-    <div
-      class="w-100 d-flex align-items-center justify-content-center"
-      >
+    <div class="w-100 d-flex align-items-center justify-content-center my-5">
       <app-loading></app-loading>
     </div>
   }
-  @if (!loading) {
-    <div>
-      <div class="row g-4">
-        <div class="w-100 text-center">
-          @if (bookings.length == 0) {
-            <h2
-              class="text-primary fw-bold"
-              [innerHTML]="'str_nessun_ticket' | translate"
-            ></h2>
-          }
+
+  @if (!loading && bookings.length == 0) {
+    <div class="empty-state-wrapper">
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <i class="fa-solid fa-ticket"></i>
         </div>
-        @for (booking of bookings; track booking) {
-          <div class="col-12 col-lg-9 mx-auto">
-            <div class="card h-100" @fadeInOut>
-              <div class="card-body">
-                <h5 class="card-title text-primary fw-bold">
-                  {{ booking.numberOfTickets }}
-                </h5>
-                <div class="row">
-                  <div class="col-12 col-lg-6">
-                    <strong
-                      class="text-secondary"
-                      [innerHTML]="'str_giorno' | translate"
-                    ></strong>
-                    {{ booking.date | date : "dd/MM/yyyy" }}
-                    <br />
-                    <strong
-                      class="text-secondary"
-                      [innerHTML]="'str_partenza_da' | translate"
-                    ></strong>
-                    {{ booking.from.name }}
-                    <span class="text-muted">({{ booking.from.stopTime }})</span>
-                    <div class="text-muted">
-                      {{ booking.from.description | translateName }}
-                    </div>
-                    <strong
-                      class="text-secondary"
-                      [innerHTML]="'str_arrivo_a' | translate"
-                    ></strong>
-                    {{ booking.to.name }}
-                    <span class="text-muted">({{ booking.to.stopTime }})</span>
-                    <div class="text-muted">
-                      {{ booking.to.description | translateName }}
-                    </div>
-                  </div>
-                  <hr class="mt-3 d-block d-lg-none" />
-                  <div class="col-12 col-lg-4">
-                    @if (booking.luggage > 0) {
-                      <div>
-                        {{ "str_bagagli_aggiuntivi" | translate }}
-                        <span class="text-secondary">X</span> {{ booking.luggage }}
-                      </div>
-                    }
-                    @for (ticket of booking.ticketTypes; track ticket) {
-                      <div>
-                        {{ ticket.name | translateName }}
-                        <span class="text-secondary">X</span> {{ ticket.count }}
-                      </div>
-                    }
-                    <div class="mt-3">
-                      <strong
-                        class="text-secondary"
-                        [innerHTML]="'str_totale' | translate"
-                      ></strong>
-                      {{ booking.total }}<span class="text-secondary">€</span>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-2">
-                    @if (booking.status === 'confirmed') {
-                      <div
-                        class="d-flex justify-content-center"
-                        >
-                        <img
-                    [src]="
-                      'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' +
-                      url +
-                      '/ticket/check/' +
-                      booking.numberOfTickets
-                    "
-                          />
-                      </div>
-                    }
-                    @if (booking.status === 'confirmed') {
-                      <button
-                        class="btn btn-primary w-100 mt-2"
-                        (click)="generatePDF(booking)"
-                        >
-                        Download
-                      </button>
-                    }
-                  </div>
+        <h3
+          class="text-primary mt-4 mb-2"
+          [innerText]="'str_nessun_ticket' | translate"
+        ></h3>
+      </div>
+    </div>
+  }
+
+  @if (!loading && bookings.length > 0) {
+    <div class="tickets-list my-4">
+      @for (booking of activeBookings; track booking) {
+        <div class="booking-card rounded-4" @fadeInOut>
+          <div class="booking-card-header">
+            <div>
+              <h5 class="booking-route-name mb-1">
+                <span [innerText]="'str_biglietto' | translate"></span>
+                <span class="booking-number">#{{ booking.numberOfTickets }}</span>
+              </h5>
+              <div class="booking-date">
+                <i class="fa-regular fa-calendar me-1"></i>
+                {{ booking.date | date: "dd MMMM yyyy" }}
+              </div>
+            </div>
+            <span
+              class="booking-status-badge"
+              [ngClass]="{
+                'badge-success': booking.status === 'confirmed',
+                'badge-danger': booking.status === 'cancelled',
+                'badge-warning': booking.status === 'pending',
+                'badge-info': booking.status === 'refunded'
+              }"
+              [innerText]="booking.status | translate"
+            ></span>
+          </div>
+
+          <div class="booking-card-body">
+            <div class="booking-timeline">
+              <div class="timeline-point departure">
+                <div class="timeline-dot"></div>
+                <div
+                  class="timeline-time"
+                  [innerText]="booking.from.stopTime"
+                ></div>
+                <div
+                  class="timeline-label"
+                  [innerText]="booking.from.name"
+                ></div>
+                <div
+                  class="timeline-desc"
+                  [innerText]="booking.from.description | translateName"
+                ></div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-line-inner"></div>
+                <i class="fa-solid fa-bus timeline-icon"></i>
+              </div>
+              <div class="timeline-point arrival">
+                <div class="timeline-dot"></div>
+                <div
+                  class="timeline-time"
+                  [innerText]="booking.to.stopTime"
+                ></div>
+                <div
+                  class="timeline-label"
+                  [innerText]="booking.to.name"
+                ></div>
+                <div
+                  class="timeline-desc"
+                  [innerText]="booking.to.description | translateName"
+                ></div>
+              </div>
+            </div>
+
+            <div class="booking-details">
+              <div class="details-section">
+                <div class="details-label">
+                  <i class="fa-solid fa-ticket me-1"></i>
+                  <span [innerText]="'str_totale' | translate"></span>
                 </div>
-                <div class="d-flex justify-content-between align-items-end mt-2">
-                  <div>
-                    <div>
-                      @if (booking.status === 'pending') {
-                        <button
-                          (click)="annulla(booking.numberOfTickets)"
-                          class="btn btn-sm btn-outline-danger me-2"
-                          [innerHTML]="'str_annulla' | translate"
-                        ></button>
-                      }
-                      @if (booking.status === 'pending') {
-                        <button
-                          class="btn btn-sm btn-primary"
-                          (click)="paga(booking.other.url)"
-                          [innerHTML]="'str_pay' | translate"
-                        ></button>
-                      }
-                      @if (
-                        booking.status === 'confirmed' && checkDay(booking.date)
-                        ) {
-                        <button
-                          (click)="rimborsa(booking.numberOfTickets)"
-                          class="btn btn-info btn-sm"
-                          [innerHTML]="'str_annulla' | translate"
-                        ></button>
-                      }
+                <div class="details-tickets">
+                  @for (ticket of booking.ticketTypes; track ticket) {
+                    <div class="detail-row">
+                      <span class="detail-name" [innerText]="ticket.name | translateName"></span>
+                      <span class="detail-qty">x {{ ticket.count }}</span>
                     </div>
-                  </div>
-                  <div>
-                    <span
-                      class="badge"
-                  [ngClass]="{
-                    'text-bg-success': booking.status === 'confirmed',
-                    'text-bg-danger': booking.status === 'cancelled',
-                    'text-bg-warning': booking.status === 'pending',
-                    'text-bg-info': booking.status === 'refunded'
-                  }"
-                      [innerHTML]="booking.status | translate"
-                    ></span>
-                  </div>
+                  }
+                  @if (booking.luggage > 0) {
+                    <div class="detail-row">
+                      <span
+                        class="detail-name"
+                        [innerText]="'str_bagagli_aggiuntivi' | translate"
+                      ></span>
+                      <span class="detail-qty">x {{ booking.luggage }}</span>
+                    </div>
+                  }
                 </div>
+              </div>
+
+              <div class="details-section details-section-qr">
+                @if (booking.status === 'confirmed') {
+                  <div class="qr-wrapper">
+                    <img
+                      [src]="
+                        'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' +
+                        url +
+                        '/ticket/check/' +
+                        booking.numberOfTickets
+                      "
+                      class="qr-image"
+                    />
+                  </div>
+                  <button
+                    class="download-btn"
+                    (click)="generatePDF(booking)"
+                  >
+                    <i class="fa-solid fa-download me-1"></i>
+                    Download PDF
+                  </button>
+                  <button
+                    class="download-btn download-btn-wallet"
+                    (click)="downloadPkPass(booking)"
+                  >
+                    <i class="fa-brands fa-apple me-1"></i>
+                    Add to Wallet
+                  </button>
+                }
               </div>
             </div>
           </div>
+
+          <div class="booking-card-footer">
+            <div class="booking-total">
+              <span
+                class="booking-total-label"
+                [innerText]="'str_totale' | translate"
+              ></span>
+              <span class="booking-total-value">{{ booking.total }}</span>
+              <span class="booking-total-currency">€</span>
+            </div>
+            <div class="booking-actions">
+              @if (booking.status === 'pending') {
+                <button
+                  class="action-btn action-btn-cancel"
+                  (click)="annulla(booking.numberOfTickets)"
+                  [innerText]="'str_annulla' | translate"
+                ></button>
+                <button
+                  class="action-btn action-btn-pay"
+                  (click)="paga(booking.other.url)"
+                  [innerText]="'str_pay' | translate"
+                ></button>
+              }
+              @if (
+                booking.status === 'confirmed' && checkDay(booking.date)
+              ) {
+                <button
+                  class="action-btn action-btn-refund"
+                  (click)="rimborsa(booking.numberOfTickets)"
+                  [innerText]="'str_annulla' | translate"
+                ></button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (oldBookings.length > 0) {
+        <button class="old-tickets-toggle" (click)="showOldTickets = !showOldTickets">
+          <i class="fa-solid fa-clock-rotate-left me-2"></i>
+          <span [innerText]="'str_old_tickets' | translate"></span>
+          <span class="old-tickets-count">{{ oldBookings.length }}</span>
+          <i
+            class="fa-solid fa-chevron-down old-tickets-chevron ms-2"
+            [class.open]="showOldTickets"
+          ></i>
+        </button>
+
+        @if (showOldTickets) {
+          @for (booking of oldBookings; track booking) {
+            <div class="booking-card booking-card-old rounded-4" @fadeInOut>
+              <div class="booking-card-header">
+                <div>
+                  <h5 class="booking-route-name mb-1">
+                    <span [innerText]="'str_biglietto' | translate"></span>
+                    <span class="booking-number">#{{ booking.numberOfTickets }}</span>
+                  </h5>
+                  <div class="booking-date">
+                    <i class="fa-regular fa-calendar me-1"></i>
+                    {{ booking.date | date: "dd MMMM yyyy" }}
+                  </div>
+                </div>
+                <span
+                  class="booking-status-badge"
+                  [ngClass]="{
+                    'badge-success': booking.status === 'confirmed',
+                    'badge-danger': booking.status === 'cancelled',
+                    'badge-warning': booking.status === 'pending',
+                    'badge-info': booking.status === 'refunded'
+                  }"
+                  [innerText]="booking.status | translate"
+                ></span>
+              </div>
+
+              <div class="booking-card-body">
+                <div class="booking-timeline">
+                  <div class="timeline-point departure">
+                    <div class="timeline-dot"></div>
+                    <div
+                      class="timeline-time"
+                      [innerText]="booking.from.stopTime"
+                    ></div>
+                    <div
+                      class="timeline-label"
+                      [innerText]="booking.from.name"
+                    ></div>
+                    <div
+                      class="timeline-desc"
+                      [innerText]="booking.from.description | translateName"
+                    ></div>
+                  </div>
+                  <div class="timeline-line">
+                    <div class="timeline-line-inner"></div>
+                    <i class="fa-solid fa-bus timeline-icon"></i>
+                  </div>
+                  <div class="timeline-point arrival">
+                    <div class="timeline-dot"></div>
+                    <div
+                      class="timeline-time"
+                      [innerText]="booking.to.stopTime"
+                    ></div>
+                    <div
+                      class="timeline-label"
+                      [innerText]="booking.to.name"
+                    ></div>
+                    <div
+                      class="timeline-desc"
+                      [innerText]="booking.to.description | translateName"
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="booking-details">
+                  <div class="details-section">
+                    <div class="details-label">
+                      <i class="fa-solid fa-ticket me-1"></i>
+                      <span [innerText]="'str_totale' | translate"></span>
+                    </div>
+                    <div class="details-tickets">
+                      @for (ticket of booking.ticketTypes; track ticket) {
+                        <div class="detail-row">
+                          <span class="detail-name" [innerText]="ticket.name | translateName"></span>
+                          <span class="detail-qty">x {{ ticket.count }}</span>
+                        </div>
+                      }
+                      @if (booking.luggage > 0) {
+                        <div class="detail-row">
+                          <span
+                            class="detail-name"
+                            [innerText]="'str_bagagli_aggiuntivi' | translate"
+                          ></span>
+                          <span class="detail-qty">x {{ booking.luggage }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="booking-card-footer">
+                <div class="booking-total">
+                  <span
+                    class="booking-total-label"
+                    [innerText]="'str_totale' | translate"
+                  ></span>
+                  <span class="booking-total-value">{{ booking.total }}</span>
+                  <span class="booking-total-currency">€</span>
+                </div>
+              </div>
+            </div>
+          }
         }
-      </div>
+      }
     </div>
   }
 </div>

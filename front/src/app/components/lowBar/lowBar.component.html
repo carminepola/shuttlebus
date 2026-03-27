@@ -1,48 +1,44 @@
 <div class="modal fade show" tabindex="-1" id="modalLogin2">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="d-flex justify-content-between align-items-center py-2 px-3">
-        <nav class="nav nav-pills nav-fill">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+      <div class="modal-header border-0 pb-0 px-4 pt-4">
+        <div class="nav nav-pills w-100 pt-4" role="tablist">
           <a
             (click)="login = true"
-            class="nav-link cursor-pointer"
-            [ngClass]="{ active: login }"
-            aria-current="page"
+            class="nav-link flex-grow-1 text-center cursor-pointer rounded-pill me-2"
+            [ngClass]="{ active2: login }"
             >LOGIN</a
-            >
-            <a
-              (click)="login = false"
-              class="nav-link cursor-pointer"
-              [ngClass]="{ active: !login }"
-              aria-current="page"
-              >REGISTRATI</a
-              >
-            </nav>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            @if (login) {
-              <app-login-form
-                (loginSuccess)="onEvent()"
-              ></app-login-form>
-            }
-            @if (!login) {
-              <app-registrazione
-                (registerSuccess)="onComplete()"
-              ></app-registrazione>
-            }
-          </div>
+          >
+          <a
+            (click)="login = false"
+            class="nav-link flex-grow-1 text-center cursor-pointer rounded-pill"
+            [ngClass]="{ active2: !login }"
+            >REGISTRATI</a
+          >
         </div>
+        <button
+          type="button"
+          class="btn-close position-absolute top-0 end-0 m-3"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body px-4 pb-4 pt-2">
+        @if (login) {
+          <app-login-form (loginSuccess)="onEvent()"></app-login-form>
+        }
+        <app-registrazione
+          (registerSuccess)="onComplete()"
+          [hidden]="login"
+        ></app-registrazione>
       </div>
     </div>
-    <div class="space-lowBar d-block d-lg-none"></div>
-    <nav
-      class="card rounded-4 bg-white shadow d-block d-lg-none"
+  </div>
+</div>
+<div class="space-lowBar d-block d-lg-none"></div>
+<nav
+  class="card rounded-4 bg-white shadow d-block d-lg-none"
+  id="lowBar"
   style="
     max-height: 58px;
     height: 58px;
@@ -52,61 +48,71 @@
     right: 5px;
     z-index: 999;
   "
+>
+  <div class="row h-100 position-relative">
+    <div class="col">
+      <a
+        #navLink
+        [class.active]="getPath() == '/'"
+        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+        (click)="goPath('/')"
+        (mouseenter)="onNavMouseEnter($any($event.target))"
+        (mouseleave)="onNavMouseLeave()"
       >
-      <div class="row h-100">
-        <div class="col">
-          <a
-            [class.active]="getPath() == '/'"
-            routerLink="/"
-            class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
-            >
-            <i class="fa fa-home"></i>
-            @if (getPath() == '/') {
-              <span class="ms-2 fw-bold d-none d-md-block"
-                >Home</span
-                >
-              }
-            </a>
-          </div>
+        <i class="fa fa-home"></i>
+        @if (getPath() == "/") {
+          <span class="ms-2 fw-bold d-none d-md-block">Home</span>
+        }
+      </a>
+    </div>
 
-          <div class="col">
-            <a
-              class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
-              (click)="onTicket()"
-              [class.active]="getPath().includes('/user/')"
-              >
-              <i class="fa-solid fa-user"></i>
-              @if (getPath().includes('/user/') || getPath().includes('/admin/')) {
-                <span
-                  class="ms-2 fw-bold d-none d-md-block"
-                  >
-                  Account</span
-                  >
-                }
-              </a>
-            </div>
-            <div class="col">
-              <a
-                class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
-                routerLink="/info"
-                routerLinkActive="active"
-                >
-                <i class="fa-solid fa-circle-info"></i>
-                @if (getPath().includes('/info/')) {
-                  <span
-                    class="ms-2 fw-bold d-none d-md-block"
-                    >Info</span
-                    >
-                  }
-                </a>
-              </div>
-              <div class="col">
-                <a
-                  class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
-                  href="https://api.whatsapp.com/send/?phone=%2B393356910211"
-                  >
-                  <i class="fa-brands fa-whatsapp"></i>
-                </a>
-              </div>
-            </div>
-          </nav>
+    <div class="col">
+      <a
+        #navLink
+        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+        (click)="onTicket()"
+        [class.active]="
+          getPath().includes('/user/') || getPath().includes('/admin/')
+        "
+        (mouseenter)="onNavMouseEnter($any($event.target))"
+        (mouseleave)="onNavMouseLeave()"
+      >
+        <i class="fa-solid fa-user"></i>
+        @if (getPath().includes("/user/") || getPath().includes("/admin/")) {
+          <span class="ms-2 fw-bold d-none d-md-block">Account</span>
+        }
+      </a>
+    </div>
+    <div class="col">
+      <a
+        #navLink
+        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+        (click)="goPath('/info')"
+        [class.active]="
+          getPath().includes('/info') || getPath().includes('/busLine')
+        "
+        (mouseenter)="onNavMouseEnter($any($event.target))"
+        (mouseleave)="onNavMouseLeave()"
+      >
+        <i class="fa-solid fa-circle-info"></i>
+        @if (getPath().includes("/info") || getPath().includes("/busLine")) {
+          <span class="ms-2 fw-bold d-none d-md-block">Info</span>
+        }
+      </a>
+    </div>
+    <div class="col">
+      <a
+        #navLink
+        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+        href="https://api.whatsapp.com/send/?phone=%2B393356910211"
+        target="_blank"
+        rel="noopener noreferrer"
+        (mouseenter)="onNavMouseEnter($any($event.target))"
+        (mouseleave)="onNavMouseLeave()"
+      >
+        <i class="fa-brands fa-whatsapp"></i>
+      </a>
+    </div>
+    <div class="lowbar-indicator"></div>
+  </div>
+</nav>

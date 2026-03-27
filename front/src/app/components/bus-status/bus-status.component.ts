@@ -16,15 +16,16 @@ interface BusStatus {
     name: string;
     scheduledTime: string;
     distance: number;
+    arrivalTime: string | null;
+    departureTime: string | null;
   } | null;
   nextStop: {
     id: string;
     name: string;
     scheduledTime: string;
   } | null;
-  status: 'on_time' | 'late' | 'early' | 'no_schedule' | 'no_stop';
-  computedStatus: 'on_spot' | 'early' | 'late' | 'on_time' | 'no_schedule' | 'no_stop';
-  delay: number | null;
+  status: 'on_spot' | 'en_route' | 'no_schedule' | 'no_stop';
+  estimatedArrival: string | null;
   currentLat: number;
   currentLng: number;
 }
@@ -46,7 +47,7 @@ export class BusStatusComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     await this.loadBusStatus();
-    this.intervalId = setInterval(() => this.loadBusStatus(), 30000); // Aggiorna ogni 30 secondi
+    this.intervalId = setInterval(() => this.loadBusStatus(), 30000);
   }
 
   async loadBusStatus(): Promise<void> {
@@ -65,31 +66,8 @@ export class BusStatusComponent implements OnInit, OnDestroy {
     }
   }
 
-  getComputedStatus(bus: BusStatus): string {
-    if (!bus.currentStop) return bus.status;
-
-    const scheduledTime = bus.currentStop.scheduledTime;
-    const now = new Date();
-    const [hours, minutes, seconds] = scheduledTime.split(':').map(Number);
-    const scheduled = new Date();
-    scheduled.setHours(hours, minutes, seconds || 0, 0);
-    const isBeforeSchedule = scheduled > now;
-
-    if (bus.currentStop.distance < 120) {
-      return isBeforeSchedule ? 'early' : 'on_spot';
-    }
-
-    return isBeforeSchedule ? 'en_route' : 'late';
-  }
-
   getStatusClass(status: string): string {
     switch (status) {
-      case 'on_time':
-        return 'status-on-time';
-      case 'late':
-        return 'status-late';
-      case 'early':
-        return 'status-early';
       case 'on_spot':
         return 'status-on-spot';
       case 'en_route':
@@ -105,46 +83,16 @@ export class BusStatusComponent implements OnInit, OnDestroy {
 
   getStatusText(status: string): string {
     switch (status) {
-      case 'on_time':
-        return 'In orario';
-      case 'late':
-        return 'In ritardo';
-      case 'early':
-        return 'In anticipo';
       case 'on_spot':
         return 'Sul posto';
       case 'en_route':
-        return 'In corso';
+        return 'In viaggio';
       case 'no_schedule':
         return 'Nessuna corsa programmata';
       case 'no_stop':
         return 'Nessuna fermata trovata';
       default:
         return status;
-    }
-  }
-
-  getDelayText(delay: number | null): string {
-    if (delay === null) return '-';
-    if (delay === 0) return '0 min';
-    const sign = delay > 0 ? '+' : '';
-    return `${sign}${delay} min`;
-  }
-
-  getDelayAlertClass(status: string): string {
-    switch (status) {
-      case 'on_time':
-        return 'alert-success';
-      case 'late':
-        return 'alert-danger';
-      case 'early':
-        return 'alert-info';
-      case 'on_spot':
-        return 'alert-success';
-      case 'en_route':
-        return 'alert-info';
-      default:
-        return 'alert-secondary';
     }
   }
 

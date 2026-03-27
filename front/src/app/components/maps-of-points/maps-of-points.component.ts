@@ -88,6 +88,15 @@ export class MapsOfPointsComponent implements OnInit, OnDestroy {
               if (popupContent) popupContent += '<br>';
               popupContent += point.name;
             }
+            if (point.updatedAt) {
+              const d = new Date(point.updatedAt);
+              if (!isNaN(d.getTime())) {
+                const date = d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const time = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                if (popupContent) popupContent += '<br>';
+                popupContent += `<small style="color:#888">${date} ${time}</small>`;
+              }
+            }
             if (!popupContent) {
               popupContent = 'Autobus';
             }

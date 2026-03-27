@@ -61,14 +61,14 @@
                 </div>
                 <span
                   class="badge text-secondary {{
-                    getStatusClass(getComputedStatus(bus))
+                    getStatusClass(bus.status)
                   }} fs-6 ms-2"
                 >
-                  {{ getStatusText(getComputedStatus(bus)) }}
+                  {{ getStatusText(bus.status) }}
                 </span>
               </div>
             </div>
-            @if (bus.line || bus.currentStop || bus.nextStop || bus.delay) {
+            @if (bus.line || bus.currentStop || bus.nextStop) {
               <div class="card-body mt-auto">
                 @if (bus.line) {
                   <div class="mb-3">
@@ -93,6 +93,19 @@
                           <i class="fa-regular fa-clock me-1"></i
                           >{{ bus.currentStop.scheduledTime }}
                         </small>
+                        @if (bus.currentStop.departureTime) {
+                          <br />
+                          <small class="text-info">
+                            <i class="fa-solid fa-arrow-right-from-bracket me-1"></i
+                            >Partito: {{ bus.currentStop.departureTime }}
+                          </small>
+                        } @else if (bus.currentStop.arrivalTime && bus.status === 'en_route') {
+                          <br />
+                          <small class="text-warning">
+                            <i class="fa-solid fa-check me-1"></i
+                            >Passata
+                          </small>
+                        }
                       </div>
                       @if (bus.currentStop.distance >= 120) {
                         <span class="badge bg-light text-dark">
@@ -119,19 +132,6 @@
                         <i class="fa-regular fa-clock me-1"></i
                         >{{ bus.nextStop.scheduledTime }}
                       </small>
-                    </div>
-                  </div>
-                }
-
-                @if (bus.delay !== null && getComputedStatus(bus) !== 'early' && getComputedStatus(bus) !== 'on_spot' && getComputedStatus(bus) !== 'en_route') {
-                  <div
-                    class="alert {{ getDelayAlertClass(getComputedStatus(bus)) }} py-2 mb-0"
-                  >
-                    <div class="d-flex align-items-center">
-                      <i class="fa-solid fa-clock me-2"></i>
-                      <span class="fw-medium"
-                        >Ritardo: {{ getDelayText(bus.delay) }}</span
-                      >
                     </div>
                   </div>
                 }

@@ -64,7 +64,7 @@ export default class MomapDao {
       return await this.db
         .collection(this.schema)
         .find({ date: new Date().toISOString().split("T")[0] })
-        .project({ busId: 1, plate: 1, name: 1, currentLat: "$lat", currentLng: "$lng", currentAngle: "$angle" })
+        .project({ busId: 1, plate: 1, name: 1, currentLat: "$lat", currentLng: "$lng", currentAngle: "$angle", updatedAt: "$updatedFromMomap" })
         .toArray();
     } catch (error) {
       logger.error("Error retrieving all ticketType:", error);
@@ -141,15 +141,51 @@ export default class MomapDao {
   }
 
   /**
-   * Verifica se esistono assegnazioni per un dato giorno
+   * Salva o aggiorna un evento di arrivo/partenza a una fermata
    */
+  async upsertBusStopEvent(event: { day: string; busId: string; scheduleId: string; stopId: string; arrivalTime?: string; departureTime?: string }) {
+    try {
+      const filter = { day: event.day, busId: event.busId, scheduleId: event.scheduleId, stopId: event.stopId };
+      const update: any = { $set: { day: event.day, busId: event.busId, scheduleId: event.scheduleId, stopId: event.stopId } };
+      if (event.arrivalTime !== undefined) update.$set.arrivalTime = event.arrivalTime;
+      if (event.departureTime !== undefined) update.$set.departureTime = event.departureTime;
+
+      await this.db.collection("busStopEvents").updateOne(filter, update, { upsert: true });
+      return true;
+    } catch (error) {
+      logger.error("Error upserting bus stop event:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Recupera tutti gli eventi di fermata per un bus e un giorno
+   */
+  async getBusStopEvents(day: string, busId: string) {
+    try {
+      return await this.db.collection("busStopEvents").find({ day, busId }).toArray();
+    } catch (error) {
+      logger.error("Error retrieving bus stop events:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Recupera un evento di fermata specifico
+   */
+  async getBusStopEvent(day: string, busId: string, scheduleId: string, stopId: string) {
+    try {
+      return await this.db.collection("busStopEvents").findOne({ day, busId, scheduleId, stopId });
+    } catch (error) {
+      logger.error("Error retrieving bus stop event:", error);
+      throw error;
+    }
+  }
+
   async hasBusScheduleAssignments(day: string) {
     try {
-      logger.info(`Verifica esistenza assegnazioni per giorno ${day}`);
       const count = await this.db.collection("busScheduleAssignments").countDocuments({ day });
-      const hasAssignments = count > 0;
-      logger.info(`Assegnazioni esistenti per giorno ${day}: ${hasAssignments} (count: ${count})`);
-      return hasAssignments;
+      return count > 0;
     } catch (error) {
       logger.error("Error checking bus schedule assignments:", error);
       throw error;
