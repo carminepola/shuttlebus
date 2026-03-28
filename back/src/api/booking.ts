@@ -83,6 +83,16 @@ router.get("/getBookingFromUser", authMiddleware, checkPermissionMiddleware(role
     next(error);
   }
 });
+
+router.get("/getBookingByUserId/:userId", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.getBookingFromUser(req.params.userId);
+    res.json({ booking: result });
+  } catch (error) {
+    next(error);
+  }
+});
 router.post("/refundBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
@@ -170,6 +180,29 @@ router.post("/readBookingById", authMiddleware, checkPermissionMiddleware(role.D
     next(error);
   }
 });
+
+router.get("/topClients", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.topClients();
+    res.json({ topClients: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/recentPurchases", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let page = parseInt(req.query.page as string) || 1;
+    let limit = parseInt(req.query.limit as string) || 20;
+    let result = await bookingServices.recentPurchases(page, limit);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
 
 /*

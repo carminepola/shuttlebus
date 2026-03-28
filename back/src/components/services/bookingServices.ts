@@ -271,6 +271,12 @@ class BookingsServices {
   async andamentoVendite() {
     return await this.bookingDao.andamentoVendite();
   }
+  async topClients() {
+    return await this.bookingDao.topClients();
+  }
+  async recentPurchases(page: number = 1, limit: number = 20) {
+    return await this.bookingDao.recentPurchases(page, limit);
+  }
 }
 
 export default BookingsServices;

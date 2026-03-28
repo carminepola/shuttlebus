@@ -73,4 +73,15 @@ export class BookingsService {
   readBookingById(id: string) {
     return this.http.post(this.apiUrl + '/readBookingById', { id });
   }
+  getBookingsByUserId(userId: string) {
+    return this.http.get<any>(`${this.apiUrl}/getBookingByUserId/${userId}`);
+  }
+  getTopClients() {
+    return this.http.get<any>(`${this.apiUrl}/topClients`);
+  }
+  getRecentPurchases(page: number = 1, limit: number = 20) {
+    return this.http.get<any>(`${this.apiUrl}/recentPurchases`, {
+      params: { page, limit },
+    });
+  }
 }

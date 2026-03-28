@@ -246,4 +246,22 @@ router.get("/getAccountSchedule", authMiddleware, checkPermissionMiddleware(role
     next(error);
   }
 });
+router.get("/getRefunds", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let refunds = await stripeServices.getRefunds();
+    res.json({ result: refunds });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/getMonthlyRevenue", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let revenue = await stripeServices.getMonthlyRevenue();
+    res.json({ result: revenue });
+  } catch (error) {
+    next(error);
+  }
+});
 export default router;

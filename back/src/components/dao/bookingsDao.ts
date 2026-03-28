@@ -622,31 +622,38 @@ export default class BookingsDAO {
   async andamento() {
     let today = new Date();
 
-    // 📅 Mese scorso
     let startDatePast = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     startDatePast.setHours(0, 0, 0, 0);
 
     let endDatePast = new Date(today.getFullYear(), today.getMonth(), 0);
     endDatePast.setHours(23, 59, 59, 999);
 
-    // 📅 Mese corrente
     let startDateCurrent = new Date(today.getFullYear(), today.getMonth(), 1);
     startDateCurrent.setHours(0, 0, 0, 0);
 
     let endDateCurrent = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     endDateCurrent.setHours(23, 59, 59, 999);
 
-    // 📅 Mese successivo
     let startDateNext = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     startDateNext.setHours(0, 0, 0, 0);
 
     let endDateNext = new Date(today.getFullYear(), today.getMonth() + 2, 0);
     endDateNext.setHours(23, 59, 59, 999);
 
-    // 📆 Formatter
+    let startDateYearAgo = new Date(today.getFullYear() - 1, today.getMonth() - 1, 1);
+    startDateYearAgo.setHours(0, 0, 0, 0);
+
+    let endDateYearAgo = new Date(today.getFullYear() - 1, today.getMonth() + 2, 0);
+    endDateYearAgo.setHours(23, 59, 59, 999);
+
+    let startDateYearAgoCurrent = new Date(today.getFullYear() - 1, today.getMonth(), 1);
+    startDateYearAgoCurrent.setHours(0, 0, 0, 0);
+
+    let endDateYearAgoCurrent = new Date(today.getFullYear() - 1, today.getMonth() + 1, 0);
+    endDateYearAgoCurrent.setHours(23, 59, 59, 999);
+
     const formatDate = (date: any) => date.toISOString().split("T")[0];
 
-    // 📆 Range date
     const generateDateRange = (start: any, end: any, period: any) => {
       let dates = [];
       let currentDate = new Date(start);
@@ -657,21 +664,20 @@ export default class BookingsDAO {
       return dates;
     };
 
-    // 📆 Tutte le date dei 3 mesi
     let allDates = [
       ...generateDateRange(startDatePast, endDatePast, "past"),
       ...generateDateRange(startDateCurrent, endDateCurrent, "current"),
       ...generateDateRange(startDateNext, endDateNext, "next"),
+      ...generateDateRange(startDateYearAgo, endDateYearAgo, "yearAgo"),
     ];
 
-    // 📊 Aggregazione
     let bookings = await this.db
       .collection("bookings")
       .aggregate([
         {
           $match: {
             date: {
-              $gte: formatDate(startDatePast),
+              $gte: formatDate(startDateYearAgo),
               $lte: formatDate(endDateNext),
             },
             status: { $eq: "confirmed" },
@@ -691,6 +697,12 @@ export default class BookingsDAO {
                       $and: [{ $gte: ["$date", formatDate(startDateCurrent)] }, { $lte: ["$date", formatDate(endDateCurrent)] }],
                     },
                     then: "current",
+                  },
+                  {
+                    case: {
+                      $and: [{ $gte: ["$date", formatDate(startDateYearAgo)] }, { $lte: ["$date", formatDate(endDateYearAgo)] }],
+                    },
+                    then: "yearAgo",
                   },
                 ],
                 default: "next",
@@ -715,40 +727,122 @@ export default class BookingsDAO {
       ])
       .toArray();
 
-    // 🛠️ Merge
     let resultMap = new Map(bookings.map((b) => [b.date, b]));
     let completeData = allDates.map((entry) => (resultMap.has(entry.date) ? resultMap.get(entry.date) : entry));
 
-    return completeData;
+    return { completeData, startDateYearAgo: formatDate(startDateYearAgoCurrent), endDateYearAgo: formatDate(endDateYearAgoCurrent) };
   }
+  async topClients() {
+    return this.db
+      .collection("bookings")
+      .aggregate([
+        {
+          $match: {
+            status: { $eq: "confirmed" },
+          },
+        },
+        {
+          $addFields: {
+            bookingValue: {
+              $add: ["$total", { $multiply: ["$luggage", 2] }],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$userId",
+            totalSpent: { $sum: "$bookingValue" },
+            totalBookings: { $sum: 1 },
+            userName: { $first: "$user.name" },
+            userEmail: { $first: "$user.mail" },
+          },
+        },
+        { $sort: { totalSpent: -1 } },
+        { $limit: 5 },
+        {
+          $project: {
+            _id: 0,
+            userId: "$_id",
+            totalSpent: 1,
+            totalBookings: 1,
+            userName: 1,
+            userEmail: 1,
+          },
+        },
+      ])
+      .toArray();
+  }
+
+  async recentPurchases(page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+    const [results, total] = await Promise.all([
+      this.db
+        .collection("bookings")
+        .find(
+          { status: { $in: ["confirmed", "pending"] } },
+          {
+            projection: {
+              date: 1,
+              createdAt: 1,
+              numberOfTickets: 1,
+              status: 1,
+              from: 1,
+              to: 1,
+              total: 1,
+              luggage: 1,
+              seats: 1,
+              name: 1,
+              user: 1,
+            },
+          }
+        )
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+      this.db
+        .collection("bookings")
+        .countDocuments({ status: { $in: ["confirmed", "pending"] } }),
+    ]);
+
+    return { results, total, page, limit };
+  }
+
   async andamentoVendite() {
     let today = new Date();
 
-    // 📅 Mese scorso
     let startDatePast = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     startDatePast.setHours(0, 0, 0, 0);
 
     let endDatePast = new Date(today.getFullYear(), today.getMonth(), 0);
     endDatePast.setHours(23, 59, 59, 999);
 
-    // 📅 Mese corrente
     let startDateCurrent = new Date(today.getFullYear(), today.getMonth(), 1);
     startDateCurrent.setHours(0, 0, 0, 0);
 
     let endDateCurrent = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     endDateCurrent.setHours(23, 59, 59, 999);
 
-    // 📅 Mese successivo
     let startDateNext = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     startDateNext.setHours(0, 0, 0, 0);
 
     let endDateNext = new Date(today.getFullYear(), today.getMonth() + 2, 0);
     endDateNext.setHours(23, 59, 59, 999);
 
-    // 📆 Formatter
+    let startDateYearAgo = new Date(today.getFullYear() - 1, today.getMonth() - 1, 1);
+    startDateYearAgo.setHours(0, 0, 0, 0);
+
+    let endDateYearAgo = new Date(today.getFullYear() - 1, today.getMonth() + 2, 0);
+    endDateYearAgo.setHours(23, 59, 59, 999);
+
+    let startDateYearAgoCurrent = new Date(today.getFullYear() - 1, today.getMonth(), 1);
+    startDateYearAgoCurrent.setHours(0, 0, 0, 0);
+
+    let endDateYearAgoCurrent = new Date(today.getFullYear() - 1, today.getMonth() + 1, 0);
+    endDateYearAgoCurrent.setHours(23, 59, 59, 999);
+
     const formatDate = (date: any) => date.toISOString().split("T")[0];
 
-    // 📆 Range date
     const generateDateRange = (start: any, end: any, period: any) => {
       let dates = [];
       let currentDate = new Date(start);
@@ -759,21 +853,20 @@ export default class BookingsDAO {
       return dates;
     };
 
-    // 📆 Tutte le date dei 3 mesi
     let allDates = [
       ...generateDateRange(startDatePast, endDatePast, "past"),
       ...generateDateRange(startDateCurrent, endDateCurrent, "current"),
       ...generateDateRange(startDateNext, endDateNext, "next"),
+      ...generateDateRange(startDateYearAgo, endDateYearAgo, "yearAgo"),
     ];
 
-    // 📊 Aggregazione
     let bookings = await this.db
       .collection("bookings")
       .aggregate([
         {
           $match: {
             date: {
-              $gte: formatDate(startDatePast),
+              $gte: formatDate(startDateYearAgo),
               $lte: formatDate(endDateNext),
             },
             status: { $eq: "confirmed" },
@@ -794,15 +887,20 @@ export default class BookingsDAO {
                     },
                     then: "current",
                   },
+                  {
+                    case: {
+                      $and: [{ $gte: ["$date", formatDate(startDateYearAgo)] }, { $lte: ["$date", formatDate(endDateYearAgo)] }],
+                    },
+                    then: "yearAgo",
+                  },
                 ],
                 default: "next",
               },
             },
-            // qui calcoliamo il valore totale di ogni prenotazione
             bookingValue: {
               $add: [
-                "$total", // prezzo biglietti
-                { $multiply: ["$luggage", 2] }, // bagagli * 2€
+                "$total",
+                { $multiply: ["$luggage", 2] },
               ],
             },
           },
@@ -810,7 +908,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: { date: "$date", period: "$period" },
-            totalRevenue: { $sum: "$bookingValue" }, // somma prezzi + bagagli
+            totalRevenue: { $sum: "$bookingValue" },
           },
         },
         {
@@ -818,17 +916,15 @@ export default class BookingsDAO {
             _id: 0,
             date: "$_id.date",
             period: "$_id.period",
-
             totalRevenue: 1,
           },
         },
       ])
       .toArray();
 
-    // 🛠️ Merge
     let resultMap = new Map(bookings.map((b) => [b.date, b]));
     let completeData = allDates.map((entry) => (resultMap.has(entry.date) ? resultMap.get(entry.date) : entry));
 
-    return completeData;
+    return { completeData, startDateYearAgo: formatDate(startDateYearAgoCurrent), endDateYearAgo: formatDate(endDateYearAgoCurrent) };
   }
 }

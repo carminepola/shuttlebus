@@ -249,4 +249,33 @@ export default class UserServices {
     }
     return false;
   }
+
+  async updateRole(userId: string, newRole: number) {
+    const validRoles = [role.ADMIN, role.DRIVER, role.USER, role.NO_PERMISSION];
+    if (!validRoles.includes(newRole)) {
+      throw new ErrorModel(400, "Ruolo non valido");
+    }
+    const user = await this.userDao.getUserById(userId);
+    if (!user) {
+      throw new ErrorModel(404, "Utente non trovato");
+    }
+    const oldRole = user.role;
+    user.role = newRole;
+    await this.userDao.updateUser(user);
+    return { oldRole, newRole };
+  }
+
+  async updateUserDetailsById(userId: string, name: string, phone?: string) {
+    const userData = await this.userDao.getUserById(userId);
+    if (!userData) {
+      throw new ErrorModel(404, "Utente non trovato");
+    }
+    const user = new userModel(userData);
+    user.details.name = name;
+    if (phone !== undefined) {
+      user.details.phone = phone;
+    }
+    const result = await this.userDao.updateUser(user);
+    return result;
+  }
 }

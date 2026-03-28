@@ -3,10 +3,20 @@ import { RouterModule, Router } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { UserService } from '../../services/user/user.service';
+import { BookingsService } from '../../services/bookings/bookings.service';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
+import { TranslateNamePipe } from '../../pipe/translateName.pipe';
+import { lastValueFrom } from 'rxjs';
+
+const ROLES = [
+  { value: 50, label: 'ADMIN' },
+  { value: 75, label: 'DRIVER' },
+  { value: 100, label: 'USER' },
+  { value: 9999, label: 'NO_PERMISSION' },
+];
 
 @Component({
   selector: 'app-clients',
@@ -16,6 +26,7 @@ import { CommonModule } from '@angular/common';
     LoadingComponent,
     FormsModule,
     CommonModule,
+    TranslateNamePipe,
   ],
   templateUrl: './clients.component.html',
   styleUrl: './clients.component.scss',
@@ -31,9 +42,23 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   hasMore = true;
   private intersectionObserver!: IntersectionObserver;
 
+  roles = ROLES;
+
+  showForm = false;
+  formMode: 'create' | 'edit' = 'create';
+  formSaving = false;
+  formData = { name: '', email: '', password: '' };
+  formError = '';
+
+  selectedClient: any = null;
+  clientBookings: any[] = [];
+  clientBookingsLoading = false;
+  roleSaving = false;
+
   constructor(
     private router: Router,
     private userService: UserService,
+    private bookingsService: BookingsService,
   ) {}
 
   ngOnInit(): void {
@@ -70,7 +95,6 @@ export class ClientsComponent implements OnInit, AfterViewInit {
       });
     }, options);
 
-    // Use setTimeout to ensure DOM is fully rendered
     setTimeout(() => {
       this.observeSentinel();
     }, 100);
@@ -79,12 +103,8 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   observeSentinel(): void {
     const sentinel = document.getElementById('infinite-scroll-sentinel');
     if (sentinel) {
-      // Disconnect first to avoid duplicate observations
       this.intersectionObserver.disconnect();
       this.intersectionObserver.observe(sentinel);
-      console.log('Infinite scroll sentinel observed');
-    } else {
-      console.error('Infinite scroll sentinel not found');
     }
   }
 
@@ -101,7 +121,6 @@ export class ClientsComponent implements OnInit, AfterViewInit {
         next: (response: any) => {
           this.clients = response.users || [];
           this.hasMore = response.users?.length === this.itemsPerPage;
-          // Re-observe sentinel after initial load
           setTimeout(() => this.observeSentinel(), 100);
         },
         error: (error: any) => {
@@ -124,12 +143,11 @@ export class ClientsComponent implements OnInit, AfterViewInit {
           const newClients = response.users || [];
           this.clients = [...this.clients, ...newClients];
           this.hasMore = newClients.length === this.itemsPerPage;
-          // Re-observe sentinel after loading more data
           setTimeout(() => this.observeSentinel(), 100);
         },
         error: (error: any) => {
           console.error('Error loading more clients:', error);
-          this.currentPage--; // Revert page increment on error
+          this.currentPage--;
         },
       });
   }
@@ -152,7 +170,6 @@ export class ClientsComponent implements OnInit, AfterViewInit {
         next: (response: any) => {
           this.clients = response.users || [];
           this.hasMore = response.users?.length === this.itemsPerPage;
-          // Re-observe sentinel after search
           setTimeout(() => this.observeSentinel(), 100);
         },
         error: (error: any) => {
@@ -163,5 +180,96 @@ export class ClientsComponent implements OnInit, AfterViewInit {
 
   onSearchTermChange(): void {
     this.onSearch();
+  }
+
+  openCreateForm(): void {
+    this.formMode = 'create';
+    this.formData = { name: '', email: '', password: '' };
+    this.formError = '';
+    this.showForm = true;
+  }
+
+  openEditForm(client: any): void {
+    this.formMode = 'edit';
+    this.formData = { name: client.name || '', email: client.email || '', password: '' };
+    this.formError = '';
+    this.showForm = true;
+    this.closeClientInfo();
+  }
+
+  closeForm(): void {
+    this.showForm = false;
+  }
+
+  async saveForm(): Promise<void> {
+    this.formError = '';
+    this.formSaving = true;
+    try {
+      if (this.formMode === 'create') {
+        if (!this.formData.name || !this.formData.email || !this.formData.password) {
+          this.formError = 'Tutti i campi sono obbligatori';
+          return;
+        }
+        await lastValueFrom(this.userService.createClient(this.formData));
+        this.loadClients();
+      }
+      this.showForm = false;
+    } catch (e: any) {
+      this.formError = e?.error?.message || e?.message || 'Errore durante il salvataggio';
+    } finally {
+      this.formSaving = false;
+    }
+  }
+
+  async deleteClient(client: any): Promise<void> {
+    if (!confirm(`Eliminare ${client.name}?`)) return;
+    try {
+      await lastValueFrom(this.userService.deleteClient(client._id));
+      this.clients = this.clients.filter((c) => c._id !== client._id);
+      this.closeClientInfo();
+    } catch (e) {
+      console.error('Error deleting client', e);
+    }
+  }
+
+  async openClientInfo(client: any): Promise<void> {
+    this.selectedClient = client;
+    this.clientBookings = [];
+    this.clientBookingsLoading = true;
+    try {
+      const res: any = await lastValueFrom(this.bookingsService.getBookingsByUserId(client._id));
+      this.clientBookings = res.booking || [];
+    } catch (e) {
+      console.error('Error loading client bookings', e);
+    } finally {
+      this.clientBookingsLoading = false;
+    }
+  }
+
+  closeClientInfo(): void {
+    this.selectedClient = null;
+    this.clientBookings = [];
+  }
+
+  getRoleLabel(roleValue: number): string {
+    return ROLES.find((r) => r.value === roleValue)?.label || `ROLE(${roleValue})`;
+  }
+
+  async changeRole(event: Event): Promise<void> {
+    const select = event.target as HTMLSelectElement;
+    const newRole = parseInt(select.value);
+    if (isNaN(newRole) || !this.selectedClient) return;
+    if (newRole === this.selectedClient.role) return;
+
+    this.roleSaving = true;
+    try {
+      await lastValueFrom(this.userService.updateClientRole(this.selectedClient._id, newRole));
+      this.selectedClient.role = newRole;
+    } catch (e) {
+      console.error('Error updating role', e);
+      select.value = String(this.selectedClient.role);
+    } finally {
+      this.roleSaving = false;
+    }
   }
 }

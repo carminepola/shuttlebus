@@ -4,6 +4,7 @@ import {
   AfterViewInit,
   ElementRef,
   ViewChild,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -31,6 +32,28 @@ interface MenuItem {
   route: string;
 }
 
+interface TopClient {
+  userId: string;
+  userName: string;
+  userEmail: string;
+  totalSpent: number;
+  totalBookings: number;
+}
+
+interface RecentPurchase {
+  numberOfTickets: string;
+  date: string;
+  createdAt: number;
+  status: string;
+  from: { name: string };
+  to: { name: string };
+  total: number;
+  luggage: number;
+  seats: number;
+  name: { it: string };
+  user: { name: string; mail: string };
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -39,9 +62,11 @@ interface MenuItem {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit, AfterViewInit {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('salesChart') salesChart!: ElementRef;
   @ViewChild('salesChartVendite') salesChartVendite!: ElementRef;
+  @ViewChild('purchasesScroll') purchasesScroll!: ElementRef;
+  @ViewChild('revenueChart') revenueChart!: ElementRef;
   loadCorse = true;
   loadPrenotazioni = true;
   loadBiglietti = true;
@@ -50,6 +75,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
   loadBalance = true;
   loadPayouts = true;
   loadAccountSchedule = true;
+  loadTopClients = true;
+  loadRecentPurchases = true;
+  loadRefunds = true;
+  loadMonthlyRevenue = true;
 
   public andamentoMese: any = [];
   public countRoutes: number = 0;
@@ -58,6 +87,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public payouts: any;
   public balance: any;
   public accountSchedule: any;
+  public topClients: TopClient[] = [];
+  public recentPurchases: RecentPurchase[] = [];
+  public purchasesPage = 1;
+  public purchasesTotal = 0;
+  public purchasesLimit = 15;
+  public purchasesLoadingMore = false;
+  public hasMorePurchases = true;
+  public refunds: any[] = [];
+  public monthlyRevenue: any = null;
 
   user: any;
   username = '';
@@ -102,8 +140,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ) {}
 
   private interval: any;
+  private purchasePollingInterval: any;
   ngOnDestroy(): void {
     clearInterval(this.interval);
+    if (this.purchasePollingInterval) clearInterval(this.purchasePollingInterval);
   }
   ngOnInit(): void {
     this.andamentoVendite();
@@ -111,11 +151,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.getPayouts();
     this.getBalance();
     this.getAccountSchedule();
+    this.getTopClients();
+    this.getRecentPurchases();
+    this.getRefunds();
+    this.getMonthlyRevenue();
     setTimeout(() => {
       this.routeToday();
       this.biglietti();
       this.prenotazioni();
     }, 500);
+
+    this.purchasePollingInterval = setInterval(() => {
+      this.getRecentPurchases(true);
+    }, 15000);
   }
 
   getPayouts() {
@@ -225,13 +273,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }, stepTime);
     }
   }
-  private createSalesChart(data: any) {
+  private createSalesChart(apiData: any) {
     const ctx = this.salesChart.nativeElement.getContext('2d');
     const dates = this.generateDates();
+    const data = apiData.completeData || apiData;
 
     const previousMonthMap: { [key: string]: number } = {};
     const currentMonthMap: { [key: string]: number } = {};
     const nextMonthMap: { [key: string]: number } = {};
+    const yearAgoMap: { [key: string]: number } = {};
 
     data.forEach((item: any) => {
       const day = new Date(item.date).getDate();
@@ -241,12 +291,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
         currentMonthMap[day] = item.totalTickets;
       } else if (item.period === 'next') {
         nextMonthMap[day] = item.totalTickets;
+      } else if (item.period === 'yearAgo') {
+        yearAgoMap[day] = (yearAgoMap[day] || 0) + (item.totalTickets || 0);
       }
     });
 
     const previousMonthData = dates.map((day) => previousMonthMap[day] || 0);
     const currentMonthData = dates.map((day) => currentMonthMap[day] || 0);
     const nextMonthData = dates.map((day) => nextMonthMap[day] || 0);
+    const yearAgoData = dates.map((day) => yearAgoMap[day] || 0);
+
+    const lastYear = new Date().getFullYear() - 1;
 
     new Chart(ctx, {
       type: 'line',
@@ -280,6 +335,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
             backgroundColor: 'rgba(52, 211, 153, 0.1)',
             tension: 0.4,
             fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+          },
+          {
+            label: `${lastYear} stesso periodo`,
+            data: yearAgoData,
+            borderColor: '#f97316',
+            backgroundColor: 'transparent',
+            borderDash: [6, 4],
+            tension: 0.4,
+            fill: false,
             pointRadius: 0,
             pointHoverRadius: 6,
           },
@@ -327,13 +393,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
       },
     });
   }
-  private createSalesChartVendite(data: any) {
+  private createSalesChartVendite(apiData: any) {
     const ctx = this.salesChartVendite.nativeElement.getContext('2d');
     const dates = this.generateDates();
+    const data = apiData.completeData || apiData;
 
     const previousMonthMap: { [key: string]: number } = {};
     const currentMonthMap: { [key: string]: number } = {};
     const nextMonthMap: { [key: string]: number } = {};
+    const yearAgoMap: { [key: string]: number } = {};
 
     data.forEach((item: any) => {
       const day = new Date(item.date).getDate();
@@ -343,12 +411,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
         currentMonthMap[day] = item.totalRevenue;
       } else if (item.period === 'next') {
         nextMonthMap[day] = item.totalRevenue;
+      } else if (item.period === 'yearAgo') {
+        yearAgoMap[day] = (yearAgoMap[day] || 0) + (item.totalRevenue || 0);
       }
     });
 
     const previousMonthData = dates.map((day) => previousMonthMap[day] || 0);
     const currentMonthData = dates.map((day) => currentMonthMap[day] || 0);
     const nextMonthData = dates.map((day) => nextMonthMap[day] || 0);
+    const yearAgoData = dates.map((day) => yearAgoMap[day] || 0);
+
+    const lastYear = new Date().getFullYear() - 1;
 
     new Chart(ctx, {
       type: 'line',
@@ -362,8 +435,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
             backgroundColor: 'rgba(139, 92, 246, 0.1)',
             tension: 0.4,
             fill: true,
-            pointRadius: 0, // Nasconde i pallini
-            pointHoverRadius: 6, // Mostra il pallino solo in hover
+            pointRadius: 0,
+            pointHoverRadius: 6,
           },
           {
             label: 'Mese Corrente',
@@ -382,6 +455,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
             backgroundColor: 'rgba(52, 211, 153, 0.1)',
             tension: 0.4,
             fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+          },
+          {
+            label: `${lastYear} stesso periodo`,
+            data: yearAgoData,
+            borderColor: '#f97316',
+            backgroundColor: 'transparent',
+            borderDash: [6, 4],
+            tension: 0.4,
+            fill: false,
             pointRadius: 0,
             pointHoverRadius: 6,
           },
@@ -452,6 +536,165 @@ export class HomeComponent implements OnInit, AfterViewInit {
       dates.push(i.toString());
     }
     return dates;
+  }
+
+  getTopClients() {
+    this.bookingsService.getTopClients().subscribe((res: any) => {
+      this.topClients = res.topClients || [];
+      this.loadTopClients = false;
+    });
+  }
+
+  getRecentPurchases(reset: boolean = false) {
+    if (reset) {
+      this.purchasesPage = 1;
+      this.hasMorePurchases = true;
+    }
+
+    if (this.purchasesLoadingMore && !reset) return;
+    if (!this.hasMorePurchases && !reset) return;
+
+    this.purchasesLoadingMore = true;
+
+    this.bookingsService
+      .getRecentPurchases(this.purchasesPage, this.purchasesLimit)
+      .subscribe((res: any) => {
+        if (reset) {
+          this.recentPurchases = res.results || [];
+        } else {
+          this.recentPurchases = [...this.recentPurchases, ...(res.results || [])];
+        }
+        this.purchasesTotal = res.total || 0;
+        this.hasMorePurchases =
+          this.recentPurchases.length < this.purchasesTotal;
+        this.loadRecentPurchases = false;
+        this.purchasesLoadingMore = false;
+      });
+  }
+
+  loadMorePurchases() {
+    if (!this.hasMorePurchases || this.purchasesLoadingMore) return;
+    this.purchasesPage++;
+    this.getRecentPurchases();
+  }
+
+  getStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      confirmed: 'Confermato',
+      pending: 'In attesa',
+      cancelled: 'Annullato',
+      refunded: 'Rimborsato',
+      expired: 'Scaduto',
+    };
+    return map[status] || status;
+  }
+
+  getStatusClass(status: string): string {
+    const map: Record<string, string> = {
+      confirmed: 'bg-success-subtle text-success',
+      pending: 'bg-warning-subtle text-warning',
+      cancelled: 'bg-danger-subtle text-danger',
+      refunded: 'bg-info-subtle text-info',
+      expired: 'bg-secondary-subtle text-secondary',
+    };
+    return map[status] || 'bg-secondary-subtle text-secondary';
+  }
+
+  getRankColor(index: number): string {
+    const colors = ['#f59e0b', '#94a3b8', '#b45309', '#6b7280', '#6b7280'];
+    return colors[index] || '#6b7280';
+  }
+
+  getRankIcon(index: number): string {
+    return index === 0 ? 'fa-trophy' : index === 1 ? 'fa-medal' : index === 2 ? 'fa-award' : '';
+  }
+
+  formatPurchaseDate(createdAt: number): string {
+    if (!createdAt) return '';
+    const d = new Date(createdAt);
+    return d.toLocaleString('it-IT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  onPurchasesScroll() {
+    const el = this.purchasesScroll?.nativeElement;
+    if (!el) return;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 50;
+    if (atBottom) {
+      this.loadMorePurchases();
+    }
+  }
+
+  getRefunds() {
+    this.stripeService.getRefunds().subscribe((res: any) => {
+      this.refunds = res.result || [];
+      this.loadRefunds = false;
+    });
+  }
+
+  getMonthlyRevenue() {
+    this.stripeService.getMonthlyRevenue().subscribe((res: any) => {
+      this.monthlyRevenue = res.result;
+      this.loadMonthlyRevenue = false;
+      if (res.result?.last6Months) {
+        setTimeout(() => {
+          this.createRevenueChart(res.result.last6Months);
+        }, 100);
+      }
+    });
+  }
+
+  private createRevenueChart(data: { month: string; revenue: number; refunds: number }[]) {
+    const ctx = this.revenueChart?.nativeElement?.getContext('2d');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.month),
+        datasets: [
+          {
+            label: 'Ricavi',
+            data: data.map(d => d.revenue),
+            backgroundColor: 'rgba(52, 211, 153, 0.7)',
+            borderColor: '#34d399',
+            borderWidth: 1,
+            borderRadius: 6,
+          },
+          {
+            label: 'Rimborsi',
+            data: data.map(d => d.refunds),
+            backgroundColor: 'rgba(239, 68, 68, 0.5)',
+            borderColor: '#ef4444',
+            borderWidth: 1,
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: (context: any) => context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' €',
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: (value: any) => value + ' €' },
+          },
+        },
+      },
+    });
   }
 
   logout() {

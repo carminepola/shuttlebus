@@ -36,6 +36,7 @@ import { TicketForRoutesComponent } from './pages/ticket-for-routes/ticket-for-r
 import { TicketCheckComponent } from './pages/ticket-check/ticket-check.component';
 import { TargheComponent } from './pages/targhe/targhe.component';
 import { DepositoComponent } from './pages/deposito/deposito.component';
+import { UserDetailsComponent } from './pages/user-details/user-details.component';
 export const routes: Routes = [
   {
     path: '',
@@ -240,6 +241,18 @@ export const routes: Routes = [
       {
         path: 'utenti',
         component: UsersComponent,
+
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'utente',
+        component: UserDetailsComponent,
+
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'utente/:id',
+        component: UserDetailsComponent,
 
         data: { navbar: true, requiredRole: 50 },
       },

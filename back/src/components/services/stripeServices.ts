@@ -170,6 +170,105 @@ class StripeServices {
       throw err;
     }
   }
+
+  public async getRefunds(limit: number = 20) {
+    try {
+      const refunds = await this.stripe.refunds.list({ limit, expand: ["data.charge"] });
+      return refunds.data.map((r: any) => ({
+        id: r.id,
+        amount: (r.amount / 100).toFixed(2),
+        currency: r.currency.toUpperCase(),
+        status: r.status,
+        reason: r.reason || r.failure_reason || "N/D",
+        created: new Date(r.created * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+        chargeId: r.charge?.id || "",
+      }));
+    } catch (err) {
+      logger.error("Errore nel recupero refunds", err);
+      throw err;
+    }
+  }
+
+  public async getMonthlyRevenue() {
+    try {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+
+      const [currentCharges, lastMonthCharges, currentRefunds, lastMonthRefunds] = await Promise.all([
+        this.stripe.charges.list({
+          created: { gte: Math.floor(startOfMonth.getTime() / 1000) },
+          limit: 100,
+        }),
+        this.stripe.charges.list({
+          created: { gte: Math.floor(startOfLastMonth.getTime() / 1000), lt: Math.floor(endOfLastMonth.getTime() / 1000) + 1 },
+          limit: 100,
+        }),
+        this.stripe.refunds.list({
+          created: { gte: Math.floor(startOfMonth.getTime() / 1000) },
+          limit: 100,
+        }),
+        this.stripe.refunds.list({
+          created: { gte: Math.floor(startOfLastMonth.getTime() / 1000), lt: Math.floor(endOfLastMonth.getTime() / 1000) + 1 },
+          limit: 100,
+        }),
+      ]);
+
+      const sumCharges = (charges: any[]) =>
+        charges.filter((c: any) => c.status === "succeeded").reduce((sum: number, c: any) => sum + c.amount, 0);
+
+      const sumRefunds = (refunds: any[]) =>
+        refunds.filter((r: any) => r.status === "succeeded").reduce((sum: number, r: any) => sum + r.amount, 0);
+
+      const currentRevenue = sumCharges(currentCharges.data);
+      const lastMonthRevenue = sumCharges(lastMonthCharges.data);
+      const currentRefundTotal = sumRefunds(currentRefunds.data);
+      const lastMonthRefundTotal = sumRefunds(lastMonthRefunds.data);
+      const currentNet = currentRevenue - currentRefundTotal;
+      const lastMonthNet = lastMonthRevenue - lastMonthRefundTotal;
+
+      const revenueChange = lastMonthRevenue > 0 ? ((currentRevenue - lastMonthRevenue) / lastMonthRevenue * 100) : 0;
+      const refundChange = lastMonthRefundTotal > 0 ? ((currentRefundTotal - lastMonthRefundTotal) / lastMonthRefundTotal * 100) : 0;
+
+      const last6Months: { month: string; revenue: number; refunds: number }[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthStart = Math.floor(d.getTime() / 1000);
+        const monthEnd = Math.floor(new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999).getTime() / 1000);
+
+        const [mCharges, mRefunds] = await Promise.all([
+          this.stripe.charges.list({ created: { gte: monthStart, lt: monthEnd + 1 }, limit: 100 }),
+          this.stripe.refunds.list({ created: { gte: monthStart, lt: monthEnd + 1 }, limit: 100 }),
+        ]);
+
+        last6Months.push({
+          month: d.toLocaleDateString("it-IT", { month: "short", year: "2-digit" }),
+          revenue: sumCharges(mCharges.data) / 100,
+          refunds: sumRefunds(mRefunds.data) / 100,
+        });
+      }
+
+      return {
+        currentMonth: {
+          revenue: currentRevenue / 100,
+          refunds: currentRefundTotal / 100,
+          net: currentNet / 100,
+        },
+        lastMonth: {
+          revenue: lastMonthRevenue / 100,
+          refunds: lastMonthRefundTotal / 100,
+          net: lastMonthNet / 100,
+        },
+        revenueChange: +revenueChange.toFixed(1),
+        refundChange: +refundChange.toFixed(1),
+        last6Months,
+      };
+    } catch (err) {
+      logger.error("Errore nel recupero monthly revenue", err);
+      throw err;
+    }
+  }
 }
 
 export default StripeServices;

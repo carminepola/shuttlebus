@@ -169,6 +169,42 @@ router.patch(
   },
 );
 
+router.patch(
+  "/updateRole",
+  [check("userId").notEmpty().withMessage("userId is required"), check("role").notEmpty().withMessage("role is required").isNumeric().withMessage("role must be a number")],
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, [requiredRole]),
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let userServices = new UserServices(db);
+      const result = await userServices.updateRole(req.body.userId, parseInt(req.body.role));
+      res.json({ message: "Ruolo aggiornato con successo", ...result });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  },
+);
+
+router.patch(
+  "/updateUserDetails",
+  [check("userId").notEmpty().withMessage("userId is required"), check("name").notEmpty().withMessage("name is required"), check("phone").optional().isString().withMessage("phone must be a string")],
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, [requiredRole]),
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let userServices = new UserServices(db);
+      const result = await userServices.updateUserDetailsById(req.body.userId, req.body.name, req.body.phone);
+      res.json({ message: "Dettagli utente aggiornati con successo", user: result });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  },
+);
+
 router.get("/getNormalUser", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let userServices = new UserServices(db);

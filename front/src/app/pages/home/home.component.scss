@@ -203,6 +203,209 @@
   font-weight: 600;
 }
 
+.top-clients-list {
+  .top-client-item {
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+
+  .top-client-rank {
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+  }
+
+  .top-client-info {
+    min-width: 0;
+  }
+}
+
+.recent-purchases-scroll {
+  max-height: 340px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+
+  .purchase-item {
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+
+  .purchase-route {
+    min-width: 0;
+
+    .d-flex {
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+}
+
+.revenue-stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.revenue-stat-change {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.revenue-stat-sub {
+  font-size: 0.8rem;
+}
+
+.refunds-list {
+  max-height: 280px;
+  overflow-y: auto;
+
+  .refund-item {
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  .summary-item {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 0.75rem;
+  }
+
+  .summary-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .summary-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+  }
+}
+
+[data-bs-theme="dark"] {
+  .top-clients-list {
+    .top-client-item {
+      border-bottom-color: rgba(255, 255, 255, 0.06);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+      }
+    }
+  }
+
+  .recent-purchases-scroll {
+    .purchase-item {
+      border-bottom-color: rgba(255, 255, 255, 0.06);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+      }
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  .refunds-list {
+    .refund-item {
+      border-bottom-color: rgba(255, 255, 255, 0.06);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+      }
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  .summary-grid .summary-item {
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
