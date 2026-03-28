@@ -259,12 +259,19 @@ class momapServices {
     const result = await response.json();
     if (result?.data) {
       let params = JSON.parse(result.data.params);
+      let rawUpdatedAt = result.data.updated_at;
+      if (rawUpdatedAt && !rawUpdatedAt.endsWith('Z') && !rawUpdatedAt.includes('+') && !rawUpdatedAt.includes('000Z')) {
+        rawUpdatedAt = rawUpdatedAt.replace(' ', 'T');
+        if (!rawUpdatedAt.includes('Z')) {
+          rawUpdatedAt += 'Z';
+        }
+      }
       return {
         lat: result.data.lat,
         lng: result.data.lng,
         angle: result.data.angle,
         doors: params.doors,
-        updatedAt: result.data.updated_at,
+        updatedAt: rawUpdatedAt,
       };
     }
 

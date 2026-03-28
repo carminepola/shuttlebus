@@ -1,17 +1,132 @@
-google-map {
-    display: block;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
 :host {
-    display: block;
-    height: 600px; // obbligatorio se non è stato settato in altro modo
-    width: 100%;
+  display: block;
+  width: 100%;
 }
 
-google-map {
-    display: block;
-    height: 100%;
-    width: 100%;
+.map-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+#map {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.map-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(2px);
+}
+
+.map-live-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #333;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e74c3c;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.4);
+  }
+}
+
+.map-legend {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #555;
+}
+
+.legend-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.legend-icon-bus {
+  width: 22px;
+  height: 22px;
+}
+
+.map-last-updated {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: #888;
+}
+
+::ng-deep .interactive-stop-marker {
+  cursor: pointer !important;
+  filter: brightness(1.1);
+  transition: filter 0.2s ease;
+}
+
+::ng-deep .interactive-stop-marker:hover {
+  filter: brightness(1.3) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+@media (max-width: 575.98px) {
+  .map-legend {
+    flex-direction: row;
+    gap: 12px;
+    bottom: 8px;
+    right: 8px;
+    left: auto;
+  }
+
+  .map-live-badge {
+    top: 8px;
+    right: 8px;
+  }
 }

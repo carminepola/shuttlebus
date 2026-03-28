@@ -11,6 +11,8 @@ import { version } from '../../../../package.json';
   styleUrl: './footer.component.scss',
 })
 export class FooterComponent {
+  currentYear = new Date().getFullYear();
+
   constructor(private router: Router, private lngService: LngService) {}
   public lng = [
     {
