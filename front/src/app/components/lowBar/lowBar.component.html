@@ -1,6 +1,8 @@
 <div class="modal fade show" tabindex="-1" id="modalLogin2">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+    <div
+      class="modal-content glass border-0 rounded-4 shadow-lg overflow-hidden"
+    >
       <div class="modal-header border-0 pb-0 px-4 pt-4">
         <div class="nav nav-pills w-100 pt-4" role="tablist">
           <a
@@ -37,7 +39,7 @@
 </div>
 <div class="space-lowBar d-block d-lg-none"></div>
 <nav
-  class="card rounded-4 bg-white shadow d-block d-lg-none"
+  class="card rounded-4 bg-white shadow d-block d-lg-none glass"
   id="lowBar"
   style="
     max-height: 58px;
@@ -77,9 +79,20 @@
         (mouseenter)="onNavMouseEnter($any($event.target))"
         (mouseleave)="onNavMouseLeave()"
       >
-        <i class="fa-solid fa-user"></i>
+        @if (isLoggedIn()) {
+          <i class="fa-solid fa-user-circle"></i>
+        } @else {
+          <i class="fa-solid fa-right-to-bracket"></i>
+        }
+
         @if (getPath().includes("/user/") || getPath().includes("/admin/")) {
-          <span class="ms-2 fw-bold d-none d-md-block">Account</span>
+          <span class="ms-2 fw-bold d-none d-md-block">
+            @if (isLoggedIn()) {
+              Account
+            } @else {
+              Login
+            }
+          </span>
         }
       </a>
     </div>

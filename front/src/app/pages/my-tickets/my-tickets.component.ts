@@ -93,9 +93,9 @@ export class MyTicketsComponent implements OnInit {
             `,
       },
       customClass: {
-        confirmButton: 'btn btn-primary btn-lg mr-2',
-        denyButton: 'btn btn-danger btn-lg',
-        popup: 'rounded-4',
+        confirmButton: 'btn btn-secondary btn-lg mr-2 ',
+        denyButton: 'btn btn-outline-secondary btn-lg',
+        popup: 'rounded-4 glass',
       },
 
       showCancelButton: false,
@@ -136,7 +136,7 @@ export class MyTicketsComponent implements OnInit {
       customClass: {
         confirmButton: 'btn btn-primary btn-lg mr-2',
         denyButton: 'btn btn-danger btn-lg',
-        popup: 'rounded-4',
+        popup: 'rounded-4 glass',
       },
 
       showCancelButton: false,
@@ -213,7 +213,7 @@ export class MyTicketsComponent implements OnInit {
       };
 
       // === HEADER GRADIENT BAR ===
-      drawGradientRect(0, 0, pageWidth, 48, SECONDARY, PRIMARY);
+      drawGradientRect(0, 0, pageWidth, 48, SECONDARY, SECONDARY);
 
       // Brand name
       doc.setFont('helvetica', 'bold');
@@ -224,8 +224,8 @@ export class MyTicketsComponent implements OnInit {
       // Ticket label top-right
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(255, 255, 255, 180);
-      doc.text(this.lng.traslate('str_biglietto'), pageWidth - mx, 18, {
+      doc.setTextColor(255, 255, 255);
+        doc.text('Ticket', pageWidth - mx, 18, {
         align: 'right',
       });
 
@@ -235,34 +235,6 @@ export class MyTicketsComponent implements OnInit {
       doc.text(`#${booking.numberOfTickets}`, pageWidth - mx, 30, {
         align: 'right',
       });
-
-      // Status badge
-      if (booking.status === 'confirmed') {
-        const statusText = 'CONFIRMED';
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
-        const textW = doc.getTextWidth(statusText);
-        const badgeW = textW + 10;
-        const badgeH = 8;
-        const badgeX = pageWidth - mx - badgeW;
-        const badgeY = 35;
-        doc.setFillColor(...WHITE);
-        doc.setGState(new (doc as any).GState({ opacity: 0.15 }));
-        doc.roundedRect(
-          badgeX,
-          badgeY,
-          badgeW,
-          badgeH,
-          badgeH / 2,
-          badgeH / 2,
-          'F',
-        );
-        (doc as any).setGState(new (doc as any).GState({ opacity: 1 }));
-        doc.setTextColor(...WHITE);
-        doc.text(statusText, badgeX + badgeW / 2, badgeY + badgeH / 2 + 1.5, {
-          align: 'center',
-        });
-      }
 
       y = 56;
 

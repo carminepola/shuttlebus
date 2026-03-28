@@ -1,4 +1,5 @@
-<div class="container pt-2">
+<div class="container topspace pt-2">
+  <app-title-page back="ture" class="toppad"> </app-title-page>
   <div class="search-bar-card rounded-4">
     <div class="card-body py-3 px-4">
       <app-search [ricerca]="ricercaFind"></app-search>
@@ -25,7 +26,9 @@
             class="text-primary mt-4 mb-2"
             [innerText]="'search_not_found' | translate"
           ></h3>
-          <p class="text-secondary">Prova a modificare i criteri di ricerca</p>
+          <p class="text-secondary">
+            {{ "str_search_not_found_desc" | translate }}
+          </p>
         </div>
       </div>
     </div>
@@ -36,7 +39,9 @@
         <span class="results-count"
           >{{ params.length }}
           {{
-            params.length === 1 ? "corsa disponibile" : "corse disponibili"
+            params.length === 1
+              ? "str_corsa_disponibile"
+              : ("str_corse_disponibili" | translate)
           }}</span
         >
       </div>
@@ -102,16 +107,16 @@
             <div class="route-availability-mobile d-flex d-lg-none gap-3 mb-3">
               <div class="availability-badge">
                 <i class="fa-solid fa-user me-1"></i>
-                {{ param.availableSeats }} posti
+                {{ param.availableSeats }} {{ "str_seats" | translate }}
               </div>
               <div class="availability-badge">
                 <i class="fa-solid fa-suitcase-rolling me-1"></i>
-                {{ param.availableLuggage }} bagagli
+                {{ param.availableLuggage }} {{ "str_baggage" | translate }}
               </div>
             </div>
 
-            <div class="tickets-section">
-              <div class="tickets-label mb-3">
+            <div class="tickets-summary-section">
+              <div class="tickets-label mb-2">
                 <i class="fa-solid fa-ticket me-1 text-primary"></i>
                 <span
                   class="fst-italic"
@@ -121,65 +126,42 @@
                 ></span>
               </div>
 
-              <div class="tickets-grid">
+              <div class="tickets-summary">
                 @for (
                   ticket of param.ticketTypes;
                   track ticket;
                   let i = $index
                 ) {
-                  <div class="ticket-item">
-                    <div class="ticket-info">
-                      <h6
-                        class="ticket-name mb-0"
-                        [innerHTML]="ticket.name | translateName"
-                      ></h6>
-                      <p
-                        class="ticket-desc mb-0"
-                        [innerHTML]="ticket.description | translateName"
-                      ></p>
-                      <div class="ticket-price">{{ ticket.cost }}€</div>
-                    </div>
-                    <div class="ticket-counter">
-                      <button
-                        class="counter-btn counter-btn-minus"
-                        [class.disabled]="ticket.count == 0"
-                        [disabled]="ticket.count == 0"
-                        (click)="removeTicket(j, i)"
+                  @if (ticket.count > 0) {
+                    <div class="summary-row">
+                      <span class="summary-info">
+                        <span class="summary-count">{{ ticket.count }}x</span>
+                        <span
+                          class="summary-name"
+                          [innerHTML]="ticket.name | translateName"
+                        ></span>
+                      </span>
+                      <span class="summary-price"
+                        >{{ ticket.count * ticket.cost }}€</span
                       >
-                        <i class="fa fa-minus"></i>
-                      </button>
-                      <span class="counter-value">{{ ticket.count }}</span>
-                      <button
-                        class="counter-btn counter-btn-plus"
-                        [disabled]="param.seats == ricerca.persone"
-                        (click)="addTicket(j, i)"
-                      >
-                        <i class="fa fa-plus"></i>
-                      </button>
                     </div>
-                  </div>
+                  }
                 }
                 @if (ricerca.bagagli > 0) {
-                  <div class="ticket-item ticket-item-luggage">
-                    <div class="ticket-info">
-                      <h6
-                        class="ticket-name mb-0"
+                  <div class="summary-row summary-row-luggage">
+                    <span class="summary-info">
+                      <span class="summary-count"
+                        ><i class="fa-solid fa-suitcase me-1"></i
+                        >{{ ricerca.bagagli }}x</span
+                      >
+                      <span
+                        class="summary-name"
                         [innerHTML]="'str_bagagli_aggiuntivi' | translate"
-                      ></h6>
-                      <p
-                        class="ticket-desc mb-0"
-                        [innerHTML]="
-                          'str_bagagli_aggiuntivi_descrizione' | translate
-                        "
-                      ></p>
-                      <div class="ticket-price">2€</div>
-                    </div>
-                    <div class="ticket-counter">
-                      <span class="counter-value luggage-count">
-                        <i class="fa-solid fa-suitcase me-1"></i>
-                        {{ ricerca.bagagli }}
-                      </span>
-                    </div>
+                      ></span>
+                    </span>
+                    <span class="summary-price"
+                      >{{ ricerca.bagagli * 2 }}€</span
+                    >
                   </div>
                 }
               </div>
@@ -188,35 +170,22 @@
 
           <div class="route-card-footer">
             <div class="selected-info">
-              @if (param.seats == 0) {
-                <span class="text-secondary">{{
-                  "str_seleziona_posti" | translate
-                }}</span>
-              } @else {
-                <span class="seats-selected"
-                  >{{ param.seats }}/{{ ricerca.persone }}</span
-                >
-                <span class="seats-label">
-                  {{ "str_posti_selezionati" | translate }}
-                </span>
-              }
+              <span class="seats-selected"></span>
             </div>
             <button
               class="purchase-btn"
-              [class.active]="param.seats == ricerca.persone"
-              [disabled]="param.seats != ricerca.persone"
+              [class.active]="param.seats > 0"
+              [disabled]="param.seats === 0"
               (click)="acquista(param)"
             >
-              @if (param.seats == ricerca.persone) {
+              @if (param.seats > 0) {
                 <span class="purchase-total">{{ param.total }}€</span>
                 <span class="purchase-action">{{
                   "str_acquista" | translate
                 }}</span>
+                <i class="fa-solid fa-arrow-right ms-2"></i>
               } @else {
                 <span [innerHTML]="'str_acquista' | translate"></span>
-              }
-              @if (param.seats == ricerca.persone) {
-                <i class="fa-solid fa-arrow-right ms-2"></i>
               }
             </button>
           </div>

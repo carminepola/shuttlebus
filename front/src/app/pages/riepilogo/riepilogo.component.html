@@ -141,7 +141,9 @@
                   ></span>
                 </div>
                 <div class="ticket-total-right">
-                  <span class="ticket-total-value">{{ param.total }}</span>
+                  <span class="ticket-total-value purchase-total">{{
+                    param.total
+                  }}</span>
                   <span class="ticket-total-currency">€</span>
                 </div>
               </div>
@@ -194,22 +196,14 @@
                   >
                     <span class="purchase-total">{{ param.total }}€</span>
                     <span [innerText]="'str_acquista' | translate"></span>
-                    <i class="fa-solid fa-arrow-right"></i>
                   </button>
                 </div>
               }
               @if (!isLoggedIn()) {
                 <div class="sidebar-body">
-                  <button class="register-btn" (click)="openModal(false)">
+                  <button class="register-btn" (click)="openModal(true)">
                     <i class="fa-solid fa-user-plus me-2"></i>
                     {{ "str_registrati_for_continue" | translate }}
-                  </button>
-                  <button
-                    class="login-btn d-block d-lg-none"
-                    (click)="openModal(true)"
-                  >
-                    <i class="fa-solid fa-right-to-bracket me-2"></i>
-                    Login
                   </button>
                 </div>
               }

@@ -15,8 +15,8 @@ import { fadeAnimation } from '../../animations/fade.animation';
     RouterModule,
     LoadingComponent,
     FormsModule,
-    FilterPipe
-],
+    FilterPipe,
+  ],
   animations: [fadeAnimation],
   templateUrl: './stops.component.html',
   styleUrl: './stops.component.scss',
@@ -26,7 +26,10 @@ export class StopsComponent implements OnInit {
   public stops: any[] = [];
   public search: string = '';
 
-  constructor(private stopService: StopsService, private router: Router) {}
+  constructor(
+    private stopService: StopsService,
+    private router: Router,
+  ) {}
   ngOnInit(): void {
     this.readAll();
   }
@@ -82,7 +85,7 @@ export class StopsComponent implements OnInit {
       customClass: {
         confirmButton: 'btn btn-primary btn-lg mr-2',
         denyButton: 'btn btn-danger btn-lg',
-        popup: 'rounded-4',
+        popup: 'rounded-4 glass',
       },
 
       showCancelButton: false,

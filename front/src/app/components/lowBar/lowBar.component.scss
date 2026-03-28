@@ -1,6 +1,16 @@
+#lowBar {
+  overflow: hidden;
+}
+
+#lowBar .row {
+  --bs-gutter-x: 0;
+  margin: 0 !important;
+}
+
 #lowBar .col {
   position: relative;
   z-index: 2;
+  padding: 0;
 }
 
 .nav-link {
@@ -31,7 +41,9 @@
   top: 0;
   height: 100%;
   background-color: rgba(var(--bs-secondary-rgb), 1);
-  border-radius: 50px;
+  border-radius: 10px;
+  width: 50%;
+   
   z-index: 1;
   transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -41,7 +53,7 @@
   pointer-events: none;
 }
 
-.modal-content {
+.modal-content  glass {
   border-radius: 1.25rem;
 }
 

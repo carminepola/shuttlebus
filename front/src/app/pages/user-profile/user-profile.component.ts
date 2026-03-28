@@ -19,7 +19,7 @@ export class UserProfileComponent implements OnInit {
   constructor(
     private lng: LngService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {}
 
   loading = true;
@@ -67,9 +67,9 @@ export class UserProfileComponent implements OnInit {
         `,
       },
       customClass: {
-        confirmButton: 'btn btn-primary btn-lg mr-2',
-        denyButton: 'btn btn-danger btn-lg',
-        popup: 'rounded-4',
+        confirmButton: 'btn btn-secondary btn-lg mr-2',
+        denyButton: 'btn btn-outline-secondary btn-lg',
+        popup: 'rounded-4 glass',
       },
 
       showCancelButton: false,

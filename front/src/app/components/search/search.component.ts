@@ -1,8 +1,10 @@
 import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { lastValueFrom } from 'rxjs';
 import { StopsService } from '../../services/stops/stops.service';
 import { RoutesService } from '../../services/routes/routes.service';
+import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 
 import { Router } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
@@ -10,7 +12,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
 declare var bootstrap: any;
 @Component({
   selector: 'app-search',
-  imports: [TranslatePipe, ReactiveFormsModule, FormsModule],
+  imports: [TranslatePipe, TranslateNamePipe, ReactiveFormsModule, FormsModule],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
   animations: [fadeAnimation],
@@ -19,9 +21,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
   @Input() ricerca?: {
     partenza?: string;
     arrivo?: string;
-    persone?: number;
     data?: string;
     bagagli?: number;
+    ticketSelections?: { [id: string]: number };
   };
 
   public today = new Date(
@@ -34,10 +36,15 @@ export class SearchComponent implements OnInit, AfterViewInit {
   public allStop: any = [];
   public selectStart: any = [];
   public selectEnd: any = [];
+  public ticketTypes: any[] = [];
+  public selectedTickets: { [id: string]: number } = {};
+  public errors: string[] = [];
+  public maxTickets = 12;
 
   constructor(
     private routesService: RoutesService,
     private stopsService: StopsService,
+    private ticketTypeService: TicketTypeService,
     private router: Router
   ) {}
 
@@ -50,12 +57,24 @@ export class SearchComponent implements OnInit, AfterViewInit {
     );
   }
 
+  private readonly SESSION_KEY = 'shuttlebus_search';
+
   async ngOnInit(): Promise<void> {
+    if (!this.ricerca) {
+      const saved = sessionStorage.getItem(this.SESSION_KEY);
+      if (saved) {
+        try {
+          this.ricerca = JSON.parse(saved);
+        } catch {
+          this.ricerca = undefined;
+        }
+      }
+    }
+
     if (!this.ricerca) {
       this.ricerca = {
         partenza: '',
         arrivo: '',
-        persone: 1,
         data: new Date(Date.now() - new Date().getTimezoneOffset() * 60 * 1000)
           .toISOString()
           .split('T')[0],
@@ -63,8 +82,15 @@ export class SearchComponent implements OnInit, AfterViewInit {
       };
     }
 
-    let risRoutes = await lastValueFrom(this.routesService.getRoutes());
-    let risStops = await lastValueFrom(this.stopsService.getAllActiveStops());
+    if (this.ricerca.ticketSelections) {
+      this.selectedTickets = { ...this.ricerca.ticketSelections };
+    }
+
+    let [risRoutes, risStops, risTicketTypes] = await Promise.all([
+      lastValueFrom(this.routesService.getRoutes()),
+      lastValueFrom(this.stopsService.getAllActiveStops()),
+      lastValueFrom(this.ticketTypeService.getAllActiveTicketTypes()),
+    ]);
 
     if (risStops.stops.length > 0 && risRoutes.routes.length > 0) {
       this.stops = risStops.stops;
@@ -83,6 +109,40 @@ export class SearchComponent implements OnInit, AfterViewInit {
       setTimeout(() => {
         this.cambioArrivo();
       }, 10);
+    }
+
+    this.ticketTypes = risTicketTypes.ticketType || [];
+
+    setTimeout(() => {
+      const tooltipTriggerList = document.querySelectorAll(
+        '[data-bs-toggle="tooltip"]'
+      );
+      [...tooltipTriggerList].forEach(
+        (el) => new bootstrap.Tooltip(el)
+      );
+    }, 100);
+  }
+
+  getTotalPersone(): number {
+    return Object.values(this.selectedTickets).reduce(
+      (sum, count) => sum + count,
+      0
+    );
+  }
+
+  addTicketType(id: string) {
+    if (this.getTotalPersone() >= this.maxTickets) {
+      return;
+    }
+    this.selectedTickets[id] = (this.selectedTickets[id] || 0) + 1;
+  }
+
+  removeTicketType(id: string) {
+    if (this.selectedTickets[id] && this.selectedTickets[id] > 0) {
+      this.selectedTickets[id]--;
+      if (this.selectedTickets[id] === 0) {
+        delete this.selectedTickets[id];
+      }
     }
   }
 
@@ -185,21 +245,63 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   onSubmit(f: NgForm) {
-    if (!f.valid) {
+    this.errors = [];
+
+    if (!this.ricerca?.partenza) {
+      this.errors.push('str_err_partenza');
+    }
+    if (!this.ricerca?.arrivo) {
+      this.errors.push('str_err_arrivo');
+    }
+    if (this.getTotalPersone() === 0) {
+      this.errors.push('str_err_biglietti');
+    }
+    if (!this.ricerca?.data) {
+      this.errors.push('str_err_data');
+    }
+    if (this.ricerca?.bagagli === undefined || this.ricerca?.bagagli === null) {
+      this.errors.push('str_err_bagagli');
+    }
+
+    if (this.errors.length > 0) {
       return;
     }
-    this.router.navigate([
-      '/search',
-      this.ricerca?.partenza,
-      this.ricerca?.arrivo,
-      this.ricerca?.persone,
-      this.ricerca?.data,
-      this.ricerca?.bagagli,
-    ]);
+
+    sessionStorage.setItem(
+      this.SESSION_KEY,
+      JSON.stringify({
+        partenza: this.ricerca?.partenza,
+        arrivo: this.ricerca?.arrivo,
+        data: this.ricerca?.data,
+        bagagli: this.ricerca?.bagagli,
+        ticketSelections: this.selectedTickets,
+      }),
+    );
+
+    let filteredTickets: { [id: string]: number } = {};
+    for (let key in this.selectedTickets) {
+      if (this.selectedTickets[key] > 0) {
+        filteredTickets[key] = this.selectedTickets[key];
+      }
+    }
+
+    this.router.navigate(
+      [
+        '/search',
+        this.ricerca?.partenza,
+        this.ricerca?.arrivo,
+        this.getTotalPersone(),
+        this.ricerca?.data,
+        this.ricerca?.bagagli,
+      ],
+      {
+        queryParams: { tickets: JSON.stringify(filteredTickets) },
+      }
+    );
   }
   updateDate(event: string) {
     const dateObj = new Date(event);
 
-    this.ricerca!.data = dateObj.toISOString().split('T')[0]; // Sempre YYYY-MM-DD
+    this.ricerca!.data = dateObj.toISOString().split('T')[0];
   }
 }

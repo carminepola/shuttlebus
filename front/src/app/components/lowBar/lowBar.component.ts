@@ -36,7 +36,7 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private modalService: ModalService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
   ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -86,14 +86,14 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
     const containerRect = this.containerEl.getBoundingClientRect();
     const colRect = col.getBoundingClientRect();
     this.indicatorEl.style.width = colRect.width + 'px';
-    this.indicatorEl.style.left = (colRect.left - containerRect.left) + 'px';
+    this.indicatorEl.style.left = colRect.left - containerRect.left + 'px';
     this.indicatorEl.style.opacity = '1';
   }
 
   updateIndicator(): void {
     if (!this.indicatorEl || !this.navLinks) return;
     const active = this.navLinks.find((ref) =>
-      ref.nativeElement.classList.contains('active')
+      ref.nativeElement.classList.contains('active'),
     );
     if (active) {
       this.moveIndicator(active.nativeElement);
@@ -120,6 +120,9 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
 
   goPath(path: string) {
     this.router.navigate([path]);
+  }
+  isLoggedIn() {
+    return this.authService.isLoggedIn();
   }
 
   onTicket() {

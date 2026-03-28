@@ -16,8 +16,8 @@ import { fadeAnimation } from '../../animations/fade.animation';
     RouterModule,
     LoadingComponent,
     FormsModule,
-    FilterPipe
-],
+    FilterPipe,
+  ],
   animations: [fadeAnimation],
   templateUrl: './tickets-type.component.html',
   styleUrl: './tickets-type.component.scss',
@@ -28,7 +28,7 @@ export class TicketsTypeComponent implements OnInit {
   public search: string = '';
   constructor(
     private ticketTypeService: TicketTypeService,
-    private router: Router
+    private router: Router,
   ) {}
   ngOnInit(): void {
     this.readAll();
@@ -77,7 +77,7 @@ export class TicketsTypeComponent implements OnInit {
       customClass: {
         confirmButton: 'btn btn-primary btn-lg mr-2',
         denyButton: 'btn btn-danger btn-lg',
-        popup: 'rounded-4',
+        popup: 'rounded-4 glass',
       },
 
       showCancelButton: false,
