@@ -12,6 +12,8 @@
 .footer-logo {
   max-height: 40px;
   width: auto;
+
+ 
 }
 
 .footer-description {
@@ -112,6 +114,14 @@
 
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.footer-bg-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
 }
 
 .footer-bottom-left {
