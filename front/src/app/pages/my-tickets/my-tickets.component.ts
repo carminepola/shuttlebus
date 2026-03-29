@@ -36,6 +36,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   url: string = '';
   pendingCountdowns: { [key: string]: string } = {};
   private countdownInterval: any;
+  private expiredReloadSet = new Set<string>();
   constructor(
     private bookingsService: BookingsService,
     private lng: LngService,
@@ -84,21 +85,31 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
     ].filter((b: any) => b.status === 'pending');
 
     let allExpired = pendingBookings.length === 0;
+    let hasNewExpiry = false;
 
     for (const booking of pendingBookings) {
+      const key = booking.numberOfTickets;
       const expiry = booking.createdAt + PENDING_EXPIRY_MS;
       const remaining = expiry - now;
 
       if (remaining <= 0) {
-        delete this.pendingCountdowns[booking.numberOfTickets];
-        allExpired = false;
+        delete this.pendingCountdowns[key];
+        if (!this.expiredReloadSet.has(String(key))) {
+          this.expiredReloadSet.add(String(key));
+          hasNewExpiry = true;
+        }
       } else {
         allExpired = false;
         const minutes = Math.floor(remaining / 60000);
         const seconds = Math.floor((remaining % 60000) / 1000);
-        this.pendingCountdowns[booking.numberOfTickets] =
+        this.pendingCountdowns[key] =
           `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
       }
+    }
+
+    if (hasNewExpiry) {
+      this.load();
+      return;
     }
 
     if (allExpired && this.countdownInterval) {
