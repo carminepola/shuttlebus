@@ -17,6 +17,7 @@ import { DatePipe } from '@angular/common';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { combineLatest } from 'rxjs';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
+import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
 @Component({
   selector: 'app-search-page',
   imports: [
@@ -63,6 +64,7 @@ export class SearchPageComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private ticketTypeService: TicketTypeService,
+    private pendingBookingService: PendingBookingService,
   ) {}
 
   ngAfterViewInit(): void {}
@@ -93,6 +95,19 @@ export class SearchPageComponent implements OnInit {
     this.params = [];
     let params = [];
     this.loading = true;
+
+    const pendingBooking =
+      await this.pendingBookingService.hasPendingBooking();
+    if (pendingBooking) {
+      const shouldContinue =
+        await this.pendingBookingService.showPendingModal();
+      if (shouldContinue) {
+        this.router.navigate(['/user/mytickets']);
+        return;
+      } else {
+        await this.pendingBookingService.cancelPendingBooking(pendingBooking);
+      }
+    }
 
     let risTicketTypes = await lastValueFrom(
       this.ticketTypeService.getAllActiveTicketTypes(),

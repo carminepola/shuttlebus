@@ -141,8 +141,6 @@ router.patch("/terms", authMiddleware, async (req: Request, res: Response, next:
 });
 router.post(
   "/recoverPassword",
-  [check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format")],
-  validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let userDao = new UserDao(db);
@@ -150,16 +148,9 @@ router.post(
       let lng = req.body.lng ? (req.body.lng == "it" ? "it" : "en") : "en";
       let user = await userDao.getUserByEmail(email);
       if (user) {
-        let insert = await userDao.insertRecoverPassword(user.email, user.details.name, lng);
-        if (!insert) {
-          res.locals.customErrorMessage = "Limite di richieste raggiunto, riprova più tardi";
-          return res.sendStatus(429);
-        }
-
-        res.json({ message: "Una nuova password sarà inviata all'indirizzo email" });
-      } else {
-        throw new ErrorModel(404, "Utente non trovato");
+        await userDao.insertRecoverPassword(user.email, user.details.name, lng);
       }
+      res.json({ message: "Una nuova password sarà inviata all'indirizzo email" });
     } catch (error) {
       next(error);
     }

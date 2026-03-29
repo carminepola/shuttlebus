@@ -12,6 +12,7 @@ import { Chart, registerables } from 'chart.js';
 
 import { fadeAnimation } from '../../animations/fade.animation';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
+import { TranslatePipe } from '../../pipe/translate.pipe';
 import { BookingsService } from '../../services/bookings/bookings.service';
 import { RoutesService } from '../../services/routes/routes.service';
 
@@ -58,7 +59,7 @@ interface RecentPurchase {
   selector: 'app-home',
   standalone: true,
   animations: [fadeAnimation],
-  imports: [CommonModule, RouterModule, TitlePageComponent],
+  imports: [CommonModule, RouterModule, TitlePageComponent, TranslatePipe],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })

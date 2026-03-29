@@ -15,6 +15,7 @@ import { RegistrazioneComponent } from '../../components/registrazione/registraz
 import { ModalService } from '../../services/modal/modal.service';
 import { BookingsService } from '../../services/bookings/bookings.service';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
+import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
 declare var bootstrap: any;
 
 @Component({
@@ -39,13 +40,14 @@ export class RiepilogoComponent implements OnInit {
     private authService: AuthService,
     private modalService: ModalService,
     private bookingService: BookingsService,
+    private pendingBookingService: PendingBookingService,
   ) {}
 
   public acceptTerms: boolean = false;
   public loading: boolean = true;
   public param: any = {};
   public errorMessage: string = '';
-  ngOnInit() {
+  async ngOnInit() {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         localStorage.removeItem('authUrl');
@@ -54,6 +56,17 @@ export class RiepilogoComponent implements OnInit {
       }
     });
     localStorage.setItem('authUrl', '/riepilogo');
+
+    const pendingBooking = await this.pendingBookingService.hasPendingBooking();
+    if (pendingBooking) {
+      const shouldContinue = await this.pendingBookingService.showPendingModal();
+      if (shouldContinue) {
+        this.router.navigate(['/user/mytickets']);
+        return;
+      } else {
+        await this.pendingBookingService.cancelPendingBooking(pendingBooking);
+      }
+    }
 
     const navigation = window.history.state;
     if (navigation.value) {

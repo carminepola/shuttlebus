@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
@@ -13,6 +13,8 @@ import { fadeAnimation } from '../../animations/fade.animation';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 
+const PENDING_EXPIRY_MS = 30 * 60 * 1000;
+
 @Component({
   selector: 'app-my-tickets',
   imports: [
@@ -26,12 +28,14 @@ import QRCode from 'qrcode';
   templateUrl: './my-tickets.component.html',
   styleUrl: './my-tickets.component.scss',
 })
-export class MyTicketsComponent implements OnInit {
+export class MyTicketsComponent implements OnInit, OnDestroy {
   bookings: any = [];
   activeBookings: any = [];
   oldBookings: any = [];
   showOldTickets = false;
   url: string = '';
+  pendingCountdowns: { [key: string]: string } = {};
+  private countdownInterval: any;
   constructor(
     private bookingsService: BookingsService,
     private lng: LngService,
@@ -42,6 +46,11 @@ export class MyTicketsComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.url = window.location.origin;
     this.load();
+  }
+  ngOnDestroy(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
   }
   async load() {
     let bookings: any = await lastValueFrom(
@@ -59,6 +68,42 @@ export class MyTicketsComponent implements OnInit {
       (b: any) => new Date(b.date) < today,
     );
     this.loading = false;
+
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+    this.updateCountdowns();
+    this.countdownInterval = setInterval(() => this.updateCountdowns(), 1000);
+  }
+
+  private updateCountdowns() {
+    const now = Date.now();
+    const pendingBookings = [
+      ...this.activeBookings,
+      ...this.oldBookings,
+    ].filter((b: any) => b.status === 'pending');
+
+    let allExpired = pendingBookings.length === 0;
+
+    for (const booking of pendingBookings) {
+      const expiry = booking.createdAt + PENDING_EXPIRY_MS;
+      const remaining = expiry - now;
+
+      if (remaining <= 0) {
+        delete this.pendingCountdowns[booking.numberOfTickets];
+        allExpired = false;
+      } else {
+        allExpired = false;
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        this.pendingCountdowns[booking.numberOfTickets] =
+          `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+    }
+
+    if (allExpired && this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
   }
   checkDay(date: any) {
     if (date) {

@@ -5,6 +5,7 @@ import { lastValueFrom } from 'rxjs';
 import { StopsService } from '../../services/stops/stops.service';
 import { RoutesService } from '../../services/routes/routes.service';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
+import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
 
 import { Router } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
@@ -45,7 +46,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
     private routesService: RoutesService,
     private stopsService: StopsService,
     private ticketTypeService: TicketTypeService,
-    private router: Router
+    private router: Router,
+    private pendingBookingService: PendingBookingService,
   ) {}
 
   ngAfterViewInit() {
@@ -65,6 +67,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
       if (saved) {
         try {
           this.ricerca = JSON.parse(saved);
+          const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().split('T')[0];
+          if (this.ricerca?.data && this.ricerca.data < today) {
+            this.ricerca!.data = today;
+          }
         } catch {
           this.ricerca = undefined;
         }
@@ -244,7 +250,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }, 10);
   }
 
-  onSubmit(f: NgForm) {
+  async onSubmit(f: NgForm) {
     this.errors = [];
 
     if (!this.ricerca?.partenza) {
@@ -265,6 +271,19 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     if (this.errors.length > 0) {
       return;
+    }
+
+    const pendingBooking =
+      await this.pendingBookingService.hasPendingBooking();
+    if (pendingBooking) {
+      const shouldContinue =
+        await this.pendingBookingService.showPendingModal();
+      if (shouldContinue) {
+        this.router.navigate(['/user/mytickets']);
+        return;
+      } else {
+        await this.pendingBookingService.cancelPendingBooking(pendingBooking);
+      }
     }
 
     sessionStorage.setItem(

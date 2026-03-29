@@ -117,8 +117,6 @@ export default class SessionServices {
           },
         }),
       );
-    } else {
-      throw new ErrorModel(404, "str_user_not_found");
     }
   }
 }

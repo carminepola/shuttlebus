@@ -137,7 +137,7 @@
             </div>
           </div>
 
-          <div class="booking-card-footer">
+            <div class="booking-card-footer">
             <div class="booking-total">
               <span
                 class="booking-total-label"
@@ -148,6 +148,10 @@
             </div>
             <div class="booking-actions">
               @if (booking.status === "pending") {
+                <div class="pending-countdown">
+                  <i class="fa-regular fa-clock"></i>
+                  <span>{{ pendingCountdowns[booking.numberOfTickets] || '00:00' }}</span>
+                </div>
                 <button
                   class="action-btn action-btn-cancel"
                   (click)="annulla(booking.numberOfTickets)"

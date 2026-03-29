@@ -333,6 +333,24 @@
 .booking-actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+}
+
+.pending-countdown {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #b8860b;
+  background: rgba(255, 193, 7, 0.1);
+  padding: 0.4rem 0.85rem;
+  border-radius: 50px;
+
+  i {
+    font-size: 0.75rem;
+  }
 }
 
 .action-btn {
