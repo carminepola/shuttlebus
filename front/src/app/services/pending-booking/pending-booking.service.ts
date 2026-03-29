@@ -43,6 +43,7 @@ export class PendingBookingService {
       cancelButtonText: this.lngService.traslate(
         'str_pagamento_in_corso_annulla',
       ),
+      allowOutsideClick: false,
       position: 'top',
       showClass: {
         popup: `animate__animated animate__slideInDown animate__faster`,

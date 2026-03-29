@@ -119,7 +119,7 @@ export class RegistrazioneComponent implements OnInit {
             this.isLoading = false;
             console.error(e);
             //'Credenziali non valide. Riprova.'
-            this.loginError = e.message;
+            this.loginError = this.lngService.traslate('str_pin_not_valid');
           },
         });
     } catch (e: any) {

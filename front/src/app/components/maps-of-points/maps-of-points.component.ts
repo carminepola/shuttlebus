@@ -10,6 +10,7 @@ import { DatePipe } from '@angular/common';
 import * as L from 'leaflet';
 import { StopsService } from '../../services/stops/stops.service';
 import { MomapService } from '../../services/momap.service';
+import { TranslatePipe } from '../../pipe/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -17,7 +18,7 @@ import { lastValueFrom } from 'rxjs';
   standalone: true,
   templateUrl: './maps-of-points.component.html',
   styleUrl: './maps-of-points.component.scss',
-  imports: [DatePipe],
+  imports: [DatePipe, TranslatePipe],
 })
 export class MapsOfPointsComponent implements OnInit, OnDestroy {
   private map!: L.Map;

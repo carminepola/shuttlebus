@@ -24,7 +24,7 @@
           alt="Fermata"
           class="legend-icon"
         />
-        <span>Fermate ({{ stopCount }})</span>
+        <span>{{ "str_fermate" | translate }} ({{ stopCount }})</span>
       </div>
       <div class="legend-item">
         <img
@@ -32,14 +32,14 @@
           alt="Autobus"
           class="legend-icon legend-icon-bus"
         />
-        <span>Autobus ({{ busCount }})</span>
+        <span>{{ "str_autobus" | translate }} ({{ busCount }})</span>
       </div>
     </div>
   }
 
   @if (lastUpdated && !loading) {
     <div class="map-last-updated">
-      <small>{{ lastUpdated | date:'HH:mm' }}</small>
+      <small>{{ lastUpdated | date: "HH:mm" }}</small>
     </div>
   }
 </div>

@@ -3,7 +3,7 @@
     @if (loading) {
       <div
         class="container my-5 d-flex justify-content-center align-items-center"
-        style="min-height: 50vh"
+        style="min-height: 100vh"
       >
         <app-loading></app-loading>
       </div>
@@ -11,7 +11,7 @@
     @if (!loading) {
       <app-title-page class="mb-3" back="true"></app-title-page>
 
-      <div class="container pb-5" style="min-height: 50vh">
+      <div class="container pb-5" style="min-height: 65vh">
         <div class="summary-title mb-4">
           <h2 class="text-primary" [innerText]="'str_totale' | translate"></h2>
         </div>

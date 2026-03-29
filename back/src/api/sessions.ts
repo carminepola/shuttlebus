@@ -13,6 +13,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 import UserServices from "../components/services/userServices";
 import FailToBanServices from "../components/services/failToBanServices";
 import SessionServices from "../components/services/sessionServices";
+import BookingsServices from "../components/services/bookingServices";
 const router = express.Router();
 
 router.post(
@@ -95,6 +96,18 @@ router.post(
 router.delete("/", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result = {};
+
+    let bookingsServices = new BookingsServices(db);
+    let userId = res.locals.userLogged._id;
+    let pendingBookings = await bookingsServices.getBookingFromUser(userId);
+    
+    if (pendingBookings && pendingBookings.length > 0) {
+      for (let booking of pendingBookings) {
+        if (booking.status === 'pending') {
+          await bookingsServices.deleteBooking(booking.numberOfTickets, userId);
+        }
+      }
+    }
 
     let userServices = new UserServices(db);
     let ris = await userServices.deleteSession(res.locals.userLogged.email, res.locals.userLogged.session);

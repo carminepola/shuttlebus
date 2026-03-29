@@ -50,7 +50,9 @@
         <ul class="footer-links">
           <li><a [routerLink]="['/']" class="footer-link">Home</a></li>
           <li>
-            <a [routerLink]="['/busLine/0']" class="footer-link">Tratte</a>
+            <a [routerLink]="['/busLine/0']" class="footer-link">{{
+              "str_bus_line" | translate
+            }}</a>
           </li>
           <li><a [routerLink]="['/info']" class="footer-link">Info</a></li>
         </ul>

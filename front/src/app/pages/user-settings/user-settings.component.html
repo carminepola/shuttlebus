@@ -8,7 +8,9 @@
     <div class="card-body">
       <div class="row">
         <div>
-          <h3 class="text-muted mb-3">Dettagli Personali</h3>
+          <h3 class="text-muted mb-3">
+            {{ "str_details_personal" | translate }}
+          </h3>
         </div>
 
         @if (successMessageDetails) {
@@ -42,14 +44,16 @@
         <div class="col mb-2">
           <form [formGroup]="userDetailsForm" (ngSubmit)="onSubmitDetails()">
             <div class="mb-3">
-              <label for="name" class="form-label">Nome</label>
+              <label for="name" class="form-label">{{
+                "str_name" | translate
+              }}</label>
               <input
                 id="name"
                 type="text"
                 formControlName="name"
                 class="form-control"
                 required
-                placeholder="Inserisci il tuo nome"
+                placeholder="{{ 'str_name' | translate }}"
               />
               @if (
                 userDetailsForm.get("name")?.touched &&
@@ -65,13 +69,15 @@
               }
             </div>
             <div class="mb-3">
-              <label for="phone" class="form-label">Numero di telefono</label>
+              <label for="phone" class="form-label">{{
+                "str_phone" | translate
+              }}</label>
               <input
                 id="phone"
                 type="tel"
                 formControlName="phone"
                 class="form-control"
-                placeholder="Inserisci il tuo numero di telefono"
+                placeholder="{{ 'str_phone' | translate }}"
               />
             </div>
             <button
@@ -88,7 +94,11 @@
               } @else {
                 <i class="fas fa-save me-2"></i>
               }
-              {{ loadingDetails ? "Salvataggio..." : "Salva" }}
+              {{
+                loadingDetails
+                  ? ("str_saving" | translate)
+                  : ("str_save" | translate)
+              }}
             </button>
           </form>
         </div>
@@ -248,7 +258,9 @@
               } @else {
                 <i class="fas fa-save me-2"></i>
               }
-              {{ loading ? "Salvataggio..." : "Salva" }}
+              {{
+                loading ? ("str_saving" | translate) : ("str_save" | translate)
+              }}
             </button>
           </form>
         </div>
