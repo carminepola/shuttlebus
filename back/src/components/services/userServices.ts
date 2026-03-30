@@ -58,6 +58,24 @@ export default class UserServices {
     }
   }
 
+  async getStaff(page: number = 1, limit: number = 10) {
+    try {
+      const result = await this.userDao.getStaff(page, limit);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchStaff(searchTerm: string, page: number = 1, limit: number = 10) {
+    try {
+      const result = await this.userDao.searchStaff(searchTerm, page, limit);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getNoPermissionUsers(searchTerm?: string, page: number = 1, limit: number = 10) {
     try {
       const result = await this.userDao.getNoPermissionUsers(page, limit, searchTerm);

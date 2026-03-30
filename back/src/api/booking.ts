@@ -203,6 +203,16 @@ router.get("/recentPurchases", authMiddleware, checkPermissionMiddleware(role.AD
   }
 });
 
+router.get("/dashboardStats", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.dashboardStats();
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
 
 /*

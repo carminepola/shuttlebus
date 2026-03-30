@@ -238,7 +238,7 @@ router.get("/search", authMiddleware, checkPermissionMiddleware(role.ADMIN, [req
     const limit = parseInt(req.query.limit as string) || 10;
 
     let userServices = new UserServices(db);
-    const result = await userServices.searchUsers(searchTerm, page, limit);
+    const result = await userServices.searchStaff(searchTerm, page, limit);
     res.json(result);
   } catch (error) {
     logger.error(error);
@@ -315,7 +315,7 @@ router.get("/:id?", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requi
     } else {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
-      const result = await userServices.getUsers(page, limit);
+      const result = await userServices.getStaff(page, limit);
       res.json(result);
     }
   } catch (error) {

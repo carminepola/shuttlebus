@@ -81,6 +81,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   loadRefunds = true;
   loadMonthlyRevenue = true;
   loadDisputes = true;
+  loadDashboardStats = true;
+
+  public dashboardStats: any = null;
 
   public andamentoMese: any = [];
   public countRoutes: number = 0;
@@ -160,6 +163,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getRefunds();
     this.getDisputes();
     this.getMonthlyRevenue();
+    this.getDashboardStats();
     setTimeout(() => {
       this.routeToday();
       this.biglietti();
@@ -719,6 +723,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       (d: any) =>
         d.status === 'needs_response' || d.status === 'warning_needs_response',
     ).length;
+  }
+
+  getDashboardStats() {
+    this.bookingsService.getDashboardStats().subscribe((res: any) => {
+      this.dashboardStats = res;
+      this.loadDashboardStats = false;
+    });
   }
 
   getMonthlyRevenue() {

@@ -84,4 +84,7 @@ export class BookingsService {
       params: { page, limit },
     });
   }
+  getDashboardStats() {
+    return this.http.get<any>(`${this.apiUrl}/dashboardStats`);
+  }
 }

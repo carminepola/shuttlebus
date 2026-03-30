@@ -418,7 +418,122 @@
         </div>
       </div>
     </div>
-    <div class="col-12 col-md-12 col-lg-6">
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-success-subtle text-success">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Tasso di Conversione</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadDashboardStats) {
+            <div class="d-flex justify-content-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadDashboardStats && dashboardStats) {
+            <div class="revenue-stat-value text-success">
+              {{ dashboardStats.conversion.conversionRate }}%
+            </div>
+            <div class="text-muted small mt-1">
+              {{ dashboardStats.conversion.confirmed }} acquisti confermati
+            </div>
+            <div class="mt-2">
+              <div class="d-flex justify-content-between text-muted small mb-1">
+                <span>Confermati</span>
+                <span>{{ dashboardStats.conversion.confirmed }}</span>
+              </div>
+              <div class="progress" style="height: 6px">
+                <div
+                  class="progress-bar bg-success"
+                  [style.width.%]="dashboardStats.conversion.conversionRate"
+                ></div>
+              </div>
+              <div class="d-flex justify-content-between text-muted small mt-2 mb-1">
+                <span>Abbandonati</span>
+                <span>{{ dashboardStats.conversion.abandoned }}</span>
+              </div>
+              <div class="progress" style="height: 6px">
+                <div
+                  class="progress-bar bg-danger"
+                  [style.width.%]="dashboardStats.conversion.abandonRate"
+                ></div>
+              </div>
+            </div>
+            <div class="text-muted small mt-2">
+              Totale: {{ dashboardStats.conversion.total }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-info-subtle text-info">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Registrazioni</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadDashboardStats) {
+            <div class="d-flex justify-content-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadDashboardStats && dashboardStats) {
+            <div class="revenue-stat-value text-primary">
+              {{ dashboardStats.registrations.total }}
+            </div>
+            <div class="text-muted small mt-1">utenti registrati</div>
+            <div class="mt-2">
+              <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
+                <span><i class="fas fa-envelope me-1"></i>Email</span>
+                <span class="fw-semibold">{{ dashboardStats.registrations.email }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
+                <span><i class="fab fa-google me-1"></i>Google</span>
+                <span class="fw-semibold">{{ dashboardStats.registrations.google }}</span>
+              </div>
+            </div>
+            <div class="mt-2">
+              <div class="progress" style="height: 8px">
+                @if (dashboardStats.registrations.total > 0) {
+                  <div
+                    class="progress-bar bg-primary"
+                    [style.width.%]="(dashboardStats.registrations.email / dashboardStats.registrations.total) * 100"
+                    title="Email: {{ dashboardStats.registrations.email }}"
+                  ></div>
+                }
+              </div>
+              <div class="progress mt-1" style="height: 8px">
+                @if (dashboardStats.registrations.total > 0) {
+                  <div
+                    class="progress-bar"
+                    style="background-color: #ea4335"
+                    [style.width.%]="(dashboardStats.registrations.google / dashboardStats.registrations.total) * 100"
+                    title="Google: {{ dashboardStats.registrations.google }}"
+                  ></div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6">
       <div class="content-card h-100">
         <div class="content-card-header">
           <div class="d-flex align-items-center gap-2">

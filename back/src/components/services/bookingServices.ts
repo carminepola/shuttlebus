@@ -277,6 +277,71 @@ class BookingsServices {
   async recentPurchases(page: number = 1, limit: number = 20) {
     return await this.bookingDao.recentPurchases(page, limit);
   }
+
+  async dashboardStats() {
+    const db = (this.bookingDao as any).db;
+    const bookingsCollection = db.collection("bookings");
+    const usersCollection = db.collection("users");
+
+    const conversionStats = await bookingsCollection.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]).toArray();
+
+    let confirmed = 0;
+    let expired = 0;
+    let cancelled = 0;
+    let deleted = 0;
+
+    for (const stat of conversionStats) {
+      if (stat._id === "confirmed") confirmed = stat.count;
+      if (stat._id === "expired") expired = stat.count;
+      if (stat._id === "cancelled") cancelled = stat.count;
+      if (stat._id === "deleted") deleted = stat.count;
+    }
+
+    const total = confirmed + expired + cancelled + deleted;
+    const abandoned = expired + cancelled + deleted;
+    const conversionRate = total > 0 ? ((confirmed / total) * 100).toFixed(1) : "0";
+    const abandonRate = total > 0 ? ((abandoned / total) * 100).toFixed(1) : "0";
+
+    const registrationStats = await usersCollection.aggregate([
+      {
+        $group: {
+          _id: {
+            $cond: [{ $ifNull: ["$options.google", false] }, "google", "email"],
+          },
+          count: { $sum: 1 },
+        },
+      },
+    ]).toArray();
+
+    let googleCount = 0;
+    let emailCount = 0;
+    for (const stat of registrationStats) {
+      if (stat._id === "google") googleCount = stat.count;
+      if (stat._id === "email") emailCount = stat.count;
+    }
+
+    return {
+      conversion: {
+        confirmed,
+        abandoned,
+        total,
+        conversionRate: parseFloat(conversionRate),
+        abandonRate: parseFloat(abandonRate),
+      },
+      registrations: {
+        google: googleCount,
+        email: emailCount,
+        total: googleCount + emailCount,
+      },
+    };
+  }
 }
 
 export default BookingsServices;
