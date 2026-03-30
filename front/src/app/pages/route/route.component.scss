@@ -1,0 +1,27 @@
+.container-fluid.container-lg {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
+
+.mobile-cards {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.mobile-cards .card {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.card-body {
+  overflow-x: hidden;
+}
+
+.card-title {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}

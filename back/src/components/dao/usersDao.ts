@@ -27,7 +27,7 @@ export default class UsersDao {
   async getUsers(page: number = 1, limit: number = 10) {
     try {
       let json = {
-        role: { $lt: role.USER },
+        role: { $eq: role.USER },
       };
       const skip = (page - 1) * limit;
       let list = await this.db.collection(this.schema).find(json).skip(skip).limit(limit).toArray();
