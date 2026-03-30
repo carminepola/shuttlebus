@@ -101,13 +101,13 @@ export default class UserServices {
         throw new ErrorModel(404, "Utente non trovato");
       }
 
-      const user = new userModel(userData);
-      user.details.name = name;
+      const updateData: any = {};
+      updateData["details.name"] = name;
       if (phone !== undefined) {
-        user.details.phone = phone;
+        updateData["details.phone"] = phone;
       }
 
-      const result = await this.userDao.updateUser(user);
+      const result = await this.userDao.updateUserDetails(email, updateData);
       return result;
     } catch (error) {
       throw error;
@@ -279,12 +279,14 @@ export default class UserServices {
     if (!userData) {
       throw new ErrorModel(404, "Utente non trovato");
     }
-    const user = new userModel(userData);
-    user.details.name = name;
+
+    const updateData: any = {};
+    updateData["details.name"] = name;
     if (phone !== undefined) {
-      user.details.phone = phone;
+      updateData["details.phone"] = phone;
     }
-    const result = await this.userDao.updateUser(user);
+
+    const result = await this.userDao.updateUserDetailsById(userId, updateData);
     return result;
   }
 }

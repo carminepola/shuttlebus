@@ -103,6 +103,7 @@ router.post(
       user.email = req.body.email;
       user.password = req.body.password;
       user.details.name = req.body.name;
+      user.role = role.USER;
 
       let userServices = new UserServices(db);
       let oldUser = await userServices.getUserByEmail(user.email);

@@ -736,12 +736,12 @@ export default class UsersDao {
   async updateUser(user: any): Promise<boolean> {
     try {
       // Aggiorna l'utente
-
+ 
       user.email = user.email.toLowerCase();
       if (!user.password) {
         delete user.password;
       }
-
+ 
       const result = await this.db.collection<userModel>(this.schema).updateOne({ email: user.email }, { $set: user });
       // Verifica se `result`è nullo o se `result.value`è nullo
       if (!result) {
@@ -751,6 +751,33 @@ export default class UsersDao {
     } catch (error) {
       console.error("Errore durante l'aggiornamento dell'utente:", error);
       throw error; // Rilancia l'errore
+    }
+  }
+
+  async updateUserDetails(email: string, updateData: any): Promise<boolean> {
+    try {
+      email = email.toLowerCase();
+      const result = await this.db.collection<userModel>(this.schema).updateOne({ email: email }, { $set: updateData });
+      if (!result) {
+        throw new Error("Utente non trovato");
+      }
+      return true;
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento dei dettagli dell'utente:", error);
+      throw error;
+    }
+  }
+
+  async updateUserDetailsById(userId: string, updateData: any): Promise<boolean> {
+    try {
+      const result = await this.db.collection<userModel>(this.schema).updateOne({ _id: new ObjectId(userId) }, { $set: updateData });
+      if (!result) {
+        throw new Error("Utente non trovato");
+      }
+      return true;
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento dei dettagli dell'utente per ID:", error);
+      throw error;
     }
   }
   async acceptTerms(id: string): Promise<boolean> {
