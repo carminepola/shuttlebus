@@ -38,6 +38,7 @@ import { TargheComponent } from './pages/targhe/targhe.component';
 import { DepositoComponent } from './pages/deposito/deposito.component';
 import { UserDetailsComponent } from './pages/user-details/user-details.component';
 import { ContestazioniComponent } from './pages/contestazioni/contestazioni.component';
+import { PendingUsersComponent } from './pages/pending-users/pending-users.component';
 export const routes: Routes = [
   {
     path: '',
@@ -260,6 +261,12 @@ export const routes: Routes = [
       {
         path: 'clienti',
         component: ClientsComponent,
+
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'utenti-in-attesa',
+        component: PendingUsersComponent,
 
         data: { navbar: true, requiredRole: 50 },
       },

@@ -66,7 +66,7 @@ export default class UsersDao {
         $or: [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
       };
 
-      let list = await this.db.collection(this.schema).find(json).skip(skip).limit(limit).toArray();
+      let list = await this.db.collection(this.schema).find(json).sort({ _id: -1 }).skip(skip).limit(limit).toArray();
       list = list.map((user) => {
         delete user.password;
         delete user.recoverPassword;
@@ -74,18 +74,58 @@ export default class UsersDao {
         delete user?.options?.google?._raw;
         delete user?.options?.google?._json;
 
-        // Flatten the user object for frontend compatibility
         return {
           _id: user._id,
           name: user.details?.name || "",
           email: user.email,
           phone: user.details?.phone || "",
+          pin: user.options?.pin || "",
         };
       });
 
-      // Get total count for pagination
       const totalCount = await this.db.collection(this.schema).countDocuments(json);
 
+      return {
+        users: list,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+        },
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getNoPermissionUsers(page: number = 1, limit: number = 10, searchTerm?: string) {
+    try {
+      const skip = (page - 1) * limit;
+      let json: any = {
+        role: { $eq: role.NO_PERMISSION },
+      };
+      if (searchTerm) {
+        const searchRegex = new RegExp(searchTerm, "i");
+        json.$or = [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }];
+        json.role = { $eq: role.NO_PERMISSION };
+      }
+      const totalCount = await this.db.collection(this.schema).countDocuments(json);
+      let list = await this.db.collection(this.schema).find(json).sort({ _id: -1 }).skip(skip).limit(limit).toArray();
+      list = list.map((user) => {
+        delete user.password;
+        delete user.recoverPassword;
+        delete user.recoverPasswordCount;
+        delete user?.options?.google?._raw;
+        delete user?.options?.google?._json;
+        return {
+          _id: user._id,
+          name: user.details?.name || "",
+          email: user.email,
+          phone: user.details?.phone || "",
+          pin: user.options?.pin || "",
+        };
+      });
       return {
         users: list,
         pagination: {

@@ -148,7 +148,7 @@
 
 @if (showForm) {
   <div class="ci-overlay" (click)="closeForm()"></div>
-  <div class="ci-panel" @fadeInOut>
+  <div class="ci-panel" @slideInOut>
     <div class="ci-header">
       <h5 class="ci-title mb-0">
         @if (formMode === 'create') {
@@ -230,7 +230,7 @@
 
 @if (selectedClient) {
   <div class="ci-overlay" (click)="closeClientInfo()"></div>
-  <div class="ci-panel" @fadeInOut>
+  <div class="ci-panel" @slideInOut>
     <div class="ci-header">
       <h5 class="ci-title mb-0">
         <i class="fa-solid fa-user me-2"></i>
@@ -258,6 +258,12 @@
           <div class="ci-info-row">
             <i class="fa-solid fa-phone ci-icon"></i>
             <span [innerHTML]="selectedClient.phone"></span>
+          </div>
+        }
+        @if (selectedClient.pin) {
+          <div class="ci-info-row">
+            <i class="fa-solid fa-lock ci-icon"></i>
+            <span [innerHTML]="selectedClient.pin"></span>
           </div>
         }
       </div>

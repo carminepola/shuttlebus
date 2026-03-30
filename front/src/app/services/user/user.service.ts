@@ -119,4 +119,20 @@ export class UserService {
   deleteUser(userId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${this.path}/${userId}`);
   }
+
+  getNoPermissionUsers(page: number = 1, limit: number = 10): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/${this.path}/no-permission?page=${page}&limit=${limit}`,
+    );
+  }
+
+  searchNoPermissionUsers(
+    searchTerm: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/${this.path}/no-permission?search=${encodeURIComponent(searchTerm)}&page=${page}&limit=${limit}`,
+    );
+  }
 }

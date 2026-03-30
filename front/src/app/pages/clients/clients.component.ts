@@ -4,7 +4,7 @@ import { TitlePageComponent } from '../../components/title-page/title-page.compo
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { UserService } from '../../services/user/user.service';
 import { BookingsService } from '../../services/bookings/bookings.service';
-import { fadeAnimation } from '../../animations/fade.animation';
+import { fadeAnimation, slideAnimation } from '../../animations/fade.animation';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
@@ -30,7 +30,7 @@ const ROLES = [
   ],
   templateUrl: './clients.component.html',
   styleUrl: './clients.component.scss',
-  animations: [fadeAnimation],
+  animations: [fadeAnimation, slideAnimation],
 })
 export class ClientsComponent implements OnInit, AfterViewInit {
   searchTerm: string = '';
