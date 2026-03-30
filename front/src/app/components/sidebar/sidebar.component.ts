@@ -83,6 +83,11 @@ export class SidebarComponent implements OnInit {
       title: 'Prenotazioni',
       route: '/admin/prenotazioni',
     },
+    {
+      icon: 'fa-gavel',
+      title: 'Contestazioni',
+      route: '/admin/contestazioni',
+    },
     { icon: 'fa-users', title: 'Clienti', route: '/admin/clienti' },
     { icon: 'fa-user', title: 'Utenti', route: '/admin/utenti' },
     { icon: 'fa-cog', title: 'Impostazioni', route: '/admin/settings' },

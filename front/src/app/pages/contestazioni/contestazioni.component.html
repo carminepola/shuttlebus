@@ -1,0 +1,171 @@
+<div class="container-fluid">
+  <app-title-page
+    title="Contestazioni"
+    subtitle="Gestisci le contestazioni Stripe"
+    back="true"
+  ></app-title-page>
+
+  @if (loading) {
+    <div class="w-100 d-flex align-items-center justify-content-center">
+      <app-loading></app-loading>
+    </div>
+  }
+
+  @if (!loading) {
+    <div class="card shadow border-0 rounded-4" @fadeInOut>
+      <div class="card-header bg-white rounded-top-4 border-bottom py-4">
+        <div class="row align-items-center gy-3">
+          <div class="col-12 col-md-4">
+            <label>Stato</label>
+            <select
+              [(ngModel)]="filterStatus"
+              class="form-select form-select-lg bg-light border-0"
+            >
+              <option value="all">Tutti</option>
+              <option value="needs_response">Richiede risposta</option>
+              <option value="warning_needs_response">In attesa (avviso)</option>
+              <option value="under_review">In revisione</option>
+              <option value="warning_under_review">In revisione (avviso)</option>
+              <option value="won">Vinte</option>
+              <option value="lost">Perse</option>
+              <option value="charge_refunded">Rimborsate</option>
+              <option value="closed">Chiuse</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-8">
+            <label>Cerca</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-0 icon-container">
+                <i class="fas fa-search"></i>
+              </span>
+              <input
+                type="text"
+                [(ngModel)]="search"
+                class="form-control form-control-lg bg-light border-0"
+                placeholder="Cerca per ID, motivo, importo..."
+              />
+            </div>
+          </div>
+        </div>
+        @if (pendingCount > 0) {
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="alert alert-danger d-flex align-items-center rounded-3 mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span class="fw-semibold">{{ pendingCount }} contestazione/i richiedono risposta</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (filteredDisputes.length === 0) {
+        <div class="text-center py-5">
+          <i class="fas fa-gavel text-muted fa-3x mb-3"></i>
+          <h4 class="text-muted fw-bold">Nessuna contestazione trovata</h4>
+        </div>
+      }
+
+      @for (dispute of filteredDisputes | filter : search; track dispute.id) {
+        <div class="mobile-cards p-3 d-block d-lg-none">
+          <div class="card mb-3 shadow-sm rounded-4">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="card-title mb-0 text-primary fw-bold text-truncate" style="max-width: 70%">{{ dispute.id }}</h6>
+                <span class="badge {{ getDisputeStatusClass(dispute.status) }}">
+                  {{ getDisputeStatusLabel(dispute.status) }}
+                </span>
+              </div>
+              <div class="mb-2">
+                <span class="text-muted small">Importo:</span>
+                <span class="fw-bold text-danger"> -{{ dispute.amount }} {{ dispute.currency }}</span>
+              </div>
+              <div class="mb-2">
+                <span class="text-muted small">Motivo:</span>
+                <span> {{ getDisputeReasonLabel(dispute.reason) }}</span>
+              </div>
+              @if (dispute.evidenceDetails?.dueBy) {
+                <div class="mb-2">
+                  <span class="text-muted small">Scadenza evidenza:</span>
+                  <span class="fw-semibold"> {{ dispute.evidenceDetails.dueBy }}</span>
+                </div>
+              }
+              <div class="mb-2">
+                <span class="text-muted small">Data:</span>
+                <span> {{ dispute.created }}</span>
+              </div>
+              @if (isNeedsResponse(dispute.status)) {
+                <div class="mt-3">
+                  <button
+                    class="btn btn-outline-danger btn-sm rounded-3 w-100"
+                    (click)="closeDispute(dispute.id)"
+                  >
+                    <i class="fas fa-times-circle me-1"></i> Accetta e chiudi
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (filteredDisputes.length > 0 && !loading) {
+        <div class="desktop-table p-4 d-none d-lg-block">
+          <div class="table-responsive">
+            <table class="table table-borderless table-striped align-middle">
+              <thead class="bg-light">
+                <tr>
+                  <th>ID Contestazione</th>
+                  <th>Importo</th>
+                  <th>Motivo</th>
+                  <th>Stato</th>
+                  <th>Scadenza evidenza</th>
+                  <th>Data creazione</th>
+                  <th class="rounded-end-3">Azioni</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (dispute of filteredDisputes | filter : search; track dispute.id) {
+                  <tr class="bg-white">
+                    <td>
+                      <span class="text-muted small font-monospace">{{ dispute.id }}</span>
+                    </td>
+                    <td>
+                      <span class="fw-bold text-danger">-{{ dispute.amount }} {{ dispute.currency }}</span>
+                    </td>
+                    <td>{{ getDisputeReasonLabel(dispute.reason) }}</td>
+                    <td>
+                      <span class="badge {{ getDisputeStatusClass(dispute.status) }}">
+                        {{ getDisputeStatusLabel(dispute.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      @if (dispute.evidenceDetails?.dueBy) {
+                        <span class="fw-semibold">{{ dispute.evidenceDetails.dueBy }}</span>
+                      } @else {
+                        <span class="text-muted">-</span>
+                      }
+                    </td>
+                    <td class="text-muted">{{ dispute.created }}</td>
+                    <td>
+                      @if (isNeedsResponse(dispute.status)) {
+                        <button
+                          class="btn btn-outline-danger btn-sm rounded-3"
+                          (click)="closeDispute(dispute.id)"
+                        >
+                          <i class="fas fa-times-circle me-1"></i> Accetta e chiudi
+                        </button>
+                      } @else {
+                        <span class="text-muted">-</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

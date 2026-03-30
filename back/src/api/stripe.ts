@@ -109,6 +109,30 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         logger.warn(`Contestazione aperta per la prenotazione ${bookingId}`);
         break;
       }
+      case "charge.dispute.closed": {
+        const dispute = event.data.object as Stripe.Dispute;
+        let book = await bookingServices.readByPaymentIntentId(dispute.payment_intent as string);
+        const bookingId = book?.numberOfTickets;
+
+        if (bookingId && dispute.status === "lost") {
+          await bookingServices.refundBooking(bookingId);
+          logger.warn(`Contestazione persa per la prenotazione ${bookingId}, biglietto rimborsato`);
+        } else if (bookingId) {
+          logger.info(`Contestazione chiusa per la prenotazione ${bookingId}, stato: ${dispute.status}`);
+        }
+        break;
+      }
+      case "charge.dispute.funds_withdrawn": {
+        const dispute = event.data.object as Stripe.Dispute;
+        let book = await bookingServices.readByPaymentIntentId(dispute.payment_intent as string);
+        const bookingId = book?.numberOfTickets;
+
+        if (bookingId) {
+          await bookingServices.refundBooking(bookingId);
+          logger.warn(`Fondi prelevati per contestazione sulla prenotazione ${bookingId}`);
+        }
+        break;
+      }
       case "payment_intent.intent.succeeded":
         break;
 
@@ -251,6 +275,24 @@ router.get("/getRefunds", authMiddleware, checkPermissionMiddleware(role.ADMIN, 
     let stripeServices = new StripeServices();
     let refunds = await stripeServices.getRefunds();
     res.json({ result: refunds });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/getDisputes", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let disputes = await stripeServices.getDisputes();
+    res.json({ result: disputes });
+  } catch (error) {
+    next(error);
+  }
+});
+router.post("/closeDispute", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    await stripeServices.closeDispute(req.body.disputeId);
+    res.json({ message: "Dispute closed" });
   } catch (error) {
     next(error);
   }

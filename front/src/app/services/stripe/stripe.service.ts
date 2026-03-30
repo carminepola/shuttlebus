@@ -65,4 +65,18 @@ export class StripeService {
       })
     );
   }
+  getDisputes(): Observable<any> {
+    return this.http.get(this.apiUrl + '/getDisputes').pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
+  closeDispute(disputeId: string): Observable<any> {
+    return this.http.post(this.apiUrl + '/closeDispute', { disputeId }).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
 }

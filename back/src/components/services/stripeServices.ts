@@ -189,6 +189,39 @@ class StripeServices {
     }
   }
 
+  public async getDisputes(limit: number = 20) {
+    try {
+      const disputes = await this.stripe.disputes.list({ limit, expand: ["data.charge"] });
+      return disputes.data.map((d: any) => ({
+        id: d.id,
+        amount: (d.amount / 100).toFixed(2),
+        currency: d.currency.toUpperCase(),
+        status: d.status,
+        reason: d.reason || "N/D",
+        created: new Date(d.created * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+        chargeId: d.charge?.id || "",
+        paymentIntentId: d.payment_intent || "",
+        evidenceDetails: d.evidence_details ? {
+          dueBy: d.evidence_details.due_by ? new Date(d.evidence_details.due_by * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" }) : null,
+          hasEvidence: !!d.evidence_details.has_evidence,
+          submissionCount: d.evidence_details.submission_count || 0,
+        } : null,
+      }));
+    } catch (err) {
+      logger.error("Errore nel recupero disputes", err);
+      throw err;
+    }
+  }
+
+  public async closeDispute(disputeId: string) {
+    try {
+      return await this.stripe.disputes.close(disputeId);
+    } catch (err) {
+      logger.error("Errore nella chiusura della disputa", err);
+      throw err;
+    }
+  }
+
   public async getMonthlyRevenue() {
     try {
       const now = new Date();

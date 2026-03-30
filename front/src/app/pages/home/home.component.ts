@@ -12,7 +12,7 @@ import { Chart, registerables } from 'chart.js';
 
 import { fadeAnimation } from '../../animations/fade.animation';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
-import { TranslatePipe } from '../../pipe/translate.pipe';
+
 import { BookingsService } from '../../services/bookings/bookings.service';
 import { RoutesService } from '../../services/routes/routes.service';
 
@@ -59,7 +59,7 @@ interface RecentPurchase {
   selector: 'app-home',
   standalone: true,
   animations: [fadeAnimation],
-  imports: [CommonModule, RouterModule, TitlePageComponent, TranslatePipe],
+  imports: [CommonModule, RouterModule, TitlePageComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
@@ -80,6 +80,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   loadRecentPurchases = true;
   loadRefunds = true;
   loadMonthlyRevenue = true;
+  loadDisputes = true;
 
   public andamentoMese: any = [];
   public countRoutes: number = 0;
@@ -96,6 +97,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public purchasesLoadingMore = false;
   public hasMorePurchases = true;
   public refunds: any[] = [];
+  public disputes: any[] = [];
   public monthlyRevenue: any = null;
 
   user: any;
@@ -137,14 +139,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private bookingsService: BookingsService,
     private routesService: RoutesService,
-    private stripeService: StripeService
+    private stripeService: StripeService,
   ) {}
 
   private interval: any;
   private purchasePollingInterval: any;
   ngOnDestroy(): void {
     clearInterval(this.interval);
-    if (this.purchasePollingInterval) clearInterval(this.purchasePollingInterval);
+    if (this.purchasePollingInterval)
+      clearInterval(this.purchasePollingInterval);
   }
   ngOnInit(): void {
     this.andamentoVendite();
@@ -155,6 +158,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getTopClients();
     this.getRecentPurchases();
     this.getRefunds();
+    this.getDisputes();
     this.getMonthlyRevenue();
     setTimeout(() => {
       this.routeToday();
@@ -563,7 +567,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         if (reset) {
           this.recentPurchases = res.results || [];
         } else {
-          this.recentPurchases = [...this.recentPurchases, ...(res.results || [])];
+          this.recentPurchases = [
+            ...this.recentPurchases,
+            ...(res.results || []),
+          ];
         }
         this.purchasesTotal = res.total || 0;
         this.hasMorePurchases =
@@ -607,7 +614,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getRankIcon(index: number): string {
-    return index === 0 ? 'fa-trophy' : index === 1 ? 'fa-medal' : index === 2 ? 'fa-award' : '';
+    return index === 0
+      ? 'fa-trophy'
+      : index === 1
+        ? 'fa-medal'
+        : index === 2
+          ? 'fa-award'
+          : '';
   }
 
   formatPurchaseDate(createdAt: number): string {
@@ -638,6 +651,76 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  getDisputes() {
+    this.stripeService.getDisputes().subscribe((res: any) => {
+      this.disputes = res.result || [];
+      this.loadDisputes = false;
+    });
+  }
+
+  closeDispute(disputeId: string) {
+    this.stripeService.closeDispute(disputeId).subscribe(() => {
+      this.getDisputes();
+    });
+  }
+
+  getDisputeStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      warning_needs_response: 'Richiede risposta',
+      warning_under_review: 'In revisione',
+      needs_response: 'Richiede risposta',
+      under_review: 'In revisione',
+      charge_refunded: 'Rimborsato',
+      lost: 'Persa',
+      won: 'Vinta',
+      closed: 'Chiusa',
+    };
+    return map[status] || status;
+  }
+
+  getDisputeStatusClass(status: string): string {
+    const map: Record<string, string> = {
+      warning_needs_response: 'bg-danger-subtle text-danger',
+      needs_response: 'bg-danger-subtle text-danger',
+      warning_under_review: 'bg-warning-subtle text-warning',
+      under_review: 'bg-warning-subtle text-warning',
+      charge_refunded: 'bg-info-subtle text-info',
+      lost: 'bg-secondary-subtle text-secondary',
+      won: 'bg-success-subtle text-success',
+      closed: 'bg-secondary-subtle text-secondary',
+    };
+    return map[status] || 'bg-secondary-subtle text-secondary';
+  }
+
+  getDisputeReasonLabel(reason: string): string {
+    const map: Record<string, string> = {
+      duplicate: 'Duplicato',
+      fraudulent: 'Frode',
+      subscription_canceled: 'Abbonamento cancellato',
+      product_unacceptable: 'Prodotto inaccettabile',
+      product_not_received: 'Prodotto non ricevuto',
+      unrecognized: 'Non riconosciuto',
+      credit_not_processed: 'Credito non elaborato',
+      general: 'Generale',
+      bank_cannot_process: 'Banca: non elaborabile',
+      check_returned: 'Assegno restituito',
+      customer_initiated: 'Avviata dal cliente',
+      debit_not_authorized: 'Addebito non autorizzato',
+      insufficient_funds: 'Fondi insufficienti',
+      incorrect_account_details: 'Dettagli conto errati',
+      late_presentment: 'Presentazione tardiva',
+      manage_dispute_reason_account_closed: 'Conto chiuso',
+    };
+    return map[reason] || reason;
+  }
+
+  getPendingDisputesCount(): number {
+    return this.disputes.filter(
+      (d: any) =>
+        d.status === 'needs_response' || d.status === 'warning_needs_response',
+    ).length;
+  }
+
   getMonthlyRevenue() {
     this.stripeService.getMonthlyRevenue().subscribe((res: any) => {
       this.monthlyRevenue = res.result;
@@ -650,18 +733,20 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private createRevenueChart(data: { month: string; revenue: number; refunds: number }[]) {
+  private createRevenueChart(
+    data: { month: string; revenue: number; refunds: number }[],
+  ) {
     const ctx = this.revenueChart?.nativeElement?.getContext('2d');
     if (!ctx) return;
 
     new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: data.map(d => d.month),
+        labels: data.map((d) => d.month),
         datasets: [
           {
             label: 'Ricavi',
-            data: data.map(d => d.revenue),
+            data: data.map((d) => d.revenue),
             backgroundColor: 'rgba(52, 211, 153, 0.7)',
             borderColor: '#34d399',
             borderWidth: 1,
@@ -669,7 +754,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           },
           {
             label: 'Rimborsi',
-            data: data.map(d => d.refunds),
+            data: data.map((d) => d.refunds),
             backgroundColor: 'rgba(239, 68, 68, 0.5)',
             borderColor: '#ef4444',
             borderWidth: 1,
@@ -684,7 +769,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           legend: { position: 'top' },
           tooltip: {
             callbacks: {
-              label: (context: any) => context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' €',
+              label: (context: any) =>
+                context.dataset.label +
+                ': ' +
+                context.parsed.y.toFixed(2) +
+                ' €',
             },
           },
         },
