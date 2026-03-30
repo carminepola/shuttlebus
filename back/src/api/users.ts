@@ -103,6 +103,9 @@ router.post(
       user.email = req.body.email;
       user.password = req.body.password;
       user.details.name = req.body.name;
+      if (req.body.phone) {
+        user.details.phone = req.body.phone;
+      }
       user.role = role.USER;
 
       let userServices = new UserServices(db);

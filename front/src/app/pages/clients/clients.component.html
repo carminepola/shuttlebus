@@ -176,6 +176,16 @@
             [disabled]="formSaving"
           />
         </div>
+        <div class="ci-form-group">
+          <label class="ci-label">Telefono</label>
+          <input
+            type="tel"
+            class="form-control"
+            [(ngModel)]="formData.phone"
+            name="phone"
+            [disabled]="formSaving"
+          />
+        </div>
         @if (formMode === 'create') {
           <div class="ci-form-group">
             <label class="ci-label">Email</label>

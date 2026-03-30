@@ -85,7 +85,7 @@ export class UserService {
     );
   }
 
-  createClient(data: { email: string; password: string; name: string }): Observable<any> {
+  createClient(data: { email: string; password: string; name: string; phone?: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${this.path}/`, data);
   }
 

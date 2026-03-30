@@ -47,8 +47,9 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   showForm = false;
   formMode: 'create' | 'edit' = 'create';
   formSaving = false;
-  formData = { name: '', email: '', password: '' };
+  formData = { name: '', email: '', password: '', phone: '' };
   formError = '';
+  editClientId = '';
 
   selectedClient: any = null;
   clientBookings: any[] = [];
@@ -184,14 +185,15 @@ export class ClientsComponent implements OnInit, AfterViewInit {
 
   openCreateForm(): void {
     this.formMode = 'create';
-    this.formData = { name: '', email: '', password: '' };
+    this.formData = { name: '', email: '', password: '', phone: '' };
     this.formError = '';
     this.showForm = true;
   }
 
   openEditForm(client: any): void {
     this.formMode = 'edit';
-    this.formData = { name: client.name || '', email: client.email || '', password: '' };
+    this.formData = { name: client.name || '', email: client.email || '', password: '', phone: client.phone || '' };
+    this.editClientId = client._id;
     this.formError = '';
     this.showForm = true;
     this.closeClientInfo();
@@ -211,6 +213,13 @@ export class ClientsComponent implements OnInit, AfterViewInit {
           return;
         }
         await lastValueFrom(this.userService.createClient(this.formData));
+        this.loadClients();
+      } else if (this.formMode === 'edit') {
+        if (!this.formData.name) {
+          this.formError = 'Il nome è obbligatorio';
+          return;
+        }
+        await lastValueFrom(this.userService.updateUserDetailsById(this.editClientId, this.formData.name, this.formData.phone));
         this.loadClients();
       }
       this.showForm = false;
