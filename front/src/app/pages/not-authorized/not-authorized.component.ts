@@ -24,6 +24,7 @@ export class NotAuthorizedComponent implements OnInit {
       }
 
       this.authService.deleteCookie('jwt');
+      this.authService.logout().subscribe();
     }
 
     return 9999;

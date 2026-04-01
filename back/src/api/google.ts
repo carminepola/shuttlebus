@@ -36,7 +36,7 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
       let sessionToken = loginResponse.sessionToken;
       let userSession = loginResponse.userSession;
       let token: any = jwt.sign(userSession, secretKey, {
-        expiresIn: "30d",
+        expiresIn: "72h",
       });
       let refreshToken: any = jwt.sign(
         {
@@ -64,6 +64,8 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
       });
 
       res.json({ message: "Accesso autorizzato" });
+    } else {
+      res.status(401).json({ error: "Token non valido o scaduto" });
     }
   } catch (error) {
     next(error);
@@ -73,8 +75,6 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
 router.get("/auth/callback", passport.authenticate("google", { failureRedirect: "/login" }), async (req: any, res: Response) => {
   if (!req.user) return res.redirect("/login");
   let url = env.CLIENT_URL;
-
-  req.session.sid;
 
   const user = new userModel();
   user.email = req.user.emails[0].value;
@@ -93,7 +93,7 @@ router.get("/auth/callback", passport.authenticate("google", { failureRedirect: 
   if (!userExists) {
     userServices.createUser(user);
   } else {
-    userServices.updateGoogleInfo(user.email, req.user);
+    userServices.updateGoogleInfo(user.email, user.options.google);
   }
 
   let googleSession = await googleSessionServices.insertGoogleSession(user.email);

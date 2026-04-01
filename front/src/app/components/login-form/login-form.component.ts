@@ -46,6 +46,7 @@ export class LoginFormComponent implements OnInit {
     });
   }
   loginWithGoogle() {
+    localStorage.setItem('authUrl', window.location.pathname);
     this.googleAuthService.loginWithGoogle();
   }
   get formControls() {

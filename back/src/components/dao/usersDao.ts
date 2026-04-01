@@ -671,8 +671,7 @@ export default class UsersDao {
       // Esegui la query per trovare e controllare la sessione
       const result = await this.db.collection(this.schema).findOne({
         email: email,
-        "sessions.id": userSession, // Cerca la sessione per email e sessionID
-        "sessions.refreshToken": refreshToken, // Cerca la sessione per email e refreshToken
+        sessions: { $elemMatch: { id: userSession, refreshToken: refreshToken } },
       });
 
       // Verifica se `result` è nullo o se `result.value` è nullo
