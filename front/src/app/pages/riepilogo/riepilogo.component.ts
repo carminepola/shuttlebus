@@ -98,7 +98,18 @@ export class RiepilogoComponent implements OnInit {
     window.history.back();
   }
 
-  bookNow() {
+  async bookNow() {
+    const pendingBooking = await this.pendingBookingService.hasPendingBooking();
+    if (pendingBooking) {
+      const shouldContinue = await this.pendingBookingService.showPendingModal();
+      if (shouldContinue) {
+        this.router.navigate(['/user/mytickets']);
+        return;
+      } else {
+        await this.pendingBookingService.cancelPendingBooking(pendingBooking);
+      }
+    }
+
     this.errorMessage = '';
     this.loading = true;
     this.bookingService.insertBooking(this.param).subscribe({
