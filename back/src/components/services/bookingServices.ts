@@ -58,6 +58,7 @@ class BookingsServices {
       let user = await this.userServices.getUserById(userId);
       if (user) {
         ticket.user = {
+          id: userId,
           name: user.details?.name,
           mail: user.email,
           phone: user.details?.phone,
