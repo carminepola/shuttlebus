@@ -51,19 +51,21 @@ class BookingsServices {
       throw error;
     }
 
+    let book: booking;
     try {
       session.startTransaction();
       ticket.userId = userId;
       let user = await this.userServices.getUserById(userId);
       if (user) {
         ticket.user = {
+          id: userId,
           name: user.details?.name,
           mail: user.email,
           phone: user.details?.phone,
         };
       }
 
-      let book: booking = new booking(ticket);
+      book = new booking(ticket);
 
       let numeroPosti: any = await this.availableSeats(book.date, book.routeId, book.scheduleId, book.from.id, book.to.id, session);
 
@@ -77,9 +79,15 @@ class BookingsServices {
       let res = await this.bookingDao.insertBooking(book, session);
 
       await session.commitTransaction();
-
+    } catch (error) {
+      await session.abortTransaction();
       await session.endSession();
+      throw error;
+    }
 
+    await session.endSession();
+
+    try {
       let paymentSession: any = await this.paymentServices.calculatePayment(book);
       let url: any = "";
       switch (paymentSession.type) {
@@ -91,12 +99,9 @@ class BookingsServices {
       if (url == "") {
         throw new Error("str_error_payment");
       }
-
       return url;
     } catch (error) {
-      await session.abortTransaction();
-      await session.endSession();
-      this.bookingDao.deleteBooking(ticket.numberOfTickets);
+      this.bookingDao.deleteBooking(book.numberOfTickets);
       throw error;
     }
   }
