@@ -46,18 +46,26 @@ class StripeServices {
         line_items: items,
         mode: "payment",
         payment_intent_data: {
-          capture_method: "manual", // ⬅️ Questo imposta il pagamento manuale
+          capture_method: "manual",
+          metadata: {
+            booking_id: ticket.numberOfTickets,
+            departure: ticket.date,
+            route: `${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime})`,
+            user: ticket.user.name,
+            mail: ticket.user.mail,
+          },
+          description: `Ticket ${ticket.numberOfTickets} - ${ticket.from.name} → ${ticket.to.name} (${ticket.date})`,
         },
         success_url: `${env.CLIENT_URL}/payment/stripe/success/${ticket.numberOfTickets}`,
         cancel_url: `${env.CLIENT_URL}/payment/stripe/cancel/${ticket.numberOfTickets}`,
         metadata: {
-          route: ` ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}))`, // Es: "Napoli - Amalfi"
-          booking_id: ticket.numberOfTickets, // ID della prenotazione
-          departure: ticket.date, // Data di partenza
-          userId: ticket.user.id, // ID utente
-          user: ticket.user.name, // Nome utente
-          lng: ticket.lng, // Lingua
-          mail: ticket.user.mail, // Mail utente
+          route: `${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime})`,
+          booking_id: ticket.numberOfTickets,
+          departure: ticket.date,
+          userId: ticket.user.id,
+          user: ticket.user.name,
+          lng: ticket.lng,
+          mail: ticket.user.mail,
         },
         expires_at: Math.floor(Date.now() / 1000) + 60 * 30, //30 minuti
       });
