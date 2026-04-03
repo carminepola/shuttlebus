@@ -4,6 +4,7 @@ import { TitlePageComponent } from '../../components/title-page/title-page.compo
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { UserService } from '../../services/user/user.service';
 import { BookingsService } from '../../services/bookings/bookings.service';
+import { StripeService } from '../../services/stripe/stripe.service';
 import { fadeAnimation, slideAnimation } from '../../animations/fade.animation';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -55,11 +56,17 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   clientBookings: any[] = [];
   clientBookingsLoading = false;
   roleSaving = false;
+  bookingActionLoading: string | null = null;
+  clientActivity: { action: string; booking: string; time: Date; status: 'success' | 'error'; message?: string }[] = [];
+  stripeTransactions: any = null;
+  stripeTransactionsLoading = false;
+  activeTab: 'bookings' | 'stripe' = 'bookings';
 
   constructor(
     private router: Router,
     private userService: UserService,
     private bookingsService: BookingsService,
+    private stripeService: StripeService,
   ) {}
 
   ngOnInit(): void {
@@ -245,6 +252,8 @@ export class ClientsComponent implements OnInit, AfterViewInit {
     this.selectedClient = client;
     this.clientBookings = [];
     this.clientBookingsLoading = true;
+    this.stripeTransactions = null;
+    this.stripeTransactionsLoading = true;
     try {
       const res: any = await lastValueFrom(this.bookingsService.getBookingsByUserId(client._id));
       this.clientBookings = res.booking || [];
@@ -253,11 +262,21 @@ export class ClientsComponent implements OnInit, AfterViewInit {
     } finally {
       this.clientBookingsLoading = false;
     }
+    try {
+      const txRes: any = await lastValueFrom(this.stripeService.getTransactionsByEmail(client.email));
+      this.stripeTransactions = txRes.result || null;
+    } catch (e) {
+      console.error('Error loading stripe transactions', e);
+    } finally {
+      this.stripeTransactionsLoading = false;
+    }
   }
 
   closeClientInfo(): void {
     this.selectedClient = null;
     this.clientBookings = [];
+    this.clientActivity = [];
+    this.stripeTransactions = null;
   }
 
   getRoleLabel(roleValue: number): string {
@@ -279,6 +298,65 @@ export class ClientsComponent implements OnInit, AfterViewInit {
       select.value = String(this.selectedClient.role);
     } finally {
       this.roleSaving = false;
+    }
+  }
+
+  private async refreshClientBookings(): Promise<void> {
+    if (!this.selectedClient) return;
+    try {
+      const res: any = await lastValueFrom(this.bookingsService.getBookingsByUserId(this.selectedClient._id));
+      this.clientBookings = res.booking || [];
+    } catch (e) {
+      console.error('Error refreshing client bookings', e);
+    }
+  }
+
+  private addActivity(action: string, booking: string, status: 'success' | 'error', message?: string): void {
+    this.clientActivity.unshift({ action, booking, time: new Date(), status, message });
+    if (this.clientActivity.length > 20) {
+      this.clientActivity = this.clientActivity.slice(0, 20);
+    }
+  }
+
+  async refundBooking(booking: any): Promise<void> {
+    if (!confirm(`Rimborsare il biglietto #${booking.numberOfTickets}?`)) return;
+    this.bookingActionLoading = booking.numberOfTickets;
+    try {
+      await lastValueFrom(this.stripeService.refund(booking.numberOfTickets));
+      this.addActivity('Rimborso', `#${booking.numberOfTickets}`, 'success');
+      await this.refreshClientBookings();
+    } catch (e: any) {
+      this.addActivity('Rimborso', `#${booking.numberOfTickets}`, 'error', e?.error?.message || e?.message);
+    } finally {
+      this.bookingActionLoading = null;
+    }
+  }
+
+  async deleteBooking(booking: any): Promise<void> {
+    if (!confirm(`Eliminare il biglietto #${booking.numberOfTickets}?`)) return;
+    this.bookingActionLoading = booking.numberOfTickets;
+    try {
+      await lastValueFrom(this.stripeService.delete(booking.numberOfTickets));
+      this.addActivity('Eliminazione', `#${booking.numberOfTickets}`, 'success');
+      await this.refreshClientBookings();
+    } catch (e: any) {
+      this.addActivity('Eliminazione', `#${booking.numberOfTickets}`, 'error', e?.error?.message || e?.message);
+    } finally {
+      this.bookingActionLoading = null;
+    }
+  }
+
+  async forceDeleteBooking(booking: any): Promise<void> {
+    if (!confirm(`Forzare l'eliminazione del biglietto #${booking.numberOfTickets}?`)) return;
+    this.bookingActionLoading = booking.numberOfTickets;
+    try {
+      await lastValueFrom(this.stripeService.forceDelete(booking.numberOfTickets));
+      this.addActivity('Eliminazione forzata', `#${booking.numberOfTickets}`, 'success');
+      await this.refreshClientBookings();
+    } catch (e: any) {
+      this.addActivity('Eliminazione forzata', `#${booking.numberOfTickets}`, 'error', e?.error?.message || e?.message);
+    } finally {
+      this.bookingActionLoading = null;
     }
   }
 }

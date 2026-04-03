@@ -278,77 +278,255 @@
         }
       </div>
 
-      <div class="ci-section-title">
-        <i class="fa-solid fa-ticket me-2"></i>
-        Biglietti ({{ clientBookings.length }})
+      <div class="ci-tabs">
+        <button class="ci-tab" [class.ci-tab-active]="activeTab === 'bookings'" (click)="activeTab = 'bookings'">
+          <i class="fa-solid fa-ticket me-1"></i> Biglietti ({{ clientBookings.length }})
+        </button>
+        <button class="ci-tab" [class.ci-tab-active]="activeTab === 'stripe'" (click)="activeTab = 'stripe'">
+          <i class="fa-brands fa-stripe me-1"></i> Stripe
+        </button>
       </div>
 
-      @if (clientBookingsLoading) {
-        <div class="ci-loading">
-          <app-loading></app-loading>
-        </div>
-      }
-
-      @if (!clientBookingsLoading && clientBookings.length === 0) {
-        <div class="ci-empty">
-          <span>Nessun biglietto trovato</span>
-        </div>
-      }
-
-      @for (booking of clientBookings; track booking.numberOfTickets) {
-        <div class="ci-ticket">
-          <div class="ci-ticket-header">
-            <div>
-              <span class="ci-ticket-id">#{{ booking.numberOfTickets }}</span>
-              <span class="ci-ticket-date">
-                <i class="fa-regular fa-calendar me-1"></i>
-                {{ booking.date | date: "dd/MM/yyyy" }}
-              </span>
-            </div>
-            <span
-              class="ci-ticket-status"
-              [ngClass]="{
-                'ci-status-confirmed': booking.status === 'confirmed',
-                'ci-status-pending': booking.status === 'pending',
-                'ci-status-cancelled': booking.status === 'cancelled',
-                'ci-status-refunded': booking.status === 'refunded',
-              }"
-              [innerText]="booking.status"
-            ></span>
+      @if (activeTab === 'bookings') {
+        @if (clientBookingsLoading) {
+          <div class="ci-loading">
+            <app-loading></app-loading>
           </div>
-          <div class="ci-ticket-route">
-            <div class="ci-ticket-stop">
-              <div class="ci-stop-dot ci-stop-dep"></div>
+        }
+
+        @if (!clientBookingsLoading && clientBookings.length === 0) {
+          <div class="ci-empty">
+            <span>Nessun biglietto trovato</span>
+          </div>
+        }
+
+        @for (booking of clientBookings; track booking.numberOfTickets) {
+          <div class="ci-ticket">
+            <div class="ci-ticket-header">
               <div>
-                <span class="ci-stop-time" [innerText]="booking.from.stopTime"></span>
-                <span class="ci-stop-name" [innerText]="booking.from.name"></span>
+                <span class="ci-ticket-id">#{{ booking.numberOfTickets }}</span>
+                <span class="ci-ticket-date">
+                  <i class="fa-regular fa-calendar me-1"></i>
+                  {{ booking.date | date: "dd/MM/yyyy" }}
+                </span>
+              </div>
+              <span
+                class="ci-ticket-status"
+                [ngClass]="{
+                  'ci-status-confirmed': booking.status === 'confirmed',
+                  'ci-status-pending': booking.status === 'pending',
+                  'ci-status-cancelled': booking.status === 'cancelled',
+                  'ci-status-refunded': booking.status === 'refunded',
+                }"
+                [innerText]="booking.status"
+              ></span>
+            </div>
+            <div class="ci-ticket-route">
+              <div class="ci-ticket-stop">
+                <div class="ci-stop-dot ci-stop-dep"></div>
+                <div>
+                  <span class="ci-stop-time" [innerText]="booking.from.stopTime"></span>
+                  <span class="ci-stop-name" [innerText]="booking.from.name"></span>
+                </div>
+              </div>
+              <div class="ci-ticket-line"></div>
+              <div class="ci-ticket-stop">
+                <div class="ci-stop-dot ci-stop-arr"></div>
+                <div>
+                  <span class="ci-stop-time" [innerText]="booking.to.stopTime"></span>
+                  <span class="ci-stop-name" [innerText]="booking.to.name"></span>
+                </div>
               </div>
             </div>
-            <div class="ci-ticket-line"></div>
-            <div class="ci-ticket-stop">
-              <div class="ci-stop-dot ci-stop-arr"></div>
-              <div>
-                <span class="ci-stop-time" [innerText]="booking.to.stopTime"></span>
-                <span class="ci-stop-name" [innerText]="booking.to.name"></span>
+            <div class="ci-ticket-footer">
+              <div class="ci-ticket-details">
+                @for (ticket of booking.ticketTypes; track ticket) {
+                  <span class="ci-detail-chip">
+                    {{ ticket.name | translateName }} x{{ ticket.count }}
+                  </span>
+                }
+                @if (booking.luggage > 0) {
+                  <span class="ci-detail-chip">
+                    Bagagli x{{ booking.luggage }}
+                  </span>
+                }
+              </div>
+              <div class="ci-ticket-total">{{ booking.total }} &euro;</div>
+            </div>
+            @if (bookingActionLoading === booking.numberOfTickets) {
+              <div class="ci-ticket-actions">
+                <span class="ci-action-loading">
+                  <span class="spinner-border spinner-border-sm"></span>
+                  <span>Operazione in corso...</span>
+                </span>
+              </div>
+            } @else {
+              <div class="ci-ticket-actions">
+                @if (booking.status === 'confirmed') {
+                  <button class="ci-action-btn ci-action-refund" (click)="refundBooking(booking)" title="Rimborsa">
+                    <i class="fas fa-rotate-left"></i> Rimborsa
+                  </button>
+                }
+                @if (booking.status === 'pending') {
+                  <button class="ci-action-btn ci-action-delete" (click)="deleteBooking(booking)" title="Elimina">
+                    <i class="fas fa-trash"></i> Elimina
+                  </button>
+                }
+                @if (booking.status === 'cancelled' || booking.status === 'refunded') {
+                  <button class="ci-action-btn ci-action-force" (click)="forceDeleteBooking(booking)" title="Forza eliminazione">
+                    <i class="fas fa-trash-can"></i> Forza eliminazione
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @if (clientActivity.length > 0) {
+          <div class="ci-section-title mt-4">
+            <i class="fa-solid fa-clock-rotate-left me-2"></i>
+            Attività Recenti
+          </div>
+          @for (activity of clientActivity; track $index) {
+            <div class="ci-activity-item" [ngClass]="{ 'ci-activity-error': activity.status === 'error' }">
+              <div class="ci-activity-dot" [ngClass]="{ 'ci-activity-dot-success': activity.status === 'success', 'ci-activity-dot-error': activity.status === 'error' }"></div>
+              <div class="ci-activity-content">
+                <div class="ci-activity-main">
+                  <span class="ci-activity-action">{{ activity.action }}</span>
+                  <span class="ci-activity-booking">{{ activity.booking }}</span>
+                </div>
+                @if (activity.message) {
+                  <div class="ci-activity-message">{{ activity.message }}</div>
+                }
+                <div class="ci-activity-time">{{ activity.time | date: 'HH:mm:ss' }}</div>
               </div>
             </div>
+          }
+        }
+      }
+
+      @if (activeTab === 'stripe') {
+        @if (stripeTransactionsLoading) {
+          <div class="ci-loading">
+            <app-loading></app-loading>
           </div>
-          <div class="ci-ticket-footer">
-            <div class="ci-ticket-details">
-              @for (ticket of booking.ticketTypes; track ticket) {
-                <span class="ci-detail-chip">
-                  {{ ticket.name | translateName }} x{{ ticket.count }}
-                </span>
-              }
-              @if (booking.luggage > 0) {
-                <span class="ci-detail-chip">
-                  Bagagli x{{ booking.luggage }}
-                </span>
-              }
+        }
+
+        @if (!stripeTransactionsLoading && !stripeTransactions) {
+          <div class="ci-empty">
+            <span>Nessuna transazione trovata</span>
+          </div>
+        }
+
+        @if (!stripeTransactionsLoading && stripeTransactions) {
+          @if (stripeTransactions.paymentIntents?.length > 0) {
+            <div class="ci-tx-subtitle">
+              <i class="fa-solid fa-credit-card me-1"></i> Payment Intents ({{ stripeTransactions.paymentIntents.length }})
             </div>
-            <div class="ci-ticket-total">{{ booking.total }} &euro;</div>
-          </div>
-        </div>
+            @for (pi of stripeTransactions.paymentIntents; track pi.id) {
+              <div class="ci-tx-card">
+                <div class="ci-tx-header">
+                  <div class="ci-tx-left">
+                    <span class="ci-tx-amount">{{ pi.amount }} {{ pi.currency }}</span>
+                    <span class="ci-tx-date">{{ pi.created }}</span>
+                  </div>
+                  <span class="ci-tx-status" [ngClass]="{
+                    'ci-tx-status-succeeded': pi.status === 'succeeded',
+                    'ci-tx-status-requires-action': pi.status === 'requires_action',
+                    'ci-tx-status-requires-payment': pi.status === 'requires_payment_method',
+                    'ci-tx-status-requires-capture': pi.status === 'requires_capture',
+                    'ci-tx-status-processing': pi.status === 'processing',
+                    'ci-tx-status-cancelled': pi.status === 'canceled'
+                  }">{{ pi.status }}</span>
+                </div>
+                @if (pi.metadata?.route) {
+                  <div class="ci-tx-route">{{ pi.metadata.route }}</div>
+                }
+                @if (pi.metadata?.booking_id) {
+                  <div class="ci-tx-meta">Booking: #{{ pi.metadata.booking_id }}</div>
+                }
+                @if (pi.lastPaymentError) {
+                  <div class="ci-tx-error">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                    <span>{{ pi.lastPaymentError.message }}</span>
+                    @if (pi.lastPaymentError.declineCode) {
+                      <span class="ci-tx-decline"> ({{ pi.lastPaymentError.declineCode }})</span>
+                    }
+                  </div>
+                }
+                @if (pi.paymentMethodTypes?.length > 0) {
+                  <div class="ci-tx-methods">
+                    @for (m of pi.paymentMethodTypes; track m) {
+                      <span class="ci-tx-method-chip">{{ m }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+
+          @if (stripeTransactions.charges?.length > 0) {
+            <div class="ci-tx-subtitle mt-3">
+              <i class="fa-solid fa-money-bill-transfer me-1"></i> Charges ({{ stripeTransactions.charges.length }})
+            </div>
+            @for (charge of stripeTransactions.charges; track charge.id) {
+              <div class="ci-tx-card">
+                <div class="ci-tx-header">
+                  <div class="ci-tx-left">
+                    <span class="ci-tx-amount">{{ charge.amount }} {{ charge.currency }}</span>
+                    <span class="ci-tx-date">{{ charge.created }}</span>
+                  </div>
+                  <span class="ci-tx-status" [ngClass]="{
+                    'ci-tx-status-succeeded': charge.status === 'succeeded',
+                    'ci-tx-status-failed': charge.status === 'failed',
+                    'ci-tx-status-pending': charge.status === 'pending'
+                  }">{{ charge.status }}</span>
+                </div>
+                @if (charge.metadata?.route) {
+                  <div class="ci-tx-route">{{ charge.metadata.route }}</div>
+                }
+                @if (charge.metadata?.booking_id) {
+                  <div class="ci-tx-meta">Booking: #{{ charge.metadata.booking_id }}</div>
+                }
+                @if (charge.failureMessage) {
+                  <div class="ci-tx-error">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                    <span>{{ charge.failureMessage }}</span>
+                    @if (charge.failureCode) {
+                      <span class="ci-tx-decline"> ({{ charge.failureCode }})</span>
+                    }
+                  </div>
+                }
+                @if (charge.outcome) {
+                  <div class="ci-tx-outcome">
+                    <span class="ci-tx-outcome-type">{{ charge.outcome.type }}</span>
+                    @if (charge.outcome.riskLevel) {
+                      <span class="ci-tx-outcome-risk" [ngClass]="{
+                        'ci-risk-elevated': charge.outcome.riskLevel === 'elevated',
+                        'ci-risk-highest': charge.outcome.riskLevel === 'highest',
+                        'ci-risk-normal': charge.outcome.riskLevel === 'normal'
+                      }">Risk: {{ charge.outcome.riskLevel }}</span>
+                    }
+                    @if (charge.outcome.sellerMessage) {
+                      <span class="ci-tx-outcome-msg">{{ charge.outcome.sellerMessage }}</span>
+                    }
+                  </div>
+                }
+                @if (charge.refunded) {
+                  <div class="ci-tx-refunded">
+                    <i class="fa-solid fa-rotate-left me-1"></i> Rimborsato {{ charge.amountRefunded }} {{ charge.currency }}
+                  </div>
+                }
+              </div>
+            }
+          }
+
+          @if (stripeTransactions.paymentIntents?.length === 0 && stripeTransactions.charges?.length === 0) {
+            <div class="ci-empty">
+              <span>Nessuna transazione Stripe trovata per questo cliente</span>
+            </div>
+          }
+        }
       }
     </div>
   </div>

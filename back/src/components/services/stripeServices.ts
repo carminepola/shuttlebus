@@ -231,6 +231,74 @@ class StripeServices {
     }
   }
 
+  public async getTransactionsByEmail(email: string, limit: number = 20) {
+    try {
+      const [paymentIntents, charges] = await Promise.all([
+        this.stripe.paymentIntents.search({
+          query: `metadata['mail']:'${email}'`,
+          limit,
+        }),
+        this.stripe.charges.search({
+          query: `metadata['mail']:'${email}'`,
+          limit,
+        }),
+      ]);
+
+      const piMap = new Map<string, any>();
+      for (const pi of paymentIntents.data) {
+        piMap.set(pi.id, {
+          id: pi.id,
+          amount: +(pi.amount / 100).toFixed(2),
+          currency: pi.currency.toUpperCase(),
+          status: pi.status,
+          created: new Date(pi.created * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+          description: pi.description || "",
+          metadata: pi.metadata || {},
+          lastPaymentError: pi.last_payment_error
+            ? {
+                code: pi.last_payment_error.code || "",
+                message: pi.last_payment_error.message || "",
+                type: pi.last_payment_error.type || "",
+                declineCode: pi.last_payment_error.decline_code || "",
+              }
+            : null,
+          paymentMethodTypes: pi.payment_method_types || [],
+        });
+      }
+
+      const chargeList = charges.data.map((c: any) => ({
+        id: c.id,
+        amount: +(c.amount / 100).toFixed(2),
+        currency: c.currency.toUpperCase(),
+        status: c.status,
+        created: new Date(c.created * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+        description: c.description || "",
+        metadata: c.metadata || {},
+        paymentIntentId: c.payment_intent || "",
+        failureCode: c.failure_code || "",
+        failureMessage: c.failure_message || "",
+        outcome: c.outcome
+          ? {
+              type: c.outcome.type || "",
+              riskLevel: c.outcome.risk_level || "",
+              riskScore: c.outcome.risk_score || 0,
+              sellerMessage: c.outcome.seller_message || "",
+            }
+          : null,
+        refunded: c.refunded || false,
+        amountRefunded: +(c.amount_refunded / 100).toFixed(2),
+      }));
+
+      return {
+        paymentIntents: Array.from(piMap.values()),
+        charges: chargeList,
+      };
+    } catch (err) {
+      logger.error("Errore nel recupero transazioni per email", err);
+      throw err;
+    }
+  }
+
   public async getMonthlyRevenue() {
     try {
       const now = new Date();

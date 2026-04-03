@@ -79,4 +79,11 @@ export class StripeService {
       })
     );
   }
+  getTransactionsByEmail(email: string): Observable<any> {
+    return this.http.get(this.apiUrl + '/getTransactionsByEmail/' + encodeURIComponent(email)).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
 }

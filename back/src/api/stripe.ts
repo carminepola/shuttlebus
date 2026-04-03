@@ -300,6 +300,15 @@ router.post("/closeDispute", authMiddleware, checkPermissionMiddleware(role.ADMI
     next(error);
   }
 });
+router.get("/getTransactionsByEmail/:email", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let transactions = await stripeServices.getTransactionsByEmail(req.params.email);
+    res.json({ result: transactions });
+  } catch (error) {
+    next(error);
+  }
+});
 router.get("/getMonthlyRevenue", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
   try {
     let stripeServices = new StripeServices();
