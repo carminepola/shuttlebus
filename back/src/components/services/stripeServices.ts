@@ -74,9 +74,10 @@ class StripeServices {
     try {
       const session = await this.stripe.checkout.sessions.retrieve(booking_id);
       if (session && session.status !== "expired") {
-        this.stripe.checkout.sessions.expire(booking_id);
+        await this.stripe.checkout.sessions.expire(booking_id);
       }
     } catch (error) {
+      logger.error("Errore scadenza sessione Stripe", error);
       throw new Error("str_error_payment");
     }
   }
