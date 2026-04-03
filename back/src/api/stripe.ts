@@ -40,20 +40,13 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         const paymentIntentId = session.payment_intent as string;
         if (bookingId) {
           let success = await bookingServices.confirmBooking(bookingId);
-
-          if (!success) {
-            if (paymentIntentId) {
-              await stripe.paymentIntents.cancel(paymentIntentId);
-              logger.warn(`Prenotazione ${bookingId} non più valida, pagamento annullato e fondi sbloccati.`);
-            }
-            break;
-          }
-
           await bookingServices.updatePaymentIntentId(bookingId, paymentIntentId);
           if (paymentIntentId) {
+            // Recupera il PaymentIntent per verificare lo stato del pagamento
             const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
             if (paymentIntent.status === "requires_capture") {
+              // Cattura il pagamento manualmente
               let res = await stripe.paymentIntents.capture(paymentIntentId);
 
               if (res.status !== "succeeded") {
@@ -67,6 +60,10 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
             } else {
               logger.info(`Il pagamento per la prenotazione ${bookingId} è già stato addebitato.`);
             }
+          } else if (!success && paymentIntentId) {
+            // Se la prenotazione NON è confermata, annulla il pagamento per sbloccare i fondi
+            await stripe.paymentIntents.cancel(paymentIntentId);
+            logger.info(`Pagamento annullato per la prenotazione ${bookingId}, i fondi sono stati sbloccati.`);
           }
         }
 
