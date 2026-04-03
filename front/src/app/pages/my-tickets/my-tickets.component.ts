@@ -9,6 +9,7 @@ import { lastValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
 import { LngService } from '../../services/lng/lng.service';
 import { StripeService } from '../../services/stripe/stripe.service';
+import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
 import { fadeAnimation } from '../../animations/fade.animation';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
@@ -41,6 +42,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
     private bookingsService: BookingsService,
     private lng: LngService,
     private stripeService: StripeService,
+    private pendingBookingService: PendingBookingService,
   ) {}
   loading = true;
 
@@ -208,8 +210,20 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       }
     });
   }
-  paga(url: string) {
-    window.open(url);
+  async paga(bookingId: string) {
+    const pending = await this.pendingBookingService.hasPendingBooking();
+    if (pending && String(pending.numberOfTickets) !== bookingId) {
+      const confirmed = await this.pendingBookingService.showPendingModal();
+      if (confirmed) return;
+      await this.pendingBookingService.cancelPendingBooking(pending);
+      this.load();
+    }
+    const booking = [...this.activeBookings, ...this.oldBookings].find(
+      (b: any) => String(b.numberOfTickets) === bookingId,
+    );
+    if (booking?.other?.url) {
+      window.open(booking.other.url);
+    }
   }
   async generatePDF(booking: any) {
     try {
