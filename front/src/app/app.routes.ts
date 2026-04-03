@@ -39,6 +39,7 @@ import { DepositoComponent } from './pages/deposito/deposito.component';
 import { UserDetailsComponent } from './pages/user-details/user-details.component';
 import { ContestazioniComponent } from './pages/contestazioni/contestazioni.component';
 import { PendingUsersComponent } from './pages/pending-users/pending-users.component';
+import { StripeComponent } from './pages/stripe/stripe.component';
 export const routes: Routes = [
   {
     path: '',
@@ -286,6 +287,12 @@ export const routes: Routes = [
       {
         path: 'contestazioni',
         component: ContestazioniComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'stripe',
+        component: StripeComponent,
         canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },

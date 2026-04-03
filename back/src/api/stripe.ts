@@ -39,9 +39,9 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         const bookingId = session.metadata?.booking_id;
         const paymentIntentId = session.payment_intent as string;
         if (bookingId) {
-          let success = await bookingServices.confirmBooking(bookingId);
+          let success = await bookingServices.confirmBooking(bookingId, session.id);
           await bookingServices.updatePaymentIntentId(bookingId, paymentIntentId);
-          if (paymentIntentId) {
+          if (success && paymentIntentId) {
             // Recupera il PaymentIntent per verificare lo stato del pagamento
             const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
@@ -61,9 +61,9 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
               logger.info(`Il pagamento per la prenotazione ${bookingId} è già stato addebitato.`);
             }
           } else if (!success && paymentIntentId) {
-            // Se la prenotazione NON è confermata, annulla il pagamento per sbloccare i fondi
+            // Prenotazione già confermata o session ID non corrisponde, annulla il pagamento
             await stripe.paymentIntents.cancel(paymentIntentId);
-            logger.info(`Pagamento annullato per la prenotazione ${bookingId}, i fondi sono stati sbloccati.`);
+            logger.info(`Pagamento annullato per la prenotazione ${bookingId}, conferma non riuscita (già confermata o session non valida).`);
           }
         }
 
@@ -311,6 +311,28 @@ router.get("/getMonthlyRevenue", authMiddleware, checkPermissionMiddleware(role.
     let stripeServices = new StripeServices();
     let revenue = await stripeServices.getMonthlyRevenue();
     res.json({ result: revenue });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/paymentIntents", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let result = await stripeServices.getAllPaymentIntents({
+      limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
+      starting_after: req.query.starting_after as string,
+      status: req.query.status as string,
+    });
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/paymentIntents/:id", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let result = await stripeServices.getPaymentIntentDetail(req.params.id);
+    res.json({ result });
   } catch (error) {
     next(error);
   }

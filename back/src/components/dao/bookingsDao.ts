@@ -476,21 +476,22 @@ export default class BookingsDAO {
       });
   }
 
-  async confirmBooking(bookingId: string) {
+  async confirmBooking(bookingId: string, stripeSessionId?: string) {
+    let q: any = {
+      numberOfTickets: bookingId,
+      status: "pending",
+    };
+    if (stripeSessionId) {
+      q["other.id"] = stripeSessionId;
+    }
     return this.db
       .collection("bookings")
-      .updateOne(
-        {
-          numberOfTickets: bookingId,
-          status: "pending",
+      .updateOne(q, {
+        $set: {
+          updatedAt: new Date().getTime(),
+          status: "confirmed",
         },
-        {
-          $set: {
-            updatedAt: new Date().getTime(),
-            status: "confirmed",
-          },
-        }
-      )
+      })
       .then((result) => {
         if (result.matchedCount > 0) {
           return true;

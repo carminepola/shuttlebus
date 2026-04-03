@@ -88,8 +88,13 @@ export class SidebarComponent implements OnInit {
       title: 'Contestazioni',
       route: '/admin/contestazioni',
     },
+    { icon: 'fa-brands fa-stripe-s', title: 'Stripe', route: '/admin/stripe' },
     { icon: 'fa-users', title: 'Clienti', route: '/admin/clienti' },
-    { icon: 'fa-user-clock', title: 'In attesa', route: '/admin/utenti-in-attesa' },
+    {
+      icon: 'fa-user-clock',
+      title: 'In attesa',
+      route: '/admin/utenti-in-attesa',
+    },
     { icon: 'fa-user', title: 'Utenti', route: '/admin/utenti' },
     { icon: 'fa-cog', title: 'Impostazioni', route: '/admin/settings' },
   ];

@@ -227,8 +227,8 @@ class BookingsServices {
     }
     return success;
   }
-  async confirmBooking(numberOfTickets: string) {
-    let success = await this.bookingDao.confirmBooking(numberOfTickets);
+  async confirmBooking(numberOfTickets: string, stripeSessionId?: string) {
+    let success = await this.bookingDao.confirmBooking(numberOfTickets, stripeSessionId);
 
     //l'invio di questa notifica è demandato altrove
 

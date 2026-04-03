@@ -67,7 +67,7 @@ class StripeServices {
           lng: ticket.lng,
           mail: ticket.user.mail,
         },
-        expires_at: Math.floor(Date.now() / 1000) + 60 * 30, //30 minuti
+        expires_at: Math.floor(Date.now() / 1000) + 60 * 30,
       });
 
       return session;
@@ -93,7 +93,7 @@ class StripeServices {
       const payouts = await this.stripe.payouts.list({ limit });
       return payouts.data.map((p: any) => ({
         id: p.id,
-        amount: (p.amount / 100).toFixed(2), // da centesimi a €
+        amount: (p.amount / 100).toFixed(2),
         currency: p.currency.toUpperCase(),
         status: p.status,
         arrival_date: new Date(p.arrival_date * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" }),
@@ -129,8 +129,7 @@ class StripeServices {
       let nextPayoutDate: Date | null = null;
 
       if (interval === "weekly" && account.settings?.payouts?.schedule?.weekly_anchor) {
-        // Find next weekly payout date
-        const anchorDay = account.settings.payouts.schedule.weekly_anchor; // e.g., "friday"
+        const anchorDay = account.settings.payouts.schedule.weekly_anchor;
         const daysOfWeek: Record<string, number> = {
           monday: 1,
           tuesday: 2,
@@ -147,8 +146,7 @@ class StripeServices {
         if (daysUntilPayout <= 0) daysUntilPayout += 7;
         nextPayoutDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysUntilPayout);
       } else if (interval === "monthly" && account.settings?.payouts?.schedule?.monthly_anchor) {
-        // Find next monthly payout date
-        const anchorDate = account.settings.payouts.schedule.monthly_anchor; // e.g., 15
+        const anchorDate = account.settings.payouts.schedule.monthly_anchor;
         const today = new Date();
         let payoutMonth = today.getMonth();
         let payoutYear = today.getFullYear();
@@ -298,6 +296,47 @@ class StripeServices {
     }
   }
 
+  public async getTransactionsByPaymentIntentIds(bookings: any[]) {
+    try {
+      if (bookings.length === 0) return [];
+
+      const piMap = new Map<string, any>();
+      for (const b of bookings) {
+        const piId = b.paymentIntentId || b.other?.payment_intent;
+        if (piId && !piMap.has(piId)) piMap.set(piId, b);
+      }
+
+      if (piMap.size === 0) return [];
+
+      const results = await Promise.allSettled(
+        Array.from(piMap.keys()).map((id) => this.stripe.paymentIntents.retrieve(id, { expand: ["latest_charge"] }))
+      );
+
+      return results
+        .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
+        .map((r) => {
+          const pi = r.value;
+          const booking = piMap.get(pi.id);
+          const charge = pi.latest_charge;
+          return {
+            id: pi.id,
+            amount: +(pi.amount / 100).toFixed(2),
+            currency: pi.currency.toUpperCase(),
+            status: pi.status,
+            created: new Date(pi.created * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+            description: pi.description || "",
+            metadata: { ...pi.metadata, booking_status: booking?.status },
+            amountRefunded: charge ? +(charge.amount_refunded / 100).toFixed(2) : 0,
+            refunded: charge ? charge.refunded : false,
+            failureMessage: pi.last_payment_error?.message || null,
+          };
+        });
+    } catch (err) {
+      logger.error("Errore nel recupero transazioni per payment intent ids", err);
+      throw err;
+    }
+  }
+
   public async getMonthlyRevenue() {
     try {
       const now = new Date();
@@ -375,6 +414,76 @@ class StripeServices {
       };
     } catch (err) {
       logger.error("Errore nel recupero monthly revenue", err);
+      throw err;
+    }
+  }
+
+  public async getAllPaymentIntents(options: { limit?: number; starting_after?: string; status?: string } = {}) {
+    try {
+      const params: any = { limit: options.limit || 20, expand: ["data.latest_charge"] };
+      if (options.starting_after) params.starting_after = options.starting_after;
+      if (options.status) params.status = options.status;
+
+      const paymentIntents = await this.stripe.paymentIntents.list(params);
+
+      return {
+        data: paymentIntents.data.map((pi: any) => {
+          const charge = pi.latest_charge;
+          return {
+            id: pi.id,
+            amount: +(pi.amount / 100).toFixed(2),
+            currency: pi.currency.toUpperCase(),
+            status: pi.status,
+            created: new Date(pi.created * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+            description: pi.description || "",
+            metadata: pi.metadata || {},
+            customerEmail: pi.metadata?.mail || pi.receipt_email || "",
+            customerName: pi.metadata?.user || "",
+            amountRefunded: charge ? +(charge.amount_refunded / 100).toFixed(2) : 0,
+            refunded: charge ? charge.refunded : false,
+            failureMessage: pi.last_payment_error?.message || null,
+            paymentMethodTypes: pi.payment_method_types || [],
+          };
+        }),
+        hasMore: paymentIntents.has_more,
+      };
+    } catch (err) {
+      logger.error("Errore nel recupero payment intents", err);
+      throw err;
+    }
+  }
+
+  public async getPaymentIntentDetail(id: string) {
+    try {
+      const pi = await this.stripe.paymentIntents.retrieve(id, {
+        expand: ["latest_charge", "latest_charge.refunds"],
+      });
+      const charge = pi.latest_charge;
+      return {
+        id: pi.id,
+        amount: +(pi.amount / 100).toFixed(2),
+        currency: pi.currency.toUpperCase(),
+        status: pi.status,
+        created: new Date(pi.created * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+        description: pi.description || "",
+        metadata: pi.metadata || {},
+        customerEmail: pi.metadata?.mail || pi.receipt_email || "",
+        customerName: pi.metadata?.user || "",
+        amountRefunded: charge ? +(charge.amount_refunded / 100).toFixed(2) : 0,
+        refunded: charge ? charge.refunded : false,
+        failureMessage: pi.last_payment_error?.message || null,
+        failureCode: pi.last_payment_error?.decline_code || null,
+        paymentMethodTypes: pi.payment_method_types || [],
+        refunds: charge?.refunds?.data?.map((r: any) => ({
+          id: r.id,
+          amount: +(r.amount / 100).toFixed(2),
+          status: r.status,
+          reason: r.reason || "",
+          created: new Date(r.created * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+        })) || [],
+      };
+    } catch (err) {
+      logger.error("Errore nel recupero dettaglio payment intent", err);
       throw err;
     }
   }

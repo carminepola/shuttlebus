@@ -1,0 +1,215 @@
+<div class="container-fluid container-lg">
+  <app-title-page title="Stripe" subtitle="Dashboard pagamenti" back="true"></app-title-page>
+
+  <div class="card shadow border-0 rounded-4">
+    <div class="card-header bg-white rounded-top-4 border-bottom py-4">
+      <div class="row align-items-center gy-3">
+        <div class="col-auto">
+          <select class="form-select" [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
+            @for (opt of statusOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="col">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-search"></i></span>
+            <input
+              type="text"
+              class="form-control bg-light border-0"
+              placeholder="Cerca per ID, email, nome, booking..."
+              [(ngModel)]="searchTerm"
+            />
+          </div>
+        </div>
+        <div class="col-auto">
+          <span class="text-muted fw-medium">{{ filteredIntents.length }} risultati</span>
+        </div>
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="w-100 d-flex align-items-center justify-content-center py-5">
+        <app-loading></app-loading>
+      </div>
+    }
+
+    @if (!loading) {
+      <div class="table-responsive p-3">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th>ID</th>
+              <th>Importo</th>
+              <th>Stato</th>
+              <th>Cliente</th>
+              <th>Booking</th>
+              <th>Data</th>
+              <th>Metodo</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (pi of filteredIntents; track pi.id) {
+              <tr class="sd-row" (click)="openDetail(pi)" style="cursor: pointer;">
+                <td>
+                  <span class="sd-id text-muted">{{ pi.id.substring(0, 12) }}...</span>
+                </td>
+                <td>
+                  <span class="fw-semibold">{{ pi.amount }} {{ pi.currency }}</span>
+                  @if (pi.refunded) {
+                    <div class="sd-refunded-badge">
+                      <i class="fa-solid fa-rotate-left me-1"></i>{{ pi.amountRefunded }} rimborsato
+                    </div>
+                  }
+                </td>
+                <td>
+                  <span class="badge rounded-pill" [class]="getStatusBadgeClass(pi.status)">
+                    {{ formatStatus(pi.status) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="sd-customer">
+                    @if (pi.customerName) {
+                      <div class="sd-customer-name">{{ pi.customerName }}</div>
+                    }
+                    <div class="text-muted small">{{ pi.customerEmail || '-' }}</div>
+                  </div>
+                </td>
+                <td>
+                  @if (pi.metadata?.booking_id) {
+                    <span class="sd-booking-id">#{{ pi.metadata.booking_id }}</span>
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
+                <td>
+                  <span class="text-muted small">{{ pi.created }}</span>
+                </td>
+                <td>
+                  @for (m of pi.paymentMethodTypes; track m) {
+                    <span class="badge bg-light text-dark me-1">{{ m }}</span>
+                  }
+                </td>
+                <td (click)="$event.stopPropagation()">
+                  <button class="btn btn-sm btn-outline-primary rounded-3" (click)="openDetail(pi)">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (!loading && filteredIntents.length === 0) {
+          <div class="text-center py-5 text-muted">
+            <i class="fa-solid fa-inbox fa-2x mb-2"></i>
+            <div>Nessun payment intent trovato</div>
+          </div>
+        }
+      </div>
+
+      @if (hasMore && !searchTerm) {
+        <div class="text-center pb-3">
+          <button class="btn btn-outline-secondary rounded-3" [disabled]="loadingMore" (click)="loadMore()">
+            @if (loadingMore) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Carica altri
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+@if (detailLoading) {
+  <div class="sd-overlay" (click)="closeDetail()"></div>
+  <div class="sd-panel">
+    <div class="sd-panel-body d-flex align-items-center justify-content-center">
+      <app-loading></app-loading>
+    </div>
+  </div>
+}
+
+@if (selectedPi) {
+  <div class="sd-overlay" (click)="closeDetail()"></div>
+  <div class="sd-panel">
+    <div class="sd-panel-header">
+      <h6 class="mb-0">
+        <i class="fa-solid fa-credit-card me-2"></i>
+        Dettaglio Payment Intent
+      </h6>
+      <button class="btn btn-sm btn-outline-secondary rounded-3" (click)="closeDetail()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="sd-panel-body">
+      <div class="sd-detail-row">
+        <span class="sd-detail-label">ID</span>
+        <span class="sd-detail-value text-muted">{{ selectedPi.id }}</span>
+      </div>
+      <div class="sd-detail-row">
+        <span class="sd-detail-label">Stato</span>
+        <span class="badge rounded-pill" [class]="getStatusBadgeClass(selectedPi.status)">
+          {{ formatStatus(selectedPi.status) }}
+        </span>
+      </div>
+      <div class="sd-detail-row">
+        <span class="sd-detail-label">Importo</span>
+        <span class="sd-detail-value fw-semibold">{{ selectedPi.amount }} {{ selectedPi.currency }}</span>
+      </div>
+      @if (selectedPi.refunded) {
+        <div class="sd-detail-row">
+          <span class="sd-detail-label">Rimborsato</span>
+          <span class="sd-detail-value text-danger">{{ selectedPi.amountRefunded }} {{ selectedPi.currency }}</span>
+        </div>
+      }
+      <div class="sd-detail-row">
+        <span class="sd-detail-label">Data</span>
+        <span class="sd-detail-value">{{ selectedPi.created }}</span>
+      </div>
+      <div class="sd-detail-row">
+        <span class="sd-detail-label">Cliente</span>
+        <span class="sd-detail-value">{{ selectedPi.customerName || '-' }}</span>
+      </div>
+      <div class="sd-detail-row">
+        <span class="sd-detail-label">Email</span>
+        <span class="sd-detail-value text-muted">{{ selectedPi.customerEmail || '-' }}</span>
+      </div>
+      @if (selectedPi.description) {
+        <div class="sd-detail-row">
+          <span class="sd-detail-label">Descrizione</span>
+          <span class="sd-detail-value small">{{ selectedPi.description }}</span>
+        </div>
+      }
+      @if (selectedPi.failureMessage) {
+        <div class="sd-detail-error">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>
+          {{ selectedPi.failureMessage }}
+        </div>
+      }
+      @if (selectedPi.refunds?.length > 0) {
+        <div class="sd-refunds-section">
+          <h6 class="mb-2"><i class="fa-solid fa-rotate-left me-2"></i>Rimborsi</h6>
+          @for (r of selectedPi.refunds; track r.id) {
+            <div class="sd-refund-item">
+              <div class="d-flex justify-content-between">
+                <span class="text-muted small">{{ r.id.substring(0, 18) }}...</span>
+                <span class="badge rounded-pill" [ngClass]="{
+                  'bg-success': r.status === 'succeeded',
+                  'bg-warning text-dark': r.status === 'pending',
+                  'bg-danger': r.status === 'failed'
+                }">{{ r.status }}</span>
+              </div>
+              <div class="d-flex justify-content-between mt-1">
+                <span>{{ r.amount }} EUR</span>
+                <span class="text-muted small">{{ r.created }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}
