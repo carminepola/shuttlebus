@@ -391,6 +391,21 @@
   }
 }
 
+.refund-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: space-between;
+
+  .refund-deadline {
+    font-size: 0.75rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+  }
+}
+
 .old-tickets-toggle {
   display: flex;
   align-items: center;

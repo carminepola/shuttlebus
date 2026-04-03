@@ -36,6 +36,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   showOldTickets = false;
   url: string = '';
   pendingCountdowns: { [key: string]: string } = {};
+  refundingId: string | null = null;
   private countdownInterval: any;
   private expiredReloadSet = new Set<string>();
   constructor(
@@ -117,6 +118,13 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
     if (allExpired && this.countdownInterval) {
       clearInterval(this.countdownInterval);
     }
+  }
+  getRefundDeadline(date: string): Date | null {
+    if (!date) return null;
+    const d = new Date(date);
+    d.setDate(d.getDate() - 3);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
   checkDay(date: any) {
     if (date) {
@@ -201,12 +209,17 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       confirmButtonText: this.lng.traslate('str_confermo'),
       denyButtonText: `${this.lng.traslate('str_annulla')}`,
     }).then((result: any) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
-        this.stripeService.refund(numberOfTickets.toString()).subscribe(() => {
-          this.load();
+        this.refundingId = numberOfTickets.toString();
+        this.stripeService.refund(numberOfTickets.toString()).subscribe({
+          next: () => {
+            this.refundingId = null;
+            this.load();
+          },
+          error: () => {
+            this.refundingId = null;
+          },
         });
-      } else if (result.isDenied) {
       }
     });
   }

@@ -137,7 +137,7 @@
             </div>
           </div>
 
-            <div class="booking-card-footer">
+          <div class="booking-card-footer">
             <div class="booking-total">
               <span
                 class="booking-total-label"
@@ -150,7 +150,9 @@
               @if (booking.status === "pending") {
                 <div class="pending-countdown">
                   <i class="fa-regular fa-clock"></i>
-                  <span>{{ pendingCountdowns[booking.numberOfTickets] || '00:00' }}</span>
+                  <span>{{
+                    pendingCountdowns[booking.numberOfTickets] || "00:00"
+                  }}</span>
                 </div>
                 <button
                   class="action-btn action-btn-cancel"
@@ -164,11 +166,23 @@
                 ></button>
               }
               @if (booking.status === "confirmed" && checkDay(booking.date)) {
-                <button
-                  class="action-btn action-btn-refund"
-                  (click)="rimborsa(booking.numberOfTickets)"
-                  [innerText]="'str_annulla' | translate"
-                ></button>
+                <div class="refund-info">
+                  <span class="refund-deadline">
+                    <i class="fa-regular fa-clock me-1"></i
+                    >{{ "str_rimborsabile_fino_al" | translate }}
+                    {{ getRefundDeadline(booking.date) | date: "dd/MM/yyyy" }}
+                  </span>
+                  <button
+                    class="action-btn action-btn-refund"
+                    [disabled]="refundingId === String(booking.numberOfTickets)"
+                    (click)="rimborsa(booking.numberOfTickets)"
+                  >
+                    @if (refundingId === String(booking.numberOfTickets)) {
+                      <span class="spinner-border spinner-border-sm me-1"></span>
+                    }
+                    {{ "str_refund" | translate }}
+                  </button>
+                </div>
               }
             </div>
           </div>
