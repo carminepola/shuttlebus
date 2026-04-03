@@ -11,7 +11,7 @@ class StripeServices {
   async getPaymentSession(ticket: booking) {
     try {
       let ticketData = ticket.date.split("-").reverse().join("/");
-      let name = `${ticket.lng == "it" ? ticket.name.it : ticket.name.en} • ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}) • ${ticketData} `;
+      let name = `${ticket.lng == "it" ? ticket.name.it : ticket.name.en} • ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}) • ${ticketData}`;
       let items = ticket.ticketTypes.map((item: TicketType) => {
         return {
           price_data: {
@@ -40,26 +40,33 @@ class StripeServices {
         });
       }
 
+      const ticketRef = "#" + ticket.numberOfTickets;
       const session = await this.stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         customer_email: ticket.user.mail,
         line_items: items,
         mode: "payment",
         payment_intent_data: {
-          capture_method: "manual", // ⬅️ Questo imposta il pagamento manuale
+          capture_method: "manual",
+          statement_descriptor_suffix: "Ticket " + ticketRef,
+        },
+        custom_text: {
+          submit: {
+            message: (ticket.lng == "it" ? "Codice biglietto" : "Ticket code") + ": " + ticketRef,
+          },
         },
         success_url: `${env.CLIENT_URL}/payment/stripe/success/${ticket.numberOfTickets}`,
         cancel_url: `${env.CLIENT_URL}/payment/stripe/cancel/${ticket.numberOfTickets}`,
         metadata: {
-          route: ` ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}))`, // Es: "Napoli - Amalfi"
-          booking_id: ticket.numberOfTickets, // ID della prenotazione
-          departure: ticket.date, // Data di partenza
-          userId: ticket.user.id, // ID utente
-          user: ticket.user.name, // Nome utente
-          lng: ticket.lng, // Lingua
-          mail: ticket.user.mail, // Mail utente
+          route: ` ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}))`,
+          booking_id: ticket.numberOfTickets,
+          departure: ticket.date,
+          userId: ticket.user.id,
+          user: ticket.user.name,
+          lng: ticket.lng,
+          mail: ticket.user.mail,
         },
-        expires_at: Math.floor(Date.now() / 1000) + 60 * 30, //30 minuti
+        expires_at: Math.floor(Date.now() / 1000) + 60 * 30,
       });
 
       return session;

@@ -9,6 +9,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
 import { role } from "../enum/role";
 import { url } from "inspector";
+import StripeServices from "../components/services/stripeServices";
 
 const router = express.Router();
 
@@ -114,7 +115,17 @@ router.post("/cancelBooking", authMiddleware, checkPermissionMiddleware(role.ADM
 router.post("/deleteBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
+    let book = await bookingServices.getBooking(req.body.id);
     let result = await bookingServices.deleteBooking(req.body.id, res.locals.userLogged["_id"]);
+
+    if (book && book.status === "pending" && book.other?.id) {
+      try {
+        let stripeServices = new StripeServices();
+        await stripeServices.deletePaymentSession(book.other.id);
+      } catch (stripeErr) {
+        logger.warn("Errore nell'expire della sessione Stripe per la prenotazione " + req.body.id, stripeErr);
+      }
+    }
 
     res.json({ message: "Booking deleted" });
   } catch (error) {
