@@ -174,10 +174,10 @@
                   </span>
                   <button
                     class="action-btn action-btn-refund"
-                    [disabled]="refundingId === String(booking.numberOfTickets)"
+                    [disabled]="refundingId === booking.numberOfTickets?.toString()"
                     (click)="rimborsa(booking.numberOfTickets)"
                   >
-                    @if (refundingId === String(booking.numberOfTickets)) {
+                    @if (refundingId === booking.numberOfTickets?.toString()) {
                       <span class="spinner-border spinner-border-sm me-1"></span>
                     }
                     {{ "str_refund" | translate }}
