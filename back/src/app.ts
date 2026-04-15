@@ -29,7 +29,7 @@ app.use(
     saveUninitialized: true,
     cookie: {
       secure: process.env.NODE_ENV == "PROD" || process.env.NODE_ENV == "TEST" ? true : false,
-      sameSite: "none",
+      sameSite: process.env.SAME_SITE === "strict" || process.env.SAME_SITE == "lax" ? process.env.SAME_SITE : "none",
     }, // Se usi HTTPS, metti true
   }),
 );
