@@ -65,7 +65,7 @@
       >
         <i class="fa fa-home"></i>
         @if (getPath() == "/") {
-          <span class="ms-2 fw-bold d-none d-md-block">Home</span>
+          <span class="ms-2 fw-bold d-none d-md-block">{{ "str_home" | translate }}</span>
         }
       </a>
     </div>
@@ -111,7 +111,7 @@
       >
         <i class="fa-solid fa-circle-info"></i>
         @if (getPath().includes("/info") || getPath().includes("/busLine")) {
-          <span class="ms-2 fw-bold d-none d-md-block">Info</span>
+          <span class="ms-2 fw-bold d-none d-md-block">{{ "str_info" | translate }}</span>
         }
       </a>
     </div>

@@ -345,10 +345,10 @@ export class RegistrazioneComponent implements OnInit {
   onSubmit(f: NgForm): void {
     try {
       this.isSubmitted = true;
-      if (!f.valid) {
+      if (!this.loginForm.name.trim() || !this.loginForm.email.trim() || !this.loginForm.password.trim() || !this.loginForm.phoneNumber.trim() || !this.termsAccepted) {
+        this.loginError = this.lngService.traslate('str_complete_all_fields_and_terms');
         return;
       }
-
       if (!this.emailRules.valid) {
         this.loginError = this.lngService.traslate('str_email_invalid_format') || 'Formato email non valido';
         return;

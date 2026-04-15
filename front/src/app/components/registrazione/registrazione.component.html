@@ -16,7 +16,7 @@
         </div>
       }
 
-      <div class="auth-field">
+      <div class="auth-field" [class.is-invalid]="isSubmitted && !loginForm.name">
         <div class="auth-field-icon">
           <i class="fa-solid fa-user"></i>
         </div>
@@ -32,7 +32,7 @@
         />
       </div>
 
-      <div class="auth-field" [class.is-invalid]="loginForm.email.length > 0 && !emailRules.valid">
+      <div class="auth-field" [class.is-invalid]="isSubmitted && !loginForm.email">
         <div class="auth-field-icon">
           <i class="fa-solid fa-envelope"></i>
         </div>
@@ -73,7 +73,7 @@
         </div>
       }
 
-      <div class="auth-field">
+      <div class="auth-field" [class.is-invalid]="isSubmitted && !loginForm.password">
         <div class="auth-field-icon">
           <i class="fa-solid fa-lock"></i>
         </div>
@@ -180,7 +180,7 @@
             </div>
           }
         </div>
-        <div class="auth-field">
+        <div class="auth-field" [class.is-invalid]="isSubmitted && !loginForm.phoneNumber">
           <div class="auth-field-icon">
             <i class="fa-solid fa-phone"></i>
           </div>
@@ -199,7 +199,7 @@
         </div>
       </div>
 
-      <div class="auth-terms" (click)="termsAccepted = !termsAccepted">
+      <div class="auth-terms" [class.is-invalid]="isSubmitted && !termsAccepted" (click)="termsAccepted = !termsAccepted">
         <span class="auth-checkbox-box" [class.auth-checkbox-checked]="termsAccepted">
           <i class="fa-solid fa-check"></i>
         </span>

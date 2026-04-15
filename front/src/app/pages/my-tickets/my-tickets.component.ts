@@ -46,6 +46,10 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
     private stripeService: StripeService,
     private pendingBookingService: PendingBookingService,
   ) {}
+
+  private get pdfLng(): string {
+    return this.lng.getLng() === 'jp' ? 'en' : this.lng.getLng();
+  }
   loading = true;
 
   async ngOnInit(): Promise<void> {
@@ -260,6 +264,12 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   }
   async generatePDF(booking: any) {
     try {
+      const savedLng = localStorage.getItem('currentLng') || 'it';
+      if (savedLng === 'jp') {
+        localStorage.setItem('currentLng', 'en');
+        await new Promise(r => setTimeout(r, 50));
+      }
+      try {
       const doc = new jsPDF({ unit: 'mm', format: 'a4' });
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
@@ -411,7 +421,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       doc.setFontSize(7);
       doc.setTextColor(...GRAY_MID);
       const fromDesc =
-        booking.from.description?.[this.lng.getLng()] ||
+        booking.from.description?.[this.pdfLng] ||
         booking.from.description?.en ||
         '';
       if (fromDesc) {
@@ -446,7 +456,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       doc.setFontSize(7);
       doc.setTextColor(...GRAY_MID);
       const toDesc =
-        booking.to.description?.[this.lng.getLng()] ||
+        booking.to.description?.[this.pdfLng] ||
         booking.to.description?.en ||
         '';
       if (toDesc) {
@@ -473,7 +483,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
         doc.rect(mx, y + detailsH, contentWidth, 8, 'FD');
 
         const name =
-          ticket.name?.[this.lng.getLng()] || ticket.name?.en || ticket.name;
+          ticket.name?.[this.pdfLng] || ticket.name?.en || ticket.name;
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(...GRAY_DARK);
@@ -623,6 +633,12 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       doc.text(this.url, mx, footerY + 12);
 
       doc.save(`biglietto_${booking.numberOfTickets}.pdf`);
+      } finally {
+        if (savedLng === 'jp') {
+          localStorage.setItem('currentLng', savedLng);
+          await new Promise(r => setTimeout(r, 50));
+        }
+      }
     } catch (error) {
       alert(error);
     }
