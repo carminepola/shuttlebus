@@ -27,7 +27,10 @@ app.use(
     secret: process.env.JWT_SECRET || "supersegreto",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV == "PROD" || process.env.NODE_ENV == "TEST" ? true : false }, // Se usi HTTPS, metti true
+    cookie: {
+      secure: process.env.NODE_ENV == "PROD" || process.env.NODE_ENV == "TEST" ? true : false,
+      sameSite: "none",
+    }, // Se usi HTTPS, metti true
   }),
 );
 
