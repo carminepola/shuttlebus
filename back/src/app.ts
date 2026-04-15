@@ -18,7 +18,7 @@ import "./passportConfig";
 require("dotenv").config();
 const app = express();
 //Abilita cors per tutte le origini
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(",") || "*", credentials: true }));
+app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(",") || true, credentials: true }));
 //Abilita helmet per la sicurezza
 app.use(helmet());
 
@@ -28,7 +28,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: { secure: process.env.NODE_ENV == "PROD" || process.env.NODE_ENV == "TEST" ? true : false }, // Se usi HTTPS, metti true
-  })
+  }),
 );
 
 app.use(passport.initialize());
