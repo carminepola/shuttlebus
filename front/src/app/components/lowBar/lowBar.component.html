@@ -9,13 +9,13 @@
             (click)="login = true"
             class="nav-link flex-grow-1 text-center cursor-pointer rounded-pill me-2"
             [ngClass]="{ active2: login }"
-            >LOGIN</a
+            >{{ "str_login" | translate | uppercase }}</a
           >
           <a
             (click)="login = false"
             class="nav-link flex-grow-1 text-center cursor-pointer rounded-pill"
             [ngClass]="{ active2: !login }"
-            >REGISTRATI</a
+            >{{ "str_registrati" | translate | uppercase }}</a
           >
         </div>
         <button
@@ -90,9 +90,9 @@
         @if (getPath().includes("/user/") || getPath().includes("/admin/")) {
           <span class="ms-2 fw-bold d-none d-md-block">
             @if (isLoggedIn()) {
-              Account
+              {{ "str_account" | translate }}
             } @else {
-              Login
+              {{ "str_login" | translate }}
             }
           </span>
         }

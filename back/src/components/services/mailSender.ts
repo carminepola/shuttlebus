@@ -2,6 +2,87 @@ import { Db } from "mongodb";
 import MailService from "./mailServices";
 import { Mail } from "../../model/mailModel";
 import booking from "../../model/bookFromSiteModel";
+
+type SupportedLng = "it" | "en" | "fr" | "de" | "es" | "jp";
+
+const BOOK_LABELS: Record<SupportedLng, Record<string, string>> = {
+  it: {
+    date: "Data",
+    route: "Linea",
+    from: "Da",
+    to: "A",
+    passengers: "Passeggeri",
+    seats: "Posti",
+    extraLuggage: "Bagagli extra",
+    total: "Totale",
+  },
+  en: {
+    date: "Date",
+    route: "Route",
+    from: "From",
+    to: "To",
+    passengers: "Passengers",
+    seats: "Seats",
+    extraLuggage: "Extra luggage",
+    total: "Total",
+  },
+  fr: {
+    date: "Date",
+    route: "Ligne",
+    from: "De",
+    to: "À",
+    passengers: "Passagers",
+    seats: "Places",
+    extraLuggage: "Bagages supplémentaires",
+    total: "Total",
+  },
+  de: {
+    date: "Datum",
+    route: "Linie",
+    from: "Von",
+    to: "Nach",
+    passengers: "Fahrgäste",
+    seats: "Sitzplätze",
+    extraLuggage: "Zusätzliches Gepäck",
+    total: "Gesamt",
+  },
+  es: {
+    date: "Fecha",
+    route: "Línea",
+    from: "Desde",
+    to: "Hasta",
+    passengers: "Pasajeros",
+    seats: "Asientos",
+    extraLuggage: "Equipaje adicional",
+    total: "Total",
+  },
+  jp: {
+    date: "日付",
+    route: "路線",
+    from: "出発",
+    to: "到着",
+    passengers: "乗客",
+    seats: "座席",
+    extraLuggage: "追加荷物",
+    total: "合計",
+  },
+};
+
+function getLabel(key: string, lng: string): string {
+  const supported = lng as SupportedLng;
+  return BOOK_LABELS[supported]?.[key] ?? BOOK_LABELS.it[key];
+}
+
+function getBookName(book: booking, lng: string): string {
+  const supported = lng as SupportedLng;
+  return (book.name as any)[supported] ?? book.name.it;
+}
+
+function getTicketName(ticket: any, lng: string): string {
+  const supported = lng as SupportedLng;
+  return (ticket.name as any)[supported] ?? ticket.name.it;
+}
+
 class MailSenderServices {
   private mailService: MailService;
 
@@ -9,27 +90,27 @@ class MailSenderServices {
     this.mailService = new MailService(db);
   }
 
-  transformBookGeneric(book: booking) {
+  transformBookGeneric(book: booking, lng: string = "it") {
     let passeggeri = "";
     for (let i = 0; i < book.ticketTypes.length; i++) {
-      passeggeri += `${book.ticketTypes[i].count}x ${book.ticketTypes[i].name.it}   <br>`;
+      passeggeri += `${book.ticketTypes[i].count}x ${getTicketName(book.ticketTypes[i], lng)}   <br>`;
     }
     let numBiglietto = book.numberOfTickets;
     let data1 = book.date.split("-");
     let data = `${data1[2]}/${data1[1]}/${data1[0]}`;
-    let linea = book.name.it;
+    let linea = getBookName(book, lng);
     let da = `${book.from.name} (${book.from.stopTime})`;
     let a = `${book.to.name} (${book.to.stopTime})`;
     let MESSAGE = `
     <h3>${numBiglietto}</h3>
-    <p><strong>Data:</strong>${data}</p>
-    <p><strong>Linea:</strong>${linea}</p>
-    <p><strong>Da:</strong>${da}</p>
-    <p><strong>A:</strong>${a}</p>
-    <p><strong>Posti:</strong>${book.seats.toString()}</p>
+    <p><strong>${getLabel("date", lng)}:</strong>${data}</p>
+    <p><strong>${getLabel("route", lng)}:</strong>${linea}</p>
+    <p><strong>${getLabel("from", lng)}:</strong>${da}</p>
+    <p><strong>${getLabel("to", lng)}:</strong>${a}</p>
+    <p><strong>${getLabel("seats", lng)}:</strong>${book.seats.toString()}</p>
     <p>${passeggeri}</p>
-    <p><strong>Bagagli extra:</strong>${book.luggage.toString()}</p>
-    <p><strong>Totale:</strong>${book.total.toString()} €</p>
+    <p><strong>${getLabel("extraLuggage", lng)}:</strong>${book.luggage.toString()}</p>
+    <p><strong>${getLabel("total", lng)}:</strong>${book.total.toString()} €</p>
     `;
 
     return MESSAGE;
@@ -38,28 +119,28 @@ class MailSenderServices {
   transformBook(book: booking, lng: string = "it") {
     let passeggeri = "";
     for (let i = 0; i < book.ticketTypes.length; i++) {
-      let name = lng === "it" ? book.ticketTypes[i].name.it : book.ticketTypes[i].name.en;
+      let name = getTicketName(book.ticketTypes[i], lng);
       passeggeri += `${book.ticketTypes[i].count}x ${name}<br>`;
     }
     let numBiglietto = book.numberOfTickets;
     let data1 = book.date.split("-");
     let data = `${data1[2]}/${data1[1]}/${data1[0]}`;
-    let linea = lng === "it" ? book.name.it : book.name.en;
+    let linea = getBookName(book, lng);
     let da = `${book.from.name} (${book.from.stopTime})`;
     let a = `${book.to.name} (${book.to.stopTime})`;
     let MESSAGE = `
 
-    <div><strong>${lng === "it" ? "Data" : "Date"}:</strong> ${data}  </div>
-     <div><strong>${lng === "it" ? "Linea" : "Route"}:</strong> ${linea}  </div>
-      <div><strong>${lng === "it" ? "Da" : "From"}:</strong> ${da}  </div>
-      <div><strong>${lng === "it" ? "A" : "To"}:</strong> ${a}  </div>
-      <div> <strong>${lng === "it" ? "Passeggeri" : "Passengers"}:</strong> <br> ${passeggeri} </div>
+    <div><strong>${getLabel("date", lng)}:</strong> ${data}  </div>
+     <div><strong>${getLabel("route", lng)}:</strong> ${linea}  </div>
+      <div><strong>${getLabel("from", lng)}:</strong> ${da}  </div>
+      <div><strong>${getLabel("to", lng)}:</strong> ${a}  </div>
+      <div> <strong>${getLabel("passengers", lng)}:</strong> <br> ${passeggeri} </div>
       
     
     `;
     if (book.luggage > 0) {
       MESSAGE += `
-      <div><strong>${lng === "it" ? "Bagagli extra" : "Extra luggage"}:</strong> ${book.luggage}  </div>  
+      <div><strong>${getLabel("extraLuggage", lng)}:</strong> ${book.luggage}  </div>  
       `;
     }
     return MESSAGE;

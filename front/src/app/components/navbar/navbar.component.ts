@@ -13,10 +13,11 @@ import { ModalService } from '../../services/modal/modal.service';
 import { CommonModule } from '@angular/common';
 import { LoginFormComponent } from '../login-form/login-form.component';
 import { RegistrazioneComponent } from '../registrazione/registrazione.component';
+import { TranslatePipe } from '../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, LoginFormComponent, RegistrazioneComponent],
+  imports: [CommonModule, LoginFormComponent, RegistrazioneComponent, TranslatePipe],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
   standalone: true,

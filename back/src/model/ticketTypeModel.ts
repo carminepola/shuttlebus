@@ -7,10 +7,18 @@ export default class ticketTypeModel {
   public name?: {
     it?: string;
     en?: string;
+    fr?: string;
+    de?: string;
+    es?: string;
+    jp?: string;
   };
   public description?: {
     it?: string;
     en?: string;
+    fr?: string;
+    de?: string;
+    es?: string;
+    jp?: string;
   };
   public cost: number;
   public isActive: boolean;

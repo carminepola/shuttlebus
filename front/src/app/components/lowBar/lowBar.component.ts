@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { LoginFormComponent } from '../login-form/login-form.component';
 import { RegistrazioneComponent } from '../registrazione/registrazione.component';
 import { ModalService } from '../../services/modal/modal.service';
+import { TranslatePipe } from '../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-lowBar',
@@ -21,6 +22,7 @@ import { ModalService } from '../../services/modal/modal.service';
     CommonModule,
     LoginFormComponent,
     RegistrazioneComponent,
+    TranslatePipe,
   ],
   templateUrl: './lowBar.component.html',
   styleUrl: './lowBar.component.scss',

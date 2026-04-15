@@ -158,7 +158,7 @@
                   [(ngModel)]="prefixSearch"
                   [ngModelOptions]="{ standalone: true }"
                   (input)="filterCountries()"
-                  placeholder="Cerca..."
+                  placeholder="{{ 'str_search' | translate }}..."
                   autocomplete="off"
                 />
               </div>
@@ -174,7 +174,7 @@
                   </div>
                 }
                 @if (filteredCountries.length === 0) {
-                  <div class="prefix-item-empty">Nessun risultato</div>
+                  <div class="prefix-item-empty">{{ "str_no_results" | translate }}</div>
                 }
               </div>
             </div>
@@ -230,9 +230,9 @@
       <div class="auth-pin-icon">
         <i class="fa-solid fa-envelope-circle-check"></i>
       </div>
-      <h3>Verifica la tua email</h3>
+      <h3>{{ "str_verify_email" | translate }}</h3>
       <p>
-        Inserisci il PIN ricevuto via email per completare la registrazione.
+        {{ "str_verify_email_desc" | translate }}
       </p>
     </div>
 

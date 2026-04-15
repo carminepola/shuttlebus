@@ -30,10 +30,10 @@ export class TicketTypeDetailsComponent implements OnInit {
   loading: boolean = true;
 
   form: any = {
-    name: { it: '', en: '' },
+    name: { it: '', en: '', fr: '', de: '', es: '', jp: '' },
     cost: '0',
     isActive: true,
-    description: { it: '', en: '' },
+    description: { it: '', en: '', fr: '', de: '', es: '', jp: '' },
   };
   errorMessage: string = '';
   ngOnInit(): void {

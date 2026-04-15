@@ -18,7 +18,7 @@
         <form ngNativeValidate (ngSubmit)="onSubmit(f)" #f="ngForm">
           <div class="row g-3">
             <div class="col-12 col-md-6">
-              <label for="name_it" class="form-label">Nome biglietto it</label>
+              <label for="name_it" class="form-label">Nome biglietto IT</label>
               <input
                 [(ngModel)]="form.name.it"
                 name="name_it"
@@ -30,19 +30,63 @@
                 />
             </div>
             <div class="col-12 col-md-6">
-              <label for="name_en" class="form-label">Nome biglietto en</label>
+              <label for="name_en" class="form-label">Nome biglietto EN</label>
               <input
                 [(ngModel)]="form.name.en"
                 name="name_en"
                 type="text"
-                placeholder="Name ticket"
+                placeholder="Ticket name"
                 class="form-control"
                 id="name_en"
                 required
                 />
             </div>
             <div class="col-12 col-md-6">
-              <label for="desc_it" class="form-label">Descrizione Italiana</label>
+              <label for="name_fr" class="form-label">Nome biglietto FR</label>
+              <input
+                [(ngModel)]="form.name.fr"
+                name="name_fr"
+                type="text"
+                placeholder="Nom du billet"
+                class="form-control"
+                id="name_fr"
+                />
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="name_de" class="form-label">Nome biglietto DE</label>
+              <input
+                [(ngModel)]="form.name.de"
+                name="name_de"
+                type="text"
+                placeholder="Ticketname"
+                class="form-control"
+                id="name_de"
+                />
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="name_es" class="form-label">Nome biglietto ES</label>
+              <input
+                [(ngModel)]="form.name.es"
+                name="name_es"
+                type="text"
+                placeholder="Nombre del billete"
+                class="form-control"
+                id="name_es"
+                />
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="name_jp" class="form-label">Nome biglietto JP</label>
+              <input
+                [(ngModel)]="form.name.jp"
+                name="name_jp"
+                type="text"
+                placeholder="チケット名"
+                class="form-control"
+                id="name_jp"
+                />
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="desc_it" class="form-label">Descrizione IT</label>
               <textarea
                 [(ngModel)]="form.description.it"
                 name="desc_it"
@@ -52,13 +96,49 @@
               ></textarea>
             </div>
             <div class="col-12 col-md-6">
-              <label for="desc_en" class="form-label">Descrizione Inglese</label>
+              <label for="desc_en" class="form-label">Descrizione EN</label>
               <textarea
                 [(ngModel)]="form.description.en"
                 name="desc_en"
                 class="form-control"
                 id="desc_en"
                 required
+              ></textarea>
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="desc_fr" class="form-label">Descrizione FR</label>
+              <textarea
+                [(ngModel)]="form.description.fr"
+                name="desc_fr"
+                class="form-control"
+                id="desc_fr"
+              ></textarea>
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="desc_de" class="form-label">Descrizione DE</label>
+              <textarea
+                [(ngModel)]="form.description.de"
+                name="desc_de"
+                class="form-control"
+                id="desc_de"
+              ></textarea>
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="desc_es" class="form-label">Descrizione ES</label>
+              <textarea
+                [(ngModel)]="form.description.es"
+                name="desc_es"
+                class="form-control"
+                id="desc_es"
+              ></textarea>
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="desc_jp" class="form-label">Descrizione JP</label>
+              <textarea
+                [(ngModel)]="form.description.jp"
+                name="desc_jp"
+                class="form-control"
+                id="desc_jp"
               ></textarea>
             </div>
             <div class="col-12 col-md-6">

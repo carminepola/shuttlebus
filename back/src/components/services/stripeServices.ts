@@ -2,6 +2,28 @@ import { env, logger } from "../../index";
 import { TicketType } from "../../model/bookFromSiteModel";
 import booking from "../../model/bookFromSiteModel";
 import StripeInstance from "../../stripe";
+
+type SupportedLng = "it" | "en" | "fr" | "de" | "es" | "jp";
+
+function getLocalizedName(obj: any, lng: string): string {
+  const supported = lng as SupportedLng;
+  return (obj as any)?.[supported] ?? obj?.en ?? obj?.it ?? "";
+}
+
+const STRIPE_LABELS: Record<SupportedLng, Record<string, string>> = {
+  it: { extraLuggage: "Bagaglio extra", extraLuggageDesc: "Bagaglio aggiuntivo oltre a quello incluso" },
+  en: { extraLuggage: "Extra luggage", extraLuggageDesc: "Additional luggage beyond the one included" },
+  fr: { extraLuggage: "Bagage supplémentaire", extraLuggageDesc: "Bagage supplémentaire au-delà de celui inclus" },
+  de: { extraLuggage: "Zusätzliches Gepäck", extraLuggageDesc: "Zusätzliches Gepäck über das Inklusive hinaus" },
+  es: { extraLuggage: "Equipaje adicional", extraLuggageDesc: "Equipaje adicional más allá del incluido" },
+  jp: { extraLuggage: "追加荷物", extraLuggageDesc: "含まれる荷物を超える追加荷物" },
+};
+
+function getStripeLabel(key: string, lng: string): string {
+  const supported = lng as SupportedLng;
+  return STRIPE_LABELS[supported]?.[key] ?? STRIPE_LABELS.it[key];
+}
+
 class StripeServices {
   private stripe: any;
   constructor() {
@@ -11,13 +33,13 @@ class StripeServices {
   async getPaymentSession(ticket: booking) {
     try {
       let ticketData = ticket.date.split("-").reverse().join("/");
-      let name = `${ticket.lng == "it" ? ticket.name.it : ticket.name.en} • ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}) • ${ticketData} `;
+      let name = `${getLocalizedName(ticket.name, ticket.lng)} • ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}) • ${ticketData} `;
       let items = ticket.ticketTypes.map((item: TicketType) => {
         return {
           price_data: {
             currency: "eur",
             product_data: {
-              name: (ticket.lng == "it" ? item.name.it : item.name.en) + " • " + (ticket.lng == "it" ? item.description.it : item.description.en),
+              name: getLocalizedName(item.name, ticket.lng) + " • " + getLocalizedName(item.description, ticket.lng),
               description: name,
             },
             unit_amount: item.cost * 100,
@@ -31,8 +53,8 @@ class StripeServices {
           price_data: {
             currency: "eur",
             product_data: {
-              name: ticket.lng == "it" ? "Bagaglio extra" : "Extra luggage",
-              description: ticket.lng == "it" ? "Bagaglio aggiuntivo oltre a quello incluso" : "Additional luggage beyond the one included",
+              name: getStripeLabel("extraLuggage", ticket.lng),
+              description: getStripeLabel("extraLuggageDesc", ticket.lng),
             },
             unit_amount: 2 * 100,
           },
