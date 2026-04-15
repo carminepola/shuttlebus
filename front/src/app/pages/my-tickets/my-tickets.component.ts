@@ -35,6 +35,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   oldBookings: any = [];
   showOldTickets = false;
   url: string = '';
+  qrCodes: { [key: string]: string } = {};
   pendingCountdowns: { [key: string]: string } = {};
   refundingId: string | null = null;
   private countdownInterval: any;
@@ -56,6 +57,23 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       clearInterval(this.countdownInterval);
     }
   }
+
+  async generateQRCodes() {
+    const confirmed = [...this.activeBookings, ...this.oldBookings].filter(
+      (b: any) => b.status === 'confirmed',
+    );
+    for (const booking of confirmed) {
+      const key = booking.numberOfTickets;
+      if (!this.qrCodes[key]) {
+        try {
+          this.qrCodes[key] = await QRCode.toDataURL(
+            `${this.url}/ticket/check/${key}`,
+            { width: 120, margin: 1 },
+          );
+        } catch {}
+      }
+    }
+  }
   async load() {
     let bookings: any = await lastValueFrom(
       this.bookingsService.getBookingFromUser(),
@@ -72,6 +90,8 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       (b: any) => new Date(b.date) < today,
     );
     this.loading = false;
+
+    this.generateQRCodes();
 
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);

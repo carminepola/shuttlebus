@@ -28,7 +28,15 @@
   $input-bg: #f1f3f4
 );
 
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+@import "@fontsource/montserrat/100.css";
+@import "@fontsource/montserrat/200.css";
+@import "@fontsource/montserrat/300.css";
+@import "@fontsource/montserrat/400.css";
+@import "@fontsource/montserrat/500.css";
+@import "@fontsource/montserrat/600.css";
+@import "@fontsource/montserrat/700.css";
+@import "@fontsource/montserrat/800.css";
+@import "@fontsource/montserrat/900.css";
 
 body {
   -webkit-font-smoothing: antialiased;
@@ -44,7 +52,7 @@ body {
 }
 
 .text-blue {
-  color: $blue !important;
+  color: $blue;
 }
 
 /* Card con gradiente blu */
@@ -69,27 +77,23 @@ body {
 
 .navMarginLeft {
   @media (min-width: 991.98px) {
-    // Bootstrap lg breakpoint is 992px
-    margin-left: 256px !important;
+    margin-left: 256px;
   }
 }
 
 .paddingTopBar{
   @media (min-width: 991.98px) {
-    // Bootstrap lg breakpoint is 992px
-    padding-top: 77px !important;
+    padding-top: 77px;
   }
 }
 .marginTopBar {
   @media (min-width: 991.98px) {
-    // Bootstrap lg breakpoint is 992px
-    margin-top: 77px !important;
+    margin-top: 77px;
   }
 }
 .w-sm-100{
   @media (max-width: 991.98px) {
-    // Bootstrap lg breakpoint is 992px
-    width: 100% !important;
+    width: 100%;
   }
 }
  
@@ -136,18 +140,18 @@ body {
   }
 }
 .leaflet-container{
-  z-index: 500 !important;
+  z-index: 500;
 }
 .navbar{
-  z-index: 1000 !important;
+  z-index: 1000;
 }
 .glass{
   backdrop-filter: blur(10px);
-    background-color: rgba(255, 255, 255, 0.75) !important;
+    background-color: rgba(255, 255, 255, 0.75);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 [data-bs-theme="dark"] .glass {
-  background-color: rgba(33, 37, 41, 0.92) !important;
+  background-color: rgba(33, 37, 41, 0.92);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.15);
 }

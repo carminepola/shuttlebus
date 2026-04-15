@@ -164,50 +164,7 @@
           <span class="visually-hidden">Impostazioni</span>
         </button>
       </div>
-      <!-- <div class="col-4 text-center">
-      <div class="dropdown">
-        <button
-          class="btn btn-link text-white"
-          [disabled]="notification.length > 0"
-          id="dropdownNotification"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          role="button"
-          >
-          <span
-            style="top: 80%; left: 80%; z-index: 20"
-            *ngIf="notification.length > 0"
-            class="position-absolute translate-middle badge rounded-pill bg-danger"
-            >
-            {{ notification.length }}
-            <span class="visually-hidden">unread messages</span>
-          </span>
 
-          <i class="fa-solid fa-bell"></i>
-        </button>
-        <div
-          class="dropdown-menu px-1"
-          *ngIf="notification.length > 0"
-          style="max-height: 60vh; overflow-y: scroll; min-width: 80vw"
-          aria-labelledby="dropdownNotification"
-          >
-          <div class="list-group list-group-flush scrollarea">
-            <a
-              href="#"
-              *ngFor="let nt of notification"
-              class="list-group-item list-group-item-action py-3 lh-tight border-bottom"
-              aria-current="true"
-              >
-              <div class="fw-bold">{{ nt.title }}</div>
-              <div class="fs-6">
-                {{ nt.message }}
-              </div>
-              <div class="small text-muted float-end">{{ nt.date }}</div>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div> -->
       <div class="col-4">
         <button class="btn w-100 text-white" routerLink="/">
           <i class="fa-solid fa-house"></i>
@@ -247,8 +204,8 @@
             (click)="onMenuItemClick()"
           >
             <i
-              class="fas text-secondary me-3"
-              style="min-width: 25px"
+              class="fas me-3"
+              style="min-width: 25px; color: #ffa1d2"
               [ngClass]="item.icon"
             ></i>
             <span class="text-white" [innerHTML]="item.title"></span>

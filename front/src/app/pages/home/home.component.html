@@ -301,7 +301,7 @@
                   </div>
                   <div class="purchase-details text-end">
                     <div class="fw-bold">
-                      {{ (purchase.total + purchase.luggage * 2).toFixed(2) }} €
+                      {{ (purchase.total + purchase.luggage * luggagePrice).toFixed(2) }} €
                     </div>
                     <div class="text-muted small">
                       {{ formatPurchaseDate(purchase.createdAt) }}

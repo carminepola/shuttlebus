@@ -26,6 +26,7 @@ export class LoginFormComponent implements OnInit {
   isSubmitted = false;
   loginError = '';
   isLoading = false;
+  showPassword = false;
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,

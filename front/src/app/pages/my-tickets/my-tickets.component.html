@@ -119,13 +119,10 @@
                 @if (booking.status === "confirmed") {
                   <div class="qr-wrapper">
                     <img
-                      [src]="
-                        'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' +
-                        url +
-                        '/ticket/check/' +
-                        booking.numberOfTickets
-                      "
+                      [src]="qrCodes[booking.numberOfTickets]"
                       class="qr-image"
+                      alt="QR Code"
+                      loading="lazy"
                     />
                   </div>
                   <button class="download-btn" (click)="generatePDF(booking)">

@@ -17,6 +17,7 @@ import { BookingsService } from '../../services/bookings/bookings.service';
 import { RoutesService } from '../../services/routes/routes.service';
 
 import { StripeService } from '../../services/stripe/stripe.service';
+import { LUGGAGE_PRICE } from '../../constants/app.constants';
 Chart.register(...registerables);
 
 interface DashboardCard {
@@ -64,6 +65,7 @@ interface RecentPurchase {
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
+  public luggagePrice = LUGGAGE_PRICE;
   @ViewChild('salesChart') salesChart!: ElementRef;
   @ViewChild('salesChartVendite') salesChartVendite!: ElementRef;
   @ViewChild('purchasesScroll') purchasesScroll!: ElementRef;

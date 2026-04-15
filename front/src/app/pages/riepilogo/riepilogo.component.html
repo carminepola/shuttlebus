@@ -10,6 +10,7 @@
     }
     @if (!loading) {
       <app-title-page class="mb-3" back="true"></app-title-page>
+      <app-step-indicator [steps]="funnelSteps" [current]="2"></app-step-indicator>
 
       <div class="container pb-5" style="min-height: 65vh">
         <div class="summary-title mb-4">
@@ -126,7 +127,7 @@
                         <span [innerHTML]="param.luggage"></span>
                       </div>
                       <div class="ticket-row-price">
-                        {{ 2 * param.luggage }}€
+                        {{ luggagePrice * param.luggage }}€
                       </div>
                     </div>
                   </div>
@@ -201,10 +202,93 @@
               }
               @if (!isLoggedIn()) {
                 <div class="sidebar-body">
-                  <button class="register-btn" (click)="openModal(true)">
-                    <i class="fa-solid fa-user-plus me-2"></i>
-                    {{ "str_registrati_for_continue" | translate }}
+                  <div class="login-inline-title mb-3">
+                    <span [innerHTML]="'str_accendi_account' | translate"></span>
+                  </div>
+
+                  <form [formGroup]="checkoutLoginForm" (submit)="onQuickLogin($event)" class="login-inline-form">
+                    <div class="mb-2">
+                      <label for="checkout-email" class="form-label">Email</label>
+                      <input
+                        id="checkout-email"
+                        formControlName="email"
+                        type="email"
+                        autocomplete="email"
+                        class="form-control"
+                        [placeholder]="'str_email' | translate"
+                        [ngClass]="{ 'is-invalid': checkoutLoginSubmitted && checkoutEmailField.invalid }"
+                      />
+                      @if (checkoutLoginSubmitted && checkoutEmailField.errors) {
+                        <div class="invalid-feedback">
+                          @if (checkoutEmailField.errors['required']) {
+                            <span>{{ 'str_email_obbligatoria' | translate }}</span>
+                          }
+                          @if (checkoutEmailField.errors['email']) {
+                            <span>{{ 'str_email_non_valida' | translate }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+
+                    <div class="mb-2">
+                      <label for="checkout-password" class="form-label">Password</label>
+                      <input
+                        id="checkout-password"
+                        formControlName="password"
+                        type="password"
+                        autocomplete="current-password"
+                        class="form-control"
+                        [placeholder]="'str_password' | translate"
+                        [ngClass]="{ 'is-invalid': checkoutLoginSubmitted && checkoutPasswordField.invalid }"
+                      />
+                      @if (checkoutLoginSubmitted && checkoutPasswordField.errors) {
+                        <div class="invalid-feedback">
+                          @if (checkoutPasswordField.errors['required']) {
+                            <span>{{ 'str_password_obbligatoria' | translate }}</span>
+                          }
+                          @if (checkoutPasswordField.errors['minlength']) {
+                            <span>{{ 'str_password_lunghezza_minima' | translate }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+
+                    @if (checkoutLoginError) {
+                      <div class="error-alert">
+                        {{ checkoutLoginError }}
+                      </div>
+                    }
+
+                    <button
+                      type="submit"
+                      [disabled]="checkoutLoginLoading"
+                      class="purchase-btn active w-100"
+                    >
+                      @if (!checkoutLoginLoading) {
+                        <span class="purchase-total">{{ param.total }}€</span>
+                        <span [innerText]="'str_acquista' | translate"></span>
+                      }
+                      @if (checkoutLoginLoading) {
+                        <div class="spinner-border spinner-border-sm text-white" role="status"></div>
+                      }
+                    </button>
+                  </form>
+
+                  <div class="login-inline-divider my-3">
+                    <span>o</span>
+                  </div>
+
+                  <button class="google-btn" (click)="loginWithGoogle()">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Google</span>
                   </button>
+
+                  <div class="login-inline-register mt-3">
+                    <span [innerHTML]="'str_non_hai_account' | translate"></span>
+                    <a class="register-link" (click)="openModal(true)">
+                      {{ 'str_registrati' | translate }}
+                    </a>
+                  </div>
                 </div>
               }
             </div>

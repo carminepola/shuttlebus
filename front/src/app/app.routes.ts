@@ -79,7 +79,7 @@ export const routes: Routes = [
     data: { lowBar: true },
   },
   {
-    path: 'search/:partenza/:arrivo/:persone/:data/:bagagli',
+    path: 'search',
     component: SearchPageComponent,
     data: { lowBar: true },
   },

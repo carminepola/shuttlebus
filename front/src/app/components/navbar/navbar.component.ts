@@ -39,6 +39,9 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
         setTimeout(() => this.updateIndicator(), 0);
       }
     });
+    this.modalService.getTabState().subscribe((tab) => {
+      this.login = tab !== 'register';
+    });
   }
 
   public login: boolean = true;

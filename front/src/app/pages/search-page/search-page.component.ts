@@ -15,15 +15,17 @@ import { TicketTypeService } from '../../services/ticket-type/ticket-type.servic
 import { LngService } from '../../services/lng/lng.service';
 import { DatePipe } from '@angular/common';
 import { fadeAnimation } from '../../animations/fade.animation';
-import { combineLatest } from 'rxjs';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
+import { LUGGAGE_PRICE } from '../../constants/app.constants';
+import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
 @Component({
   selector: 'app-search-page',
   imports: [
     LoadingComponent,
     SearchComponent,
     TitlePageComponent,
+    StepIndicatorComponent,
     TranslatePipe,
     TranslateNamePipe,
     ReactiveFormsModule,
@@ -37,6 +39,8 @@ import { PendingBookingService } from '../../services/pending-booking/pending-bo
   styleUrl: './search-page.component.scss',
 })
 export class SearchPageComponent implements OnInit {
+  public luggagePrice = LUGGAGE_PRICE;
+  public funnelSteps = ['str_step_search', 'str_step_select', 'str_step_review', 'str_step_pay'];
   public ticketTypes: any[] = [];
   public loading: boolean = true;
   public ricerca = {
@@ -69,13 +73,13 @@ export class SearchPageComponent implements OnInit {
 
   ngAfterViewInit(): void {}
   async ngOnInit(): Promise<void> {
-    combineLatest([this.route.params, this.route.queryParams]).subscribe(
-      ([params, qParams]) => {
-        this.ricerca.partenza = params['partenza'];
-        this.ricerca.arrivo = params['arrivo'];
-        this.ricerca.persone = parseInt(params['persone']);
-        this.ricerca.data = params['data'];
-        this.ricerca.bagagli = parseInt(params['bagagli']);
+    this.route.queryParams.subscribe(
+      (qParams) => {
+        this.ricerca.partenza = qParams['partenza'] || '';
+        this.ricerca.arrivo = qParams['arrivo'] || '';
+        this.ricerca.persone = parseInt(qParams['persone']) || 0;
+        this.ricerca.data = qParams['data'] || '';
+        this.ricerca.bagagli = parseInt(qParams['bagagli']) || 0;
         this.ticketSelections = JSON.parse(qParams['tickets'] || '{}');
         this.params = [];
         this.ricercaFind = {
@@ -141,7 +145,7 @@ export class SearchPageComponent implements OnInit {
           date: this.ricerca.data,
           routeId: res[i].routeId,
           scheduleId: res[i].scheduleId,
-          total: 2 * this.ricerca.bagagli,
+          total: LUGGAGE_PRICE * this.ricerca.bagagli,
           luggage: this.ricerca.bagagli,
           seats: 0,
           availableSeats: res[i].availableSeats || 0,
@@ -240,7 +244,6 @@ export class SearchPageComponent implements OnInit {
     delete param['availableSeats'];
     delete param['availableLuggage'];
 
-    console.log(param);
     this.router.navigate(['/riepilogo'], { state: { value: param } });
   }
 }

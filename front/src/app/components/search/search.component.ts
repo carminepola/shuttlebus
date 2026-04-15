@@ -304,19 +304,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
       }
     }
 
-    this.router.navigate(
-      [
-        '/search',
-        this.ricerca?.partenza,
-        this.ricerca?.arrivo,
-        this.getTotalPersone(),
-        this.ricerca?.data,
-        this.ricerca?.bagagli,
-      ],
-      {
-        queryParams: { tickets: JSON.stringify(filteredTickets) },
-      }
-    );
+    this.router.navigate(['/search'], {
+      queryParams: {
+        partenza: this.ricerca?.partenza,
+        arrivo: this.ricerca?.arrivo,
+        persone: this.getTotalPersone(),
+        data: this.ricerca?.data,
+        bagagli: this.ricerca?.bagagli,
+        tickets: JSON.stringify(filteredTickets),
+      },
+    });
   }
   updateDate(event: string) {
     const dateObj = new Date(event);

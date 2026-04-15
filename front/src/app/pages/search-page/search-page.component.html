@@ -1,5 +1,6 @@
 <div class="container topspace pt-2">
   <app-title-page back="ture" class="toppad"> </app-title-page>
+  <app-step-indicator [steps]="funnelSteps" [current]="1"></app-step-indicator>
   <div class="search-bar-card rounded-4">
     <div class="card-body py-3 px-4">
       <app-search [ricerca]="ricercaFind"></app-search>
@@ -159,8 +160,8 @@
                         [innerHTML]="'str_bagagli_aggiuntivi' | translate"
                       ></span>
                     </span>
-                    <span class="summary-price"
-                      >{{ ricerca.bagagli * 2 }}€</span
+                     <span class="summary-price"
+                       >{{ ricerca.bagagli * luggagePrice }}€</span
                     >
                   </div>
                 }
