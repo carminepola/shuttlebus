@@ -65,11 +65,13 @@ class MailSenderServices {
     return MESSAGE;
   }
 
+  private getMailType(baseType: string, lng: string = "it"): string {
+    if (lng === "it") return baseType;
+    return baseType + "_" + lng.toUpperCase();
+  }
+
   async sendRefoundBook(to: string, name: string, amount: string, order_id: string, lng: string = "it") {
-    let type = "REFUND_PROCESSED";
-    if (lng !== "it") {
-      type = "REFUND_PROCESSED_EN";
-    }
+    let type = this.getMailType("REFUND_PROCESSED", lng);
     this.mailService.sendMail(
       new Mail({
         to: to,
@@ -85,10 +87,7 @@ class MailSenderServices {
   }
 
   async sendConfirmBook(email: string, name: string, order_id: string, amount: string, payment_method: string, route: string, lng: string = "it") {
-    let type = "PURCHASE_COMPLETED";
-    if (lng !== "it") {
-      type = "PURCHASE_COMPLETED_EN";
-    }
+    let type = this.getMailType("PURCHASE_COMPLETED", lng);
     this.mailService.sendMail(
       new Mail({
         to: email,
@@ -108,10 +107,7 @@ class MailSenderServices {
   }
 
   async sendCancelBook(email: string, name: string, order_id: string, lng: string = "it") {
-    let type = "PURCHASE_CANCELLED";
-    if (lng !== "it") {
-      type = "PURCHASE_CANCELLED_EN";
-    }
+    let type = this.getMailType("PURCHASE_CANCELLED", lng);
     this.mailService.sendMail(
       new Mail({
         to: email,
@@ -126,10 +122,7 @@ class MailSenderServices {
   }
 
   async sendRecoverPassword(email: string, name: string, newPassword: string, lng: string = "it") {
-    let type = "RECOVER_PASSWORD";
-    if (lng !== "it") {
-      type = "RECOVER_PASSWORD_EN";
-    }
+    let type = this.getMailType("RECOVER_PASSWORD", lng);
 
     this.mailService.sendMail(
       new Mail({
@@ -145,10 +138,7 @@ class MailSenderServices {
     );
   }
   async sendWelcomeMail(to: string, name: string, pin: string, email: string, lng: string = "it") {
-    let type = "WELCOME";
-    if (lng !== "it") {
-      type = "WELCOME_EN";
-    }
+    let type = this.getMailType("WELCOME", lng);
 
     this.mailService.sendMail(
       new Mail({

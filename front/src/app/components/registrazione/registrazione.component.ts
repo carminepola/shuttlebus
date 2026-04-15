@@ -94,25 +94,35 @@ const COUNTRIES = [
 })
 export class RegistrazioneComponent implements OnInit {
   isSubmitted = false;
-  touched = { repeatEmail: false, repeatPassword: false };
   loginError = '';
   isLoading = false;
   privacy = false;
   pinMode = false;
   pin = '';
   showPassword = false;
-  showRepeatPassword = false;
   termsAccepted = false;
   prefixSearch = '';
   prefixDropdownOpen = false;
   filteredCountries = COUNTRIES;
   selectedCountry: any = null;
+  pwdRules = {
+    minLength: false,
+    hasUpper: false,
+    hasLower: false,
+    hasNumber: false,
+    hasSpecial: false,
+  };
+  emailRules = {
+    hasAt: false,
+    hasLocalPart: false,
+    hasDomain: false,
+    hasTld: false,
+    valid: false,
+  };
   public loginForm = {
     email: '',
     password: '',
     name: '',
-    repeatEmail: '',
-    repeatPassword: '',
     phoneNumber: '',
     prefixPhone: '',
   };
@@ -236,15 +246,13 @@ export class RegistrazioneComponent implements OnInit {
               .subscribe({
                 next: (response: any) => {
                   this.isLoading = false;
-                  this.loginForm = {
-                    email: '',
-                    password: '',
-                    name: '',
-                    repeatEmail: '',
-                    repeatPassword: '',
-                    phoneNumber: '',
-                    prefixPhone: '',
-                  };
+            this.loginForm = {
+              email: '',
+              password: '',
+              name: '',
+              phoneNumber: '',
+              prefixPhone: '',
+            };
                 },
               });
 
@@ -267,20 +275,57 @@ export class RegistrazioneComponent implements OnInit {
     this.registerSuccess.emit();
   }
 
-  emailMismatch(): boolean {
-    return (this.isSubmitted || this.touched.repeatEmail)
-      && this.loginForm.repeatEmail !== ''
-      && this.loginForm.email !== this.loginForm.repeatEmail;
+  onPasswordInput(): void {
+    const pwd = this.loginForm.password;
+    this.pwdRules = {
+      minLength: pwd.length >= 6,
+      hasUpper: /[A-Z]/.test(pwd),
+      hasLower: /[a-z]/.test(pwd),
+      hasNumber: /[0-9]/.test(pwd),
+      hasSpecial: /[^A-Za-z0-9]/.test(pwd),
+    };
   }
 
-  passwordMismatch(): boolean {
-    return (this.isSubmitted || this.touched.repeatPassword)
-      && this.loginForm.repeatPassword !== ''
-      && this.loginForm.password !== this.loginForm.repeatPassword;
+  onEmailInput(): void {
+    const email = this.loginForm.email.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    const parts = email.split('@');
+    const hasAt = email.includes('@');
+    const hasLocalPart = hasAt && parts[0]?.length > 0;
+    const domain = hasAt ? parts[1] : '';
+    const domainParts = domain.split('.');
+    const hasDomain = domain.length > 0 && domainParts[0]?.length > 0;
+    const hasTld = domainParts.length >= 2 && domainParts[domainParts.length - 1]?.length >= 2;
+    this.emailRules = {
+      hasAt,
+      hasLocalPart,
+      hasDomain,
+      hasTld,
+      valid: emailRegex.test(email),
+    };
   }
 
-  onFieldBlur(field: 'repeatEmail' | 'repeatPassword') {
-    this.touched[field] = true;
+  passwordStrengthPercent(): number {
+    const met = Object.values(this.pwdRules).filter(Boolean).length;
+    return (met / 5) * 100;
+  }
+
+  passwordStrengthClass(): string {
+    const met = Object.values(this.pwdRules).filter(Boolean).length;
+    if (met <= 1) return 'strength-weak';
+    if (met <= 3) return 'strength-medium';
+    return 'strength-strong';
+  }
+
+  passwordStrengthLabel(): string {
+    const met = Object.values(this.pwdRules).filter(Boolean).length;
+    if (met <= 1) return this.lngService.traslate('str_pwd_strength_weak') || 'Debole';
+    if (met <= 3) return this.lngService.traslate('str_pwd_strength_medium') || 'Media';
+    return this.lngService.traslate('str_pwd_strength_strong') || 'Forte';
+  }
+
+  isPasswordValid(): boolean {
+    return Object.values(this.pwdRules).every(Boolean);
   }
 
   onPhoneInput(event: any): void {
@@ -304,15 +349,17 @@ export class RegistrazioneComponent implements OnInit {
         return;
       }
 
-      if (this.passwordMismatch() || this.emailMismatch()) {
+      if (!this.emailRules.valid) {
+        this.loginError = this.lngService.traslate('str_email_invalid_format') || 'Formato email non valido';
+        return;
+      }
+
+      if (!this.isPasswordValid()) {
+        this.loginError = this.lngService.traslate('str_password_requirements_not_met') || 'La password non soddisfa i requisiti minimi';
         return;
       }
       if (!this.termsAccepted) {
         this.loginError = this.lngService.traslate('str_terms_required') || 'Devi accettare i termini e le condizioni';
-        return;
-      }
-      if (this.loginForm.password.trim().length < 6) {
-        console.log('password mancante');
         return;
       }
       if (this.loginForm.email.trim() == '') {

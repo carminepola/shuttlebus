@@ -87,11 +87,9 @@ export class AppComponent implements OnInit {
   }
 
   loadLng() {
-    let browserLanguage = navigator.language;
-    let lng = 'it';
-    if (browserLanguage != 'it-IT') {
-      lng = 'en';
-    }
+    const browserLanguage = navigator.language.split('-')[0];
+    const supportedLngs = ['it', 'en', 'fr', 'de', 'es', 'jp'];
+    let lng = supportedLngs.includes(browserLanguage) ? browserLanguage : 'en';
 
     if (!localStorage['currentLng']) {
       this.lngService.setLng(lng);

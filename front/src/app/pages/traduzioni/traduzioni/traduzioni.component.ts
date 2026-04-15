@@ -20,58 +20,47 @@ export class TraduzioniComponent implements OnInit {
   traduzioni: any = [];
   loading: boolean = true;
 
-  nuovaTraduzione:any ={
-    txt:"",
-    it:"",
-    en:""
+  nuovaTraduzione: any = {
+    txt: "",
+    it: "",
+    en: "",
+    fr: "",
+    de: "",
+    es: "",
+    jp: "",
   }
-  traduci(id:string){
+  traduci(id: string) {
     return this.lngService.traslate(id);
   }
   caricaTraduzioni() {
     this.lngService.get().subscribe((res) => {
       if (res && res.lng) {
-        
         this.loading = false;
         this.traduzioni = res.lng;
       }
     });
   }
 
-  modificaTraduzione(id:string,it:string,en:string){
-
-    let obj = {
-      id,
-      it,en
-
-    }
+  modificaTraduzione(id: string, it: string, en: string, fr: string, de: string, es: string, jp: string) {
+    let obj = { id, it, en, fr, de, es, jp }
     this.lngService.patch(obj).subscribe((res) => {
-      this.loading= true;
-      if (res  ) { 
-        this.loading = false; 
+      this.loading = true;
+      if (res) {
+        this.loading = false;
       }
     });
-
   }
 
-  aggiungiTraduzione(txt:string, it:string, en:string) {
+  aggiungiTraduzione(txt: string, it: string, en: string, fr: string, de: string, es: string, jp: string) {
     this.lngService.post({
-      txt,
-      it,
-      en,
+      txt, it, en, fr, de, es, jp,
     }).subscribe((res) => {
-      this.loading= true;
+      this.loading = true;
       if (res && res) {
-        
-        this.traduzioni.push({
-          txt,
-          it,
-          en,
-        });
+        this.traduzioni.push({ txt, it, en, fr, de, es, jp });
         sessionStorage['lng'] = JSON.stringify(this.traduzioni);
-        this.loading = false; 
+        this.loading = false;
       }
     });
-   
   }
 }

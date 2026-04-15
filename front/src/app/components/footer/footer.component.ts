@@ -15,14 +15,12 @@ export class FooterComponent {
 
   constructor(private router: Router, private lngService: LngService) {}
   public lng = [
-    {
-      lng: 'it',
-      name: '🇮🇹 Italiano',
-    },
-    {
-      lng: 'en',
-      name: '🇺🇸 English',
-    },
+    { lng: 'it', name: '🇮🇹 Italiano' },
+    { lng: 'en', name: '🇬🇧 English' },
+    { lng: 'fr', name: '🇫🇷 Français' },
+    { lng: 'de', name: '🇩🇪 Deutsch' },
+    { lng: 'es', name: '🇪🇸 Español' },
+    { lng: 'jp', name: '🇯🇵 日本語' },
   ];
   public setLng(lng: string) {
     this.lngService.setLng(lng);
@@ -32,11 +30,7 @@ export class FooterComponent {
   }
   public getSelectedLng() {
     let selected = this.lngService.getLng();
-    if (selected == 'it') {
-      return this.lng[0];
-    } else {
-      return this.lng[1];
-    }
+    return this.lng.find(l => l.lng === selected) || this.lng[0];
   }
   getVersion() {
     return version;

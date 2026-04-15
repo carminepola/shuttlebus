@@ -17,11 +17,15 @@
           <div class="card-body px-0">
             <table class="table table-hover mb-0">
               <thead class="table-light">
-                <tr>
+              <tr>
                   <th scope="col" style="width: 50px">#</th>
-                  <th scope="col" style="width: 300px">TXT</th>
+                  <th scope="col" style="width: 250px">TXT</th>
                   <th scope="col">IT</th>
                   <th scope="col">EN</th>
+                  <th scope="col">FR</th>
+                  <th scope="col">DE</th>
+                  <th scope="col">ES</th>
+                  <th scope="col">JP</th>
                   <th scope="col">Azioni</th>
                 </tr>
               </thead>
@@ -62,13 +66,57 @@
                     />
                   </td>
                   <td>
+                    <input
+                      [(ngModel)]="nuovaTraduzione.fr"
+                      name="name_fr"
+                      type="text"
+                      placeholder="FR"
+                      class="form-control form-control-sm"
+                      id="name_fr"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      [(ngModel)]="nuovaTraduzione.de"
+                      name="name_de"
+                      type="text"
+                      placeholder="DE"
+                      class="form-control form-control-sm"
+                      id="name_de"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      [(ngModel)]="nuovaTraduzione.es"
+                      name="name_es"
+                      type="text"
+                      placeholder="ES"
+                      class="form-control form-control-sm"
+                      id="name_es"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      [(ngModel)]="nuovaTraduzione.jp"
+                      name="name_jp"
+                      type="text"
+                      placeholder="JP"
+                      class="form-control form-control-sm"
+                      id="name_jp"
+                    />
+                  </td>
+                  <td>
                     <button
                       class="btn btn-success btn-sm rounded-3"
                       (click)="
                         aggiungiTraduzione(
                           nuovaTraduzione.txt,
                           nuovaTraduzione.it,
-                          nuovaTraduzione.en
+                          nuovaTraduzione.en,
+                          nuovaTraduzione.fr,
+                          nuovaTraduzione.de,
+                          nuovaTraduzione.es,
+                          nuovaTraduzione.jp
                         )
                       "
                     >
@@ -103,9 +151,49 @@
                       />
                     </td>
                     <td>
+                      <input
+                        [(ngModel)]="item.fr"
+                        name="name_fr_{{ i }}"
+                        type="text"
+                        placeholder="FR"
+                        class="form-control form-control-sm"
+                        id="name_fr_{{ i }}"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        [(ngModel)]="item.de"
+                        name="name_de_{{ i }}"
+                        type="text"
+                        placeholder="DE"
+                        class="form-control form-control-sm"
+                        id="name_de_{{ i }}"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        [(ngModel)]="item.es"
+                        name="name_es_{{ i }}"
+                        type="text"
+                        placeholder="ES"
+                        class="form-control form-control-sm"
+                        id="name_es_{{ i }}"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        [(ngModel)]="item.jp"
+                        name="name_jp_{{ i }}"
+                        type="text"
+                        placeholder="JP"
+                        class="form-control form-control-sm"
+                        id="name_jp_{{ i }}"
+                      />
+                    </td>
+                    <td>
                       <button
                         class="btn btn-primary btn-sm rounded-3"
-                        (click)="modificaTraduzione(item.id, item.it, item.en)"
+                        (click)="modificaTraduzione(item.id, item.it, item.en, item.fr, item.de, item.es, item.jp)"
                       >
                         <i class="fas fa-pen"></i>
                       </button>
@@ -163,13 +251,61 @@
                   required
                 />
               </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">FR</label>
+                <input
+                  [(ngModel)]="nuovaTraduzione.fr"
+                  name="name_fr_mobile"
+                  type="text"
+                  placeholder="FR"
+                  class="form-control"
+                  id="name_fr_mobile"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">DE</label>
+                <input
+                  [(ngModel)]="nuovaTraduzione.de"
+                  name="name_de_mobile"
+                  type="text"
+                  placeholder="DE"
+                  class="form-control"
+                  id="name_de_mobile"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">ES</label>
+                <input
+                  [(ngModel)]="nuovaTraduzione.es"
+                  name="name_es_mobile"
+                  type="text"
+                  placeholder="ES"
+                  class="form-control"
+                  id="name_es_mobile"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">JP</label>
+                <input
+                  [(ngModel)]="nuovaTraduzione.jp"
+                  name="name_jp_mobile"
+                  type="text"
+                  placeholder="JP"
+                  class="form-control"
+                  id="name_jp_mobile"
+                />
+              </div>
               <button
                 class="btn btn-success w-100 rounded-3"
                 (click)="
                   aggiungiTraduzione(
                     nuovaTraduzione.txt,
                     nuovaTraduzione.it,
-                    nuovaTraduzione.en
+                    nuovaTraduzione.en,
+                    nuovaTraduzione.fr,
+                    nuovaTraduzione.de,
+                    nuovaTraduzione.es,
+                    nuovaTraduzione.jp
                   )
                 "
               >
@@ -209,9 +345,53 @@
                     required
                   />
                 </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">FR</label>
+                  <input
+                    [(ngModel)]="item.fr"
+                    name="name_fr_mobile_{{ i }}"
+                    type="text"
+                    placeholder="FR"
+                    class="form-control"
+                    id="name_fr_mobile_{{ i }}"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">DE</label>
+                  <input
+                    [(ngModel)]="item.de"
+                    name="name_de_mobile_{{ i }}"
+                    type="text"
+                    placeholder="DE"
+                    class="form-control"
+                    id="name_de_mobile_{{ i }}"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">ES</label>
+                  <input
+                    [(ngModel)]="item.es"
+                    name="name_es_mobile_{{ i }}"
+                    type="text"
+                    placeholder="ES"
+                    class="form-control"
+                    id="name_es_mobile_{{ i }}"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">JP</label>
+                  <input
+                    [(ngModel)]="item.jp"
+                    name="name_jp_mobile_{{ i }}"
+                    type="text"
+                    placeholder="JP"
+                    class="form-control"
+                    id="name_jp_mobile_{{ i }}"
+                  />
+                </div>
                 <button
                   class="btn btn-primary w-100 rounded-3"
-                  (click)="modificaTraduzione(item.id, item.it, item.en)"
+                  (click)="modificaTraduzione(item.id, item.it, item.en, item.fr, item.de, item.es, item.jp)"
                 >
                   <i class="fas fa-pen me-2"></i>Modifica
                 </button>

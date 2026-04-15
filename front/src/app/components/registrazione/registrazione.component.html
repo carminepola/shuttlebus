@@ -32,7 +32,7 @@
         />
       </div>
 
-      <div class="auth-field">
+      <div class="auth-field" [class.is-invalid]="loginForm.email.length > 0 && !emailRules.valid">
         <div class="auth-field-icon">
           <i class="fa-solid fa-envelope"></i>
         </div>
@@ -45,31 +45,33 @@
           class="auth-input"
           required
           [placeholder]="'str_email' | translate"
+          (input)="onEmailInput()"
         />
-      </div>
-
-      <div class="auth-field" [class.is-invalid]="emailMismatch()">
-        <div class="auth-field-icon">
-          <i class="fa-solid fa-envelope-open"></i>
-        </div>
-        <input
-          id="repeatEmail"
-          type="email"
-          [(ngModel)]="loginForm.repeatEmail"
-          [ngModelOptions]="{ standalone: true }"
-          autocomplete="email"
-          class="auth-input"
-          [ngClass]="{ 'is-invalid': emailMismatch() }"
-          [placeholder]="'str_ripeti_email' | translate"
-          required
-          (blur)="onFieldBlur('repeatEmail')"
-        />
-        @if (emailMismatch()) {
-          <div class="auth-field-error">
-            {{ "str_email_not_match" | translate }}
-          </div>
+        @if (loginForm.email.length > 0 && emailRules.valid) {
+          <i class="fa-solid fa-circle-check auth-field-valid"></i>
         }
       </div>
+
+      @if (loginForm.email.length > 0 && !emailRules.valid) {
+        <div class="auth-password-rules">
+          <div class="auth-password-rule" [class.rule-ok]="emailRules.hasAt">
+            <i class="fa-solid" [ngClass]="emailRules.hasAt ? 'fa-circle-check' : 'fa-circle'"></i>
+            <span>{{ "str_email_rule_at" | translate }}</span>
+          </div>
+          <div class="auth-password-rule" [class.rule-ok]="emailRules.hasLocalPart">
+            <i class="fa-solid" [ngClass]="emailRules.hasLocalPart ? 'fa-circle-check' : 'fa-circle'"></i>
+            <span>{{ "str_email_rule_local" | translate }}</span>
+          </div>
+          <div class="auth-password-rule" [class.rule-ok]="emailRules.hasDomain">
+            <i class="fa-solid" [ngClass]="emailRules.hasDomain ? 'fa-circle-check' : 'fa-circle'"></i>
+            <span>{{ "str_email_rule_domain" | translate }}</span>
+          </div>
+          <div class="auth-password-rule" [class.rule-ok]="emailRules.hasTld">
+            <i class="fa-solid" [ngClass]="emailRules.hasTld ? 'fa-circle-check' : 'fa-circle'"></i>
+            <span>{{ "str_email_rule_tld" | translate }}</span>
+          </div>
+        </div>
+      }
 
       <div class="auth-field">
         <div class="auth-field-icon">
@@ -85,6 +87,7 @@
           [ngModelOptions]="{ standalone: true }"
           [placeholder]="'str_password' | translate"
           required
+          (input)="onPasswordInput()"
         />
         <button
           type="button"
@@ -98,38 +101,42 @@
         </button>
       </div>
 
-      <div class="auth-field" [class.is-invalid]="passwordMismatch()">
-        <div class="auth-field-icon">
-          <i class="fa-solid fa-lock"></i>
-        </div>
-        <input
-          id="repeatPassword"
-          [(ngModel)]="loginForm.repeatPassword"
-          [ngModelOptions]="{ standalone: true }"
-          [type]="showRepeatPassword ? 'text' : 'password'"
-          autocomplete="new-password"
-          class="auth-input"
-          [ngClass]="{ 'is-invalid': passwordMismatch() }"
-          [placeholder]="'str_ripeti_password' | translate"
-          required
-          (blur)="onFieldBlur('repeatPassword')"
-        />
-        <button
-          type="button"
-          class="auth-field-toggle"
-          (click)="showRepeatPassword = !showRepeatPassword"
-        >
-          <i
-            class="fa-solid"
-            [ngClass]="showRepeatPassword ? 'fa-eye-slash' : 'fa-eye'"
-          ></i>
-        </button>
-        @if (passwordMismatch()) {
-          <div class="auth-field-error">
-            {{ "str_password_not_match" | translate }}
+      @if (loginForm.password.length > 0) {
+        <div class="auth-password-strength">
+          <div class="auth-password-bar">
+            <div
+              class="auth-password-bar-fill"
+              [style.width.%]="passwordStrengthPercent()"
+              [ngClass]="passwordStrengthClass()"
+            ></div>
           </div>
-        }
-      </div>
+          <span class="auth-password-label" [ngClass]="passwordStrengthClass()">
+            {{ passwordStrengthLabel() }}
+          </span>
+        </div>
+        <div class="auth-password-rules">
+          <div class="auth-password-rule" [class.rule-ok]="pwdRules.minLength">
+            <i class="fa-solid" [ngClass]="pwdRules.minLength ? 'fa-circle-check' : 'fa-circle'"></i>
+            <span>{{ "str_pwd_rule_min_length" | translate }}</span>
+          </div>
+          <div class="auth-password-rule" [class.rule-ok]="pwdRules.hasUpper">
+            <i class="fa-solid" [ngClass]="pwdRules.hasUpper ? 'fa-circle-check' : 'fa-circle'"></i>
+            <span>{{ "str_pwd_rule_upper" | translate }}</span>
+          </div>
+          <div class="auth-password-rule" [class.rule-ok]="pwdRules.hasLower">
+            <i class="fa-solid" [ngClass]="pwdRules.hasLower ? 'fa-circle-check' : 'fa-circle'"></i>
+            <span>{{ "str_pwd_rule_lower" | translate }}</span>
+          </div>
+          <div class="auth-password-rule" [class.rule-ok]="pwdRules.hasNumber">
+            <i class="fa-solid" [ngClass]="pwdRules.hasNumber ? 'fa-circle-check' : 'fa-circle'"></i>
+            <span>{{ "str_pwd_rule_number" | translate }}</span>
+          </div>
+          <div class="auth-password-rule" [class.rule-ok]="pwdRules.hasSpecial">
+            <i class="fa-solid" [ngClass]="pwdRules.hasSpecial ? 'fa-circle-check' : 'fa-circle'"></i>
+            <span>{{ "str_pwd_rule_special" | translate }}</span>
+          </div>
+        </div>
+      }
 
       <div class="auth-field-group">
         <div class="prefix-autocomplete" style="max-width: 130px; flex: none;">

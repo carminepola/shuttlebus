@@ -19,9 +19,13 @@ router.post(
   uploadImagesMiddleware,
   [
     check("id").isEmpty().withMessage("Id not required"),
-    check("txt").isString().withMessage("name in Italian must be a string"),
+    check("txt").isString().withMessage("txt must be a string"),
     check("it").isString().withMessage("name in Italian must be a string"),
     check("en").isString().withMessage("name in English must be a string"),
+    check("fr").optional().isString().withMessage("name in French must be a string"),
+    check("de").optional().isString().withMessage("name in German must be a string"),
+    check("es").optional().isString().withMessage("name in Spanish must be a string"),
+    check("jp").optional().isString().withMessage("name in Japanese must be a string"),
   ],
 
   checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
@@ -45,6 +49,10 @@ router.patch(
     check("id").notEmpty().withMessage("Id is required"),
     check("it").isString().withMessage("name in Italian must be a string"),
     check("en").isString().withMessage("name in English must be a string"),
+    check("fr").optional().isString().withMessage("name in French must be a string"),
+    check("de").optional().isString().withMessage("name in German must be a string"),
+    check("es").optional().isString().withMessage("name in Spanish must be a string"),
+    check("jp").optional().isString().withMessage("name in Japanese must be a string"),
   ],
 
   checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
