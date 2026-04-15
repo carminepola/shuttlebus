@@ -102,7 +102,7 @@ export default class UsersDao {
   async getStaff(page: number = 1, limit: number = 10) {
     try {
       let json = {
-        role: { $ne: role.USER },
+        role: { $lt: role.USER },
       };
       const skip = (page - 1) * limit;
       let list = await this.db.collection(this.schema).find(json).skip(skip).limit(limit).toArray();
@@ -136,7 +136,7 @@ export default class UsersDao {
       const searchRegex = new RegExp(searchTerm, "i");
 
       let json = {
-        role: { $ne: role.USER },
+        role: { $lt: role.USER },
         $or: [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
       };
 
@@ -809,12 +809,12 @@ export default class UsersDao {
   async updateUser(user: any): Promise<boolean> {
     try {
       // Aggiorna l'utente
- 
+
       user.email = user.email.toLowerCase();
       if (!user.password) {
         delete user.password;
       }
- 
+
       const result = await this.db.collection<userModel>(this.schema).updateOne({ email: user.email }, { $set: user });
       // Verifica se `result`è nullo o se `result.value`è nullo
       if (!result) {
