@@ -80,6 +80,28 @@
             <span>Whatsapp</span>
           </a>
         </li>
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-1 cursor-pointer"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="fas fa-globe small"></i>
+            <span class="nav-lang-label">{{ getSelectedLng().lng | uppercase }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            @for (l of lng; track l.lng) {
+              <li>
+                <a
+                  class="dropdown-item cursor-pointer"
+                  [class.active]="getSelectedLng().lng === l.lng"
+                  (click)="setLng(l.lng)"
+                  [innerHtml]="l.name"
+                ></a>
+              </li>
+            }
+          </ul>
+        </li>
       </ul>
       <div class="nav-indicator"></div>
     </div>

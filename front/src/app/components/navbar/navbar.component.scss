@@ -73,3 +73,14 @@
 .btn-link:hover span {
   display: block !important;
 }
+
+.nav-lang-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.dropdown-item.active {
+  background-color: rgba(var(--bs-secondary-rgb), 1);
+  color: #fff;
+}

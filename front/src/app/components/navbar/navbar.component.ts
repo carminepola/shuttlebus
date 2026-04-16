@@ -10,6 +10,7 @@ import {
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { ModalService } from '../../services/modal/modal.service';
+import { LngService } from '../../services/lng/lng.service';
 import { CommonModule } from '@angular/common';
 import { LoginFormComponent } from '../login-form/login-form.component';
 import { RegistrazioneComponent } from '../registrazione/registrazione.component';
@@ -28,11 +29,21 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
   private containerEl: HTMLElement | null = null;
   private resizeObs: ResizeObserver | null = null;
 
+  public lng = [
+    { lng: 'it', name: '🇮🇹 Italiano' },
+    { lng: 'en', name: '🇬🇧 English' },
+    { lng: 'fr', name: '🇫🇷 Français' },
+    { lng: 'de', name: '🇩🇪 Deutsch' },
+    { lng: 'es', name: '🇪🇸 Español' },
+    { lng: 'jp', name: '🇯🇵 日本語' },
+  ];
+
   constructor(
     private router: Router,
     private authService: AuthService,
     private modalService: ModalService,
     private ngZone: NgZone,
+    private lngService: LngService,
   ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -129,5 +140,17 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
     } else {
       this.modalService.openModal('modalLogin');
     }
+  }
+
+  setLng(lng: string) {
+    this.lngService.setLng(lng);
+    this.router.navigate([this.router.url]).then(() => {
+      window.location.reload();
+    });
+  }
+
+  getSelectedLng() {
+    const selected = this.lngService.getLng();
+    return this.lng.find(l => l.lng === selected) || this.lng[0];
   }
 }

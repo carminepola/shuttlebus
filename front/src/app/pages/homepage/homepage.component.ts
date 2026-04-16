@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { SearchComponent } from '../../components/search/search.component';
 import { Router, RouterModule } from '@angular/router';
 import { BusStatusComponent } from '../../components/bus-status/bus-status.component';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-homepage',
   imports: [
@@ -19,16 +20,27 @@ import { BusStatusComponent } from '../../components/bus-status/bus-status.compo
     MapsOfPointsComponent,
     RouterModule,
     BusStatusComponent,
+    CommonModule,
   ],
   animations: [fadeAnimation],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.scss',
 })
 export class HomepageComponent implements OnInit {
+  public lng = [
+    { lng: 'it', name: '🇮🇹 Italiano' },
+    { lng: 'en', name: '🇬🇧 English' },
+    { lng: 'fr', name: '🇫🇷 Français' },
+    { lng: 'de', name: '🇩🇪 Deutsch' },
+    { lng: 'es', name: '🇪🇸 Español' },
+    { lng: 'jp', name: '🇯🇵 日本語' },
+  ];
+
   constructor(
     public router: Router,
     private titleService: Title,
     private metaService: Meta,
+    private lngService: LngService,
   ) {}
   ngOnInit(): void {
     if (localStorage.getItem('authUrl')) {
@@ -104,5 +116,17 @@ export class HomepageComponent implements OnInit {
     for (const t of tag) {
       this.metaService.updateTag(t);
     }
+  }
+
+  setLng(lng: string) {
+    this.lngService.setLng(lng);
+    this.router.navigate([this.router.url]).then(() => {
+      window.location.reload();
+    });
+  }
+
+  getSelectedLng() {
+    const selected = this.lngService.getLng();
+    return this.lng.find(l => l.lng === selected) || this.lng[0];
   }
 }

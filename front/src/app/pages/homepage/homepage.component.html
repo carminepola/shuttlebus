@@ -1,15 +1,40 @@
 <div class="hero">
   <div class="container">
-    <div class="d-block d-lg-none mb-2">
-      <div class="card border-0 rounded-4 glass">
-        <div
-          class="card-body d-flex justify-content-center align-items-center py-2"
-        >
-          <img
-            src="../../../assets/pintour-logo.png"
-            alt="Pintour"
-            style="max-height: 32px"
-          />
+    <div class="d-block d-lg-none mb-2" style="position: relative; z-index: 100;">
+      <div class="card border-0 rounded-4 glass" style="overflow: visible; position: relative; z-index: 100;">
+        <div class="card-body d-flex align-items-center py-2 position-relative">
+          <div class="flex-grow-1 d-flex justify-content-center">
+            <img
+              src="../../../assets/pintour-logo.png"
+              alt="Pintour"
+              style="max-height: 32px"
+            />
+          </div>
+          <div class="dropdown position-absolute" style="right: 8px; z-index: 110;">
+            <button
+              class="btn btn-sm px-2 py-1 d-flex align-items-center gap-1"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="fas fa-globe small"></i>
+              <span class="small fw-bold">{{
+                getSelectedLng().lng | uppercase
+              }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              @for (l of lng; track l.lng) {
+                <li>
+                  <a
+                    class="dropdown-item cursor-pointer"
+                    [class.active]="getSelectedLng().lng === l.lng"
+                    (click)="setLng(l.lng)"
+                    [innerHtml]="l.name"
+                  ></a>
+                </li>
+              }
+            </ul>
+          </div>
         </div>
       </div>
     </div>
