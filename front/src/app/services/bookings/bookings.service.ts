@@ -73,6 +73,9 @@ export class BookingsService {
   readBookingById(id: string) {
     return this.http.post(this.apiUrl + '/readBookingById', { id });
   }
+  scanTicket(id: string) {
+    return this.http.post(this.apiUrl + '/scanTicket', { id });
+  }
   getBookingsByUserId(userId: string) {
     return this.http.get<any>(`${this.apiUrl}/getBookingByUserId/${userId}`);
   }

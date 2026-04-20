@@ -185,6 +185,10 @@ class BookingsServices {
   async getBooking(numberOfTickets: string): Promise<booking> {
     return new booking(await this.bookingDao.getBooking(numberOfTickets));
   }
+
+  async scanTicket(numberOfTickets: string, driverId: string, driverName: string) {
+    return await this.bookingDao.scanBooking(numberOfTickets, driverId, driverName);
+  }
   async cancelBooking(numberOfTickets: string, cancelMotivation?: string) {
     let success = await this.bookingDao.cancelBooking(numberOfTickets, cancelMotivation);
     if (success) {

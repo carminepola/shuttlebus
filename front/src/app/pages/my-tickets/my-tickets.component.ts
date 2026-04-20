@@ -71,7 +71,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       if (!this.qrCodes[key]) {
         try {
           this.qrCodes[key] = await QRCode.toDataURL(
-            `${this.url}/ticket/check/${key}`,
+            key,
             { width: 120, margin: 1 },
           );
         } catch {}
@@ -566,7 +566,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       // QR code section
       try {
         const qrCodeDataUrl = await QRCode.toDataURL(
-          `${this.url}/ticket/check/${booking.numberOfTickets}`,
+          booking.numberOfTickets,
           { margin: 1, width: 300 },
         );
 

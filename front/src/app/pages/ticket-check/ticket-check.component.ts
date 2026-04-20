@@ -7,16 +7,23 @@ import { lastValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { fadeAnimation } from '../../animations/fade.animation';
+import { TitlePageComponent } from '../../components/title-page/title-page.component';
 @Component({
   selector: 'app-ticket-check',
-  imports: [CommonModule, LoadingComponent, TranslatePipe, RouterLink],
+  imports: [CommonModule, LoadingComponent, TranslatePipe, RouterLink, FormsModule, TitlePageComponent],
   templateUrl: './ticket-check.component.html',
   styleUrl: './ticket-check.component.scss',
+  animations: [fadeAnimation],
 })
 export class TicketCheckComponent implements OnInit {
   public loading: boolean = true;
   public book: any;
   public notDriver: boolean = false;
+  public alreadyScanned: boolean = false;
+  public scannedBy: any = null;
+  public notFound: boolean = false;
   constructor(
     private bookingsService: BookingsService,
     private route: ActivatedRoute,
@@ -36,6 +43,16 @@ export class TicketCheckComponent implements OnInit {
     return 9999;
   }
 
+  formatScanDate(timestamp: number): string {
+    return new Date(timestamp).toLocaleString('it-IT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
   async ngOnInit(): Promise<any> {
     let id = '';
 
@@ -44,10 +61,16 @@ export class TicketCheckComponent implements OnInit {
         id = params['id'];
       });
       let ris: any = await lastValueFrom(
-        this.bookingsService.readBookingById(id)
+        this.bookingsService.scanTicket(id)
       );
 
-      this.book = ris.bookings;
+      if (!ris.found) {
+        this.notFound = true;
+      } else {
+        this.book = ris.booking;
+        this.alreadyScanned = ris.alreadyScanned;
+        this.scannedBy = ris.scannedBy;
+      }
       this.loading = false;
       return true;
     }

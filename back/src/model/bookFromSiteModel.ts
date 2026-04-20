@@ -20,6 +20,7 @@ export default class booking {
   user: any;
   paymentIntentId?: string;
   cancelMotivation?: string;
+  scannedBy?: { driverId: string; driverName: string; scannedAt: number };
   constructor(book: any) {
     try {
       if (book.userId === undefined) throw new Error("userId is required");

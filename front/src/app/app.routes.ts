@@ -34,6 +34,7 @@ import { InfoPageComponent } from './pages/info-page/info-page.component';
 import { DriverRoutesComponent } from './pages/driver-routes/driver-routes.component';
 import { TicketForRoutesComponent } from './pages/ticket-for-routes/ticket-for-routes.component';
 import { TicketCheckComponent } from './pages/ticket-check/ticket-check.component';
+import { TicketSearchComponent } from './pages/ticket-search/ticket-search.component';
 import { TargheComponent } from './pages/targhe/targhe.component';
 import { DepositoComponent } from './pages/deposito/deposito.component';
 import { UserDetailsComponent } from './pages/user-details/user-details.component';
@@ -141,6 +142,12 @@ export const routes: Routes = [
       {
         path: 'routes/:id',
         component: TicketForRoutesComponent,
+        canActivate: [AuthGuard],
+        data: { lowBar: true, requiredRole: 75 },
+      },
+      {
+        path: 'ticket-search',
+        component: TicketSearchComponent,
         canActivate: [AuthGuard],
         data: { lowBar: true, requiredRole: 75 },
       },

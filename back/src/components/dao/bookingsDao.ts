@@ -523,6 +523,29 @@ export default class BookingsDAO {
     return this.db.collection("bookings").findOne({ numberOfTickets });
   }
 
+  async scanBooking(numberOfTickets: string, driverId: string, driverName: string) {
+    const existing = await this.db.collection("bookings").findOne({ numberOfTickets, status: "confirmed" });
+    if (!existing) return null;
+
+    if (existing.scannedBy) {
+      return { alreadyScanned: true, scannedBy: existing.scannedBy, booking: existing };
+    }
+
+    const scanData = { driverId, driverName, scannedAt: new Date().getTime() };
+    const updated = await this.db.collection("bookings").findOneAndUpdate(
+      { numberOfTickets, status: "confirmed", scannedBy: { $exists: false } },
+      { $set: { scannedBy: scanData, updatedAt: new Date().getTime() } },
+      { returnDocument: "after" }
+    );
+
+    if (!updated) {
+      const retry = await this.db.collection("bookings").findOne({ numberOfTickets });
+      return { alreadyScanned: true, scannedBy: retry?.scannedBy, booking: retry };
+    }
+
+    return { alreadyScanned: false, booking: updated };
+  }
+
   readPendingBookingForUser(userId: string) {
     return this.db.collection("bookings").find({ userId, status: "pending" }).toArray();
   }

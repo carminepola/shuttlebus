@@ -180,7 +180,7 @@ class MailSenderServices {
           payment_method,
           route,
           img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
-          url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + process.env.CLIENT_URL + "/ticket/check/" + order_id,
+          url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + order_id,
           mytickets_url: process.env.CLIENT_URL + "/user/mytickets",
         },
       })

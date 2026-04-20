@@ -1,0 +1,207 @@
+.tfr-page {
+  min-height: 100vh;
+  background: #f4f5f7;
+  padding-bottom: 40px;
+}
+
+.tfr-empty {
+  text-align: center;
+  padding: 60px 20px;
+  margin-top: 12px;
+  color: #999;
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    display: block;
+    color: #ccc;
+  }
+
+  p {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+}
+
+.tfr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.tfr-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.tfr-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.tfr-card-id {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1064;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    color: #ec2a7a;
+    font-size: 0.85rem;
+  }
+}
+
+.tfr-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  i {
+    font-size: 0.65rem;
+  }
+}
+
+.tfr-badge-scanned {
+  background: rgba(37, 134, 127, 0.1);
+  color: #1a6b66;
+}
+
+.tfr-badge-pending {
+  background: rgba(217, 119, 6, 0.08);
+  color: #b45309;
+}
+
+.tfr-card-route {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 16px;
+}
+
+.tfr-stop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tfr-stop-dot {
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  border-radius: 50%;
+  background: #ec2a7a;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #ec2a7a;
+  position: relative;
+  z-index: 2;
+}
+
+.tfr-stop-dot-end {
+  background: #1a1064;
+  box-shadow: 0 0 0 2px #1a1064;
+}
+
+.tfr-stop-info {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tfr-stop-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #1a1064;
+}
+
+.tfr-stop-time {
+  font-size: 0.78rem;
+  color: #bbb;
+  font-weight: 500;
+}
+
+.tfr-stop-line-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 5px;
+  padding: 4px 0;
+  position: relative;
+}
+
+.tfr-stop-line {
+  width: 2px;
+  height: 28px;
+  background: #d8dbe3;
+}
+
+.tfr-bus-icon {
+  font-size: 0.7rem;
+  color: #ec2a7a;
+  margin-top: -2px;
+  margin-bottom: -2px;
+  background: #fff;
+  padding: 0 4px;
+}
+
+.tfr-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.tfr-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f4f5f7;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #555;
+
+  i {
+    font-size: 0.7rem;
+    color: #999;
+  }
+}
+
+.tfr-scan-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #f0f1f3;
+  font-size: 0.8rem;
+  color: #888;
+  font-weight: 500;
+
+  i {
+    color: #1a6b66;
+    font-size: 0.85rem;
+  }
+
+  strong {
+    color: #555;
+  }
+}

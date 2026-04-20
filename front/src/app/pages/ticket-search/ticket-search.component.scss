@@ -1,0 +1,151 @@
+.ts-page {
+  min-height: 100vh;
+  background: #f4f5f7;
+  padding-bottom: 40px;
+}
+
+.ts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.ts-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 22px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.ts-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(26, 16, 100, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #1a1064;
+  margin-bottom: 16px;
+}
+
+.ts-card-icon-pink {
+  background: rgba(236, 42, 122, 0.08);
+  color: #ec2a7a;
+}
+
+.ts-card-title {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #1a1064;
+  margin-bottom: 6px;
+}
+
+.ts-card-desc {
+  font-size: 0.85rem;
+  color: #999;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.ts-input-group {
+  display: flex;
+  gap: 10px;
+  background: #f4f5f7;
+  border-radius: 14px;
+  padding: 6px;
+}
+
+.ts-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  color: #1a1064;
+  padding: 12px 14px;
+  outline: none;
+
+  &::placeholder {
+    color: #bbb;
+    font-weight: 500;
+  }
+}
+
+.ts-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: none;
+  background: #1a1064;
+  color: #fff;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    background: #301d95;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.ts-scan-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 2px dashed rgba(26, 16, 100, 0.15);
+  background: rgba(26, 16, 100, 0.03);
+  color: #1a1064;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background: rgba(26, 16, 100, 0.06);
+    border-color: rgba(26, 16, 100, 0.25);
+  }
+}
+
+.ts-scan-btn-active {
+  background: rgba(236, 42, 122, 0.08) !important;
+  border-color: #ec2a7a !important;
+  border-style: solid !important;
+  color: #ec2a7a !important;
+}
+
+.ts-scanner {
+  width: 100%;
+  min-height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+#qr-reader {
+  border: none !important;
+  width: 100% !important;
+}
+
+#qr-reader video {
+  border-radius: 16px;
+}
+
+@media (min-width: 768px) {
+  .ts-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

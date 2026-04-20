@@ -199,6 +199,23 @@ router.post("/readBookingById", authMiddleware, checkPermissionMiddleware(role.D
   }
 });
 
+router.post("/scanTicket", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let id: string = req.body.id;
+    let user = res.locals.userLogged;
+    let driverName = user.details?.name || user.email || user._id;
+    let result = await bookingServices.scanTicket(id, user._id, driverName);
+    if (!result) {
+      res.json({ found: false });
+    } else {
+      res.json({ found: true, ...result });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/topClients", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
