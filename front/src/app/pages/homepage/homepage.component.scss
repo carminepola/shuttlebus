@@ -334,3 +334,18 @@
 .row-fermata {
   min-height: 30vh;
 }
+
+.hero .footer-lang-btn {
+  background: rgba(26, 16, 100, 0.06) !important;
+  border: 1px solid rgba(26, 16, 100, 0.1) !important;
+  color: rgba(26, 16, 100, 0.7) !important;
+
+  i {
+    opacity: 0.5;
+  }
+
+  &:hover {
+    background: rgba(26, 16, 100, 0.12) !important;
+    color: #1a1064 !important;
+  }
+}
