@@ -53,6 +53,8 @@ export class RiepilogoComponent implements OnInit {
   ) {}
 
   public acceptTerms: boolean = false;
+  public confirmDuplicateTicket: boolean = false;
+  public hasDuplicateTicket: boolean = false;
   public loading: boolean = true;
   public luggagePrice = LUGGAGE_PRICE;
   public funnelSteps = ['str_step_search', 'str_step_select', 'str_step_review', 'str_step_pay'];
@@ -91,13 +93,15 @@ export class RiepilogoComponent implements OnInit {
     const navigation = window.history.state;
     if (navigation.value) {
       this.param = navigation.value;
-      this.loading = false;
       localStorage.setItem('ticket', JSON.stringify(this.param));
+      this.loading = false;
+      this.checkDuplicateTicket();
     } else {
       let param = localStorage.getItem('ticket');
       if (param) {
         this.param = JSON.parse(param);
         this.loading = false;
+        this.checkDuplicateTicket();
       } else {
         this.router.navigate(['/']);
       }
@@ -131,6 +135,13 @@ export class RiepilogoComponent implements OnInit {
     }
 
     this.errorMessage = '';
+
+    if (this.hasDuplicateTicket && !this.confirmDuplicateTicket) {
+      this.errorMessage = 'str_error_confirm_duplicate_ticket';
+      this.loading = false;
+      return;
+    }
+
     this.loading = true;
     this.bookingService.insertBooking(this.param).subscribe({
       next: (response: any) => {
@@ -144,6 +155,25 @@ export class RiepilogoComponent implements OnInit {
       },
     });
   }
+  async checkDuplicateTicket() {
+    if (!this.authService.isLoggedIn() || !this.param?.routeId || !this.param?.date || !this.param?.from?.id || !this.param?.to?.id) {
+      return;
+    }
+    try {
+      const res = await lastValueFrom(this.bookingService.getBookingFromUser());
+      const bookings = res['booking'] || [];
+      this.hasDuplicateTicket = bookings.some((b: any) =>
+        (b.status === 'confirmed' || b.status === 'pending') &&
+        b.routeId === this.param.routeId &&
+        b.date === this.param.date &&
+        b.from?.id === this.param.from.id &&
+        b.to?.id === this.param.to.id
+      );
+    } catch {
+      this.hasDuplicateTicket = false;
+    }
+  }
+
   isToLate() {
     const today = new Date();
     const threeDaysFromNow = new Date(
@@ -183,6 +213,7 @@ export class RiepilogoComponent implements OnInit {
       next: () => {
         this.checkoutLoginLoading = false;
         this.checkoutLoginError = '';
+        this.checkDuplicateTicket();
       },
       error: (e: any) => {
         this.checkoutLoginLoading = false;

@@ -28,6 +28,7 @@
             <span>{{ "str_home" | translate }}</span>
           </a>
         </li>
+
         <li class="nav-item">
           <a
             #navLink
@@ -51,6 +52,21 @@
             }
           </a>
         </li>
+        @if (isLoggedIn()) {
+          <li class="nav-item">
+            <a
+              #navLink
+              class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+              (click)="goPath('/user/mytickets')"
+              [class.active]="getPath().includes('/user/mytickets')"
+              (mouseenter)="onNavMouseEnter($any($event.target))"
+              (mouseleave)="onNavMouseLeave()"
+            >
+              <i class="fa-solid fa-ticket"></i>
+              <span>{{ "str_my_tickets" | translate }}</span>
+            </a>
+          </li>
+        }
         <li class="nav-item">
           <a
             #navLink
@@ -87,7 +103,9 @@
             aria-expanded="false"
           >
             <i class="fas fa-globe small"></i>
-            <span class="nav-lang-label">{{ getSelectedLng().lng | uppercase }}</span>
+            <span class="nav-lang-label">{{
+              getSelectedLng().lng | uppercase
+            }}</span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
             @for (l of lng; track l.lng) {
@@ -110,9 +128,7 @@
 
 <div class="modal fade" tabindex="-1" id="modalLogin" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div
-      class="modal-content glass border-0 rounded-4 shadow-lg"
-    >
+    <div class="modal-content glass border-0 rounded-4 shadow-lg">
       <div class="modal-header border-0 px-4 pt-3 pb-0 position-relative">
         <div class="nav nav-pills w-100 pe-5" role="tablist">
           <a

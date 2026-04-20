@@ -30,6 +30,7 @@
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.6",
     "crypto-js": "^4.2.0",
+    "driver.js": "^1.4.0",
     "jspdf": "^4.2.1",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",

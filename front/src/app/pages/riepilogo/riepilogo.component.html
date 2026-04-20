@@ -10,7 +10,10 @@
     }
     @if (!loading) {
       <app-title-page class="mb-3" back="true"></app-title-page>
-      <app-step-indicator [steps]="funnelSteps" [current]="2"></app-step-indicator>
+      <app-step-indicator
+        [steps]="funnelSteps"
+        [current]="2"
+      ></app-step-indicator>
 
       <div class="container pb-5" style="min-height: 65vh">
         <div class="summary-title mb-4">
@@ -164,6 +167,21 @@
                 </div>
               }
 
+              @if (hasDuplicateTicket) {
+                <div class="alert-sidebar alert-sidebar-warning">
+                  <div class="duplicate-warning-text">
+                    <i class="fa-solid fa-circle-info me-2"></i>
+                    <span
+                      [innerHTML]="'str_biglietto_gia_acquistato' | translate"
+                    ></span>
+                  </div>
+                  <a
+                    class="duplicate-ticket-link"
+                    href="/user/mytickets"
+                  >{{ "str_vai_ai_miei_biglietti" | translate }}</a>
+                </div>
+              }
+
               @if (isLoggedIn()) {
                 <div class="sidebar-body">
                   @if (errorMessage) {
@@ -189,10 +207,29 @@
                       {{ "str_ho_letto_e_accetto" | translate }}
                     </label>
                   </div>
+                  @if (hasDuplicateTicket) {
+                    <div class="form-check my-2">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="confirmDuplicate"
+                        [(ngModel)]="confirmDuplicateTicket"
+                      />
+                      <label class="form-check-label" for="confirmDuplicate">
+                        {{ "str_conferma_acquisto_duplicato" | translate }} 
+                      </label>
+                    </div>
+                  }
                   <button
                     class="purchase-btn"
-                    [class.active]="acceptTerms"
-                    [disabled]="!acceptTerms"
+                    [class.active]="
+                      acceptTerms &&
+                      (!hasDuplicateTicket || confirmDuplicateTicket)
+                    "
+                    [disabled]="
+                      !acceptTerms ||
+                      (hasDuplicateTicket && !confirmDuplicateTicket)
+                    "
                     (click)="bookNow()"
                   >
                     <span class="purchase-total">{{ param.total }}€</span>
@@ -203,12 +240,20 @@
               @if (!isLoggedIn()) {
                 <div class="sidebar-body">
                   <div class="login-inline-title mb-3">
-                    <span [innerHTML]="'str_accendi_account' | translate"></span>
+                    <span
+                      [innerHTML]="'str_accendi_account' | translate"
+                    ></span>
                   </div>
 
-                  <form [formGroup]="checkoutLoginForm" (submit)="onQuickLogin($event)" class="login-inline-form">
+                  <form
+                    [formGroup]="checkoutLoginForm"
+                    (submit)="onQuickLogin($event)"
+                    class="login-inline-form"
+                  >
                     <div class="mb-2">
-                      <label for="checkout-email" class="form-label">Email</label>
+                      <label for="checkout-email" class="form-label"
+                        >Email</label
+                      >
                       <input
                         id="checkout-email"
                         formControlName="email"
@@ -216,22 +261,34 @@
                         autocomplete="email"
                         class="form-control"
                         [placeholder]="'str_email' | translate"
-                        [ngClass]="{ 'is-invalid': checkoutLoginSubmitted && checkoutEmailField.invalid }"
+                        [ngClass]="{
+                          'is-invalid':
+                            checkoutLoginSubmitted &&
+                            checkoutEmailField.invalid,
+                        }"
                       />
-                      @if (checkoutLoginSubmitted && checkoutEmailField.errors) {
+                      @if (
+                        checkoutLoginSubmitted && checkoutEmailField.errors
+                      ) {
                         <div class="invalid-feedback">
-                          @if (checkoutEmailField.errors['required']) {
-                            <span>{{ 'str_email_obbligatoria' | translate }}</span>
+                          @if (checkoutEmailField.errors["required"]) {
+                            <span>{{
+                              "str_email_obbligatoria" | translate
+                            }}</span>
                           }
-                          @if (checkoutEmailField.errors['email']) {
-                            <span>{{ 'str_email_non_valida' | translate }}</span>
+                          @if (checkoutEmailField.errors["email"]) {
+                            <span>{{
+                              "str_email_non_valida" | translate
+                            }}</span>
                           }
                         </div>
                       }
                     </div>
 
                     <div class="mb-2">
-                      <label for="checkout-password" class="form-label">Password</label>
+                      <label for="checkout-password" class="form-label"
+                        >Password</label
+                      >
                       <input
                         id="checkout-password"
                         formControlName="password"
@@ -239,15 +296,25 @@
                         autocomplete="current-password"
                         class="form-control"
                         [placeholder]="'str_password' | translate"
-                        [ngClass]="{ 'is-invalid': checkoutLoginSubmitted && checkoutPasswordField.invalid }"
+                        [ngClass]="{
+                          'is-invalid':
+                            checkoutLoginSubmitted &&
+                            checkoutPasswordField.invalid,
+                        }"
                       />
-                      @if (checkoutLoginSubmitted && checkoutPasswordField.errors) {
+                      @if (
+                        checkoutLoginSubmitted && checkoutPasswordField.errors
+                      ) {
                         <div class="invalid-feedback">
-                          @if (checkoutPasswordField.errors['required']) {
-                            <span>{{ 'str_password_obbligatoria' | translate }}</span>
+                          @if (checkoutPasswordField.errors["required"]) {
+                            <span>{{
+                              "str_password_obbligatoria" | translate
+                            }}</span>
                           }
-                          @if (checkoutPasswordField.errors['minlength']) {
-                            <span>{{ 'str_password_lunghezza_minima' | translate }}</span>
+                          @if (checkoutPasswordField.errors["minlength"]) {
+                            <span>{{
+                              "str_password_lunghezza_minima" | translate
+                            }}</span>
                           }
                         </div>
                       }
@@ -269,7 +336,10 @@
                         <span [innerText]="'str_acquista' | translate"></span>
                       }
                       @if (checkoutLoginLoading) {
-                        <div class="spinner-border spinner-border-sm text-white" role="status"></div>
+                        <div
+                          class="spinner-border spinner-border-sm text-white"
+                          role="status"
+                        ></div>
                       }
                     </button>
                   </form>
@@ -284,9 +354,11 @@
                   </button>
 
                   <div class="login-inline-register mt-3">
-                    <span [innerHTML]="'str_non_hai_account' | translate"></span>
+                    <span
+                      [innerHTML]="'str_non_hai_account' | translate"
+                    ></span>
                     <a class="register-link" (click)="openModal(true)">
-                      {{ 'str_registrati' | translate }}
+                      {{ "str_registrati" | translate }}
                     </a>
                   </div>
                 </div>

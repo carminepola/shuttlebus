@@ -14,6 +14,7 @@ import { LoginFormComponent } from '../login-form/login-form.component';
 import { RegistrazioneComponent } from '../registrazione/registrazione.component';
 import { ModalService } from '../../services/modal/modal.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { TourGuideService } from '../../services/tour-guide/tour-guide.service';
 
 @Component({
   selector: 'app-lowBar',
@@ -39,6 +40,7 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
     private authService: AuthService,
     private modalService: ModalService,
     private ngZone: NgZone,
+    private tourGuideService: TourGuideService,
   ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -109,6 +111,7 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
 
   onEvent() {
     this.modalService.closeModal();
+    this.tourGuideService.startTicketTour();
   }
 
   onComplete() {
@@ -121,6 +124,7 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
       this.modalService.closeModal();
     }
     this.modalService.closeModal();
+    this.tourGuideService.startTicketTour();
   }
 
   goPath(path: string) {

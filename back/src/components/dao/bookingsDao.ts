@@ -433,7 +433,7 @@ export default class BookingsDAO {
           updatedAt: new Date().getTime(),
           status: "expired",
         },
-      }
+      },
     );
   }
 
@@ -448,7 +448,7 @@ export default class BookingsDAO {
           updatedAt: new Date().getTime(),
           status: "expired",
         },
-      }
+      },
     );
   }
 
@@ -536,7 +536,7 @@ export default class BookingsDAO {
           $in: ["pending", "confirmed", "cancelled", "refunded"],
         },
       })
-      .project({ date: 1, createdAt: 1, numberOfTickets: 1, status: 1, from: 1, to: 1, travelDate: 1, total: 1, luggage: 1, seats: 1, name: 1, ticketTypes: 1, other: 1 })
+      .project({ date: 1, createdAt: 1, numberOfTickets: 1, status: 1, from: 1, to: 1, travelDate: 1, total: 1, luggage: 1, seats: 1, name: 1, ticketTypes: 1, other: 1, routeId: 1 })
       .sort({ createdAt: -1 })
       .toArray();
   }
@@ -795,15 +795,13 @@ export default class BookingsDAO {
               name: 1,
               user: 1,
             },
-          }
+          },
         )
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .toArray(),
-      this.db
-        .collection("bookings")
-        .countDocuments({ status: { $in: ["confirmed", "pending"] } }),
+      this.db.collection("bookings").countDocuments({ status: { $in: ["confirmed", "pending"] } }),
     ]);
 
     return { results, total, page, limit };
@@ -899,10 +897,7 @@ export default class BookingsDAO {
               },
             },
             bookingValue: {
-              $add: [
-                "$total",
-                { $multiply: ["$luggage", 2] },
-              ],
+              $add: ["$total", { $multiply: ["$luggage", 2] }],
             },
           },
         },
@@ -927,5 +922,17 @@ export default class BookingsDAO {
     let completeData = allDates.map((entry) => (resultMap.has(entry.date) ? resultMap.get(entry.date) : entry));
 
     return { completeData, startDateYearAgo: formatDate(startDateYearAgoCurrent), endDateYearAgo: formatDate(endDateYearAgoCurrent) };
+  }
+
+  async hasTicketForRoute(userId: string, routeId: string, date: string, fromStopId: string, toStopId: string): Promise<boolean> {
+    const result = await this.db.collection("bookings").findOne({
+      userId,
+      routeId,
+      date,
+      "from.id": fromStopId,
+      "to.id": toStopId,
+      status: { $in: ["confirmed"] },
+    });
+    return !!result;
   }
 }

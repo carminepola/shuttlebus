@@ -84,6 +84,24 @@ router.get("/getBookingFromUser", authMiddleware, checkPermissionMiddleware(role
   }
 });
 
+router.get("/hasTicketForRoute", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const routeId = req.query.routeId as string;
+    const date = req.query.date as string;
+    const fromStopId = req.query.fromStopId as string;
+    const toStopId = req.query.toStopId as string;
+    if (!routeId || !date || !fromStopId || !toStopId) {
+      res.status(400).json({ message: "routeId, date, fromStopId and toStopId are required" });
+      return;
+    }
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.hasTicketForRoute(res.locals.userLogged["_id"], routeId, date, fromStopId, toStopId);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/getBookingByUserId/:userId", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);

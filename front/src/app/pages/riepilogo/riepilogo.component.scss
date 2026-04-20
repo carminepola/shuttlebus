@@ -301,6 +301,40 @@
   }
 }
 
+.alert-sidebar-warning {
+  background: rgba(13, 110, 253, 0.06);
+  border-bottom-color: rgba(13, 110, 253, 0.12);
+  padding: 0.875rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  i {
+    color: rgba(var(--bs-primary-rgb), 1);
+  }
+}
+
+.duplicate-warning-text {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.duplicate-ticket-link {
+  font-weight: 600;
+  color: rgba(var(--bs-primary-rgb), 1);
+  text-decoration: underline;
+  font-size: 0.8rem;
+  padding-left: 1.375rem;
+}
+
+.duplicate-checkbox {
+  .form-check-label {
+    font-size: 0.78rem;
+    color: rgba(0, 0, 0, 0.65);
+  }
+}
+
 .sidebar-body {
   padding: 1.25rem;
 }
@@ -592,6 +626,19 @@
     background: rgba(255, 193, 7, 0.08);
     border-bottom-color: rgba(255, 193, 7, 0.15);
     color: rgba(255, 255, 255, 0.6);
+  }
+
+  .alert-sidebar-warning {
+    background: rgba(var(--bs-primary-rgb), 0.08);
+    border-bottom-color: rgba(var(--bs-primary-rgb), 0.12);
+  }
+
+  .duplicate-ticket-link {
+    color: rgba(var(--bs-primary-rgb), 0.85);
+  }
+
+  .duplicate-checkbox .form-check-label {
+    color: rgba(255, 255, 255, 0.55);
   }
 
   .timeline-icon {

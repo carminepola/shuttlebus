@@ -347,6 +347,10 @@ class BookingsServices {
       },
     };
   }
+
+  async hasTicketForRoute(userId: string, routeId: string, date: string, fromStopId: string, toStopId: string): Promise<boolean> {
+    return await this.bookingDao.hasTicketForRoute(userId, routeId, date, fromStopId, toStopId);
+  }
 }
 
 export default BookingsServices;

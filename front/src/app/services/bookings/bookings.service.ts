@@ -87,4 +87,10 @@ export class BookingsService {
   getDashboardStats() {
     return this.http.get<any>(`${this.apiUrl}/dashboardStats`);
   }
+
+  hasTicketForRoute(routeId: string, date: string, fromStopId: string, toStopId: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/hasTicketForRoute`, {
+      params: { routeId, date, fromStopId, toStopId },
+    });
+  }
 }
