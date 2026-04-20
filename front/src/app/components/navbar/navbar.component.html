@@ -35,7 +35,8 @@
             class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
             (click)="onTicket()"
             [class.active]="
-              getPath().includes('/user/') || getPath().includes('/admin/')
+              (getPath().includes('/user/') || getPath().includes('/admin/')) &&
+              !getPath().includes('mytickets')
             "
             (mouseenter)="onNavMouseEnter($any($event.target))"
             (mouseleave)="onNavMouseLeave()"
