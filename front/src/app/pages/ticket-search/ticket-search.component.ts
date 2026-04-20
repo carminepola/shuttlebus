@@ -20,7 +20,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
 export class TicketSearchComponent implements OnInit, OnDestroy {
   ticketId: string = '';
   loading: boolean = false;
-  scannerActive: boolean = false;
+  showScannerModal: boolean = false;
   private html5QrCode: Html5Qrcode | null = null;
   private scannerElementId = 'qr-reader';
 
@@ -48,11 +48,11 @@ export class TicketSearchComponent implements OnInit, OnDestroy {
     }
   }
 
-  async startScanner() {
-    if (this.scannerActive) {
-      this.stopScanner();
-      return;
-    }
+  async openScanner() {
+    this.showScannerModal = true;
+    document.body.style.overflow = 'hidden';
+
+    await new Promise(resolve => setTimeout(resolve, 150));
 
     this.html5QrCode = new Html5Qrcode(this.scannerElementId);
 
@@ -69,9 +69,9 @@ export class TicketSearchComponent implements OnInit, OnDestroy {
         },
         () => {}
       );
-      this.scannerActive = true;
     } catch (err) {
       console.error('Errore avvio scanner:', err);
+      this.closeScanner();
     }
   }
 
@@ -84,11 +84,13 @@ export class TicketSearchComponent implements OnInit, OnDestroy {
         }
       } catch {}
     }
-    this.scannerActive = false;
+    this.html5QrCode = null;
+    this.showScannerModal = false;
+    document.body.style.overflow = '';
     this.router.navigate(['/ticket/check', decodedText.trim()]);
   }
 
-  async stopScanner() {
+  async closeScanner() {
     if (this.html5QrCode) {
       try {
         const state = this.html5QrCode.getState();
@@ -99,10 +101,11 @@ export class TicketSearchComponent implements OnInit, OnDestroy {
       this.html5QrCode.clear();
       this.html5QrCode = null;
     }
-    this.scannerActive = false;
+    this.showScannerModal = false;
+    document.body.style.overflow = '';
   }
 
   ngOnDestroy() {
-    this.stopScanner();
+    this.closeScanner();
   }
 }

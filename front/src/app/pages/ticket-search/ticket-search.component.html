@@ -40,22 +40,28 @@
         <i class="fa-solid fa-camera"></i>
       </div>
       <h3 class="ts-card-title">Scansiona QR Code</h3>
-      <p class="ts-card-desc">
-        Inquadra il QR code del biglietto con la fotocamera
-      </p>
-      <button
-        class="ts-scan-btn"
-        [ngClass]="scannerActive ? 'ts-scan-btn-active' : ''"
-        (click)="startScanner()"
-      >
-        @if (scannerActive) {
-          <i class="fa-solid fa-stop me-2"></i>Ferma Scanner
-        }
-        @if (!scannerActive) {
-          <i class="fa-solid fa-qrcode me-2"></i>Avvia Scanner
-        }
+      <p class="ts-card-desc">Inquadra il QR code del biglietto con la fotocamera</p>
+      <button class="ts-scan-btn" (click)="openScanner()">
+        <i class="fa-solid fa-qrcode me-2"></i>Avvia Scanner
       </button>
-      <div id="qr-reader" class="ts-scanner"></div>
     </div>
   </div>
 </div>
+
+@if (showScannerModal) {
+  <div class="ts-overlay" (click)="closeScanner()">
+    <div class="ts-modal" (click)="$event.stopPropagation()">
+      <div class="ts-modal-header">
+        <span class="ts-modal-title">
+          <i class="fa-solid fa-qrcode me-2"></i>Scannerizza Biglietto
+        </span>
+        <button class="ts-modal-close" (click)="closeScanner()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="ts-modal-body">
+        <div id="qr-reader" class="ts-scanner"></div>
+      </div>
+    </div>
+  </div>
+}
