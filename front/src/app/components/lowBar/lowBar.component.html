@@ -39,6 +39,17 @@
   </div>
 </div>
 <div class="space-lowBar d-block d-lg-none"></div>
+@if (showTour) {
+  <div class="tour-highlight"></div>
+  <div class="tour-popover">
+    <div class="tour-popover-arrow"></div>
+    <div class="tour-popover-title">{{ "str_tour_account_title" | translate }}</div>
+    <div class="tour-popover-desc">{{ "str_tour_account_desc" | translate }}</div>
+    <button class="tour-popover-btn" (click)="dismissTour()">
+      {{ "str_tour_got_it" | translate }}
+    </button>
+  </div>
+}
 <nav
   class="card rounded-4 shadow d-block d-lg-none glass"
   id="lowBar"

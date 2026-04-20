@@ -15,6 +15,7 @@ import { RegistrazioneComponent } from '../registrazione/registrazione.component
 import { ModalService } from '../../services/modal/modal.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { TourGuideService } from '../../services/tour-guide/tour-guide.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lowBar',
@@ -34,6 +35,8 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
   private indicatorEl: HTMLElement | null = null;
   private containerEl: HTMLElement | null = null;
   private resizeObs: ResizeObserver | null = null;
+  private tourSub: Subscription | null = null;
+  showTour = false;
 
   constructor(
     private router: Router,
@@ -72,10 +75,15 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
     if (this.containerEl) {
       this.resizeObs.observe(this.containerEl);
     }
+
+    this.tourSub = this.tourGuideService.getTourVisible().subscribe((v) => {
+      this.showTour = v;
+    });
   }
 
   ngOnDestroy(): void {
     this.resizeObs?.disconnect();
+    this.tourSub?.unsubscribe();
   }
 
   onNavMouseEnter(el: HTMLAnchorElement): void {
@@ -140,5 +148,9 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
     } else {
       this.modalService.openModal('modalLogin2');
     }
+  }
+
+  dismissTour() {
+    this.tourGuideService.dismissTour();
   }
 }
