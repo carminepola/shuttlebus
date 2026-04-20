@@ -1,89 +1,90 @@
-<div class="tfr-page">
-  <div class="container-lg px-3 px-lg-4">
-    <app-title-page
-      [title]="'Biglietti della corsa'"
-      [subtitle]="'Tutti i biglietti confermati per oggi'"
-      back="true"
-    ></app-title-page>
+<div class="container-lg px-3 marginTopBar px-lg-4">
+  <app-title-page
+    [title]="'Biglietti della corsa'"
+    [subtitle]="'Tutti i biglietti confermati per oggi'"
+    back="true"
+  ></app-title-page>
 
-    @if (loading) {
-      <div class="d-flex justify-content-center py-5">
-        <app-loading></app-loading>
+  @if (loading) {
+    <div class="d-flex justify-content-center py-5">
+      <app-loading></app-loading>
+    </div>
+  }
+
+  @if (!loading) {
+    @if (bookings.length === 0) {
+      <div class="tfr-empty" @fadeInOut>
+        <i class="fa-solid fa-ticket"></i>
+        <p>Nessun biglietto trovato per questa corsa</p>
       </div>
     }
 
-    @if (!loading) {
-      @if (bookings.length === 0) {
-        <div class="tfr-empty" @fadeInOut>
-          <i class="fa-solid fa-ticket"></i>
-          <p>Nessun biglietto trovato per questa corsa</p>
-        </div>
-      }
-
-      <div class="tfr-list">
-        @for (booking of bookings; track booking; let i = $index) {
-          <div class="tfr-card" @fadeInOut>
-            <div class="tfr-card-header">
-              <div class="tfr-card-id">
-                <i class="fa-solid fa-ticket"></i>
-                {{ booking.numberOfTickets }}
-              </div>
-              @if (booking.scannedBy) {
-                <span class="tfr-badge tfr-badge-scanned">
-                  <i class="fa-solid fa-check-circle me-1"></i>A bordo
-                </span>
-              } @else {
-                <span class="tfr-badge tfr-badge-pending">
-                  <i class="fa-regular fa-clock me-1"></i>Da verificare
-                </span>
-              }
+    <div class="tfr-list">
+      @for (booking of bookings; track booking; let i = $index) {
+        <div class="tfr-card" @fadeInOut>
+          <div class="tfr-card-header">
+            <div class="tfr-card-id">
+              <i class="fa-solid fa-ticket"></i>
+              {{ booking.numberOfTickets }}
             </div>
-
-            <div class="tfr-card-route">
-              <div class="tfr-stop">
-                <div class="tfr-stop-dot"></div>
-                <div class="tfr-stop-info">
-                  <span class="tfr-stop-name">{{ booking.from.name }}</span>
-                  <span class="tfr-stop-time">{{ booking.from.stopTime }}</span>
-                </div>
-              </div>
-              <div class="tfr-stop-line-track">
-                <div class="tfr-stop-line"></div>
-                <i class="fa-solid fa-bus tfr-bus-icon"></i>
-              </div>
-              <div class="tfr-stop">
-                <div class="tfr-stop-dot tfr-stop-dot-end"></div>
-                <div class="tfr-stop-info">
-                  <span class="tfr-stop-name">{{ booking.to.name }}</span>
-                  <span class="tfr-stop-time">{{ booking.to.stopTime }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="tfr-card-meta">
-              @for (ticket of booking.ticketTypes; track ticket) {
-                <div class="tfr-meta-chip">
-                  <i class="fa-solid fa-person"></i>
-                  {{ ticket.count }} x {{ ticket.name.it }}
-                </div>
-              }
-              @if (booking.luggage > 0) {
-                <div class="tfr-meta-chip">
-                  <i class="fa-solid fa-suitcase-rolling"></i>
-                  {{ booking.luggage }} bagagli
-                </div>
-              }
-            </div>
-
             @if (booking.scannedBy) {
-              <div class="tfr-scan-info">
-                <i class="fa-solid fa-user-check"></i>
-                <span>Verificato da <strong>{{ booking.scannedBy.driverName }}</strong></span>
+              <span class="tfr-badge tfr-badge-scanned">
+                <i class="fa-solid fa-check-circle me-1"></i>A bordo
+              </span>
+            } @else {
+              <span class="tfr-badge tfr-badge-pending">
+                <i class="fa-regular fa-clock me-1"></i>Da verificare
+              </span>
+            }
+          </div>
+
+          <div class="tfr-card-route">
+            <div class="tfr-stop">
+              <div class="tfr-stop-dot"></div>
+              <div class="tfr-stop-info">
+                <span class="tfr-stop-name">{{ booking.from.name }}</span>
+                <span class="tfr-stop-time">{{ booking.from.stopTime }}</span>
+              </div>
+            </div>
+            <div class="tfr-stop-line-track">
+              <div class="tfr-stop-line"></div>
+              <i class="fa-solid fa-bus tfr-bus-icon"></i>
+            </div>
+            <div class="tfr-stop">
+              <div class="tfr-stop-dot tfr-stop-dot-end"></div>
+              <div class="tfr-stop-info">
+                <span class="tfr-stop-name">{{ booking.to.name }}</span>
+                <span class="tfr-stop-time">{{ booking.to.stopTime }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tfr-card-meta">
+            @for (ticket of booking.ticketTypes; track ticket) {
+              <div class="tfr-meta-chip">
+                <i class="fa-solid fa-person"></i>
+                {{ ticket.count }} x {{ ticket.name.it }}
+              </div>
+            }
+            @if (booking.luggage > 0) {
+              <div class="tfr-meta-chip">
+                <i class="fa-solid fa-suitcase-rolling"></i>
+                {{ booking.luggage }} bagagli
               </div>
             }
           </div>
-        }
-      </div>
-    }
-  </div>
+
+          @if (booking.scannedBy) {
+            <div class="tfr-scan-info">
+              <i class="fa-solid fa-user-check"></i>
+              <span
+                >Verificato da
+                <strong>{{ booking.scannedBy.driverName }}</strong></span
+              >
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
 </div>

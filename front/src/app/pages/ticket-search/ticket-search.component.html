@@ -1,61 +1,61 @@
-<div class="ts-page">
-  <div class="container-lg px-3 px-lg-4">
-    <app-title-page
-      title="Verifica Biglietto"
-      subtitle="Inserisci l'ID del biglietto o scansiona il QR code"
-      back="true"
-    ></app-title-page>
+<div class="container-lg px-3 marginTopBar px-lg-4">
+  <app-title-page
+    title="Verifica Biglietto"
+    subtitle="Inserisci l'ID del biglietto o scansiona il QR code"
+    back="true"
+  ></app-title-page>
 
-    <div class="ts-grid">
-      <div class="ts-card" @fadeInOut>
-        <div class="ts-card-icon">
-          <i class="fa-solid fa-keyboard"></i>
-        </div>
-        <h3 class="ts-card-title">Inserisci ID Biglietto</h3>
-        <p class="ts-card-desc">Digita il codice del biglietto da verificare</p>
-        <div class="ts-input-group">
-          <input
-            type="text"
-            class="ts-input"
-            [(ngModel)]="ticketId"
-            placeholder="Es. PT20250420..."
-            (keyup.enter)="searchTicket()"
-          />
-          <button
-            class="ts-btn"
-            (click)="searchTicket()"
-            [disabled]="!ticketId.trim() || loading"
-          >
-            @if (loading) {
-              <span class="spinner-border spinner-border-sm"></span>
-            }
-            @if (!loading) {
-              <i class="fa-solid fa-magnifying-glass"></i>
-            }
-          </button>
-        </div>
+  <div class="ts-grid">
+    <div class="ts-card" @fadeInOut>
+      <div class="ts-card-icon">
+        <i class="fa-solid fa-keyboard"></i>
       </div>
-
-      <div class="ts-card" @fadeInOut>
-        <div class="ts-card-icon ts-card-icon-pink">
-          <i class="fa-solid fa-camera"></i>
-        </div>
-        <h3 class="ts-card-title">Scansiona QR Code</h3>
-        <p class="ts-card-desc">Inquadra il QR code del biglietto con la fotocamera</p>
+      <h3 class="ts-card-title">Inserisci ID Biglietto</h3>
+      <p class="ts-card-desc">Digita il codice del biglietto da verificare</p>
+      <div class="ts-input-group">
+        <input
+          type="text"
+          class="ts-input"
+          [(ngModel)]="ticketId"
+          placeholder="Es. PT20250420..."
+          (keyup.enter)="searchTicket()"
+        />
         <button
-          class="ts-scan-btn"
-          [ngClass]="scannerActive ? 'ts-scan-btn-active' : ''"
-          (click)="startScanner()"
+          class="ts-btn"
+          (click)="searchTicket()"
+          [disabled]="!ticketId.trim() || loading"
         >
-          @if (scannerActive) {
-            <i class="fa-solid fa-stop me-2"></i>Ferma Scanner
+          @if (loading) {
+            <span class="spinner-border spinner-border-sm"></span>
           }
-          @if (!scannerActive) {
-            <i class="fa-solid fa-qrcode me-2"></i>Avvia Scanner
+          @if (!loading) {
+            <i class="fa-solid fa-magnifying-glass"></i>
           }
         </button>
-        <div id="qr-reader" class="ts-scanner"></div>
       </div>
+    </div>
+
+    <div class="ts-card" @fadeInOut>
+      <div class="ts-card-icon ts-card-icon-pink">
+        <i class="fa-solid fa-camera"></i>
+      </div>
+      <h3 class="ts-card-title">Scansiona QR Code</h3>
+      <p class="ts-card-desc">
+        Inquadra il QR code del biglietto con la fotocamera
+      </p>
+      <button
+        class="ts-scan-btn"
+        [ngClass]="scannerActive ? 'ts-scan-btn-active' : ''"
+        (click)="startScanner()"
+      >
+        @if (scannerActive) {
+          <i class="fa-solid fa-stop me-2"></i>Ferma Scanner
+        }
+        @if (!scannerActive) {
+          <i class="fa-solid fa-qrcode me-2"></i>Avvia Scanner
+        }
+      </button>
+      <div id="qr-reader" class="ts-scanner"></div>
     </div>
   </div>
 </div>

@@ -1,9 +1,3 @@
-.dr-page {
-  min-height: 100vh;
-  background: #f4f5f7;
-  padding-bottom: 40px;
-}
-
 .dr-hero {
   background: #1a1064;
   border-radius: 20px;
@@ -130,9 +124,6 @@
 }
 
 .dr-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   background: #fff;
   border-radius: 16px;
   padding: 16px 18px;
@@ -148,24 +139,20 @@
   }
 }
 
-.dr-card-left {
+.dr-card-top {
   display: flex;
   align-items: center;
-  gap: 14px;
-  flex: 1;
-  min-width: 0;
-  cursor: pointer;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
 .dr-card-time {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: #1a1064;
-  white-space: nowrap;
-  min-width: 70px;
 
   i {
     font-size: 0.85rem;
@@ -173,8 +160,8 @@
   }
 }
 
-.dr-card-info {
-  min-width: 0;
+.dr-card-body {
+  padding-left: 2px;
 }
 
 .dr-card-name {
@@ -182,52 +169,63 @@
   font-size: 0.95rem;
   color: #1a1064;
   line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-bottom: 6px;
 }
 
 .dr-card-route {
   display: flex;
   align-items: center;
-  font-size: 0.78rem;
-  color: #888;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #777;
   font-weight: 500;
-  margin-top: 2px;
 
   i {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: #bbb;
-  }
-
-  span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 120px;
+    flex-shrink: 0;
   }
 }
 
-.dr-card-right {
+.dr-card-stop {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+  max-width: calc(50% - 4px);
+}
+
+.dr-card-action {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f1f3;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1a1064;
+
+  i {
+    font-size: 0.7rem;
+  }
 }
 
 .dr-status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 50px;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
 
   i {
-    font-size: 0.62rem;
+    font-size: 0.58rem;
   }
 }
 
@@ -246,28 +244,8 @@
   color: #4428d9;
 }
 
-.dr-card-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  border: none;
-  background: rgba(26, 16, 100, 0.06);
-  color: #1a1064;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #1a1064;
-    color: #fff;
-  }
-}
-
 @media (min-width: 576px) {
-  .dr-card-route span {
+  .dr-card-stop {
     max-width: 200px;
   }
 

@@ -187,6 +187,32 @@ class BookingsServices {
   }
 
   async scanTicket(numberOfTickets: string, driverId: string, driverName: string) {
+    const bookingRaw = await this.bookingDao.getBooking(numberOfTickets);
+    if (!bookingRaw || bookingRaw.status !== "confirmed") {
+      return { found: false };
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    if (bookingRaw.date !== today) {
+      return { found: true, wrongDate: true, booking: bookingRaw };
+    }
+
+    try {
+      const route = await this.routeServices.getRouteById(bookingRaw.routeId);
+      if (route) {
+        const schedule = route.schedules?.find((s: any) => s.id === bookingRaw.scheduleId);
+        if (schedule?.departureTime) {
+          const parts = schedule.departureTime.split(":");
+          const depMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+          const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+          const diff = nowMinutes - depMinutes;
+          if (diff < -30 || diff > 30) {
+            return { found: true, wrongTime: true, departureTime: schedule.departureTime, booking: bookingRaw };
+          }
+        }
+      }
+    } catch {}
+
     return await this.bookingDao.scanBooking(numberOfTickets, driverId, driverName);
   }
   async cancelBooking(numberOfTickets: string, cancelMotivation?: string) {

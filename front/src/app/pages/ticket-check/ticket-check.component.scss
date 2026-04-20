@@ -46,6 +46,11 @@
   border: 1.5px solid rgba(217, 119, 6, 0.12);
 }
 
+.tc-banner-error {
+  background: rgba(207, 47, 84, 0.06);
+  border: 1.5px solid rgba(207, 47, 84, 0.12);
+}
+
 .tc-banner-icon {
   width: 44px;
   height: 44px;
@@ -84,6 +89,15 @@
 
 .tc-banner-warning .tc-banner-title {
   color: #b45309;
+}
+
+.tc-banner-error .tc-banner-icon {
+  background: rgba(207, 47, 84, 0.1);
+  color: #cf2f54;
+}
+
+.tc-banner-error .tc-banner-title {
+  color: #cf2f54;
 }
 
 .tc-banner-sub {

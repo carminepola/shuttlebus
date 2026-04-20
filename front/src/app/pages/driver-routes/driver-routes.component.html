@@ -1,82 +1,76 @@
-<div class="dr-page">
-  <div class="container-lg px-3 px-lg-4">
-    <app-title-page
-      title="Pannello Autista"
-      subtitle="Gestisci le corse di oggi"
-      back="true"
-    ></app-title-page>
+<div class="container-lg marginTopBar px-3 px-lg-4">
+  <app-title-page
+    title="Pannello Autista"
+    subtitle="Gestisci le corse di oggi"
+    back="true"
+  ></app-title-page>
 
-    @if (loading) {
-      <div class="d-flex justify-content-center py-5">
-        <app-loading></app-loading>
+  @if (loading) {
+    <div class="d-flex justify-content-center py-5">
+      <app-loading></app-loading>
+    </div>
+  }
+
+  @if (!loading) {
+    <div class="dr-hero mb-4" @fadeInOut>
+      <div class="dr-hero-date">
+        <i class="fa-regular fa-calendar me-2"></i>{{ todayStr }}
+      </div>
+      <div class="dr-hero-stats">
+        <div class="dr-stat">
+          <span class="dr-stat-value">{{ routes.length }}</span>
+          <span class="dr-stat-label">Corse</span>
+        </div>
+        <div class="dr-stat-divider"></div>
+        <div class="dr-stat">
+          <span class="dr-stat-value">{{
+            (routes | filterStatus: "in-progress").length
+          }}</span>
+          <span class="dr-stat-label">In corso</span>
+        </div>
+        <div class="dr-stat-divider"></div>
+        <div class="dr-stat">
+          <span class="dr-stat-value">{{
+            (routes | filterStatus: "upcoming").length
+          }}</span>
+          <span class="dr-stat-label">Prossime</span>
+        </div>
+      </div>
+      <button (click)="goTo('/driver/ticket-search')" class="dr-scan-btn">
+        <i class="fa-solid fa-qrcode me-2"></i>Verifica Biglietto
+      </button>
+    </div>
+
+    @if (routes.length === 0) {
+      <div class="dr-empty" @fadeInOut>
+        <i class="fa-solid fa-bus"></i>
+        <p>Nessuna corsa programmata per oggi</p>
       </div>
     }
 
-    @if (!loading) {
-      <div class="dr-hero mb-4" @fadeInOut>
-        <div class="dr-hero-date">
-          <i class="fa-regular fa-calendar me-2"></i>{{ todayStr }}
+    @for (route of routes; track route.id) {
+      <div
+        class="dr-card"
+        @fadeInOut
+        (click)="goTo('/driver/routes/' + route.id)"
+      >
+        <div class="dr-card-top">
+          <div class="dr-card-time">
+            <i class="fa-regular fa-clock"></i>
+            {{ route.departureTime }}
+          </div>
+          <span class="dr-status-badge {{ getStatusBadgeClass(route.status) }}">
+            <i class="{{ getScheduleIcon(route.status) }} me-1"></i
+            >{{ getStatusLabel(route.status) }}
+          </span>
         </div>
-        <div class="dr-hero-stats">
-          <div class="dr-stat">
-            <span class="dr-stat-value">{{ routes.length }}</span>
-            <span class="dr-stat-label">Corse</span>
-          </div>
-          <div class="dr-stat-divider"></div>
-          <div class="dr-stat">
-            <span class="dr-stat-value">{{ (routes | filterStatus:'in-progress').length }}</span>
-            <span class="dr-stat-label">In corso</span>
-          </div>
-          <div class="dr-stat-divider"></div>
-          <div class="dr-stat">
-            <span class="dr-stat-value">{{ (routes | filterStatus:'upcoming').length }}</span>
-            <span class="dr-stat-label">Prossime</span>
-          </div>
+        <div class="dr-card-body">
+          <div class="dr-card-name">{{ route.name }}</div>
         </div>
-        <button
-          (click)="goTo('/driver/ticket-search')"
-          class="dr-scan-btn"
-        >
-          <i class="fa-solid fa-qrcode me-2"></i>Verifica Biglietto
-        </button>
+        <div class="dr-card-action">
+          <span>Visualizza prenotazioni</span>
+        </div>
       </div>
-
-      @if (routes.length === 0) {
-        <div class="dr-empty" @fadeInOut>
-          <i class="fa-solid fa-bus"></i>
-          <p>Nessuna corsa programmata per oggi</p>
-        </div>
-      }
-
-      @for (route of routes; track route.id) {
-        <div class="dr-card" @fadeInOut>
-          <div class="dr-card-left" (click)="goTo('/driver/routes/' + route.id)">
-            <div class="dr-card-time">
-              <i class="fa-regular fa-clock"></i>
-              {{ route.departureTime }}
-            </div>
-            <div class="dr-card-info">
-              <div class="dr-card-name">{{ route.name }}</div>
-              <div class="dr-card-route">
-                <span>{{ route.firstStop }}</span>
-                <i class="fa-solid fa-arrow-right mx-1"></i>
-                <span>{{ route.lastStop }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="dr-card-right">
-            <span class="dr-status-badge {{ getStatusBadgeClass(route.status) }}">
-              <i class="{{ getScheduleIcon(route.status) }} me-1"></i>{{ getStatusLabel(route.status) }}
-            </span>
-            <button
-              (click)="goTo('/driver/routes/' + route.id)"
-              class="dr-card-btn"
-            >
-              <i class="fa-solid fa-chevron-right"></i>
-            </button>
-          </div>
-        </div>
-      }
     }
-  </div>
+  }
 </div>

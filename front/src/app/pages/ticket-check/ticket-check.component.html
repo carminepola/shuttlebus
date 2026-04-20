@@ -11,7 +11,7 @@
       </div>
     }
 
-    @if (!loading && !notDriver && !notFound) {
+    @if (!loading && !notDriver && !notFound && !wrongDate && !wrongTime) {
       <div class="tc-result" @fadeInOut>
         <div class="tc-id">
           <i class="fa-solid fa-ticket"></i>
@@ -101,6 +101,94 @@
         }
       </div>
 
+      <button
+        routerLink="/driver/ticket-search"
+        class="tc-back-btn"
+      >
+        <i class="fa-solid fa-arrow-left me-2"></i>Torna alla verifica
+      </button>
+    }
+
+    @if (!loading && wrongDate) {
+      <div class="tc-result" @fadeInOut>
+        <div class="tc-id">
+          <i class="fa-solid fa-ticket"></i>
+          {{ book.numberOfTickets }}
+        </div>
+        <div class="tc-banner tc-banner-error">
+          <div class="tc-banner-icon">
+            <i class="fa-solid fa-calendar-xmark"></i>
+          </div>
+          <div class="tc-banner-text">
+            <span class="tc-banner-title">Biglietto non imbarcabile</span>
+            <span class="tc-banner-sub">Il biglietto non e' per oggi. Data: <strong>{{ book.date | date : 'dd/MM/yyyy' }}</strong></span>
+          </div>
+        </div>
+        <div class="tc-details">
+          <div class="tc-detail-row">
+            <div class="tc-detail-icon">
+              <i class="fa-solid fa-bus"></i>
+            </div>
+            <div class="tc-detail-content">
+              <span class="tc-detail-label">Partenza</span>
+              <span class="tc-detail-value">{{ book.from.name }} <small>({{ book.from.stopTime }})</small></span>
+            </div>
+          </div>
+          <div class="tc-detail-row">
+            <div class="tc-detail-icon">
+              <i class="fa-solid fa-map-pin"></i>
+            </div>
+            <div class="tc-detail-content">
+              <span class="tc-detail-label">Arrivo</span>
+              <span class="tc-detail-value">{{ book.to.name }} <small>({{ book.to.stopTime }})</small></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button
+        routerLink="/driver/ticket-search"
+        class="tc-back-btn"
+      >
+        <i class="fa-solid fa-arrow-left me-2"></i>Torna alla verifica
+      </button>
+    }
+
+    @if (!loading && wrongTime) {
+      <div class="tc-result" @fadeInOut>
+        <div class="tc-id">
+          <i class="fa-solid fa-ticket"></i>
+          {{ book.numberOfTickets }}
+        </div>
+        <div class="tc-banner tc-banner-error">
+          <div class="tc-banner-icon">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <div class="tc-banner-text">
+            <span class="tc-banner-title">Imbarco non consentito</span>
+            <span class="tc-banner-sub">La corsa parte alle <strong>{{ departureTime }}</strong>. Puoi imbarcare solo da 30 minuti prima a 30 minuti dopo.</span>
+          </div>
+        </div>
+        <div class="tc-details">
+          <div class="tc-detail-row">
+            <div class="tc-detail-icon">
+              <i class="fa-solid fa-bus"></i>
+            </div>
+            <div class="tc-detail-content">
+              <span class="tc-detail-label">Partenza</span>
+              <span class="tc-detail-value">{{ book.from.name }} <small>({{ book.from.stopTime }})</small></span>
+            </div>
+          </div>
+          <div class="tc-detail-row">
+            <div class="tc-detail-icon">
+              <i class="fa-solid fa-map-pin"></i>
+            </div>
+            <div class="tc-detail-content">
+              <span class="tc-detail-label">Arrivo</span>
+              <span class="tc-detail-value">{{ book.to.name }} <small>({{ book.to.stopTime }})</small></span>
+            </div>
+          </div>
+        </div>
+      </div>
       <button
         routerLink="/driver/ticket-search"
         class="tc-back-btn"

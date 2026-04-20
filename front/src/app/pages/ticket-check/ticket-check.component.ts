@@ -24,6 +24,9 @@ export class TicketCheckComponent implements OnInit {
   public alreadyScanned: boolean = false;
   public scannedBy: any = null;
   public notFound: boolean = false;
+  public wrongDate: boolean = false;
+  public wrongTime: boolean = false;
+  public departureTime: string = '';
   constructor(
     private bookingsService: BookingsService,
     private route: ActivatedRoute,
@@ -66,6 +69,13 @@ export class TicketCheckComponent implements OnInit {
 
       if (!ris.found) {
         this.notFound = true;
+      } else if (ris.wrongDate) {
+        this.wrongDate = true;
+        this.book = ris.booking;
+      } else if (ris.wrongTime) {
+        this.wrongTime = true;
+        this.departureTime = ris.departureTime;
+        this.book = ris.booking;
       } else {
         this.book = ris.booking;
         this.alreadyScanned = ris.alreadyScanned;
