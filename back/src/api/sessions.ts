@@ -42,6 +42,10 @@ router.post(
       let userServices = new UserServices(db);
       let failToBanServices = new FailToBanServices(db);
 
+      if (await failToBanServices.isFail(res.locals.log.ip)) {
+        throw new ErrorModel(429, "Troppi tentativi. Riprova più tardi.");
+      }
+
       let loginResponse = await sessionServices.login(req.body.email, req.body.password, req.body.rememberMe);
 
       if (await userServices.checkPassword(req.body.email, req.body.password)) {
@@ -100,10 +104,10 @@ router.delete("/", authMiddleware, async (req: Request, res: Response, next: Nex
     let bookingsServices = new BookingsServices(db);
     let userId = res.locals.userLogged._id;
     let pendingBookings = await bookingsServices.getBookingFromUser(userId);
-    
+
     if (pendingBookings && pendingBookings.length > 0) {
       for (let booking of pendingBookings) {
-        if (booking.status === 'pending') {
+        if (booking.status === "pending") {
           await bookingsServices.deleteBooking(booking.numberOfTickets, userId);
         }
       }
@@ -152,22 +156,19 @@ router.patch("/terms", authMiddleware, async (req: Request, res: Response, next:
   result = { message: "User upgraded" };
   res.json(result);
 });
-router.post(
-  "/recoverPassword",
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      let userDao = new UserDao(db);
-      let email = req.body.email;
-      let lng = req.body.lng ? (req.body.lng == "it" ? "it" : "en") : "en";
-      let user = await userDao.getUserByEmail(email);
-      if (user) {
-        await userDao.insertRecoverPassword(user.email, user.details.name, lng);
-      }
-      res.json({ message: "Una nuova password sarà inviata all'indirizzo email" });
-    } catch (error) {
-      next(error);
+router.post("/recoverPassword", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let userDao = new UserDao(db);
+    let email = req.body.email;
+    let lng = req.body.lng ? (req.body.lng == "it" ? "it" : "en") : "en";
+    let user = await userDao.getUserByEmail(email);
+    if (user) {
+      await userDao.insertRecoverPassword(user.email, user.details.name, lng);
     }
-  },
-);
+    res.json({ message: "Una nuova password sarà inviata all'indirizzo email" });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

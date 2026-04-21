@@ -16,7 +16,7 @@ router.get(
   "/auth",
   passport.authenticate("google", {
     scope: ["profile", "email", "https://www.googleapis.com/auth/user.phonenumbers.read"],
-  })
+  }),
 );
 
 router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction) => {
@@ -24,7 +24,12 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
     let secretKey = env.SECRET_KEY || "";
 
     const failToBanServices = new FailToBanServices(db);
-    failToBanServices.insertIp(req.ip);
+
+    if (await failToBanServices.isFail(req.ip)) {
+      return res.status(429).json({ error: "Troppi tentativi. Riprova più tardi." });
+    }
+
+    await failToBanServices.insertIp(req.ip);
     let id = req.params.id;
     const googleSessionsServices = new GoogleSessionServices(db);
 
@@ -45,7 +50,7 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
         secretKey,
         {
           expiresIn: "30d",
-        }
+        },
       );
       let settingsJwt: CookieOptions = {
         maxAge: undefined,
