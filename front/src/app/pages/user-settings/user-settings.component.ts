@@ -35,6 +35,13 @@ export class UserSettingsComponent implements OnInit {
   errorMessage = '';
   successMessageDetails = '';
   errorMessageDetails = '';
+  pwdRules = {
+    minLength: false,
+    hasUpper: false,
+    hasLower: false,
+    hasNumber: false,
+    hasSpecial: false,
+  };
 
   constructor(
     private authService: AuthService,
@@ -75,6 +82,40 @@ export class UserSettingsComponent implements OnInit {
     });
   }
 
+  onPasswordInput(): void {
+    const pwd = this.changePasswordForm.get('newPassword')?.value || '';
+    this.pwdRules = {
+      minLength: pwd.length >= 6,
+      hasUpper: /[A-Z]/.test(pwd),
+      hasLower: /[a-z]/.test(pwd),
+      hasNumber: /[0-9]/.test(pwd),
+      hasSpecial: /[^A-Za-z0-9]/.test(pwd),
+    };
+  }
+
+  isPasswordValid(): boolean {
+    return Object.values(this.pwdRules).every(Boolean);
+  }
+
+  passwordStrengthPercent(): number {
+    const met = Object.values(this.pwdRules).filter(Boolean).length;
+    return (met / 5) * 100;
+  }
+
+  passwordStrengthClass(): string {
+    const met = Object.values(this.pwdRules).filter(Boolean).length;
+    if (met <= 1) return 'strength-weak';
+    if (met <= 3) return 'strength-medium';
+    return 'strength-strong';
+  }
+
+  passwordStrengthLabel(): string {
+    const met = Object.values(this.pwdRules).filter(Boolean).length;
+    if (met <= 1) return 'Debole';
+    if (met <= 3) return 'Media';
+    return 'Forte';
+  }
+
   onSubmit(): void {
     if (this.changePasswordForm.invalid) {
       return;
@@ -83,6 +124,11 @@ export class UserSettingsComponent implements OnInit {
     const oldPassword = this.changePasswordForm.get('oldPassword')?.value;
     const newPassword = this.changePasswordForm.get('newPassword')?.value;
     const repeatPassword = this.changePasswordForm.get('repeatPassword')?.value;
+
+    if (!this.isPasswordValid()) {
+      this.errorMessage = 'La password non soddisfa i requisiti minimi';
+      return;
+    }
 
     if (newPassword !== repeatPassword) {
       this.changePasswordForm

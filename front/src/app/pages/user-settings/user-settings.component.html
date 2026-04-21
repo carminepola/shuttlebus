@@ -183,6 +183,7 @@
                 class="form-control"
                 required
                 [placeholder]="'insert_new_password' | translate"
+                (input)="onPasswordInput()"
               />
               @if (
                 changePasswordForm.get("newPassword")?.touched &&
@@ -196,13 +197,95 @@
                       {{ "str_campo_obbligatorio" | translate }}
                     </div>
                   }
-                  @if (
-                    changePasswordForm.get("newPassword")?.hasError("minlength")
-                  ) {
-                    <div>
-                      {{ "str_lng_password" | translate }}
-                    </div>
-                  }
+                </div>
+              }
+              @if (changePasswordForm.get("newPassword")?.value?.length > 0) {
+                <div class="pwd-strength">
+                  <div class="pwd-strength-bar">
+                    <div
+                      class="pwd-strength-bar-fill"
+                      [style.width.%]="passwordStrengthPercent()"
+                      [ngClass]="passwordStrengthClass()"
+                    ></div>
+                  </div>
+                  <span
+                    class="pwd-strength-label"
+                    [ngClass]="passwordStrengthClass()"
+                  >
+                    {{ passwordStrengthLabel() }}
+                  </span>
+                </div>
+                <div class="pwd-rules">
+                  <div
+                    class="pwd-rule"
+                    [class.rule-ok]="pwdRules.minLength"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="
+                        pwdRules.minLength
+                          ? 'fa-circle-check'
+                          : 'fa-circle'
+                      "
+                    ></i>
+                    <span>{{ "str_pwd_rule_min_length" | translate }}</span>
+                  </div>
+                  <div
+                    class="pwd-rule"
+                    [class.rule-ok]="pwdRules.hasUpper"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="
+                        pwdRules.hasUpper
+                          ? 'fa-circle-check'
+                          : 'fa-circle'
+                      "
+                    ></i>
+                    <span>{{ "str_pwd_rule_upper" | translate }}</span>
+                  </div>
+                  <div
+                    class="pwd-rule"
+                    [class.rule-ok]="pwdRules.hasLower"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="
+                        pwdRules.hasLower
+                          ? 'fa-circle-check'
+                          : 'fa-circle'
+                      "
+                    ></i>
+                    <span>{{ "str_pwd_rule_lower" | translate }}</span>
+                  </div>
+                  <div
+                    class="pwd-rule"
+                    [class.rule-ok]="pwdRules.hasNumber"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="
+                        pwdRules.hasNumber
+                          ? 'fa-circle-check'
+                          : 'fa-circle'
+                      "
+                    ></i>
+                    <span>{{ "str_pwd_rule_number" | translate }}</span>
+                  </div>
+                  <div
+                    class="pwd-rule"
+                    [class.rule-ok]="pwdRules.hasSpecial"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="
+                        pwdRules.hasSpecial
+                          ? 'fa-circle-check'
+                          : 'fa-circle'
+                      "
+                    ></i>
+                    <span>{{ "str_pwd_rule_special" | translate }}</span>
+                  </div>
                 </div>
               }
             </div>
