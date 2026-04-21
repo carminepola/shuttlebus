@@ -755,7 +755,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getRevenueByPaymentMethod() {
-    this.bookingsService.getRevenueByPaymentMethod().subscribe((res: any) => {
+    const year = new Date().getFullYear();
+    this.bookingsService.getRevenueByPaymentMethod(`${year}-01-01`, `${year}-12-31`).subscribe((res: any) => {
       this.revenueByPayment = res;
       this.loadRevenueByPayment = false;
     });
