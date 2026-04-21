@@ -339,6 +339,69 @@
   padding: 1.25rem;
 }
 
+.payment-method-selector {
+  .payment-method-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(0, 0, 0, 0.4);
+    margin-bottom: 0.5rem;
+  }
+
+  .payment-method-options {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .payment-method-option {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+
+    input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .payment-option-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.75rem 0.5rem;
+      border: 1.5px solid rgba(0, 0, 0, 0.1);
+      border-radius: 0.75rem;
+      transition: all 0.2s ease;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.5);
+
+      i {
+        font-size: 1.1rem;
+      }
+
+      &:hover {
+        border-color: rgba(var(--bs-primary-rgb), 0.3);
+        background: rgba(var(--bs-primary-rgb), 0.03);
+      }
+    }
+
+    &.active .payment-option-content {
+      border-color: rgba(var(--bs-primary-rgb), 0.6);
+      background: rgba(var(--bs-primary-rgb), 0.06);
+      color: rgba(var(--bs-primary-rgb), 1);
+
+      i {
+        color: rgba(var(--bs-primary-rgb), 1);
+      }
+    }
+  }
+}
+
 .error-alert {
   padding: 0.75rem 1rem;
   background: rgba(var(--bs-danger-rgb), 0.06);
@@ -703,5 +766,27 @@
 
   .login-inline-register {
     color: rgba(255, 255, 255, 0.4);
+  }
+
+  .payment-method-selector {
+    .payment-method-label {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .payment-method-option .payment-option-content {
+      border-color: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.5);
+
+      &:hover {
+        border-color: rgba(var(--bs-primary-rgb), 0.4);
+        background: rgba(var(--bs-primary-rgb), 0.05);
+      }
+    }
+
+    .payment-method-option.active .payment-option-content {
+      border-color: rgba(var(--bs-primary-rgb), 0.6);
+      background: rgba(var(--bs-primary-rgb), 0.08);
+      color: rgba(var(--bs-primary-rgb), 0.9);
+    }
   }
 }

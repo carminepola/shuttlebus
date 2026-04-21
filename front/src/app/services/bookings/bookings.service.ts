@@ -96,4 +96,17 @@ export class BookingsService {
       params: { routeId, date, fromStopId, toStopId },
     });
   }
+
+  getRevenueByPaymentMethod(startDate?: string, endDate?: string): Observable<any> {
+    let params: any = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    return this.http.get<any>(`${this.apiUrl}/revenueByPaymentMethod`, { params });
+  }
+
+  getDailyRevenueByRoute(date: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/dailyRevenueByRoute`, {
+      params: { date },
+    });
+  }
 }

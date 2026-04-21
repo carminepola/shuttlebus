@@ -20,8 +20,14 @@ class PaymentServices {
     return await this.paymentDao.getPaymentMethod();
   }
 
-  async calculatePayment(ticket: booking): Promise<{ type: string; other: any }> {
+  async calculatePayment(ticket: booking, paymentType?: string): Promise<{ type: string; other: any }> {
     try {
+      if (paymentType === "cash") {
+        ticket.paymentMethod = [{ type: "cash", data: null }];
+        ticket.other = { type: "cash" };
+        return { type: "cash", other: { type: "cash" } };
+      }
+
       let paymentMethods: any = await this.paymentDao.getPaymentMethod();
       switch (paymentMethods.type) {
         case "stripe":
@@ -29,7 +35,7 @@ class PaymentServices {
           ticket.paymentMethod = paymentMethods.type;
           ticket.other = session;
 
-          return { type: "stripe", other: session }; //session;
+          return { type: "stripe", other: session };
       }
     } catch (error) {
       throw error;

@@ -389,8 +389,6 @@ export default class BookingsDAO {
     return this.db.collection("routes").aggregate(q).toArray();
   }
   async insertBooking(booking: booking, session?: ClientSession) {
-    booking.status = "pending";
-
     return this.db.collection("bookings").insertOne(booking, { session });
   }
   async getBookingFromNumber(numberOfTickets: string): Promise<booking> {
@@ -532,11 +530,9 @@ export default class BookingsDAO {
     }
 
     const scanData = { driverId, driverName, scannedAt: new Date().getTime() };
-    const updated = await this.db.collection("bookings").findOneAndUpdate(
-      { numberOfTickets, status: "confirmed", scannedBy: { $exists: false } },
-      { $set: { scannedBy: scanData, updatedAt: new Date().getTime() } },
-      { returnDocument: "after" }
-    );
+    const updated = await this.db
+      .collection("bookings")
+      .findOneAndUpdate({ numberOfTickets, status: "confirmed", scannedBy: { $exists: false } }, { $set: { scannedBy: scanData, updatedAt: new Date().getTime() } }, { returnDocument: "after" });
 
     if (!updated) {
       const retry = await this.db.collection("bookings").findOne({ numberOfTickets });
@@ -957,5 +953,65 @@ export default class BookingsDAO {
       status: { $in: ["confirmed"] },
     });
     return !!result;
+  }
+
+  async revenueByPaymentMethod(startDate?: string, endDate?: string) {
+    let match: any = { status: "confirmed" };
+    if (startDate || endDate) {
+      match.date = {};
+      if (startDate) match.date.$gte = startDate;
+      if (endDate) match.date.$lte = endDate;
+    }
+    return this.db.collection("bookings").aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: "$paymentMethod",
+          total: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+          count: { $sum: 1 },
+        },
+      },
+    ]).toArray();
+  }
+
+  async dailyRevenueByRoute(date: string) {
+    return this.db.collection("bookings").aggregate([
+      { $match: { date, status: "confirmed" } },
+      {
+        $group: {
+          _id: {
+            routeId: "$routeId",
+            routeName: "$name",
+            paymentMethod: "$paymentMethod",
+            from: "$from",
+            to: "$to",
+          },
+          total: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+          seats: { $sum: "$seats" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            routeId: "$_id.routeId",
+            routeName: "$_id.routeName",
+            from: "$_id.from",
+            to: "$_id.to",
+          },
+          total: { $sum: "$total" },
+          seats: { $sum: "$seats" },
+          count: { $sum: "$count" },
+          byPayment: {
+            $push: {
+              method: "$_id.paymentMethod",
+              total: "$total",
+              count: "$count",
+            },
+          },
+        },
+      },
+      { $sort: { total: -1 } },
+    ]).toArray();
   }
 }

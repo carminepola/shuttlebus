@@ -10,6 +10,7 @@ import PaymentServices from "./paymentServices";
 import RoutesServices from "./routesServices";
 import MailSenderServices from "./mailSender";
 import TelegramServices from "./telegramServices";
+import { role } from "../../enum/role";
 
 class BookingsServices {
   private bookingDao: BookingDao;
@@ -42,6 +43,8 @@ class BookingsServices {
 
   async insertBooking(ticket: any, userId: string) {
     let session: ClientSession = client.startSession();
+    let paymentType = ticket.paymentType || "stripe";
+
     try {
       await this.removeExpiredPendingBookings();
       let booking = await this.removePendingBooking(userId);
@@ -63,6 +66,8 @@ class BookingsServices {
           mail: user.email,
           phone: user.details?.phone,
         };
+      } else {
+        return;
       }
 
       book = new booking(ticket);
@@ -74,6 +79,18 @@ class BookingsServices {
       }
       if (book.luggage > 0 && book.luggage > numeroPosti.availableLuggage) {
         throw new Error("str_error_luggage");
+      }
+
+      switch (paymentType) {
+        case "stripe":
+          book.status = "pending";
+          break;
+        case "cash":
+          if (user.role > role.DRIVER) {
+            throw new Error("str_error_permission");
+          }
+          book.status = "confirmed";
+          break;
       }
 
       let res = await this.bookingDao.insertBooking(book, session);
@@ -88,13 +105,22 @@ class BookingsServices {
     await session.endSession();
 
     try {
-      let paymentSession: any = await this.paymentServices.calculatePayment(book);
+      let paymentSession: any = await this.paymentServices.calculatePayment(book, paymentType);
       let url: any = "";
       switch (paymentSession.type) {
         case "stripe":
           this.bookingDao.updatePaymentInfo("stripe", paymentSession.other, book.numberOfTickets);
           url = paymentSession.other.url;
           break;
+        case "cash":
+          this.bookingDao.updatePaymentInfo("cash", { type: "cash" }, book.numberOfTickets);
+          let bookObj = await this.getBooking(book.numberOfTickets);
+          if (process.env.MAIL_ADMIN) {
+            await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Conferma Prenotazione (Contanti)", this.mailSenderServices.transformBookGeneric(bookObj));
+          }
+
+          await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(bookObj, "✅ *Prenotazione Confermata (Contanti)* ✅"));
+          return { type: "cash", bookingId: book.numberOfTickets };
       }
       if (url == "") {
         throw new Error("str_error_payment");
@@ -220,11 +246,13 @@ class BookingsServices {
     if (success) {
       let book = await this.getBooking(numberOfTickets);
 
-      //manda mail annullato biglietto
+      if ((book.paymentMethod as any) !== "cash") {
+        await this.mailSenderServices.sendCancelBook(book.user.mail, book.user.name, numberOfTickets, book.lng);
+      }
 
-      await this.mailSenderServices.sendCancelBook(book.user.mail, book.user.name, numberOfTickets, book.lng);
-
-      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Annullamento", this.mailSenderServices.transformBookGeneric(book));
+      if (process.env.MAIL_ADMIN) {
+        await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Annullamento", this.mailSenderServices.transformBookGeneric(book));
+      }
 
       await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "🛑 *Annullo Prenotazione* 🛑"));
     }
@@ -275,7 +303,7 @@ class BookingsServices {
       book.total.toString(),
       typePayment || "stripe",
       this.mailSenderServices.transformBook(book),
-      book.lng
+      book.lng,
     );
     await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Conferma Prenotazione", this.mailSenderServices.transformBookGeneric(book));
     await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "✅ *Prenotazione Confermata* ✅"));
@@ -318,14 +346,16 @@ class BookingsServices {
     const bookingsCollection = db.collection("bookings");
     const usersCollection = db.collection("users");
 
-    const conversionStats = await bookingsCollection.aggregate([
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 },
+    const conversionStats = await bookingsCollection
+      .aggregate([
+        {
+          $group: {
+            _id: "$status",
+            count: { $sum: 1 },
+          },
         },
-      },
-    ]).toArray();
+      ])
+      .toArray();
 
     let confirmed = 0;
     let expired = 0;
@@ -344,16 +374,18 @@ class BookingsServices {
     const conversionRate = total > 0 ? ((confirmed / total) * 100).toFixed(1) : "0";
     const abandonRate = total > 0 ? ((abandoned / total) * 100).toFixed(1) : "0";
 
-    const registrationStats = await usersCollection.aggregate([
-      {
-        $group: {
-          _id: {
-            $cond: [{ $ifNull: ["$options.google", false] }, "google", "email"],
+    const registrationStats = await usersCollection
+      .aggregate([
+        {
+          $group: {
+            _id: {
+              $cond: [{ $ifNull: ["$options.google", false] }, "google", "email"],
+            },
+            count: { $sum: 1 },
           },
-          count: { $sum: 1 },
         },
-      },
-    ]).toArray();
+      ])
+      .toArray();
 
     let googleCount = 0;
     let emailCount = 0;
@@ -380,6 +412,29 @@ class BookingsServices {
 
   async hasTicketForRoute(userId: string, routeId: string, date: string, fromStopId: string, toStopId: string): Promise<boolean> {
     return await this.bookingDao.hasTicketForRoute(userId, routeId, date, fromStopId, toStopId);
+  }
+
+  async revenueByPaymentMethod(startDate?: string, endDate?: string) {
+    const raw = await this.bookingDao.revenueByPaymentMethod(startDate, endDate);
+    let stripe = 0,
+      cash = 0,
+      stripeCount = 0,
+      cashCount = 0;
+    for (const row of raw) {
+      const method = typeof row._id === "string" ? row._id : row._id?.type || "unknown";
+      if (method === "stripe") {
+        stripe += row.total;
+        stripeCount += row.count;
+      } else if (method === "cash") {
+        cash += row.total;
+        cashCount += row.count;
+      }
+    }
+    return { stripe, cash, stripeCount, cashCount, total: stripe + cash };
+  }
+
+  async dailyRevenueByRoute(date: string) {
+    return await this.bookingDao.dailyRevenueByRoute(date);
   }
 }
 

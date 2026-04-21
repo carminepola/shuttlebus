@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { Chart, registerables } from 'chart.js';
 
 import { fadeAnimation } from '../../animations/fade.animation';
@@ -60,7 +61,7 @@ interface RecentPurchase {
   selector: 'app-home',
   standalone: true,
   animations: [fadeAnimation],
-  imports: [CommonModule, RouterModule, TitlePageComponent],
+  imports: [CommonModule, RouterModule, TitlePageComponent, FormsModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
@@ -84,8 +85,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   loadMonthlyRevenue = true;
   loadDisputes = true;
   loadDashboardStats = true;
+  loadRevenueByPayment = true;
+  loadDailyRouteRevenue = true;
 
   public dashboardStats: any = null;
+  public revenueByPayment: any = null;
+  public dailyRouteRevenue: any[] = [];
+  public dailyRouteDate: string = new Date().toISOString().split('T')[0];
 
   public andamentoMese: any = [];
   public countRoutes: number = 0;
@@ -166,6 +172,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getDisputes();
     this.getMonthlyRevenue();
     this.getDashboardStats();
+    this.getRevenueByPaymentMethod();
+    this.getDailyRevenueByRoute();
     setTimeout(() => {
       this.routeToday();
       this.biglietti();
@@ -744,6 +752,43 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         }, 100);
       }
     });
+  }
+
+  getRevenueByPaymentMethod() {
+    this.bookingsService.getRevenueByPaymentMethod().subscribe((res: any) => {
+      this.revenueByPayment = res;
+      this.loadRevenueByPayment = false;
+    });
+  }
+
+  getDailyRevenueByRoute() {
+    if (!this.dailyRouteDate) return;
+    this.loadDailyRouteRevenue = true;
+    this.bookingsService.getDailyRevenueByRoute(this.dailyRouteDate).subscribe((res: any) => {
+      this.dailyRouteRevenue = res.result || [];
+      this.loadDailyRouteRevenue = false;
+    });
+  }
+
+  onDailyDateChange() {
+    this.getDailyRevenueByRoute();
+  }
+
+  getRoutePaymentTotal(byPayment: any[], method: string): number {
+    if (!byPayment) return 0;
+    const found = byPayment.find((p: any) => {
+      const m = typeof p.method === 'string' ? p.method : (p.method?.type || 'unknown');
+      return m === method;
+    });
+    return found ? found.total : 0;
+  }
+
+  getDailyTotals(field: string): number {
+    return this.dailyRouteRevenue.reduce((s: number, r: any) => s + (r[field] || 0), 0);
+  }
+
+  getDailyPaymentTotal(method: string): number {
+    return this.dailyRouteRevenue.reduce((s: number, r: any) => s + this.getRoutePaymentTotal(r.byPayment, method), 0);
   }
 
   private createRevenueChart(

@@ -196,6 +196,31 @@
                       }
                     </div>
                   }
+
+                  @if (canPayCash) {
+                    <div class="payment-method-selector mb-3">
+                      <label class="payment-method-label">
+                        <span [innerText]="'str_metodo_pagamento' | translate"></span>
+                      </label>
+                      <div class="payment-method-options">
+                        <label class="payment-method-option" [class.active]="selectedPaymentType === 'stripe'">
+                          <input type="radio" name="paymentType" value="stripe" [(ngModel)]="selectedPaymentType" />
+                          <div class="payment-option-content">
+                            <i class="fa-solid fa-credit-card"></i>
+                            <span [innerText]="'str_carta_di_credito' | translate"></span>
+                          </div>
+                        </label>
+                        <label class="payment-method-option" [class.active]="selectedPaymentType === 'cash'">
+                          <input type="radio" name="paymentType" value="cash" [(ngModel)]="selectedPaymentType" />
+                          <div class="payment-option-content">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            <span [innerText]="'str_contanti' | translate"></span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  }
+
                   <div class="form-check my-2">
                     <input
                       class="form-check-input"

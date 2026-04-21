@@ -45,11 +45,20 @@ router.post(
 router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let book = req.body;
+    let userRole = res.locals.userLogged?.role;
+    if (book.paymentType === "cash" && (!userRole || userRole > role.DRIVER)) {
+      res.status(403).json({ message: "str_error_cash_not_allowed" });
+      return;
+    }
     let bookingServices = new BookingServices(db);
 
     let response: any = await bookingServices.insertBooking(book, res.locals.userLogged["_id"]);
 
-    res.json({ url: response });
+    if (typeof response === "object" && response.type === "cash") {
+      res.json({ url: `/payment/cash/success/${response.bookingId}` });
+    } else {
+      res.json({ url: response });
+    }
   } catch (error) {
     next(error);
   }
@@ -243,6 +252,33 @@ router.get("/dashboardStats", authMiddleware, checkPermissionMiddleware(role.ADM
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.dashboardStats();
     res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/revenueByPaymentMethod", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let startDate = req.query.startDate as string | undefined;
+    let endDate = req.query.endDate as string | undefined;
+    let result = await bookingServices.revenueByPaymentMethod(startDate, endDate);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/dailyRevenueByRoute", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let date = req.query.date as string;
+    if (!date) {
+      res.status(400).json({ message: "date is required" });
+      return;
+    }
+    let result = await bookingServices.dailyRevenueByRoute(date);
+    res.json({ result });
   } catch (error) {
     next(error);
   }

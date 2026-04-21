@@ -34,4 +34,7 @@ export class PaymentComponent implements OnInit {
       this.stripeService.delete(this.id).subscribe((res) => {});
     }
   }
+  isCashPayment(): boolean {
+    return this.methods === 'cash';
+  }
 }

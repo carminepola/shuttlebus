@@ -461,3 +461,33 @@
     }
   }
 }
+
+.payment-method-card {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: rgba(var(--bs-primary-rgb), 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.payment-method-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.payment-method-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+[data-bs-theme="dark"] {
+  .payment-method-card {
+    background: rgba(var(--bs-primary-rgb), 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}

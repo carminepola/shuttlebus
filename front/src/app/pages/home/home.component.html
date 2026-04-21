@@ -555,6 +555,159 @@
         </div>
       </div>
     </div>
+    <div class="col-12 col-lg-6">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-primary-subtle text-primary">
+              <i class="fas fa-wallet"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Entrate per Metodo di Pagamento</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadRevenueByPayment) {
+            <div class="d-flex justify-content-center py-4">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+          }
+          @if (!loadRevenueByPayment && revenueByPayment) {
+            <div class="row g-3">
+              <div class="col-6">
+                <div class="payment-method-card">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="payment-method-icon bg-primary-subtle text-primary">
+                      <i class="fas fa-credit-card"></i>
+                    </div>
+                    <span class="fw-semibold">Stripe</span>
+                  </div>
+                  <div class="payment-method-value text-primary">{{ revenueByPayment.stripe.toFixed(2) }} €</div>
+                  <div class="text-muted small">{{ revenueByPayment.stripeCount }} prenotazioni</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="payment-method-card">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="payment-method-icon bg-success-subtle text-success">
+                      <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <span class="fw-semibold">Contanti</span>
+                  </div>
+                  <div class="payment-method-value text-success">{{ revenueByPayment.cash.toFixed(2) }} €</div>
+                  <div class="text-muted small">{{ revenueByPayment.cashCount }} prenotazioni</div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-top">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Totale</span>
+                <span class="fw-bold fs-5">{{ revenueByPayment.total.toFixed(2) }} €</span>
+              </div>
+              @if (revenueByPayment.total > 0) {
+                <div class="mt-2">
+                  <div class="d-flex" style="height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div
+                      class="bg-primary"
+                      [style.width.%]="(revenueByPayment.stripe / revenueByPayment.total) * 100"
+                    ></div>
+                    <div
+                      class="bg-success"
+                      [style.width.%]="(revenueByPayment.cash / revenueByPayment.total) * 100"
+                    ></div>
+                  </div>
+                  <div class="d-flex justify-content-between text-muted small mt-1">
+                    <span>Stripe {{ ((revenueByPayment.stripe / revenueByPayment.total) * 100).toFixed(0) }}%</span>
+                    <span>Contanti {{ ((revenueByPayment.cash / revenueByPayment.total) * 100).toFixed(0) }}%</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="content-card">
+        <div class="content-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-success-subtle text-success">
+              <i class="fas fa-route"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Entrate Giornaliere per Corsa</h5>
+          </div>
+          <input
+            type="date"
+            class="form-control form-control-sm"
+            style="width: auto;"
+            [(ngModel)]="dailyRouteDate"
+            (ngModelChange)="onDailyDateChange()"
+          />
+        </div>
+        <div class="content-card-body p-0">
+          @if (loadDailyRouteRevenue) {
+            <div class="d-flex justify-content-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadDailyRouteRevenue) {
+            @if (dailyRouteRevenue.length === 0) {
+              <div class="text-center text-muted py-4">
+                Nessuna prenotazione confermata per questa data
+              </div>
+            }
+            @if (dailyRouteRevenue.length > 0) {
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Corsa</th>
+                      <th>Tratta</th>
+                      <th class="text-center">Passeggeri</th>
+                      <th class="text-center">Prenotazioni</th>
+                      <th class="text-end">Stripe</th>
+                      <th class="text-end">Contanti</th>
+                      <th class="text-end fw-bold">Totale</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of dailyRouteRevenue; track row._id.routeId) {
+                      <tr>
+                        <td class="fw-semibold">{{ row._id.routeName?.it || row._id.routeName?.en || '-' }}</td>
+                        <td>
+                          <span class="text-muted small">
+                            {{ row._id.from?.name || '-' }} <i class="fas fa-arrow-right mx-1"></i> {{ row._id.to?.name || '-' }}
+                          </span>
+                        </td>
+                        <td class="text-center">{{ row.seats }}</td>
+                        <td class="text-center">{{ row.count }}</td>
+                        <td class="text-end text-primary">{{ getRoutePaymentTotal(row.byPayment, 'stripe').toFixed(2) }} €</td>
+                        <td class="text-end text-success">{{ getRoutePaymentTotal(row.byPayment, 'cash').toFixed(2) }} €</td>
+                        <td class="text-end fw-bold">{{ row.total.toFixed(2) }} €</td>
+                      </tr>
+                    }
+                  </tbody>
+                  <tfoot>
+                    <tr class="table-active fw-bold">
+                      <td colspan="2">Totale</td>
+                      <td class="text-center">{{ getDailyTotals('seats') }}</td>
+                      <td class="text-center">{{ getDailyTotals('count') }}</td>
+                      <td class="text-end text-primary">{{ getDailyPaymentTotal('stripe').toFixed(2) }} €</td>
+                      <td class="text-end text-success">{{ getDailyPaymentTotal('cash').toFixed(2) }} €</td>
+                      <td class="text-end">{{ getDailyTotals('total').toFixed(2) }} €</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="row g-3 mb-4">

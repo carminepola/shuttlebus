@@ -64,6 +64,8 @@ export class RiepilogoComponent implements OnInit {
   public checkoutLoginSubmitted = false;
   public checkoutLoginLoading = false;
   public checkoutLoginError = '';
+  public selectedPaymentType: string = 'stripe';
+  public canPayCash: boolean = false;
   async ngOnInit() {
     this.checkoutLoginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -78,6 +80,8 @@ export class RiepilogoComponent implements OnInit {
       }
     });
     localStorage.setItem('authUrl', '/riepilogo');
+
+    this.checkCashEligibility();
 
     const pendingBooking = await this.pendingBookingService.hasPendingBooking();
     if (pendingBooking) {
@@ -109,6 +113,14 @@ export class RiepilogoComponent implements OnInit {
   }
   isLoggedIn() {
     return this.authService.isLoggedIn();
+  }
+  checkCashEligibility() {
+    const token = this.authService.getDecodedToken();
+    if (token && token.role && token.role <= 75) {
+      this.canPayCash = true;
+    } else {
+      this.canPayCash = false;
+    }
   }
   myModal: any;
   openModal(type: boolean) {
@@ -143,11 +155,16 @@ export class RiepilogoComponent implements OnInit {
     }
 
     this.loading = true;
-    this.bookingService.insertBooking(this.param).subscribe({
+    const bookingData = { ...this.param, paymentType: this.selectedPaymentType };
+    this.bookingService.insertBooking(bookingData).subscribe({
       next: (response: any) => {
         console.log(response);
         this.loading = false;
-        window.location.href = response.url;
+        if (response.url.startsWith('/')) {
+          this.router.navigateByUrl(response.url);
+        } else {
+          window.location.href = response.url;
+        }
       },
       error: (e: any) => {
         this.errorMessage = e.error.message || e.message;

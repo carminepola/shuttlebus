@@ -23,7 +23,7 @@
       ></a>
     </div>
   }
-  @if (actions == 'success') {
+  @if (actions == 'success' && !isCashPayment()) {
     <div class="payment-result-card">
       <div class="result-icon result-icon-success">
         <i class="fa-solid fa-check"></i>
@@ -39,6 +39,30 @@
       <p
         class="result-desc"
         [innerText]="'str_pagamento_riuscito_desc2' | translate"
+      ></p>
+      <a
+        [routerLink]="['/user/mytickets']"
+        class="result-btn"
+        [innerText]="'str_vai_a_account' | translate"
+      ></a>
+    </div>
+  }
+  @if (actions == 'success' && isCashPayment()) {
+    <div class="payment-result-card">
+      <div class="result-icon result-icon-success">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h2
+        class="result-title"
+        [innerText]="'str_prenotazione_confermata' | translate"
+      ></h2>
+      <p
+        class="result-subtitle"
+        [innerText]="'str_prenotazione_cash_desc' | translate"
+      ></p>
+      <p
+        class="result-desc"
+        [innerText]="'str_prenotazione_cash_desc2' | translate"
       ></p>
       <a
         [routerLink]="['/user/mytickets']"
