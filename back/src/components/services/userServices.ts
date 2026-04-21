@@ -244,6 +244,13 @@ export default class UserServices {
       throw error;
     }
   }
+  async deleteUserById(id: string): Promise<boolean> {
+    try {
+      return await this.userDao.deleteUserById(id);
+    } catch (error) {
+      throw error;
+    }
+  }
   async validateEmail(email: string, pin: string): Promise<boolean> {
     try {
       let u = await this.userDao.getUserByEmailNotPermission(email);

@@ -5,9 +5,7 @@
     back="true"
   ></app-title-page>
   @if (loading) {
-    <div
-      class="w-100 d-flex align-items-center justify-content-center"
-      >
+    <div class="w-100 d-flex align-items-center justify-content-center">
       <app-loading></app-loading>
     </div>
   }
@@ -26,7 +24,7 @@
                 class="form-control"
                 id="name"
                 required
-                />
+              />
             </div>
             <div class="col-12 col-md-6">
               <label class="form-label">Nome En</label>
@@ -38,7 +36,7 @@
                 class="form-control"
                 id="nameEn"
                 required
-                />
+              />
             </div>
             <div class="col-12">
               <label class="form-label">Aggiungi biglietti</label>
@@ -48,15 +46,12 @@
                   class="form-control"
                   id="inputGroupSelect01"
                   name="ticket_type"
-                  >
+                >
                   <option value="" disabled selected>
                     Seleziona il tipo di biglietto
                   </option>
                   @for (t of ticket; track t) {
-                    <option
-                      [value]="t.id"
-                      [innerHTML]="t.name.it"
-                    ></option>
+                    <option [value]="t.id" [innerHTML]="t.name.it"></option>
                   }
                 </select>
                 <div class="input-group-append">
@@ -65,25 +60,23 @@
                     type="button"
                     id="button-addon1"
                     (click)="addTicket()"
-                    >
+                  >
                     <i class="fas fa-plus"></i>
                   </button>
                 </div>
               </div>
               @if (routeForm.ticketTypes.length > 0) {
-                <ul
-                  class="list-group mb-3"
-                  >
+                <ul class="list-group mb-3">
                   @for (t of routeForm.ticketTypes; track t) {
                     <li
                       class="list-group-item d-flex justify-content-between align-items-center"
-                      >
+                    >
                       <span>{{ getTicketFromId(t) }}</span>
                       <button
                         type="button"
                         class="btn btn-outline-danger btn-sm"
                         (click)="deleteTicket(t)"
-                        >
+                      >
                         <i class="fas fa-trash"></i>
                       </button>
                     </li>
@@ -99,15 +92,12 @@
                   name="ticket_type"
                   class="form-control"
                   id="inputGroupSelect01"
-                  >
+                >
                   <option value="" disabled selected>
                     Seleziona una fermata
                   </option>
                   @for (t of stops; track t) {
-                    <option
-                      [value]="t.id"
-                      [innerHTML]="t.name"
-                    ></option>
+                    <option [value]="t.id" [innerHTML]="t.name"></option>
                   }
                 </select>
                 <div class="input-group-append">
@@ -116,7 +106,7 @@
                     type="button"
                     id="button-addon1"
                     (click)="addStop()"
-                    >
+                  >
                     <i class="fas fa-plus"></i>
                   </button>
                 </div>
@@ -126,7 +116,7 @@
                   @for (t of routeForm.stops; track t) {
                     <li
                       class="list-group-item d-flex justify-content-between align-items-center"
-                      >
+                    >
                       <span>{{ getStopFromId(t.id) }}</span>
                       @if (t.new) {
                         <div>
@@ -135,18 +125,19 @@
                               type="button"
                               class="btn btn-outline-secondary btn-sm"
                               (click)="moveStopUp(t.id)"
-                              >
+                            >
                               <i class="fas fa-arrow-up"></i>
                             </button>
                           }
                           @if (
-                            routeForm.stops.indexOf(t) !== routeForm.stops.length - 1
-                            ) {
+                            routeForm.stops.indexOf(t) !==
+                            routeForm.stops.length - 1
+                          ) {
                             <button
                               type="button"
                               class="btn btn-outline-secondary btn-sm"
                               (click)="moveStopDown(t.id)"
-                              >
+                            >
                               <i class="fas fa-arrow-down"></i>
                             </button>
                           }
@@ -154,7 +145,7 @@
                             type="button"
                             class="btn btn-outline-danger btn-sm"
                             (click)="deleteStop(t.id)"
-                            >
+                          >
                             <i class="fas fa-trash"></i>
                           </button>
                         </div>
@@ -172,15 +163,17 @@
                   id="flexSwitchCheckDefault"
                   [checked]="routeForm.enabled"
                   (change)="routeForm.enabled = !routeForm.enabled"
-                  />
+                />
                 <label class="form-check-label" for="flexSwitchCheckDefault">
                   Abilitato
                 </label>
               </div>
             </div>
-            @if (errorMessage != '') {
+            @if (errorMessage != "") {
               <div class="col-12">
-                <div class="alert alert-danger border-0">{{ errorMessage }}</div>
+                <div class="alert alert-danger border-0">
+                  {{ errorMessage }}
+                </div>
               </div>
             }
             <div class="col-12">

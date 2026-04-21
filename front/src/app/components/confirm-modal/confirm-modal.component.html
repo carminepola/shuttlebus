@@ -1,0 +1,23 @@
+@if (config) {
+  <div class="cm-overlay" (click)="onCancel()">
+    <div class="cm-dialog" (click)="$event.stopPropagation()">
+      <div class="cm-header">
+        <h5 class="cm-title">{{ config.title }}</h5>
+      </div>
+      <div class="cm-body">
+        <p class="cm-message">{{ config.message }}</p>
+      </div>
+      <div class="cm-footer">
+        <button class="btn btn-secondary cm-btn" (click)="onCancel()">
+          {{ config.cancelText || 'Annulla' }}
+        </button>
+        <button
+          class="btn cm-btn {{ config.confirmClass || 'btn-danger' }}"
+          (click)="onConfirm()"
+        >
+          {{ config.confirmText || 'Conferma' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

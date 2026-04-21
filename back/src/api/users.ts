@@ -305,6 +305,23 @@ router.put(
     }
   },
 );
+router.delete(
+  "/:id",
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, [requiredRole]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userServices = new UserServices(db);
+      const id = req.params.id;
+      await userServices.deleteUserById(id);
+      res.json({ message: "Utente eliminato con successo" });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  },
+);
+
 router.get("/:id?", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let userServices = new UserServices(db);

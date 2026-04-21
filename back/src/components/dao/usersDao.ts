@@ -853,6 +853,18 @@ export default class UsersDao {
       throw error;
     }
   }
+  async deleteUserById(id: string): Promise<boolean> {
+    try {
+      const result = await this.db.collection<userModel>(this.schema).deleteOne({ _id: new ObjectId(id) });
+      if (!result || result.deletedCount === 0) {
+        throw new Error("Utente non trovato");
+      }
+      return true;
+    } catch (error) {
+      console.error("Errore durante la cancellazione dell'utente per ID:", error);
+      throw error;
+    }
+  }
   async acceptTerms(id: string): Promise<boolean> {
     try {
       this.db.collection<userModel>(this.schema).updateOne({ _id: new ObjectId(id) }, { $set: { privacyAndPolicy: true, privacyAndPolicyConfirmDate: new Date().getTime() } });

@@ -16,6 +16,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { LngService } from './services/lng/lng.service';
 import { LoadingComponent } from './components/loading/loading/loading.component';
 import { CookiePolicyComponent } from './components/cookie-policy/cookie-policy.component';
+import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { version } from '../../package.json';
 @Component({
   selector: 'app-root',
@@ -27,6 +28,7 @@ import { version } from '../../package.json';
     LowBarComponent,
     NavbarComponent,
     CookiePolicyComponent,
+    ConfirmModalComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

@@ -11,6 +11,7 @@ import { finalize } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { lastValueFrom } from 'rxjs';
+import { ConfirmModalService } from '../../services/confirm-modal/confirm-modal.service';
 
 const ROLES = [
   { value: 50, label: 'ADMIN' },
@@ -67,6 +68,7 @@ export class ClientsComponent implements OnInit, AfterViewInit {
     private userService: UserService,
     private bookingsService: BookingsService,
     private stripeService: StripeService,
+    private confirmModalService: ConfirmModalService,
   ) {}
 
   ngOnInit(): void {
@@ -238,7 +240,13 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   }
 
   async deleteClient(client: any): Promise<void> {
-    if (!confirm(`Eliminare ${client.name}?`)) return;
+    const confirmed = await this.confirmModalService.open({
+      title: 'Elimina cliente',
+      message: `Eliminare ${client.name}?`,
+      confirmText: 'Elimina',
+      cancelText: 'Annulla',
+    });
+    if (!confirmed) return;
     try {
       await lastValueFrom(this.userService.deleteClient(client._id));
       this.clients = this.clients.filter((c) => c._id !== client._id);
@@ -319,7 +327,14 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   }
 
   async refundBooking(booking: any): Promise<void> {
-    if (!confirm(`Rimborsare il biglietto #${booking.numberOfTickets}?`)) return;
+    const confirmed = await this.confirmModalService.open({
+      title: 'Rimborso biglietto',
+      message: `Rimborsare il biglietto #${booking.numberOfTickets}?`,
+      confirmText: 'Rimborsa',
+      cancelText: 'Annulla',
+      confirmClass: 'btn-warning',
+    });
+    if (!confirmed) return;
     this.bookingActionLoading = booking.numberOfTickets;
     try {
       await lastValueFrom(this.stripeService.refund(booking.numberOfTickets));
@@ -333,7 +348,13 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   }
 
   async deleteBooking(booking: any): Promise<void> {
-    if (!confirm(`Eliminare il biglietto #${booking.numberOfTickets}?`)) return;
+    const confirmed = await this.confirmModalService.open({
+      title: 'Elimina biglietto',
+      message: `Eliminare il biglietto #${booking.numberOfTickets}?`,
+      confirmText: 'Elimina',
+      cancelText: 'Annulla',
+    });
+    if (!confirmed) return;
     this.bookingActionLoading = booking.numberOfTickets;
     try {
       await lastValueFrom(this.stripeService.delete(booking.numberOfTickets));
@@ -347,7 +368,13 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   }
 
   async forceDeleteBooking(booking: any): Promise<void> {
-    if (!confirm(`Forzare l'eliminazione del biglietto #${booking.numberOfTickets}?`)) return;
+    const confirmed = await this.confirmModalService.open({
+      title: 'Eliminazione forzata',
+      message: `Forzare l'eliminazione del biglietto #${booking.numberOfTickets}?`,
+      confirmText: 'Forza eliminazione',
+      cancelText: 'Annulla',
+    });
+    if (!confirmed) return;
     this.bookingActionLoading = booking.numberOfTickets;
     try {
       await lastValueFrom(this.stripeService.forceDelete(booking.numberOfTickets));

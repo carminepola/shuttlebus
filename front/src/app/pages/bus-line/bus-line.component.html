@@ -17,7 +17,7 @@
 
 @if (routes.length > 0) {
   <div class="bl-page">
-    <div class="container py-4">
+    <div class="container overflow-x-hidden py-4">
       <div class="bl-tabs-wrapper">
         <div class="bl-tabs">
           @for (line of routes; track line; let i = $index) {
@@ -46,7 +46,9 @@
                 <div class="bl-stop-name" [innerHTML]="stop.name.trim()"></div>
                 <button
                   class="bl-stop-location"
-                  (click)="openMaps(stop.location.latitude, stop.location.longitude)"
+                  (click)="
+                    openMaps(stop.location.latitude, stop.location.longitude)
+                  "
                 >
                   <i class="fa-solid fa-location-dot"></i>
                   <span>{{ stop.description | translateName }}</span>
@@ -54,17 +56,21 @@
               </div>
               <div class="bl-stop-schedules">
                 @for (
-                  schedule of routes[lineSelected].schedules; track
-                  schedule; let i = $index) {
+                  schedule of routes[lineSelected].schedules;
+                  track schedule;
+                  let i = $index
+                ) {
                   <div
                     class="bl-schedule-chip"
-                    [class.bl-schedule-inactive]="schedule.stops[j].status !== 'active'"
+                    [class.bl-schedule-inactive]="
+                      schedule.stops[j].status !== 'active'
+                    "
                   >
                     <span class="bl-schedule-label">
                       {{ "str_corsa" | translate }} {{ i + 1 }}
                     </span>
                     <span class="bl-schedule-time">
-                      @if (schedule.stops[j].status === 'active') {
+                      @if (schedule.stops[j].status === "active") {
                         {{ schedule.stops[j].stopTime }}
                       } @else {
                         --

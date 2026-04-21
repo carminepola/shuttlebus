@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FilterPipe } from '../../pipe/filter.pipe';
 import { finalize } from 'rxjs/operators';
+import { ConfirmModalService } from '../../services/confirm-modal/confirm-modal.service';
 
 @Component({
   selector: 'app-users',
@@ -39,6 +40,7 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private router: Router,
     private userService: UserService,
+    private confirmModalService: ConfirmModalService,
   ) {}
 
   ngOnInit(): void {
@@ -213,10 +215,19 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/admin/utente', userId]);
   }
 
-  deleteUser(userId: string): void {
-    if (confirm('Sei sicuro di voler eliminare questo utente?')) {
-      // Implement delete logic here
-      console.log('Delete user:', userId);
+  async deleteUser(userId: string): Promise<void> {
+    const confirmed = await this.confirmModalService.open({
+      title: 'Elimina utente',
+      message: 'Sei sicuro di voler eliminare questo utente?',
+      confirmText: 'Elimina',
+      cancelText: 'Annulla',
+    });
+    if (!confirmed) return;
+    try {
+      await lastValueFrom(this.userService.deleteUser(userId));
+      this.users = this.users.filter((u) => u._id !== userId);
+    } catch (e) {
+      console.error('Error deleting user:', e);
     }
   }
 
