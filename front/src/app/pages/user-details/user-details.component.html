@@ -1,0 +1,122 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    [title]="getTitle()"
+    [subtitle]="getSubtitle()"
+    back="true"
+  ></app-title-page>
+
+  @if (loading) {
+    <div class="w-100 d-flex align-items-center justify-content-center">
+      <app-loading></app-loading>
+    </div>
+  }
+
+  @if (!loading) {
+    <div class="card border-0 rounded-4 shadow" @fadeInOut>
+      <div class="card-body p-4">
+        <form ngNativeValidate (ngSubmit)="onSubmit(f)" #f="ngForm">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Nome</label>
+              <input
+                [(ngModel)]="form.name"
+                name="name"
+                type="text"
+                placeholder="Mario Rossi"
+                class="form-control"
+                id="name"
+                required
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Email</label>
+              <input
+                [(ngModel)]="form.email"
+                name="email"
+                type="email"
+                placeholder="mario@esempio.it"
+                class="form-control"
+                id="email"
+                required
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Telefono</label>
+              <input
+                [(ngModel)]="form.phone"
+                name="phone"
+                type="tel"
+                placeholder="+39 333 1234567"
+                class="form-control"
+                id="phone"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">
+                Password
+                @if (isEdit) {
+                  <span class="text-muted fw-normal">(lascia vuoto per non modificare)</span>
+                }
+              </label>
+              <input
+                [(ngModel)]="form.password"
+                name="password"
+                type="password"
+                placeholder="Password"
+                class="form-control"
+                id="password"
+                [required]="!isEdit"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Ruolo</label>
+              <select
+                [(ngModel)]="form.role"
+                name="role"
+                class="form-select"
+                id="role"
+              >
+                @for (r of roles; track r.value) {
+                  <option [value]="r.value">{{ r.label }}</option>
+                }
+              </select>
+            </div>
+
+            @if (errorMessage) {
+              <div class="col-12">
+                <div class="alert alert-danger border-0">{{ errorMessage }}</div>
+              </div>
+            }
+            @if (successMessage) {
+              <div class="col-12">
+                <div class="alert alert-success border-0">{{ successMessage }}</div>
+              </div>
+            }
+
+            <div class="col-12 mt-4">
+              <div class="d-flex justify-content-end gap-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="cancel()"
+                >
+                  Annulla
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="saving"
+                >
+                  @if (saving) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                  }
+                  {{ isEdit ? 'Salva modifiche' : 'Crea utente' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

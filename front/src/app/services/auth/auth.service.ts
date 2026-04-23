@@ -30,9 +30,6 @@ export class AuthService {
   logout(): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${this.path}`);
   }
-  refreshToken(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${this.path}/refreshToken`);
-  }
   isLoggedIn(): boolean {
     return !!this.getCookieExists('jwt');
   }
@@ -65,6 +62,8 @@ export class AuthService {
     const match = document.cookie
       .split(';')
       .find((c) => c.trim().startsWith(`${name}=`));
-    return match ? match.split('=')[1] : null;
+    if (!match) return null;
+    const eqIndex = match.indexOf('=');
+    return match.substring(eqIndex + 1);
   }
 }

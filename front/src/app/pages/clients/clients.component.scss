@@ -1,0 +1,679 @@
+.ci-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1040;
+  animation: ci-fade-in 0.2s ease;
+}
+
+@keyframes ci-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ci-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 100vw;
+  height: 100vh;
+  background: #fff;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes ci-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.ci-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.ci-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #1a1064;
+
+  i {
+    color: #ec2a7a;
+  }
+}
+
+.ci-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+  }
+}
+
+.ci-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.ci-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.ci-info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.ci-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(26, 16, 100, 0.06);
+  color: #1a1064;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.ci-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  background: #f4f5f7;
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.ci-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #888;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  &:hover {
+    color: #555;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+.ci-tab-active {
+  background: #fff;
+  color: #1a1064;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    background: #fff;
+    color: #1a1064;
+  }
+}
+
+.ci-section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(0, 0, 0, 0.4);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f0f0f5;
+
+  i {
+    color: #1a1064;
+  }
+}
+
+.ci-loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.ci-empty {
+  text-align: center;
+  padding: 32px 0;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.ci-ticket {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.ci-ticket-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ci-ticket-id {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1a1064;
+  margin-right: 8px;
+}
+
+.ci-ticket-date {
+  font-size: 0.78rem;
+  color: #888;
+
+  i {
+    font-size: 0.7rem;
+  }
+}
+
+.ci-ticket-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ci-status-confirmed {
+  background: rgba(37, 134, 127, 0.1);
+  color: #25867f;
+}
+
+.ci-status-pending {
+  background: rgba(234, 179, 8, 0.1);
+  color: #b45309;
+}
+
+.ci-status-cancelled {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.ci-status-refunded {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+}
+
+.ci-ticket-route {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.ci-ticket-stop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ci-stop-dot {
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  border-radius: 50%;
+}
+
+.ci-stop-dep {
+  background: #1a1064;
+}
+
+.ci-stop-arr {
+  background: #ec2a7a;
+}
+
+.ci-ticket-line {
+  flex: 1;
+  height: 2px;
+  background: #e5e7eb;
+  margin: 0 8px;
+  min-width: 20px;
+}
+
+.ci-stop-time {
+  display: block;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #1a1064;
+}
+
+.ci-stop-name {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.ci-ticket-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ci-ticket-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+}
+
+.ci-detail-chip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #f4f5f7;
+  color: #555;
+}
+
+.ci-ticket-total {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #1a1064;
+  flex-shrink: 0;
+}
+
+@media (max-width: 575.98px) {
+  .ci-panel {
+    width: 100vw;
+  }
+
+  .ci-ticket-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+.ci-form-group {
+  margin-bottom: 16px;
+}
+
+.ci-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.ci-form-error {
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #dc2626;
+}
+
+.ci-role-select {
+  max-width: 180px;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+}
+
+.ci-ticket-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.ci-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 0.68rem;
+  }
+}
+
+.ci-action-refund {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+
+  &:hover {
+    background: rgba(59, 130, 246, 0.2);
+  }
+}
+
+.ci-action-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.2);
+  }
+}
+
+.ci-action-force {
+  background: rgba(107, 33, 168, 0.1);
+  color: #7c3aed;
+
+  &:hover {
+    background: rgba(107, 33, 168, 0.2);
+  }
+}
+
+.ci-action-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #888;
+}
+
+.ci-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.ci-activity-dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+}
+
+.ci-activity-dot-success {
+  background: #25867f;
+}
+
+.ci-activity-dot-error {
+  background: #dc2626;
+}
+
+.ci-activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ci-activity-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+
+.ci-activity-action {
+  font-weight: 600;
+  color: #333;
+}
+
+.ci-activity-booking {
+  color: #1a1064;
+  font-weight: 700;
+}
+
+.ci-activity-error .ci-activity-action {
+  color: #dc2626;
+}
+
+.ci-activity-message {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
+}
+
+.ci-activity-time {
+  font-size: 0.7rem;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.ci-tx-subtitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+  margin-top: 4px;
+
+  i {
+    color: #1a1064;
+  }
+}
+
+.ci-tx-card {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.ci-tx-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.ci-tx-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ci-tx-amount {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1a1064;
+}
+
+.ci-tx-date {
+  font-size: 0.72rem;
+  color: #aaa;
+}
+
+.ci-tx-status {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.ci-tx-status-succeeded {
+  background: rgba(37, 134, 127, 0.1);
+  color: #25867f;
+}
+
+.ci-tx-status-requires-action {
+  background: rgba(234, 179, 8, 0.1);
+  color: #b45309;
+}
+
+.ci-tx-status-requires-payment {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.ci-tx-status-requires-capture {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+}
+
+.ci-tx-status-processing {
+  background: rgba(168, 85, 247, 0.1);
+  color: #7c3aed;
+}
+
+.ci-tx-status-cancelled {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+}
+
+.ci-tx-status-failed {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.ci-tx-status-pending {
+  background: rgba(234, 179, 8, 0.1);
+  color: #b45309;
+}
+
+.ci-tx-route {
+  font-size: 0.78rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.ci-tx-meta {
+  font-size: 0.72rem;
+  color: #888;
+}
+
+.ci-tx-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.06);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-top: 6px;
+
+  i {
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+}
+
+.ci-tx-decline {
+  font-weight: 600;
+}
+
+.ci-tx-methods {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.ci-tx-method-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #f4f5f7;
+  color: #555;
+  text-transform: capitalize;
+}
+
+.ci-tx-outcome {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.7rem;
+}
+
+.ci-tx-outcome-type {
+  font-weight: 600;
+  color: #555;
+  text-transform: capitalize;
+}
+
+.ci-tx-outcome-risk {
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.ci-risk-normal {
+  background: rgba(37, 134, 127, 0.1);
+  color: #25867f;
+}
+
+.ci-risk-elevated {
+  background: rgba(234, 179, 8, 0.1);
+  color: #b45309;
+}
+
+.ci-risk-highest {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.ci-tx-outcome-msg {
+  color: #888;
+  font-size: 0.68rem;
+}
+
+.ci-tx-refunded {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #2563eb;
+  margin-top: 6px;
+  font-weight: 600;
+}

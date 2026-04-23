@@ -4,18 +4,15 @@ import { CommonModule } from '@angular/common';
 import { lastValueFrom } from 'rxjs';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { BookingsService } from '../../services/bookings/bookings.service';
-import { Route, ActivatedRoute } from '@angular/router';
+import { Route, ActivatedRoute, Router } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
-import { TranslateNamePipe } from '../../pipe/translateName.pipe';
-import { TranslatePipe } from '../../pipe/translate.pipe';
+
 @Component({
   selector: 'app-ticket-for-routes',
   imports: [
     LoadingComponent,
     CommonModule,
     TitlePageComponent,
-    TranslateNamePipe,
-    TranslatePipe,
   ],
   templateUrl: './ticket-for-routes.component.html',
   styleUrl: './ticket-for-routes.component.scss',
@@ -24,7 +21,8 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 export class TicketForRoutesComponent {
   constructor(
     private bookingsService: BookingsService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router,
   ) {}
   loading = true;
   bookings: any = [];
@@ -41,5 +39,9 @@ export class TicketForRoutesComponent {
       this.bookings = bookings.bookings;
     }
     this.loading = false;
+  }
+
+  goTo(path: string) {
+    this.router.navigate([path]);
   }
 }

@@ -39,9 +39,9 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         const bookingId = session.metadata?.booking_id;
         const paymentIntentId = session.payment_intent as string;
         if (bookingId) {
-          let success = await bookingServices.confirmBooking(bookingId);
+          let success = await bookingServices.confirmBooking(bookingId, session.id);
           await bookingServices.updatePaymentIntentId(bookingId, paymentIntentId);
-          if (paymentIntentId) {
+          if (success && paymentIntentId) {
             // Recupera il PaymentIntent per verificare lo stato del pagamento
             const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
@@ -61,9 +61,9 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
               logger.info(`Il pagamento per la prenotazione ${bookingId} è già stato addebitato.`);
             }
           } else if (!success && paymentIntentId) {
-            // Se la prenotazione NON è confermata, annulla il pagamento per sbloccare i fondi
+            // Prenotazione già confermata o session ID non corrisponde, annulla il pagamento
             await stripe.paymentIntents.cancel(paymentIntentId);
-            logger.info(`Pagamento annullato per la prenotazione ${bookingId}, i fondi sono stati sbloccati.`);
+            logger.info(`Pagamento annullato per la prenotazione ${bookingId}, conferma non riuscita (già confermata o session non valida).`);
           }
         }
 
@@ -107,6 +107,30 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
           await bookingServices.cancelBooking(bookingId, dispute.reason as string);
         }
         logger.warn(`Contestazione aperta per la prenotazione ${bookingId}`);
+        break;
+      }
+      case "charge.dispute.closed": {
+        const dispute = event.data.object as Stripe.Dispute;
+        let book = await bookingServices.readByPaymentIntentId(dispute.payment_intent as string);
+        const bookingId = book?.numberOfTickets;
+
+        if (bookingId && dispute.status === "lost") {
+          await bookingServices.refundBooking(bookingId);
+          logger.warn(`Contestazione persa per la prenotazione ${bookingId}, biglietto rimborsato`);
+        } else if (bookingId) {
+          logger.info(`Contestazione chiusa per la prenotazione ${bookingId}, stato: ${dispute.status}`);
+        }
+        break;
+      }
+      case "charge.dispute.funds_withdrawn": {
+        const dispute = event.data.object as Stripe.Dispute;
+        let book = await bookingServices.readByPaymentIntentId(dispute.payment_intent as string);
+        const bookingId = book?.numberOfTickets;
+
+        if (bookingId) {
+          await bookingServices.refundBooking(bookingId);
+          logger.warn(`Fondi prelevati per contestazione sulla prenotazione ${bookingId}`);
+        }
         break;
       }
       case "payment_intent.intent.succeeded":
@@ -242,6 +266,73 @@ router.get("/getAccountSchedule", authMiddleware, checkPermissionMiddleware(role
     let stripeServices = new StripeServices();
     let pay = await stripeServices.getAccountSchedule();
     res.json({ result: pay });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/getRefunds", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let refunds = await stripeServices.getRefunds();
+    res.json({ result: refunds });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/getDisputes", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let disputes = await stripeServices.getDisputes();
+    res.json({ result: disputes });
+  } catch (error) {
+    next(error);
+  }
+});
+router.post("/closeDispute", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    await stripeServices.closeDispute(req.body.disputeId);
+    res.json({ message: "Dispute closed" });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/getTransactionsByEmail/:email", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let transactions = await stripeServices.getTransactionsByEmail(req.params.email);
+    res.json({ result: transactions });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/getMonthlyRevenue", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let revenue = await stripeServices.getMonthlyRevenue();
+    res.json({ result: revenue });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/paymentIntents", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let result = await stripeServices.getAllPaymentIntents({
+      limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
+      starting_after: req.query.starting_after as string,
+      status: req.query.status as string,
+    });
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/paymentIntents/:id", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
+  try {
+    let stripeServices = new StripeServices();
+    let result = await stripeServices.getPaymentIntentDetail(req.params.id);
+    res.json({ result });
   } catch (error) {
     next(error);
   }

@@ -1,246 +1,399 @@
-<div class="marginTopBar">
-  <div class="container" *ngIf="!loading" style="min-height: 50vh">
-    <div class="row">
-      <div class="col">
-        <div class="my-4">
-          <a
-            class="d-flex align-items-center text-secondary cursor-pointer"
-            (click)="goBack()"
-          >
-            <i class="fas fa-arrow-left me-2"></i>
-            {{ "str_torna_indietro" | translate }}
-          </a>
-        </div>
+<div class="container" @fadeInOut>
+  <div class="marginTopBar">
+    @if (loading) {
+      <div
+        class="container my-5 d-flex justify-content-center align-items-center"
+        style="min-height: 100vh"
+      >
+        <app-loading></app-loading>
       </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <div class="card border-secondary">
-          <div class="card-body">
-            <div class="card-title">
-              <h2 class="text-secondary fw-bold">Riepilogo</h2>
-              <div class="row">
-                <div class="col-12 col-lg-4">
-                  <div>
-                    <h5
-                      class="fw-bold text-primary"
-                      [innerHTML]="param.name | translateName"
-                    ></h5>
-                    <div
-                      class="text-muted"
-                      [innerHTML]="param.date | date : 'dd/MM/yyyy'"
-                    ></div>
-                  </div>
-                  <div>
-                    <div
-                      class="fw-bold text-secondary"
-                      [innerHTML]="'str_partenza_da' | translate"
-                    ></div>
-                    <div class="d-flex justify-content-between">
-                      <div
-                        class="text-primary"
-                        [innerHTML]="param.from.name"
-                      ></div>
-                      <div
-                        class="text-primary fw-bold"
-                        [innerHTML]="param.from.stopTime"
-                      ></div>
-                    </div>
-                    <div
-                      class="text-muted"
-                      [innerHTML]="param.from.address"
-                    ></div>
-                  </div>
+    }
+    @if (!loading) {
+      <app-title-page class="mb-3" back="true"></app-title-page>
+      <app-step-indicator
+        [steps]="funnelSteps"
+        [current]="2"
+      ></app-step-indicator>
 
-                  <div class="mt-2">
-                    <div
-                      class="fw-bold text-secondary"
-                      [innerHTML]="'str_arrivo_a' | translate"
-                    ></div>
-                    <div class="d-flex justify-content-between">
-                      <div
-                        class="text-primary"
-                        [innerHTML]="param.to.name"
-                      ></div>
-                      <div
-                        class="text-primary fw-bold"
-                        [innerHTML]="param.to.stopTime"
-                      ></div>
-                    </div>
-                    <div
-                      class="text-muted"
-                      [innerHTML]="param.to.address"
-                    ></div>
-                  </div>
-                </div>
+      <div class="container pb-5" style="min-height: 65vh">
+        <div class="summary-title mb-4">
+          <h2 class="text-primary" [innerText]="'str_totale' | translate"></h2>
+        </div>
 
-                <hr class="w-100 my-3 d-block d-lg-none" />
-                <div class="col-12 col-lg-8">
-                  <div class="list-group w-auto">
-                    <a
-                      *ngFor="let ticket of param.ticketTypes; let i = index"
-                      class="list-group-item list-group-item-action gap-3 py-3"
-                      aria-current="true"
-                    >
-                      <div class="d-flex gap-2 w-100 justify-content-between">
-                        <div>
-                          <h6
-                            class="mb-0"
-                            [innerHTML]="ticket.name | translateName"
-                          ></h6>
-
-                          <p
-                            class="mb-0 opacity-75"
-                            [innerHTML]="ticket.description | translateName"
-                          ></p>
-                        </div>
-
-                        <div class="fw-bold text-primary fs-3">
-                          <span [innerHTML]="ticket.cost"></span
-                          ><span class="text-secondary">€</span>
-                        </div>
-                      </div>
-                      <div class="w-100">
-                        <div
-                          class="d-flex mt-2 justify-content-center align-items-center"
-                        >
-                          <div>
-                            <h3>
-                              <span class="text-secondary me-1">X</span
-                              ><span [innerHTML]="ticket.count"></span>
-                            </h3>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-
-                    <a
-                      *ngIf="param.luggage > 0"
-                      class="list-group-item list-group-item-action gap-3 py-3"
-                    >
-                      <div class="d-flex gap-2 w-100 justify-content-between">
-                        <div>
-                          <h6
-                            class="mb-0"
-                            [innerHTML]="'str_bagagli_aggiuntivi' | translate"
-                          ></h6>
-
-                          <p
-                            class="mb-0 opacity-75"
-                            [innerHTML]="
-                              'str_bagagli_aggiuntivi_descrizione' | translate
-                            "
-                          ></p>
-                        </div>
-
-                        <div class="fw-bold text-primary fs-3">
-                          <span>2</span><span class="text-secondary">€</span>
-                        </div>
-                      </div>
-                      <div class="w-100">
-                        <div
-                          class="d-flex mt-2 justify-content-center align-items-center"
-                        >
-                          <div>
-                            <h3>
-                              <span class="text-secondary me-1">X</span
-                              ><span [innerHTML]="param.luggage"></span>
-                            </h3>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                    <a
-                      class="list-group-item list-group-item-action gap-3 py-3"
-                    >
-                      <div class="d-flex gap-2 w-100 justify-content-between">
-                        <h2
-                          class="text-primary text-uppercase"
-                          [innerText]="'str_totale' | translate"
-                        ></h2>
-                        <div>
-                          <h2 class="text-primary">
-                            <span
-                              class="fw-bold"
-                              [innerHTML]="param.total"
-                            ></span
-                            ><span class="text-secondary fw-bold">€</span>
-                          </h2>
-                        </div>
-                      </div>
-                    </a>
+        <div class="summary-layout">
+          <div class="summary-main">
+            <div class="summary-route-card rounded-4">
+              <div class="route-card-header">
+                <div>
+                  <h5
+                    class="route-name mb-1"
+                    [innerHTML]="param.name | translateName"
+                  ></h5>
+                  <div class="route-date">
+                    <i class="fa-regular fa-calendar me-1"></i>
+                    {{ param.date | date: "dd MMMM yyyy" }}
                   </div>
                 </div>
               </div>
 
-              <div
-                *ngIf="isToLate()"
-                class="alert mt-4 alert-warning border-0"
-                role="alert"
-                [innerHTML]="
-                  'str_attenzione_biglietto_non_rimborsabile' | translate
-                "
-              ></div>
+              <div class="route-card-body">
+                <div class="route-timeline">
+                  <div class="timeline-point departure">
+                    <div class="timeline-dot"></div>
+                    <div
+                      class="timeline-time"
+                      [innerHTML]="param.from.stopTime"
+                    ></div>
+                    <div
+                      class="timeline-label"
+                      [innerHTML]="param.from.name"
+                    ></div>
+                    <div
+                      class="timeline-desc"
+                      [innerHTML]="param.from.address"
+                    ></div>
+                  </div>
+                  <div class="timeline-line">
+                    <div class="timeline-line-inner"></div>
+                    <i class="fa-solid fa-bus timeline-icon"></i>
+                  </div>
+                  <div class="timeline-point arrival">
+                    <div class="timeline-dot"></div>
+                    <div
+                      class="timeline-time"
+                      [innerHTML]="param.to.stopTime"
+                    ></div>
+                    <div
+                      class="timeline-label"
+                      [innerHTML]="param.to.name"
+                    ></div>
+                    <div
+                      class="timeline-desc"
+                      [innerHTML]="param.to.address"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-tickets-card rounded-4">
+              <div class="card-section-header">
+                <i class="fa-solid fa-ticket me-1"></i>
+                <span [innerText]="'str_totale' | translate"></span>
+              </div>
+
+              <div class="tickets-list">
+                @for (
+                  ticket of param.ticketTypes;
+                  track ticket;
+                  let i = $index
+                ) {
+                  <div class="ticket-row">
+                    <div class="ticket-row-info">
+                      <h6
+                        class="mb-0"
+                        [innerHTML]="ticket.name | translateName"
+                      ></h6>
+                      <span
+                        class="ticket-row-desc"
+                        [innerHTML]="ticket.description | translateName"
+                      ></span>
+                    </div>
+                    <div class="ticket-row-right">
+                      <div class="ticket-qty">
+                        <span class="ticket-qty-x">x</span>
+                        <span [innerHTML]="ticket.count"></span>
+                      </div>
+                      <div class="ticket-row-price">
+                        {{ ticket.cost * ticket.count }}€
+                      </div>
+                    </div>
+                  </div>
+                }
+                @if (param.luggage > 0) {
+                  <div class="ticket-row">
+                    <div class="ticket-row-info">
+                      <h6
+                        class="mb-0"
+                        [innerHTML]="'str_bagagli_aggiuntivi' | translate"
+                      ></h6>
+                      <span
+                        class="ticket-row-desc"
+                        [innerHTML]="
+                          'str_bagagli_aggiuntivi_descrizione' | translate
+                        "
+                      ></span>
+                    </div>
+                    <div class="ticket-row-right">
+                      <div class="ticket-qty">
+                        <span class="ticket-qty-x">x</span>
+                        <span [innerHTML]="param.luggage"></span>
+                      </div>
+                      <div class="ticket-row-price">
+                        {{ luggagePrice * param.luggage }}€
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="ticket-total-row">
+                <div class="ticket-total-left">
+                  <span
+                    class="ticket-total-label"
+                    [innerText]="'str_totale' | translate"
+                  ></span>
+                </div>
+                <div class="ticket-total-right">
+                  <span class="ticket-total-value purchase-total">{{
+                    param.total
+                  }}</span>
+                  <span class="ticket-total-currency">€</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-sidebar">
+            <div class="sidebar-card rounded-4">
+              @if (isToLate()) {
+                <div class="alert-sidebar">
+                  <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                  <span
+                    [innerHTML]="
+                      'str_attenzione_biglietto_non_rimborsabile' | translate
+                    "
+                  ></span>
+                </div>
+              }
+
+              @if (hasDuplicateTicket) {
+                <div class="alert-sidebar alert-sidebar-warning">
+                  <div class="duplicate-warning-text">
+                    <i class="fa-solid fa-circle-info me-2"></i>
+                    <span
+                      [innerHTML]="'str_biglietto_gia_acquistato' | translate"
+                    ></span>
+                  </div>
+                  <a
+                    class="duplicate-ticket-link"
+                    href="/user/mytickets"
+                  >{{ "str_vai_ai_miei_biglietti" | translate }}</a>
+                </div>
+              }
+
+              @if (isLoggedIn()) {
+                <div class="sidebar-body">
+                  @if (errorMessage) {
+                    <div class="error-alert">
+                      <div>{{ errorMessage | translate }}</div>
+                      @if (errorMessage == "str_error_pending_booking") {
+                        <a
+                          class="error-link"
+                          [innerHTML]="'str_vai_a_account' | translate"
+                          routerLink="/user/myticket"
+                        ></a>
+                      }
+                    </div>
+                  }
+
+                  @if (canPayCash) {
+                    <div class="payment-method-selector mb-3">
+                      <label class="payment-method-label">
+                        <span [innerText]="'str_metodo_pagamento' | translate"></span>
+                      </label>
+                      <div class="payment-method-options">
+                        <label class="payment-method-option" [class.active]="selectedPaymentType === 'stripe'">
+                          <input type="radio" name="paymentType" value="stripe" [(ngModel)]="selectedPaymentType" />
+                          <div class="payment-option-content">
+                            <i class="fa-solid fa-credit-card"></i>
+                            <span [innerText]="'str_carta_di_credito' | translate"></span>
+                          </div>
+                        </label>
+                        <label class="payment-method-option" [class.active]="selectedPaymentType === 'cash'">
+                          <input type="radio" name="paymentType" value="cash" [(ngModel)]="selectedPaymentType" />
+                          <div class="payment-option-content">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            <span [innerText]="'str_contanti' | translate"></span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  }
+
+                  <div class="form-check my-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="acceptTerms"
+                      [(ngModel)]="acceptTerms"
+                    />
+                    <label class="form-check-label" for="acceptTerms">
+                      {{ "str_ho_letto_e_accetto" | translate }}
+                    </label>
+                  </div>
+                  @if (hasDuplicateTicket) {
+                    <div class="form-check my-2">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="confirmDuplicate"
+                        [(ngModel)]="confirmDuplicateTicket"
+                      />
+                      <label class="form-check-label" for="confirmDuplicate">
+                        {{ "str_conferma_acquisto_duplicato" | translate }} 
+                      </label>
+                    </div>
+                  }
+                  <button
+                    class="purchase-btn"
+                    [class.active]="
+                      acceptTerms &&
+                      (!hasDuplicateTicket || confirmDuplicateTicket)
+                    "
+                    [disabled]="
+                      !acceptTerms ||
+                      (hasDuplicateTicket && !confirmDuplicateTicket)
+                    "
+                    (click)="bookNow()"
+                  >
+                    <span class="purchase-total">{{ param.total }}€</span>
+                    <span [innerText]="'str_acquista' | translate"></span>
+                  </button>
+                </div>
+              }
+              @if (!isLoggedIn()) {
+                <div class="sidebar-body">
+                  <div class="login-inline-title mb-3">
+                    <span
+                      [innerHTML]="'str_accendi_account' | translate"
+                    ></span>
+                  </div>
+
+                  <form
+                    [formGroup]="checkoutLoginForm"
+                    (submit)="onQuickLogin($event)"
+                    class="login-inline-form"
+                  >
+                    <div class="mb-2">
+                      <label for="checkout-email" class="form-label"
+                        >Email</label
+                      >
+                      <input
+                        id="checkout-email"
+                        formControlName="email"
+                        type="email"
+                        autocomplete="email"
+                        class="form-control"
+                        [placeholder]="'str_email' | translate"
+                        [ngClass]="{
+                          'is-invalid':
+                            checkoutLoginSubmitted &&
+                            checkoutEmailField.invalid,
+                        }"
+                      />
+                      @if (
+                        checkoutLoginSubmitted && checkoutEmailField.errors
+                      ) {
+                        <div class="invalid-feedback">
+                          @if (checkoutEmailField.errors["required"]) {
+                            <span>{{
+                              "str_email_obbligatoria" | translate
+                            }}</span>
+                          }
+                          @if (checkoutEmailField.errors["email"]) {
+                            <span>{{
+                              "str_email_non_valida" | translate
+                            }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+
+                    <div class="mb-2">
+                      <label for="checkout-password" class="form-label"
+                        >Password</label
+                      >
+                      <input
+                        id="checkout-password"
+                        formControlName="password"
+                        type="password"
+                        autocomplete="current-password"
+                        class="form-control"
+                        [placeholder]="'str_password' | translate"
+                        [ngClass]="{
+                          'is-invalid':
+                            checkoutLoginSubmitted &&
+                            checkoutPasswordField.invalid,
+                        }"
+                      />
+                      @if (
+                        checkoutLoginSubmitted && checkoutPasswordField.errors
+                      ) {
+                        <div class="invalid-feedback">
+                          @if (checkoutPasswordField.errors["required"]) {
+                            <span>{{
+                              "str_password_obbligatoria" | translate
+                            }}</span>
+                          }
+                          @if (checkoutPasswordField.errors["minlength"]) {
+                            <span>{{
+                              "str_password_lunghezza_minima" | translate
+                            }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+
+                    @if (checkoutLoginError) {
+                      <div class="error-alert">
+                        {{ checkoutLoginError }}
+                      </div>
+                    }
+
+                    <button
+                      type="submit"
+                      [disabled]="checkoutLoginLoading"
+                      class="purchase-btn active w-100"
+                    >
+                      @if (!checkoutLoginLoading) {
+                        <span class="purchase-total">{{ param.total }}€</span>
+                        <span [innerText]="'str_acquista' | translate"></span>
+                      }
+                      @if (checkoutLoginLoading) {
+                        <div
+                          class="spinner-border spinner-border-sm text-white"
+                          role="status"
+                        ></div>
+                      }
+                    </button>
+                  </form>
+
+                  <div class="login-inline-divider my-3">
+                    <span>o</span>
+                  </div>
+
+                  <button class="google-btn" (click)="loginWithGoogle()">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Google</span>
+                  </button>
+
+                  <div class="login-inline-register mt-3">
+                    <span
+                      [innerHTML]="'str_non_hai_account' | translate"
+                    ></span>
+                    <a class="register-link" (click)="openModal(true)">
+                      {{ "str_registrati" | translate }}
+                    </a>
+                  </div>
+                </div>
+              }
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="row mt-3">
-      <div class="col" *ngIf="isLoggedIn()">
-        <div
-          class="alert alert-danger border-0 text-center"
-          *ngIf="errorMessage"
-        >
-          <div>{{ errorMessage | translate }}</div>
-          <a
-            class="cursor-pointer"
-            *ngIf="errorMessage == 'str_error_pending_booking'"
-            [innerHTML]="'str_vai_a_account' | translate"
-            routerLink="/user/myticket"
-          ></a>
-        </div>
-        <div class="form-check my-2">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="acceptTerms"
-            [(ngModel)]="acceptTerms"
-          />
-          <label class="form-check-label" for="acceptTerms">
-            {{ "str_ho_letto_e_accetto" | translate }}
-          </label>
-        </div>
-        <button
-          class="btn btn-lg btn-primary mb-3 w-100"
-          [disabled]="!acceptTerms"
-          (click)="bookNow()"
-        >
-          {{ "str_acquista" | translate }}
-        </button>
-      </div>
-      <div *ngIf="!isLoggedIn()" class="col">
-        <button
-          class="d-none d-lg-block btn btn-secondary w-100 mb-3"
-          (click)="openModal(false)"
-        >
-          {{ "str_registrati_for_continue" | translate }}
-        </button>
-        <button
-          class="d-block d-lg-none btn btn-secondary w-100 mb-3"
-          (click)="openModal(true)"
-        >
-          {{ "str_registrati_for_continue" | translate }}
-        </button>
-      </div>
-    </div>
-  </div>
-  <div
-    class="container my-5 d-flex justify-content-center align-items-center"
-    style="min-height: 50vh"
-    *ngIf="loading"
-  >
-    <app-loading></app-loading>
+    }
   </div>
 </div>
+
 <app-footer></app-footer>

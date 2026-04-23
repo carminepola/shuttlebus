@@ -1,95 +1,164 @@
 <nav
   style="z-index: 999"
-  class="navbar navbar-expand-sm mx-2 shadow mt-2 fixed-top rounded-4 bg-white"
+  class="navbar navbar-expand fixed-top rounded-4 border-0 m-2 glass"
+  id="mainNavbar"
 >
-  <div class="container-fluid mx-2">
-    <a class="navbar-brand" href="#"
-      ><img
+  <div class="container-fluid mx-2 px-0">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img
         src="../../../assets/pintour-logo.png"
-        style="max-width: 125px; max-height: 150px"
+        style="max-width: 110px; max-height: 130px"
         alt="pintour-logo"
-    /></a>
+      />
+    </a>
 
-    <div class="collapse navbar-collapse d-flex" id="navbar">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item cursor-pointer">
+    <div class="navbar-nav-wrapper ms-auto mb-0">
+      <ul class="navbar-nav">
+        <li class="nav-item">
           <a
-            class="nav-link rounded-3"
+            #navLink
+            class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
             [class.active]="getPath() == '/'"
             aria-current="page"
             (click)="goPath('/')"
+            (mouseenter)="onNavMouseEnter($any($event.target))"
+            (mouseleave)="onNavMouseLeave()"
           >
-            Home
+            <i class="fas fa-home small"></i>
+            <span>{{ "str_home" | translate }}</span>
           </a>
         </li>
-        <li class="nav-item cursor-pointer">
+
+        <li class="nav-item">
           <a
-            class="nav-link rounded-3"
+            #navLink
+            class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
             (click)="onTicket()"
             [class.active]="
-              getPath().includes('/user/') || getPath().includes('/admin/')
+              (getPath().includes('/user/') || getPath().includes('/admin/')) &&
+              !getPath().includes('mytickets')
             "
+            (mouseenter)="onNavMouseEnter($any($event.target))"
+            (mouseleave)="onNavMouseLeave()"
           >
-            Account
+            @if (isLoggedIn()) {
+              <i class="fa-solid fa-user-circle"></i>
+            } @else {
+              <i class="fa-solid fa-right-to-bracket"></i>
+            }
+            @if (isLoggedIn()) {
+              <span>{{ "str_account" | translate }}</span>
+            } @else {
+              <span>{{ "str_login" | translate }}</span>
+            }
           </a>
         </li>
-        <li class="nav-item cursor-pointer">
+        @if (isLoggedIn()) {
+          <li class="nav-item">
+            <a
+              #navLink
+              class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+              (click)="goPath('/user/mytickets')"
+              [class.active]="getPath().includes('/user/mytickets')"
+              (mouseenter)="onNavMouseEnter($any($event.target))"
+              (mouseleave)="onNavMouseLeave()"
+            >
+              <i class="fa-solid fa-ticket"></i>
+              <span>{{ "str_my_tickets" | translate }}</span>
+            </a>
+          </li>
+        }
+        <li class="nav-item">
           <a
-            class="nav-link rounded-3"
+            #navLink
+            class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
             (click)="goPath('/info')"
-            routerLinkActive="active"
+            [class.active]="
+              getPath().includes('/info') || getPath().includes('/busLine')
+            "
+            (mouseenter)="onNavMouseEnter($any($event.target))"
+            (mouseleave)="onNavMouseLeave()"
           >
-            Info</a
-          >
-        </li>
-        <li class="nav-item cursor-pointer">
-          <a
-            class="nav-link rounded-3"
-            href="https://api.whatsapp.com/send/?phone=%2B393356910211"
-          >
-            Whatsapp
+            <i class="fas fa-info-circle small"></i>
+            <span>{{ "str_info" | translate }}</span>
           </a>
+        </li>
+        <li class="nav-item">
+          <a
+            #navLink
+            class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+            href="https://api.whatsapp.com/send/?phone=%2B393356910211"
+            target="_blank"
+            rel="noopener noreferrer"
+            (mouseenter)="onNavMouseEnter($any($event.target))"
+            (mouseleave)="onNavMouseLeave()"
+          >
+            <i class="fab fa-whatsapp small"></i>
+            <span>Whatsapp</span>
+          </a>
+        </li>
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2 cursor-pointer footer-lang-btn"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <span [innerHTML]="getSelectedLng().name"></span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            @for (l of lng; track l.lng) {
+              <li>
+                <a
+                  class="dropdown-item cursor-pointer"
+                  [class.active]="getSelectedLng().lng === l.lng"
+                  (click)="setLng(l.lng)"
+                  [innerHtml]="l.name"
+                ></a>
+              </li>
+            }
+          </ul>
         </li>
       </ul>
+      <div class="nav-indicator"></div>
     </div>
   </div>
 </nav>
-<div class="modal fade show" tabindex="-1" id="modalLogin">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="d-flex justify-content-between align-items-center py-2 px-3">
-        <nav class="nav nav-pills nav-fill">
+
+<div class="modal fade" tabindex="-1" id="modalLogin" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content glass border-0 rounded-4 shadow-lg">
+      <div class="modal-header border-0 px-4 pt-3 pb-0 position-relative">
+        <div class="nav nav-pills w-100 pe-5" role="tablist">
           <a
             (click)="login = true"
-            class="nav-link cursor-pointer"
-            [ngClass]="{ active: login }"
-            aria-current="page"
-            >LOGIN</a
+            class="nav-link flex-grow-1 text-center cursor-pointer rounded-pill me-2"
+            [ngClass]="{ active2: login }"
+            >{{ "str_login" | translate | uppercase }}</a
           >
           <a
             (click)="login = false"
-            class="nav-link cursor-pointer"
-            [ngClass]="{ active: !login }"
-            aria-current="page"
-            >REGISTRATI</a
+            class="nav-link flex-grow-1 text-center cursor-pointer rounded-pill"
+            [ngClass]="{ active2: !login }"
+            >{{ "str_registrati" | translate | uppercase }}</a
           >
-        </nav>
+        </div>
         <button
           type="button"
-          class="btn-close"
+          class="btn-close position-absolute top-0 end-0 m-2"
           data-bs-dismiss="modal"
           aria-label="Close"
         ></button>
       </div>
-      <div class="modal-body">
-        <app-login-form
-          *ngIf="login"
-          (loginSuccess)="onEvent()"
-        ></app-login-form>
-        <app-registrazione
-          (registerSuccess)="onComplete()"
-          [hidden]="login"
-        ></app-registrazione>
+      <div class="modal-body px-4 pb-4 pt-3">
+        @if (login) {
+          <app-login-form (loginSuccess)="onEvent()"></app-login-form>
+        }
+        @if (!login) {
+          <app-registrazione
+            (registerSuccess)="onComplete()"
+          ></app-registrazione>
+        }
       </div>
     </div>
   </div>

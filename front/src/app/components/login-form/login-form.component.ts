@@ -26,6 +26,7 @@ export class LoginFormComponent implements OnInit {
   isSubmitted = false;
   loginError = '';
   isLoading = false;
+  showPassword = false;
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -46,6 +47,7 @@ export class LoginFormComponent implements OnInit {
     });
   }
   loginWithGoogle() {
+    localStorage.setItem('authUrl', window.location.pathname);
     this.googleAuthService.loginWithGoogle();
   }
   get formControls() {

@@ -1,6 +1,5 @@
 @use "sass:map";
 
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 $white: #fff;
 $black: #1d1d20;
 
@@ -90,16 +89,16 @@ label {
 }
 
 .py-2-5 {
-  padding-top: 0.7rem !important;
-  padding-bottom: 0.7rem !important;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
 }
 
 .nav-link.active {
-  background-color: rgba($secondary, 0.3) !important;
+  background-color: rgba($secondary, 0.3);
 }
 
 .nav-link {
-  color: $white !important;
+  color: $white;
 }
 
 .form-control::-webkit-input-placeholder {
@@ -111,7 +110,7 @@ option {
 }
 
 .btn-secondary-active {
-  background-color: rgba($secondary, 0.3) !important;
+  background-color: rgba($secondary, 0.3);
 }
 
 .form-control {
@@ -127,11 +126,11 @@ option {
 }
 
 a {
-  text-decoration: none !important;
+  text-decoration: none;
 }
 
 .btn-link {
-  text-decoration: none !important;
+  text-decoration: none;
 }
 
 .background-gradient {
@@ -143,19 +142,19 @@ a {
 }
 
 .cardButton {
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
   transition: box-shadow 0.3s ease-in-out;
 }
 
 .cardButton:hover {
-  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.4);
   transition: box-shadow 0.2s ease;
 }
 .form-control:focus {
   color: $secondary;
 }
 .nav-link {
-  color: var(--bs-primary) !important;
+  color: var(--bs-primary);
 }
 
 [data-bs-theme="dark"] {
@@ -163,40 +162,40 @@ a {
     background-color: #18181b;
   }
   .nav-link {
-    color: map.get($dark-blue-palette, 400) !important;
+    color: map.get($dark-blue-palette, 400);
   }
   .bg-white {
-    background-color: #212529 !important;
+    background-color: #212529;
   }
 
   .bg-light {
-    background-color: #2b3035 !important;
+    background-color: #2b3035;
   }
 
   .cardButton {
-    box-shadow: 0 0.125rem 0.25rem rgba(255, 255, 255, 0.075) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(255, 255, 255, 0.075);
     transition: box-shadow 0.3s ease-in-out;
   }
 
   .cardButton:hover {
-    box-shadow: 0 0.75rem 1.5rem rgba(177, 177, 177, 0.2) !important;
+    box-shadow: 0 0.75rem 1.5rem rgba(177, 177, 177, 0.2);
     transition: box-shadow 0.2s ease;
   }
 
   .form-control {
-    color: map.get($dark-blue-palette, 400) !important;
+    color: map.get($dark-blue-palette, 400);
   }
 
   .text-primary {
-    color: map.get($dark-blue-palette, 400) !important;
+    color: map.get($dark-blue-palette, 400);
   }
 
   .form-control:focus {
-    color: map.get($dark-blue-palette, 400) !important;
+    color: map.get($dark-blue-palette, 400);
   }
 
   .btn-primary {
-    color: map.get($dark-blue-palette, 400) !important;
+    color: map.get($dark-blue-palette, 400);
   }
 
   .form-control {
@@ -209,6 +208,6 @@ a {
 
   .form-label,
   .form-check-label {
-    color: map.get($dark-blue-palette, 400) !important;
+    color: map.get($dark-blue-palette, 400);
   }
 }

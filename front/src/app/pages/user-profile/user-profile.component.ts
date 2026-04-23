@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import Swal from 'sweetalert2';
-import { CommonModule } from '@angular/common';
+
 import { LngService } from '../../services/lng/lng.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -11,7 +11,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-user-profile',
   animations: [fadeAnimation],
-  imports: [TitlePageComponent, TranslatePipe, CommonModule, LoadingComponent],
+  imports: [TitlePageComponent, TranslatePipe, LoadingComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.scss',
 })
@@ -19,7 +19,7 @@ export class UserProfileComponent implements OnInit {
   constructor(
     private lng: LngService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {}
 
   loading = true;
@@ -67,9 +67,9 @@ export class UserProfileComponent implements OnInit {
         `,
       },
       customClass: {
-        confirmButton: 'btn btn-primary btn-lg mr-2',
-        denyButton: 'btn btn-danger btn-lg',
-        popup: 'rounded-4',
+        confirmButton: 'btn btn-secondary btn-lg mr-2',
+        denyButton: 'btn btn-outline-secondary btn-lg',
+        popup: 'rounded-4 glass',
       },
 
       showCancelButton: false,

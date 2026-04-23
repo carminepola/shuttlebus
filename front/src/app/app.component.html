@@ -1,27 +1,43 @@
-<app-cookie-policy *ngIf="!loading"></app-cookie-policy>
+<app-confirm-modal></app-confirm-modal>
 
-<span *ngIf="!loading">
-  <div class="bg-gray-100 background-100 bg-page" *ngIf="navbarVisible">
-    <app-sidebar> </app-sidebar>
+@if (!loading) {
+  <app-cookie-policy></app-cookie-policy>
+}
 
-    <div class="navMarginTop navMarginLeft">
-      <router-outlet></router-outlet>
-    </div>
+@if (!loading) {
+  <span>
+    @if (navbarVisible) {
+      <div class="bg-gray-100 background-100 bg-page">
+        <app-sidebar> </app-sidebar>
+        <div class="navMarginTop navMarginLeft">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    }
+    @if (lowBarVisible) {
+      <app-navbar class="d-none d-lg-block"></app-navbar>
+    }
+    @if (!navbarVisible) {
+      <router-outlet
+        style="min-height: 100vh"
+        [ngClass]="{ bottomPadding: lowBarVisible }"
+      ></router-outlet>
+    }
+    @if (lowBarVisible && !navbarVisible) {
+      <app-lowBar></app-lowBar>
+    }
+  </span>
+}
+@if (loading) {
+  <div
+    style="
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    "
+  >
+    <app-loading></app-loading>
   </div>
-
-  <app-navbar *ngIf="lowBarVisible" class="d-none d-lg-block"></app-navbar>
-
-  <router-outlet
-    *ngIf="!navbarVisible"
-    style="min-height: 100vh"
-    [ngClass]="{ bottomPadding: lowBarVisible }"
-  ></router-outlet>
-
-  <app-lowBar *ngIf="lowBarVisible && !navbarVisible"></app-lowBar>
-</span>
-<div
-  class="wv-100 vh-100 d-flex align-items-center justify-content-center"
-  *ngIf="loading"
->
-  <app-loading></app-loading>
-</div>
+}

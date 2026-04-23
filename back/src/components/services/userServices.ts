@@ -40,9 +40,45 @@ export default class UserServices {
       throw error;
     }
   }
-  async getUsers() {
+  async getUsers(page: number = 1, limit: number = 10) {
     try {
-      const result = await this.userDao.getUsers();
+      const result = await this.userDao.getUsers(page, limit);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchUsers(searchTerm: string, page: number = 1, limit: number = 10) {
+    try {
+      const result = await this.userDao.searchUsers(searchTerm, page, limit);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getStaff(page: number = 1, limit: number = 10) {
+    try {
+      const result = await this.userDao.getStaff(page, limit);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchStaff(searchTerm: string, page: number = 1, limit: number = 10) {
+    try {
+      const result = await this.userDao.searchStaff(searchTerm, page, limit);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getNoPermissionUsers(searchTerm?: string, page: number = 1, limit: number = 10) {
+    try {
+      const result = await this.userDao.getNoPermissionUsers(page, limit, searchTerm);
       return result;
     } catch (error) {
       throw error;
@@ -75,6 +111,26 @@ export default class UserServices {
       throw error;
     }
   }
+
+  async updateUserDetails(email: string, name: string, phone?: string) {
+    try {
+      const userData = await this.userDao.getUserByEmailAll(email);
+      if (!userData) {
+        throw new ErrorModel(404, "Utente non trovato");
+      }
+
+      const updateData: any = {};
+      updateData["details.name"] = name;
+      if (phone !== undefined) {
+        updateData["details.phone"] = phone;
+      }
+
+      const result = await this.userDao.updateUserDetails(email, updateData);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
   async checkPassword(email: string, password: string) {
     try {
       return await this.userDao.checkPassword(email, password);
@@ -92,22 +148,21 @@ export default class UserServices {
   generatePin() {
     // Usa un valore casuale (puoi anche usare Date.now o simili come seed)
     const randomBytes = CryptoJS.lib.WordArray.random(4); // 4 byte = 32 bit
-  
+
     // Convertilo in un numero usando l'hash (puoi anche usare direttamente il valore raw)
     const hash = CryptoJS.SHA256(randomBytes).toString(CryptoJS.enc.Hex);
-  
+
     // Prendi solo una parte dell'hash per ottenere un numero
     const number = parseInt(hash.slice(0, 8), 16); // Primi 8 caratteri = 32 bit
-  
+
     // Riduci a un numero tra 0 e 999999
     const pin = number % 1000000;
-  
+
     // Ritorna una stringa con zeri iniziali se necessario
     return pin.toString().padStart(6, "0");
   }
   async register(user: userModel, lng: string) {
     try {
-   
       let oldUser = await this.userDao.getUserByEmailAll(user.email);
       if (oldUser && oldUser.role !== role.NO_PERMISSION) {
         throw new ErrorModel(409, "Utente già esistente");
@@ -189,6 +244,13 @@ export default class UserServices {
       throw error;
     }
   }
+  async deleteUserById(id: string): Promise<boolean> {
+    try {
+      return await this.userDao.deleteUserById(id);
+    } catch (error) {
+      throw error;
+    }
+  }
   async validateEmail(email: string, pin: string): Promise<boolean> {
     try {
       let u = await this.userDao.getUserByEmailNotPermission(email);
@@ -220,5 +282,36 @@ export default class UserServices {
       throw error;
     }
     return false;
+  }
+
+  async updateRole(userId: string, newRole: number) {
+    const validRoles = [role.ADMIN, role.DRIVER, role.USER, role.NO_PERMISSION];
+    if (!validRoles.includes(newRole)) {
+      throw new ErrorModel(400, "Ruolo non valido");
+    }
+    const user = await this.userDao.getUserById(userId);
+    if (!user) {
+      throw new ErrorModel(404, "Utente non trovato");
+    }
+    const oldRole = user.role;
+    user.role = newRole;
+    await this.userDao.updateUser(user);
+    return { oldRole, newRole };
+  }
+
+  async updateUserDetailsById(userId: string, name: string, phone?: string) {
+    const userData = await this.userDao.getUserById(userId);
+    if (!userData) {
+      throw new ErrorModel(404, "Utente non trovato");
+    }
+
+    const updateData: any = {};
+    updateData["details.name"] = name;
+    if (phone !== undefined) {
+      updateData["details.phone"] = phone;
+    }
+
+    const result = await this.userDao.updateUserDetailsById(userId, updateData);
+    return result;
   }
 }

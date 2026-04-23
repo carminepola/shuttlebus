@@ -27,11 +27,15 @@ export default class lngDao {
     }
   }
 
-  async update(obj:lngModel){
+  async update(obj: lngModel) {
     try {
       const result = await this.db.collection(this.schema).updateOne({ id: obj.id }, { $set: {
         it: obj.it,
-        en: obj.en
+        en: obj.en,
+        fr: obj.fr,
+        de: obj.de,
+        es: obj.es,
+        jp: obj.jp,
       } });
  
       return result.upsertedId  ? obj.id : null;

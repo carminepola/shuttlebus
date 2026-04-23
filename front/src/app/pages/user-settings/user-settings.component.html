@@ -4,12 +4,143 @@
     [subtitle]="'str_setting_desc' | translate"
     back="true"
   ></app-title-page>
+  <div class="card border-0 rounded-4 shadow mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div>
+          <h3 class="text-muted mb-3">
+            {{ "str_details_personal" | translate }}
+          </h3>
+        </div>
+
+        @if (successMessageDetails) {
+          <div
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+          >
+            {{ successMessageDetails }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="successMessageDetails = ''"
+            ></button>
+          </div>
+        }
+
+        @if (errorMessageDetails) {
+          <div
+            class="alert alert-danger alert-dismissible fade show"
+            role="alert"
+          >
+            {{ errorMessageDetails }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="errorMessageDetails = ''"
+            ></button>
+          </div>
+        }
+
+        <div class="col mb-2">
+          <form [formGroup]="userDetailsForm" (ngSubmit)="onSubmitDetails()">
+            <div class="mb-3">
+              <label for="name" class="form-label">{{
+                "str_name" | translate
+              }}</label>
+              <input
+                id="name"
+                type="text"
+                formControlName="name"
+                class="form-control"
+                required
+                placeholder="{{ 'str_name' | translate }}"
+              />
+              @if (
+                userDetailsForm.get("name")?.touched &&
+                userDetailsForm.get("name")?.invalid
+              ) {
+                <div class="invalid-feedback d-block">
+                  @if (userDetailsForm.get("name")?.hasError("required")) {
+                    <div>
+                      {{ "str_campo_obbligatorio" | translate }}
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <div class="mb-3">
+              <label for="phone" class="form-label">{{
+                "str_phone" | translate
+              }}</label>
+              <input
+                id="phone"
+                type="tel"
+                formControlName="phone"
+                class="form-control"
+                placeholder="{{ 'str_phone' | translate }}"
+              />
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary float-end"
+              [disabled]="loadingDetails"
+            >
+              @if (loadingDetails) {
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              } @else {
+                <i class="fas fa-save me-2"></i>
+              }
+              {{
+                loadingDetails
+                  ? ("str_saving" | translate)
+                  : ("str_save" | translate)
+              }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="card border-0 rounded-4 shadow">
     <div class="card-body">
       <div class="row">
         <div>
           <h3 class="text-muted">{{ "str_cambia_password" | translate }}</h3>
         </div>
+
+        @if (successMessage) {
+          <div
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+          >
+            {{ successMessage }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="successMessage = ''"
+            ></button>
+          </div>
+        }
+
+        @if (errorMessage) {
+          <div
+            class="alert alert-danger alert-dismissible fade show"
+            role="alert"
+          >
+            {{ errorMessage }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="errorMessage = ''"
+            ></button>
+          </div>
+        }
+
         <div class="col mb-2">
           <form [formGroup]="changePasswordForm" (ngSubmit)="onSubmit()">
             <div class="mb-3">
@@ -24,21 +155,20 @@
                 required
                 [placeholder]="'insert_old_password' | translate"
               />
-              <div
-                *ngIf="
-                  changePasswordForm.get('oldPassword')?.touched &&
-                  changePasswordForm.get('oldPassword')?.invalid
-                "
-                class="invalid-feedback"
-              >
-                <div
-                  *ngIf="
-                    changePasswordForm.get('oldPassword')?.hasError('required')
-                  "
-                >
-                  {{ "str_campo_obbligatorio" | translate }}
+              @if (
+                changePasswordForm.get("oldPassword")?.touched &&
+                changePasswordForm.get("oldPassword")?.invalid
+              ) {
+                <div class="invalid-feedback">
+                  @if (
+                    changePasswordForm.get("oldPassword")?.hasError("required")
+                  ) {
+                    <div>
+                      {{ "str_campo_obbligatorio" | translate }}
+                    </div>
+                  }
                 </div>
-              </div>
+              }
             </div>
             <div class="mb-3">
               <label
@@ -53,29 +183,111 @@
                 class="form-control"
                 required
                 [placeholder]="'insert_new_password' | translate"
+                (input)="onPasswordInput()"
               />
-              <div
-                *ngIf="
-                  changePasswordForm.get('newPassword')?.touched &&
-                  changePasswordForm.get('newPassword')?.invalid
-                "
-                class="invalid-feedback"
-              >
-                <div
-                  *ngIf="
-                    changePasswordForm.get('newPassword')?.hasError('required')
-                  "
-                >
-                  {{ "str_campo_obbligatorio" | translate }}
+              @if (
+                changePasswordForm.get("newPassword")?.touched &&
+                changePasswordForm.get("newPassword")?.invalid
+              ) {
+                <div class="invalid-feedback">
+                  @if (
+                    changePasswordForm.get("newPassword")?.hasError("required")
+                  ) {
+                    <div>
+                      {{ "str_campo_obbligatorio" | translate }}
+                    </div>
+                  }
                 </div>
-                <div
-                  *ngIf="
-                    changePasswordForm.get('newPassword')?.hasError('minlength')
-                  "
-                >
-                  {{ "str_lng_password" | translate }}
+              }
+              @if (changePasswordForm.get("newPassword")?.value?.length > 0) {
+                <div class="pwd-strength">
+                  <div class="pwd-strength-bar">
+                    <div
+                      class="pwd-strength-bar-fill"
+                      [style.width.%]="passwordStrengthPercent()"
+                      [ngClass]="passwordStrengthClass()"
+                    ></div>
+                  </div>
+                  <span
+                    class="pwd-strength-label"
+                    [ngClass]="passwordStrengthClass()"
+                  >
+                    {{ passwordStrengthLabel() }}
+                  </span>
                 </div>
-              </div>
+                <div class="pwd-rules">
+                  <div
+                    class="pwd-rule"
+                    [class.rule-ok]="pwdRules.minLength"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="
+                        pwdRules.minLength
+                          ? 'fa-circle-check'
+                          : 'fa-circle'
+                      "
+                    ></i>
+                    <span>{{ "str_pwd_rule_min_length" | translate }}</span>
+                  </div>
+                  <div
+                    class="pwd-rule"
+                    [class.rule-ok]="pwdRules.hasUpper"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="
+                        pwdRules.hasUpper
+                          ? 'fa-circle-check'
+                          : 'fa-circle'
+                      "
+                    ></i>
+                    <span>{{ "str_pwd_rule_upper" | translate }}</span>
+                  </div>
+                  <div
+                    class="pwd-rule"
+                    [class.rule-ok]="pwdRules.hasLower"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="
+                        pwdRules.hasLower
+                          ? 'fa-circle-check'
+                          : 'fa-circle'
+                      "
+                    ></i>
+                    <span>{{ "str_pwd_rule_lower" | translate }}</span>
+                  </div>
+                  <div
+                    class="pwd-rule"
+                    [class.rule-ok]="pwdRules.hasNumber"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="
+                        pwdRules.hasNumber
+                          ? 'fa-circle-check'
+                          : 'fa-circle'
+                      "
+                    ></i>
+                    <span>{{ "str_pwd_rule_number" | translate }}</span>
+                  </div>
+                  <div
+                    class="pwd-rule"
+                    [class.rule-ok]="pwdRules.hasSpecial"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="
+                        pwdRules.hasSpecial
+                          ? 'fa-circle-check'
+                          : 'fa-circle'
+                      "
+                    ></i>
+                    <span>{{ "str_pwd_rule_special" | translate }}</span>
+                  </div>
+                </div>
+              }
             </div>
             <div class="mb-3">
               <label for="repeatPassword" class="form-label">{{
@@ -89,36 +301,49 @@
                 required
                 [placeholder]="'str_ripeti_password' | translate"
               />
-              <div
-                *ngIf="
-                  changePasswordForm.get('repeatPassword')?.touched &&
-                  changePasswordForm.get('repeatPassword')?.invalid
-                "
-                class="invalid-feedback"
-              >
-                <div
-                  *ngIf="
+              @if (
+                changePasswordForm.get("repeatPassword")?.touched &&
+                changePasswordForm.get("repeatPassword")?.invalid
+              ) {
+                <div class="invalid-feedback">
+                  @if (
                     changePasswordForm
-                      .get('repeatPassword')
-                      ?.hasError('required')
-                  "
-                >
-                  {{ "str_campo_obbligatorio" | translate }}
-                </div>
-                <div
-                  *ngIf="
+                      .get("repeatPassword")
+                      ?.hasError("required")
+                  ) {
+                    <div>
+                      {{ "str_campo_obbligatorio" | translate }}
+                    </div>
+                  }
+                  @if (
                     changePasswordForm
-                      .get('repeatPassword')
-                      ?.hasError('mustMatch')
-                  "
-                >
-                  {{ "str_password_must_match" | translate }}
+                      .get("repeatPassword")
+                      ?.hasError("mustMatch")
+                  ) {
+                    <div>
+                      {{ "str_password_must_match" | translate }}
+                    </div>
+                  }
                 </div>
-              </div>
+              }
             </div>
-            <button type="submit" class="btn btn-secondary float-end">
-              <i class="fas fa-save me-2"></i>
-              Salva
+            <button
+              type="submit"
+              class="btn btn-secondary float-end"
+              [disabled]="loading"
+            >
+              @if (loading) {
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              } @else {
+                <i class="fas fa-save me-2"></i>
+              }
+              {{
+                loading ? ("str_saving" | translate) : ("str_save" | translate)
+              }}
             </button>
           </form>
         </div>

@@ -24,10 +24,13 @@ export default class UsersDao {
    * @throws {Error} - Throws an error if there is an issue querying the database.
    */
 
-  async getUsers() {
+  async getUsers(page: number = 1, limit: number = 10) {
     try {
-      let json = {};
-      let list = await this.db.collection(this.schema).find(json).toArray();
+      let json = {
+        role: { $eq: role.USER },
+      };
+      const skip = (page - 1) * limit;
+      let list = await this.db.collection(this.schema).find(json).skip(skip).limit(limit).toArray();
       list.forEach((element) => {
         delete element.password;
         delete element.recoverPassword;
@@ -35,7 +38,177 @@ export default class UsersDao {
         delete element?.options?.google?._raw;
         delete element?.options?.google?._json;
       });
-      return list;
+
+      // Get total count for pagination
+      const totalCount = await this.db.collection(this.schema).countDocuments(json);
+
+      return {
+        users: list,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+        },
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchUsers(searchTerm: string, page: number = 1, limit: number = 10) {
+    try {
+      const skip = (page - 1) * limit;
+      const searchRegex = new RegExp(searchTerm, "i");
+
+      let json = {
+        role: { $eq: role.USER },
+        $or: [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
+      };
+
+      let list = await this.db.collection(this.schema).find(json).sort({ _id: -1 }).skip(skip).limit(limit).toArray();
+      list = list.map((user) => {
+        delete user.password;
+        delete user.recoverPassword;
+        delete user.recoverPasswordCount;
+        delete user?.options?.google?._raw;
+        delete user?.options?.google?._json;
+
+        return {
+          _id: user._id,
+          name: user.details?.name || "",
+          email: user.email,
+          phone: user.details?.phone || "",
+          pin: user.options?.pin || "",
+        };
+      });
+
+      const totalCount = await this.db.collection(this.schema).countDocuments(json);
+
+      return {
+        users: list,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+        },
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getStaff(page: number = 1, limit: number = 10) {
+    try {
+      let json = {
+        role: { $lt: role.USER },
+      };
+      const skip = (page - 1) * limit;
+      let list = await this.db.collection(this.schema).find(json).skip(skip).limit(limit).toArray();
+      list.forEach((element) => {
+        delete element.password;
+        delete element.recoverPassword;
+        delete element.recoverPasswordCount;
+        delete element?.options?.google?._raw;
+        delete element?.options?.google?._json;
+      });
+
+      const totalCount = await this.db.collection(this.schema).countDocuments(json);
+
+      return {
+        users: list,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+        },
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchStaff(searchTerm: string, page: number = 1, limit: number = 10) {
+    try {
+      const skip = (page - 1) * limit;
+      const searchRegex = new RegExp(searchTerm, "i");
+
+      let json = {
+        role: { $lt: role.USER },
+        $or: [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
+      };
+
+      let list = await this.db.collection(this.schema).find(json).sort({ _id: -1 }).skip(skip).limit(limit).toArray();
+      list = list.map((user) => {
+        delete user.password;
+        delete user.recoverPassword;
+        delete user.recoverPasswordCount;
+        delete user?.options?.google?._raw;
+        delete user?.options?.google?._json;
+
+        return {
+          _id: user._id,
+          name: user.details?.name || "",
+          email: user.email,
+          phone: user.details?.phone || "",
+          pin: user.options?.pin || "",
+        };
+      });
+
+      const totalCount = await this.db.collection(this.schema).countDocuments(json);
+
+      return {
+        users: list,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+        },
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getNoPermissionUsers(page: number = 1, limit: number = 10, searchTerm?: string) {
+    try {
+      const skip = (page - 1) * limit;
+      let json: any = {
+        role: { $eq: role.NO_PERMISSION },
+      };
+      if (searchTerm) {
+        const searchRegex = new RegExp(searchTerm, "i");
+        json.$or = [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }];
+        json.role = { $eq: role.NO_PERMISSION };
+      }
+      const totalCount = await this.db.collection(this.schema).countDocuments(json);
+      let list = await this.db.collection(this.schema).find(json).sort({ _id: -1 }).skip(skip).limit(limit).toArray();
+      list = list.map((user) => {
+        delete user.password;
+        delete user.recoverPassword;
+        delete user.recoverPasswordCount;
+        delete user?.options?.google?._raw;
+        delete user?.options?.google?._json;
+        return {
+          _id: user._id,
+          name: user.details?.name || "",
+          email: user.email,
+          phone: user.details?.phone || "",
+          pin: user.options?.pin || "",
+        };
+      });
+      return {
+        users: list,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+        },
+      };
     } catch (error) {
       throw error;
     }
@@ -192,7 +365,6 @@ export default class UsersDao {
       json = {
         email: email,
         disabled: false,
-    
       };
       let user = await this.db.collection(this.schema).findOne(json);
 
@@ -499,8 +671,7 @@ export default class UsersDao {
       // Esegui la query per trovare e controllare la sessione
       const result = await this.db.collection(this.schema).findOne({
         email: email,
-        "sessions.id": userSession, // Cerca la sessione per email e sessionID
-        "sessions.refreshToken": refreshToken, // Cerca la sessione per email e refreshToken
+        sessions: { $elemMatch: { id: userSession, refreshToken: refreshToken } },
       });
 
       // Verifica se `result` è nullo o se `result.value` è nullo
@@ -635,7 +806,7 @@ export default class UsersDao {
       throw error;
     }
   }
-  async updateUser(user: userModel): Promise<boolean> {
+  async updateUser(user: any): Promise<boolean> {
     try {
       // Aggiorna l'utente
 
@@ -653,6 +824,45 @@ export default class UsersDao {
     } catch (error) {
       console.error("Errore durante l'aggiornamento dell'utente:", error);
       throw error; // Rilancia l'errore
+    }
+  }
+
+  async updateUserDetails(email: string, updateData: any): Promise<boolean> {
+    try {
+      email = email.toLowerCase();
+      const result = await this.db.collection<userModel>(this.schema).updateOne({ email: email }, { $set: updateData });
+      if (!result) {
+        throw new Error("Utente non trovato");
+      }
+      return true;
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento dei dettagli dell'utente:", error);
+      throw error;
+    }
+  }
+
+  async updateUserDetailsById(userId: string, updateData: any): Promise<boolean> {
+    try {
+      const result = await this.db.collection<userModel>(this.schema).updateOne({ _id: new ObjectId(userId) }, { $set: updateData });
+      if (!result) {
+        throw new Error("Utente non trovato");
+      }
+      return true;
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento dei dettagli dell'utente per ID:", error);
+      throw error;
+    }
+  }
+  async deleteUserById(id: string): Promise<boolean> {
+    try {
+      const result = await this.db.collection<userModel>(this.schema).deleteOne({ _id: new ObjectId(id) });
+      if (!result || result.deletedCount === 0) {
+        throw new Error("Utente non trovato");
+      }
+      return true;
+    } catch (error) {
+      console.error("Errore durante la cancellazione dell'utente per ID:", error);
+      throw error;
     }
   }
   async acceptTerms(id: string): Promise<boolean> {

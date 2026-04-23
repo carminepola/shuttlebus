@@ -1,104 +1,145 @@
-<div class="bg-secondary text-white">
+<footer class="footer">
+  <div class="footer-top-bar"></div>
+
   <div class="container py-5">
-    <div class="row">
-      <div
-        class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0 d-block d-lg-flex justify-content-center"
-      >
-        <div>
-          <h2
-            class="fw-light-bold mb-3"
-            [innerText]="'str_info' | translate"
-          ></h2>
-          <div class="mb-2">Pintour S.C.A.R.L.</div>
-          <div class="mb-2">
-            Sede legale:<br />
-            Via Castellammare 18,<br />
-            80050, Pimonte (Na) <br />Sede operativa: <br />Via Mariconda 39,<br />
-            80045, Pompei (Na)
+    <div class="row g-4 g-lg-5">
+      <div class="col-12 col-lg-4">
+        <div class="footer-brand">
+          <div class="footer-bg-logo mb-3">
+            <img
+              src="../../../assets/pintour-logo.png"
+              alt="Pintour"
+              class="footer-logo"
+              loading="lazy"
+            />
           </div>
-          <div>P.IVA 06565461214</div>
+
+          <p class="footer-description">
+            {{ "str_footer_description" | translate }}
+          </p>
+        </div>
+        <div class="footer-social">
+          <a
+            href="https://www.facebook.com/pintour"
+            class="footer-social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+          >
+            <i class="fa-brands fa-facebook-f"></i>
+          </a>
+          <a
+            href="https://www.instagram.com/_pintourbus_/"
+            class="footer-social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+          <a
+            href="https://api.whatsapp.com/send/?phone=%2B393356910211"
+            class="footer-social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp"
+          >
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
         </div>
       </div>
-      <div
-        class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0 d-block d-lg-flex justify-content-center"
-      >
-        <div>
-          <h2
-            class="fw-light-bold mb-3"
-            [innerHTML]="'str_contact' | translate"
-          ></h2>
 
-          <div>
-            <a href="tel:+390818792645" class="text-white"
-              ><i class="fas fa-phone me-2 mb-3"></i>+39 0818792645</a
+      <div class="col-6 col-lg-2">
+        <h3 class="footer-heading">Link</h3>
+        <ul class="footer-links">
+          <li><a [routerLink]="['/']" class="footer-link">{{ "str_home" | translate }}</a></li>
+          <li>
+            <a [routerLink]="['/busLine/0']" class="footer-link">{{
+              "str_bus_line" | translate
+            }}</a>
+          </li>
+          <li><a [routerLink]="['/info']" class="footer-link">{{ "str_info" | translate }}</a></li>
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <h3 class="footer-heading" [innerHTML]="'str_contact' | translate"></h3>
+        <ul class="footer-contact-list">
+          <li>
+            <i class="fa-solid fa-phone"></i>
+            <a href="tel:+390818792645" class="footer-link">+39 081 879 2645</a>
+          </li>
+          <li>
+            <i class="fa-solid fa-envelope"></i>
+            <a href="mailto:ordini@pintourbus.com" class="footer-link"
+              >ordini@pintourbus.com</a
             >
-          </div>
-
-          <div>
-            <a href="mailto:ordini@pintourbus.com" class="text-white">
-              <i class="fas fa-envelope me-2"></i
-              ><span [innerText]="'ordini@pintourbus.com'"></span>
-            </a>
-          </div>
-        </div>
+          </li>
+          <li>
+            <i class="fa-brands fa-whatsapp"></i>
+            <a
+              href="https://api.whatsapp.com/send/?phone=%2B393356910211"
+              class="footer-link"
+              target="_blank"
+              >+39 335 691 0211</a
+            >
+          </li>
+        </ul>
       </div>
-      <div
-        class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0 d-block d-lg-flex justify-content-center"
-      >
-        <div>
-          <h2 class="fw-light-bold mb-3">Social</h2>
-          <div class="d-flex">
-            <div>
-              <a
-                href="https://www.facebook.com/pintour"
-                class="text-white"
-                target="_blank"
-                ><i class="fa-brands fa-facebook display-6 me-2"> </i
-              ></a>
-              <a
-                href="https://www.instagram.com/_pintourbus_/"
-                class="text-white"
-                target="_blank"
-                ><i class="fa-brands fa-instagram display-6 me-2"> </i
-              ></a>
-            </div>
-          </div>
+
+      <div class="col-12 col-lg-3">
+        <h3 class="footer-heading" [innerHTML]="'str_info' | translate"></h3>
+        <div class="footer-company-info">
+          <p>Pintour S.C.A.R.L.</p>
+          <p>
+            Via Castellammare 18<br />
+            80050, Pimonte (Na)
+          </p>
+          <p>
+            Sede operativa:<br />
+            Via Mariconda 39, 80045, Pompei (Na)
+          </p>
+          <p>P.IVA 06565461214</p>
         </div>
       </div>
     </div>
-    <div class="row pt-3">
-      <div class="col-12 col-lg-2 offset-lg-10">
+  </div>
+
+  <div class="footer-bottom">
+    <div
+      class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 py-3"
+    >
+      <div class="footer-bottom-left">
+        <span class="footer-copyright"
+          >&copy; {{ currentYear }} Pintour S.C.A.R.L.</span
+        >
+        <span class="footer-version">V{{ getVersion() }}</span>
+      </div>
+      <div class="footer-bottom-right d-flex align-items-center gap-3">
         <div class="dropdown">
           <button
-            class="btn btn-secondary"
+            class="btn btn-sm footer-lang-btn"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            [innerHTML]="getSelectedLng().name"
-          ></button>
-
-          <ul class="dropdown-menu">
-            <li>
-              <a
-                class="dropdown-item cursor-pointer"
-                (click)="setLng(l.lng)"
-                *ngFor="let l of lng"
-                [innerHtml]="l.name"
-              ></a>
-            </li>
+          >
+            <span [innerHTML]="getSelectedLng().name"></span>
+            <i class="fa-solid fa-chevron-down ms-1"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            @for (l of lng; track l) {
+              <li>
+                <a
+                  class="dropdown-item cursor-pointer"
+                  (click)="setLng(l.lng)"
+                  [innerHtml]="l.name"
+                ></a>
+              </li>
+            }
           </ul>
         </div>
+        <span class="footer-credits">by Carmine Pola</span>
       </div>
     </div>
   </div>
-</div>
-<div>
-  <div class="container">
-    <div class="row">
-      <div class="col-12 my-2 d-flex justify-content-between">
-        <div class="text-muted">V<span [innerText]="getVersion()"></span></div>
-        <div class="text-muted">Created by Carmine Pola</div>
-      </div>
-    </div>
-  </div>
-</div>
+</footer>

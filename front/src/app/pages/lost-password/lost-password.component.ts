@@ -5,10 +5,11 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { LngService } from '../../services/lng/lng.service';
+import { TranslatePipe } from '../../pipe/translate.pipe';
 @Component({
   selector: 'app-lost-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe],
   templateUrl: './lost-password.component.html',
   styleUrls: ['./lost-password.component.scss'],
 })
@@ -24,7 +25,7 @@ export class LostPasswordComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private lngService: LngService
+    private lngService: LngService,
   ) {}
 
   goBack() {

@@ -1,0 +1,145 @@
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h2 class="fw-bold text-primary">Stato degli Autobus</h2>
+      <p class="text-muted">
+        Informazioni in tempo reale sulla posizione e lo stato degli autobus
+      </p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="row justify-content-center">
+      <div class="col-12 text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Caricamento...</span>
+        </div>
+        <p class="mt-3 text-muted">Caricamento stato degli autobus...</p>
+      </div>
+    </div>
+  } @else if (error) {
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <div class="alert alert-danger" role="alert">
+          <i class="fa-solid fa-circle-exclamation me-2"></i>
+          {{ error }}
+        </div>
+      </div>
+    </div>
+  } @else if (busStatusList.length === 0) {
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <div class="alert alert-info" role="alert">
+          <i class="fa-solid fa-info-circle me-2"></i>
+          Nessun autobus attivo al momento.
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="row">
+      @for (bus of busStatusList; track bus.busId; let i = $index) {
+        <div class="col-12 col-md-6 col-lg-4 mb-4">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-2">
+                  <div class="text-center mb-2">
+                    <img
+                      src="https://www.pintourbus.com/wp-content/uploads/2019/05/navetta2bus-grande.png"
+                      alt="Autobus"
+                      class="img-fluid"
+                      style="max-height: 60px"
+                    />
+                  </div>
+                  @if (bus.plate) {
+                    <h5
+                      class="card-title mb-0 fw-bold text-primary text-center mt-2"
+                    >
+                      {{ bus.plate }}
+                    </h5>
+                  }
+                </div>
+                <span
+                  class="badge text-secondary {{
+                    getStatusClass(bus.status)
+                  }} fs-6 ms-2"
+                >
+                  {{ getStatusText(bus.status) }}
+                </span>
+              </div>
+            </div>
+            @if (bus.line || bus.currentStop || bus.nextStop) {
+              <div class="card-body mt-auto">
+                @if (bus.line) {
+                  <div class="mb-3">
+                    <h6 class="text-secondary mb-2">
+                      <i class="fa-solid fa-route me-2"></i>Linea
+                    </h6>
+                    <p class="mb-0 fw-medium">{{ bus.line.it }}</p>
+                  </div>
+                }
+
+                @if (bus.currentStop) {
+                  <div class="mb-3">
+                    <h6 class="text-secondary mb-2">
+                      <i class="fa-solid fa-location-dot me-2"></i>Partenza da
+                    </h6>
+                    <div
+                      class="d-flex justify-content-between align-items-center"
+                    >
+                      <div>
+                        <p class="mb-0 fw-medium">{{ bus.currentStop.name }}</p>
+                        <small class="text-muted">
+                          <i class="fa-regular fa-clock me-1"></i
+                          >{{ bus.currentStop.scheduledTime }}
+                        </small>
+                        @if (bus.currentStop.departureTime) {
+                          <br />
+                          <small class="text-info">
+                            <i class="fa-solid fa-arrow-right-from-bracket me-1"></i
+                            >Partito: {{ bus.currentStop.departureTime }}
+                          </small>
+                        } @else if (bus.currentStop.arrivalTime && bus.status === 'en_route') {
+                          <br />
+                          <small class="text-warning">
+                            <i class="fa-solid fa-check me-1"></i
+                            >Passata
+                          </small>
+                        }
+                      </div>
+                      @if (bus.currentStop.distance >= 120) {
+                        <span class="badge bg-light text-dark">
+                          <i class="fa-solid fa-location-arrow me-1"></i
+                          >{{ bus.currentStop.distance }} m
+                        </span>
+                      } @else {
+                        <span class="badge bg-success text-white">
+                          <i class="fa-solid fa-check me-1"></i>Arrivato
+                        </span>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @if (bus.nextStop) {
+                  <div class="mb-3">
+                    <h6 class="text-secondary mb-2">
+                      <i class="fa-solid fa-location-arrow me-2"></i>Arriva a
+                    </h6>
+                    <div>
+                      <p class="mb-0 fw-medium">{{ bus.nextStop.name }}</p>
+                      <small class="text-muted">
+                        <i class="fa-regular fa-clock me-1"></i
+                        >{{ bus.nextStop.scheduledTime }}
+                      </small>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

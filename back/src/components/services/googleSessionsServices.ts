@@ -14,7 +14,7 @@ class GoogleSessionServices {
   }
 
   async readGoogleSessionByToken(token: string): Promise<string> {
-    //   await this.googleSessionsDao.deleteOlderThen30Minutes();
+    await this.googleSessionsDao.deleteOlderThen30Minutes();
     return await this.googleSessionsDao.readGoogleSessionByToken(token);
   }
 

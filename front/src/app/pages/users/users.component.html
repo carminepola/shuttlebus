@@ -17,6 +17,8 @@
               type="text"
               class="form-control form-control-lg bg-light border-0"
               placeholder="Cerca utente..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchTermChange()"
             />
           </div>
         </div>
@@ -33,88 +35,150 @@
       <!-- Search Bar -->
     </div>
 
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="p-4 text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Caricamento...</span>
+        </div>
+      </div>
+    }
+
     <!-- Mobile View (Cards) -->
-    <div class="mobile-cards p-3 d-block d-lg-none">
-      <!-- Card 1 -->
-      <div class="card mb-3 border-0 shadow-sm rounded-4">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <h5 class="card-title mb-0">Utente admin</h5>
-            <div>
-              <button class="btn btn-warning btn-sm me-2 rounded-3">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="btn btn-danger btn-sm rounded-3">
-                <i class="fas fa-trash"></i>
-              </button>
+    @if (!loading) {
+      <div class="mobile-cards p-3 d-block d-lg-none">
+        @for (user of users | filter: searchTerm; track user._id) {
+          <div class="card mb-3 border-0 shadow-sm rounded-4">
+            <div class="card-body">
+              <div
+                class="d-flex justify-content-between align-items-start mb-3"
+              >
+                <h5 class="card-title mb-0">
+                  {{ user.details?.name || user.email }}
+                </h5>
+                <div>
+                  <button
+                    class="btn btn-warning btn-sm me-2 rounded-3"
+                    (click)="editUser(user._id)"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button
+                    class="btn btn-danger btn-sm rounded-3"
+                    (click)="deleteUser(user._id)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <p class="text-secondary mb-2">
+                Ruolo: {{ getRoleName(user.role) }}
+              </p>
+              <p class="text-secondary mb-0">Email: {{ user.email }}</p>
             </div>
           </div>
+        }
+      </div>
 
-          <p class="text-secondary mb-2">Ruolo: Amministratore</p>
-          <p class="text-secondary mb-0">Nome utente: admin</p>
+      <!-- Desktop View (Table) -->
+      <div class="desktop-table p-4 d-none d-lg-block">
+        <div class="table-responsive">
+          <table class="table table-borderless align-middle">
+            <thead class="bg-light">
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Email</th>
+                <th scope="col">Ruolo</th>
+                <th scope="col">Azioni</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users | filter: searchTerm; track user._id) {
+                <tr class="bg-white mb-2">
+                  <td>{{ user.details?.name || "-" }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ getRoleName(user.role) }}</td>
+                  <td>
+                    <button
+                      class="btn btn-warning btn-sm me-2 rounded-3"
+                      (click)="editUser(user._id)"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button
+                      class="btn btn-danger btn-sm rounded-3"
+                      (click)="deleteUser(user._id)"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- Card 2 -->
-      <div class="card mb-3 border-0 shadow-sm rounded-4">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <h5 class="card-title mb-0">Utente user</h5>
-            <div>
-              <button class="btn btn-warning btn-sm me-2 rounded-3">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="btn btn-danger btn-sm rounded-3">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-
-          <p class="text-secondary mb-2">Ruolo: Utente</p>
-          <p class="text-secondary mb-0">Nome utente: user</p>
+      <!-- Infinite Scroll Loading Indicator -->
+      @if (loadingMore) {
+        <div
+          class="w-100 d-flex align-items-center justify-content-center py-4"
+        >
+          <app-loading></app-loading>
         </div>
-      </div>
-    </div>
+      }
 
-    <!-- Desktop View (Table) -->
-    <div class="desktop-table p-4 d-none d-lg-block">
-      <div class="table-responsive">
-        <table class="table table-borderless align-middle">
-          <thead class="bg-light">
-            <tr>
-              <th scope="col">Nome utente</th>
-              <th scope="col">Ruolo</th>
-              <th scope="col">Azioni</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="bg-white mb-2">
-              <td>admin</td>
-              <td>Amministratore</td>
-              <td>
-                <button class="btn btn-warning btn-sm me-2 rounded-3">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-danger btn-sm rounded-3">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr class="bg-white">
-              <td>user</td>
-              <td>Utente</td>
-              <td>
-                <button class="btn btn-warning btn-sm me-2 rounded-3">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-danger btn-sm rounded-3">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <!-- Infinite Scroll Sentinel -->
+      <div
+        id="users-infinite-scroll-sentinel"
+        style="height: 50px; width: 100%"
+      ></div>
+
+      <!-- Pagination Controls (Hidden when using infinite scroll) -->
+      @if (totalPages > 1) {
+        <div class="p-4" style="display: none">
+          <nav aria-label="Navigazione pagine">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a
+                  class="page-link"
+                  href="#"
+                  (click)="onPreviousPage(); $event.preventDefault()"
+                >
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              </li>
+              @for (page of getPages(); track page) {
+                <li class="page-item" [class.active]="page === currentPage">
+                  <a
+                    class="page-link"
+                    href="#"
+                    (click)="onPageChange(page); $event.preventDefault()"
+                    >{{ page }}</a
+                  >
+                </li>
+              }
+              <li
+                class="page-item"
+                [class.disabled]="currentPage === totalPages"
+              >
+                <a
+                  class="page-link"
+                  href="#"
+                  (click)="onNextPage(); $event.preventDefault()"
+                >
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+          <div class="text-center text-muted small">
+            Pagina {{ currentPage }} di {{ totalPages }} ({{ totalItems }}
+            utenti totali)
+          </div>
+        </div>
+      }
+    }
   </div>
 </div>

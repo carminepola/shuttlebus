@@ -45,11 +45,20 @@ router.post(
 router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let book = req.body;
+    let userRole = res.locals.userLogged?.role;
+    if (book.paymentType === "cash" && (!userRole || userRole > role.DRIVER)) {
+      res.status(403).json({ message: "str_error_cash_not_allowed" });
+      return;
+    }
     let bookingServices = new BookingServices(db);
 
     let response: any = await bookingServices.insertBooking(book, res.locals.userLogged["_id"]);
 
-    res.json({ url: response });
+    if (typeof response === "object" && response.type === "cash") {
+      res.json({ url: `/payment/cash/success/${response.bookingId}` });
+    } else {
+      res.json({ url: response });
+    }
   } catch (error) {
     next(error);
   }
@@ -78,6 +87,34 @@ router.get("/getBookingFromUser", authMiddleware, checkPermissionMiddleware(role
     await bookingServices.removeExpiredPendingBookings();
     let result = await bookingServices.getBookingFromUser(res.locals.userLogged["_id"]);
 
+    res.json({ booking: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/hasTicketForRoute", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const routeId = req.query.routeId as string;
+    const date = req.query.date as string;
+    const fromStopId = req.query.fromStopId as string;
+    const toStopId = req.query.toStopId as string;
+    if (!routeId || !date || !fromStopId || !toStopId) {
+      res.status(400).json({ message: "routeId, date, fromStopId and toStopId are required" });
+      return;
+    }
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.hasTicketForRoute(res.locals.userLogged["_id"], routeId, date, fromStopId, toStopId);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/getBookingByUserId/:userId", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.getBookingFromUser(req.params.userId);
     res.json({ booking: result });
   } catch (error) {
     next(error);
@@ -170,6 +207,83 @@ router.post("/readBookingById", authMiddleware, checkPermissionMiddleware(role.D
     next(error);
   }
 });
+
+router.post("/scanTicket", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let id: string = req.body.id;
+    let user = res.locals.userLogged;
+    let driverName = user.details?.name || user.email || user._id;
+    let result = await bookingServices.scanTicket(id, user._id, driverName);
+    if (!result) {
+      res.json({ found: false });
+    } else {
+      res.json({ found: true, ...result });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/topClients", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.topClients();
+    res.json({ topClients: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/recentPurchases", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let page = parseInt(req.query.page as string) || 1;
+    let limit = parseInt(req.query.limit as string) || 20;
+    let result = await bookingServices.recentPurchases(page, limit);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/dashboardStats", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.dashboardStats();
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/revenueByPaymentMethod", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let startDate = req.query.startDate as string | undefined;
+    let endDate = req.query.endDate as string | undefined;
+    let result = await bookingServices.revenueByPaymentMethod(startDate, endDate);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/dailyRevenueByRoute", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let date = req.query.date as string;
+    if (!date) {
+      res.status(400).json({ message: "date is required" });
+      return;
+    }
+    let result = await bookingServices.dailyRevenueByRoute(date);
+    res.json({ result });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
 
 /*

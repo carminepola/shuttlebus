@@ -73,4 +73,40 @@ export class BookingsService {
   readBookingById(id: string) {
     return this.http.post(this.apiUrl + '/readBookingById', { id });
   }
+  scanTicket(id: string) {
+    return this.http.post(this.apiUrl + '/scanTicket', { id });
+  }
+  getBookingsByUserId(userId: string) {
+    return this.http.get<any>(`${this.apiUrl}/getBookingByUserId/${userId}`);
+  }
+  getTopClients() {
+    return this.http.get<any>(`${this.apiUrl}/topClients`);
+  }
+  getRecentPurchases(page: number = 1, limit: number = 20) {
+    return this.http.get<any>(`${this.apiUrl}/recentPurchases`, {
+      params: { page, limit },
+    });
+  }
+  getDashboardStats() {
+    return this.http.get<any>(`${this.apiUrl}/dashboardStats`);
+  }
+
+  hasTicketForRoute(routeId: string, date: string, fromStopId: string, toStopId: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/hasTicketForRoute`, {
+      params: { routeId, date, fromStopId, toStopId },
+    });
+  }
+
+  getRevenueByPaymentMethod(startDate?: string, endDate?: string): Observable<any> {
+    let params: any = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    return this.http.get<any>(`${this.apiUrl}/revenueByPaymentMethod`, { params });
+  }
+
+  getDailyRevenueByRoute(date: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/dailyRevenueByRoute`, {
+      params: { date },
+    });
+  }
 }

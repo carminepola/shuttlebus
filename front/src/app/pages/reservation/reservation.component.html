@@ -5,277 +5,295 @@
     back="true"
   ></app-title-page>
 
-  <div
-    *ngIf="loading"
-    class="w-100 d-flex align-items-center justify-content-center"
-  >
-    <app-loading></app-loading>
-  </div>
+  @if (loading) {
+    <div
+      class="w-100 d-flex align-items-center justify-content-center"
+      >
+      <app-loading></app-loading>
+    </div>
+  }
 
-  <div class="card shadow border-0 rounded-4" *ngIf="!loading" @fadeInOut>
-    <!-- Header Section -->
-    <div class="card-header bg-white rounded-top-4 border-bottom py-4">
-      <div class="row align-items-center gy-3">
-        <div class="col-12 col-lg">
-          <label>Giorno</label>
-          <div class="input-group">
-            <span class="input-group-text bg-light border-0 icon-container">
-              <i class="fas fa-calendar-alt"></i>
-            </span>
-
-            <input
-              [(ngModel)]="filter.date"
-              type="date"
-              class="form-control form-control-lg bg-light border-0"
-              placeholder="Seleziona data"
-            />
+  @if (!loading) {
+    <div class="card shadow border-0 rounded-4" @fadeInOut>
+      <!-- Header Section -->
+      <div class="card-header bg-white rounded-top-4 border-bottom py-4">
+        <div class="row align-items-center gy-3">
+          <div class="col-12 col-lg">
+            <label>Giorno</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-0 icon-container">
+                <i class="fas fa-calendar-alt"></i>
+              </span>
+              <input
+                [(ngModel)]="filter.date"
+                type="date"
+                class="form-control form-control-lg bg-light border-0"
+                placeholder="Seleziona data"
+                />
+            </div>
           </div>
-        </div>
-
-        <div class="col-12 col-lg">
-          <label>Tratta</label>
-          <select
-            [(ngModel)]="filter.routeId"
+          <div class="col-12 col-lg">
+            <label>Tratta</label>
+            <select
+              [(ngModel)]="filter.routeId"
             (change)="
               filter.scheduleId = ''; calculateSchedules(filter.routeId)
             "
-            class="form-select form-select-lg bg-light border-0"
-          >
-            <option selected value="">Seleziona</option>
-            <option
-              [value]="route.id"
-              *ngFor="let route of routes"
-              [innerHTML]="route.name | translateName"
-            ></option>
-          </select>
+              class="form-select form-select-lg bg-light border-0"
+              >
+              <option selected value="">Seleziona</option>
+              @for (route of routes; track route) {
+                <option
+                  [value]="route.id"
+                  [innerHTML]="route.name | translateName"
+                ></option>
+              }
+            </select>
+          </div>
+          <div class="col-12 col-lg">
+            <label>Schedulazione</label>
+            <select
+              [(ngModel)]="filter.scheduleId"
+              class="form-select form-select-lg bg-light border-0"
+              >
+              <option value="">Seleziona</option>
+              @for (s of filterSchedule; track s) {
+                <option
+                  [value]="s.id"
+                  [innerHTML]="s.name"
+                ></option>
+              }
+            </select>
+          </div>
+          <div class="col-12 col-lg">
+            <label>Stato</label>
+            <select
+              [(ngModel)]="filter.show"
+              class="form-select form-select-lg bg-light border-0"
+              >
+              <option value="all">Tutti</option>
+              <option value="confirmed">Confermati</option>
+            </select>
+          </div>
+          <div class="col-12 col-lg">
+            <label>&nbsp;</label>
+            <button
+              class="btn btn-primary btn-lg h-100 rounded-3 w-100"
+              (click)="filterButton()"
+              >
+              <i class="fas fa-filter me-2"></i>Applica Filtri
+            </button>
+          </div>
         </div>
-        <div class="col-12 col-lg">
-          <label>Schedulazione</label>
-          <select
-            [(ngModel)]="filter.scheduleId"
-            class="form-select form-select-lg bg-light border-0"
-          >
-            <option value="">Seleziona</option>
-            <option
-              [value]="s.id"
-              *ngFor="let s of filterSchedule"
-              [innerHTML]="s.name"
-            ></option>
-          </select>
-        </div>
-        <div class="col-12 col-lg">
-          <label>Stato</label>
-          <select
-            [(ngModel)]="filter.show"
-            class="form-select form-select-lg bg-light border-0"
-          >
-            <option value="all">Tutti</option>
-            <option value="confirmed">Confermati</option>
-          </select>
-        </div>
-        <div class="col-12 col-lg">
-          <label>&nbsp;</label>
-          <button
-            class="btn btn-primary btn-lg h-100 rounded-3 w-100"
-            (click)="filterButton()"
-          >
-            <i class="fas fa-filter me-2"></i>Applica Filtri
-          </button>
-        </div>
-      </div>
-      <div class="row mt-3">
-        <div class="col-md">
-          <div class="input-group">
-            <span class="input-group-text bg-light border-0 icon-container"
-              ><i class="fas fa-search"></i
-            ></span>
-            <input
-              type="text"
-              [(ngModel)]="search"
-              class="form-control form-control-lg bg-light border-0"
-              placeholder="Cerca biglietto..."
-            />
+        <div class="row mt-3">
+          <div class="col-md">
+            <div class="input-group">
+              <span class="input-group-text bg-light border-0 icon-container"
+                ><i class="fas fa-search"></i
+              ></span>
+              <input
+                type="text"
+                [(ngModel)]="search"
+                class="form-control form-control-lg bg-light border-0"
+                placeholder="Cerca biglietto..."
+                />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Mobile View (Cards) -->
-    <div
-      class="mobile-cards p-3 d-block d-lg-none"
-      *ngFor="let b of booking | filter : search"
-    >
-      <div class="card mb-3 shadow-sm rounded-4">
-        <div class="card-body">
-          <h5 class="card-title mb-3 text-primary fw-bold">{{ b.ticketId }}</h5>
-          <p class="mb-2">
-            Tratta:
-            <span class="text-secondary">{{ b.route }}</span>
-          </p>
-          <p class="mb-2">
-            Sale a:
-            <span class="text-secondary">{{ b.from }}</span>
-          </p>
-          <p class="mb-2">
-            Scende a: <span class="text-secondary">{{ b.to }}</span>
-          </p>
-          <p class="mb-2">
-            Nome: <span class="text-secondary">{{ b.name }}</span>
-          </p>
-          <p class="mb-2">
-            Email:
-            <span class="text-secondary" [innerHTML]="b.mail"></span>
-          </p>
-          <p class="mb-2" *ngIf="b.telefono">
-            Telefono: <span class="text-secondary">{{ b.telefono }}</span>
-          </p>
-
-          <p class="mb-2" *ngIf="b.bagagli > 0">
-            Bagagli: <span class="text-secondary">{{ b.bagagli }}</span>
-          </p>
-          <p *ngFor="let t of b.ticket">
-            <span [innerHTML]="t.name.it"></span>:
-            <span class="text-secondary">X</span>
-            <span [innerHTML]="t.count"></span>
-          </p>
-          <p class="mb-0">
-            Totale pagato: <span class="text-secondary">{{ b.total }}€</span>
-          </p>
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <div>
-              <div *ngIf="b.status === 'confirmed'">
-                <button
-                  class="btn btn-info btn-sm rounded-3 me-2"
-                  (click)="rimborsa(b.ticketId)"
-                >
-                  <i class="fa-solid fa-money-bill"></i>
-                </button>
-                <button
-                  class="btn btn-danger btn-sm rounded-3"
-                  (click)="cancella(b.ticketId)"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
-            <div class="my-auto">
-              <div
-                class="badge float-end"
+      <!-- Mobile View (Cards) -->
+      @for (b of booking | filter : search; track b) {
+        <div
+          class="mobile-cards p-3 d-block d-lg-none"
+          >
+          <div class="card mb-3 shadow-sm rounded-4">
+            <div class="card-body">
+              <h5 class="card-title mb-3 text-primary fw-bold">{{ b.ticketId }}</h5>
+              <p class="mb-2">
+                Tratta:
+                <span class="text-secondary">{{ b.route }}</span>
+              </p>
+              <p class="mb-2">
+                Sale a:
+                <span class="text-secondary">{{ b.from }}</span>
+              </p>
+              <p class="mb-2">
+                Scende a: <span class="text-secondary">{{ b.to }}</span>
+              </p>
+              <p class="mb-2">
+                Nome: <span class="text-secondary">{{ b.name }}</span>
+              </p>
+              <p class="mb-2">
+                Email:
+                <span class="text-secondary" [innerHTML]="b.mail"></span>
+              </p>
+              @if (b.telefono) {
+                <p class="mb-2">
+                  Telefono: <span class="text-secondary">{{ b.telefono }}</span>
+                </p>
+              }
+              @if (b.bagagli > 0) {
+                <p class="mb-2">
+                  Bagagli: <span class="text-secondary">{{ b.bagagli }}</span>
+                </p>
+              }
+              @for (t of b.ticket; track t) {
+                <p>
+                  <span [innerHTML]="t.name.it"></span>:
+                  <span class="text-secondary">X</span>
+                  <span [innerHTML]="t.count"></span>
+                </p>
+              }
+              <p class="mb-0">
+                Totale pagato: <span class="text-secondary">{{ b.total }}€</span>
+              </p>
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                  @if (b.status === 'confirmed') {
+                    <div>
+                      <button
+                        class="btn btn-info btn-sm rounded-3 me-2"
+                        (click)="rimborsa(b.ticketId)"
+                        >
+                        <i class="fa-solid fa-money-bill"></i>
+                      </button>
+                      <button
+                        class="btn btn-danger btn-sm rounded-3"
+                        (click)="cancella(b.ticketId)"
+                        >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  }
+                </div>
+                <div class="my-auto">
+                  <div
+                    class="badge float-end"
                 [ngClass]="{
                   'text-bg-success': b.status === 'confirmed',
                   'text-bg-danger': b.status === 'cancelled',
                   'text-bg-warning': b.status === 'pending',
                   'text-bg-info': b.status === 'refunded'
                 }"
-                [innerHTML]="b.status | translate"
-              ></div>
+                    [innerHTML]="b.status | translate"
+                  ></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Desktop View (Table) -->
-    <div
-      class="desktop-table p-4 d-none d-lg-block"
-      *ngIf="booking.length > 0 && !loading"
-    >
-      <div class="table-responsive">
-        <table class="table table-borderless table-striped align-middle">
-          <thead class="bg-light">
-            <tr>
-              <th>N.Biglietto</th>
-              <th>Stato</th>
-              <th>T.Pagamento</th>
-              <th scope="col">Tratta</th>
-              <th scope="col">Partenza</th>
-              <th scope="col">Arrivo</th>
-              <th scope="col">Dati utente</th>
-
-              <th scope="col">Posti</th>
-              <th scope="col">Bagagli</th>
-              <th scope="col">Totale</th>
-              <th scope="col" class="rounded-end-3">Azioni</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="bg-white" *ngFor="let b of booking | filter : search">
-              <td [innerHTML]="b.ticketId"></td>
-              <td>
-                <span
-                  class="badge"
+      }
+      <!-- Desktop View (Table) -->
+      @if (booking.length > 0 && !loading) {
+        <div
+          class="desktop-table p-4 d-none d-lg-block"
+          >
+          <div class="table-responsive">
+            <table class="table table-borderless table-striped align-middle">
+              <thead class="bg-light">
+                <tr>
+                  <th>N.Biglietto</th>
+                  <th>Stato</th>
+                  <th>T.Pagamento</th>
+                  <th scope="col">Tratta</th>
+                  <th scope="col">Partenza</th>
+                  <th scope="col">Arrivo</th>
+                  <th scope="col">Dati utente</th>
+                  <th scope="col">Posti</th>
+                  <th scope="col">Bagagli</th>
+                  <th scope="col">Totale</th>
+                  <th scope="col" class="rounded-end-3">Azioni</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (b of booking | filter : search; track b) {
+                  <tr class="bg-white">
+                    <td [innerHTML]="b.ticketId"></td>
+                    <td>
+                      <span
+                        class="badge"
                   [ngClass]="{
                     'text-bg-success': b.status === 'confirmed',
                     'text-bg-danger': b.status === 'cancelled',
                     'text-bg-warning': b.status === 'pending',
                     'text-bg-info': b.status === 'refunded'
                   }"
-                  [innerHTML]="b.status | translate"
-                ></span>
-              </td>
-              <td [innerHTML]="b.paymentMethod" class="text-uppercase"></td>
-              <td [innerHTML]="b.route"></td>
-              <td [innerHTML]="b.from"></td>
-              <td [innerHTML]="b.to"></td>
-
-              <td>
-                <div *ngIf="b.name" [innerHTML]="b.name"></div>
-                <div>
-                  <a
-                    [href]="'tel:' + b.phone"
-                    *ngIf="b.phone"
-                    [innerHTML]="b.phone"
-                  ></a>
-                </div>
-                <div>
-                  <a
-                    [href]="'mailto:' + b.mail"
-                    *ngIf="b.mail"
-                    [innerHTML]="b.mail"
-                  ></a>
-                </div>
-              </td>
-
-              <td>
-                <div *ngFor="let t of b.ticket">
-                  <div>
-                    <span [innerHTML]="t.count"></span>
-                    <span class="text-secondary">X</span>
-                    <span [innerHTML]="t.name.it"></span>
-                  </div>
-                </div>
-              </td>
-              <td class="text-center">
-                <span [innerHTML]="b.bagagli"></span>
-              </td>
-              <td>
-                <span [innerHTML]="b.total"></span
-                ><span class="text-secondary">€</span>
-              </td>
-              <td>
-                <div class="d-flex" *ngIf="b.status === 'confirmed'">
-                  <button
-                    class="btn btn-info btn-sm rounded-3 me-2"
-                    (click)="rimborsa(b.ticketId)"
-                  >
-                    <i class="fa-solid fa-money-bill"></i>
-                  </button>
-                  <button
-                    class="btn btn-danger btn-sm rounded-3"
-                    (click)="cancella(b.ticketId)"
-                  >
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                        [innerHTML]="b.status | translate"
+                      ></span>
+                    </td>
+                    <td [innerHTML]="b.paymentMethod" class="text-uppercase"></td>
+                    <td [innerHTML]="b.route"></td>
+                    <td [innerHTML]="b.from"></td>
+                    <td [innerHTML]="b.to"></td>
+                    <td>
+                      @if (b.name) {
+                        <div [innerHTML]="b.name"></div>
+                      }
+                      <div>
+                        @if (b.phone) {
+                          <a
+                            [href]="'tel:' + b.phone"
+                            [innerHTML]="b.phone"
+                          ></a>
+                        }
+                      </div>
+                      <div>
+                        @if (b.mail) {
+                          <a
+                            [href]="'mailto:' + b.mail"
+                            [innerHTML]="b.mail"
+                          ></a>
+                        }
+                      </div>
+                    </td>
+                    <td>
+                      @for (t of b.ticket; track t) {
+                        <div>
+                          <div>
+                            <span [innerHTML]="t.count"></span>
+                            <span class="text-secondary">X</span>
+                            <span [innerHTML]="t.name.it"></span>
+                          </div>
+                        </div>
+                      }
+                    </td>
+                    <td class="text-center">
+                      <span [innerHTML]="b.bagagli"></span>
+                    </td>
+                    <td>
+                      <span [innerHTML]="b.total"></span
+                        ><span class="text-secondary">€</span>
+                      </td>
+                      <td>
+                        @if (b.status === 'confirmed') {
+                          <div class="d-flex">
+                            <button
+                              class="btn btn-info btn-sm rounded-3 me-2"
+                              (click)="rimborsa(b.ticketId)"
+                              >
+                              <i class="fa-solid fa-money-bill"></i>
+                            </button>
+                            <button
+                              class="btn btn-danger btn-sm rounded-3"
+                              (click)="cancella(b.ticketId)"
+                              >
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+        @if (!booking.length) {
+          <h3 class="text-center fw-bold text-primary my-5">
+            Nessun biglietto
+          </h3>
+        }
       </div>
-    </div>
-
-    <h3 *ngIf="!booking.length" class="text-center fw-bold text-primary my-5">
-      Nessun biglietto
-    </h3>
+    }
   </div>
-</div>

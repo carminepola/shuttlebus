@@ -1,81 +1,52 @@
-<!-- Header -->
 <div class="container" @fadeInOut>
   <app-title-page
     title="Dashboard"
     subtitle="Benvenuto nel sistema di gestione trasporti"
   ></app-title-page>
 
-  <!-- Quick Stats -->
-  <div class="row mb-4">
-    <div class="col-12 col-md-4 mb-2 mb-lg-0">
-      <div class="card h-100 border-0 rounded-4 shadow-sm">
-        <div class="card-body p-4">
-          <div class="row align-items-center">
-            <div class="col">
-              <span class="text-muted small mb-2 d-block">Corse oggi</span>
-              <span
-                class="fs-3 fw-bold mb-0 text-primary"
-                [innerHtml]="countRoutes"
-              ></span>
+  <div class="row mb-4 g-3">
+    <div class="col-12 col-md-4">
+      <div class="stat-card h-100">
+        <div class="stat-card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <span class="stat-label">Corse oggi</span>
+              <div class="stat-value" [innerHtml]="countRoutes"></div>
             </div>
-            <div class="col-auto">
-              <div
-                class="bg-success bg-opacity-10 rounded-circle p-3 d-flex justify-content-center align-items-center"
-              >
-                <i class="fas fa-route fs-5 text-success"></i>
-              </div>
+            <div class="stat-icon bg-success-subtle text-success">
+              <i class="fas fa-route"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-md-4 mb-2 mb-lg-0">
-      <div class="card h-100 border-0 rounded-4 shadow-sm">
-        <div class="card-body p-4">
-          <div class="row align-items-center">
-            <div class="col">
-              <span class="text-muted small mb-2 d-block"
-                >Prenotazioni oggi</span
-              >
-              <h3
-                class="fs-3 fw-bold mb-0 text-primary"
-                [innerHTML]="countPrenotazioni"
-              ></h3>
+    <div class="col-12 col-md-4">
+      <div class="stat-card h-100">
+        <div class="stat-card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <span class="stat-label">Prenotazioni oggi</span>
+              <div class="stat-value" [innerHTML]="countPrenotazioni"></div>
             </div>
-            <div class="col-auto">
-              <div
-                class="bg-info bg-opacity-10 rounded-circle p-3 d-flex justify-content-center align-items-center"
-              >
-                <i class="fa fa-ticket fs-5 text-info"></i>
-              </div>
+            <div class="stat-icon bg-info-subtle text-info">
+              <i class="fas fa-ticket"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-md-4 mb-2 mb-lg-0">
-      <div class="card h-100 border-0 rounded-4 shadow-sm">
-        <div class="card-body p-4">
-          <div class="row align-items-center">
-            <div class="col">
-              <span class="text-muted small mb-2 d-block"
-                >Persone da gestire oggi
-              </span>
-              <h3
-                class="fs-3 fw-bold mb-0 text-primary"
-                [innerHTML]="countBiglietti"
-              ></h3>
+    <div class="col-12 col-md-4">
+      <div class="stat-card h-100">
+        <div class="stat-card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <span class="stat-label">Persone da gestire oggi</span>
+              <div class="stat-value" [innerHTML]="countBiglietti"></div>
             </div>
-            <div class="col-auto">
-              <div
-                class="bg-secondary bg-opacity-10 rounded-circle p-3 d-flex justify-content-center align-items-center"
-              >
-                <i
-                  class="fa-solid fa-person-walking-luggage fs-5 text-secondary"
-                ></i>
-              </div>
+            <div class="stat-icon bg-primary-subtle text-primary">
+              <i class="fa-solid fa-person-walking-luggage"></i>
             </div>
           </div>
         </div>
@@ -83,145 +54,938 @@
     </div>
   </div>
 
-  <!-- Dashboard Cards Grid -->
-  <div class="row g-4">
-    <div class="col-12 col-md-6 col-lg-3" *ngFor="let card of dashboardCards">
-      <div
-        class="card border-0 rounded-4 h-100 text-white position-relative cursor-pointer cardButton"
-        [ngClass]="card.color"
-        [routerLink]="'/' + card.link.toLowerCase()"
-      >
+  <div class="row g-3 mb-4">
+    @for (card of dashboardCards; track card) {
+      <div class="col-12 col-sm-6 col-lg-3">
         <div
-          class="position-absolute top-0 start-0 end-0 bottom-0 opacity-90"
-        ></div>
-        <div class="card-body position-relative p-4">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <div
-              class="rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-10"
-              style="width: 48px; height: 48px"
-            >
-              <i class="fas {{ card.icon }}   fs-4"></i>
-            </div>
-            <div class="text-white-50">Gestione</div>
-          </div>
-          <h3 class="h5 fw-bold mb-2">{{ card.title }}</h3>
-          <p class="small mb-0 text-white-50">{{ card.description }}</p>
-          <div class="mt-4 text-end">
-            <span class="d-inline-flex align-items-center small fw-medium">
-              Vai alla sezione
-              <i class="fas fa-arrow-right ms-2"></i>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row g-4 mt-4">
-    <div class="col-12 col-lg-12">
-      <div class="card border-0 shadow-sm rounded-4">
-        <div
-          class="card-body d-flex align-items-center justify-content-center w-100"
+          class="dashboard-nav-card cardButton"
+          [ngClass]="card.color"
+          [routerLink]="'/' + card.link.toLowerCase()"
         >
-          <div class="text-center" *ngIf="loadPayouts">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
+          <div class="dashboard-nav-icon">
+            <i class="fas {{ card.icon }}"></i>
           </div>
-          <div *ngIf="!loadPayouts" class="w-100">
-            <h5 class="mb-3">Transazioni stripe</h5>
-            <table
-              class="table table-responsive table-striped align-middle w-100"
-            >
-              <thead class="table-light">
-                <tr>
-                  <th>Importo</th>
-                  <th>Stato</th>
-                  <th>Data di arrivo</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngIf="!loadBalance && balance.result">
-                  <td>
-                    {{
-                      (
-                        balance.result.available[0].amount +
-                        balance.result.pending[0].amount
-                      ).toFixed(2)
-                    }}
-                    €
-                  </td>
+          <div class="dashboard-nav-body">
+            <h3 class="dashboard-nav-title">{{ card.title }}</h3>
+            <p class="dashboard-nav-desc">{{ card.description }}</p>
+          </div>
+          <div class="dashboard-nav-arrow">
+            <i class="fas fa-arrow-right"></i>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
 
-                  <td>
-                    <span class="badge bg-white text-info">In arrivo</span>
-                  </td>
-                  <td>
-                    <div *ngIf="accountSchedule.result">
-                      {{ accountSchedule.result.next_payout.iso }}
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="content-card">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-primary-subtle text-primary">
+              <i class="fas fa-credit-card"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Transazioni Stripe</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadPayouts) {
+            <div class="d-flex justify-content-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadPayouts) {
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Importo</th>
+                    <th>Stato</th>
+                    <th>Data di arrivo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @if (!loadBalance && balance.result) {
+                    <tr class="table-row-highlight">
+                      <td>
+                        <span class="fw-bold fs-6"
+                          >{{
+                            (
+                              balance.result.available[0].amount +
+                              balance.result.pending[0].amount
+                            ).toFixed(2)
+                          }}
+                          €</span
+                        >
+                      </td>
+                      <td>
+                        <span
+                          class="badge bg-primary-subtle text-primary fw-semibold"
+                          >In arrivo</span
+                        >
+                      </td>
+                      <td>
+                        @if (
+                          accountSchedule.result &&
+                          accountSchedule.result.next_payout
+                        ) {
+                          <span class="text-muted">{{
+                            accountSchedule.result.next_payout.iso
+                          }}</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                  @for (payout of payouts.result; track payout) {
+                    <tr>
+                      <td class="fw-semibold">{{ payout.amount }} €</td>
+                      <td>
+                        @if (payout.status === "paid") {
+                          <span
+                            class="badge bg-success-subtle text-success fw-semibold"
+                            >Pagato</span
+                          >
+                        }
+                        @if (payout.status == "pending") {
+                          <span
+                            class="badge bg-warning-subtle text-warning fw-semibold"
+                            >In attesa</span
+                          >
+                        }
+                        @if (
+                          payout.status !== "paid" &&
+                          payout.status !== "pending"
+                        ) {
+                          <span
+                            class="badge bg-secondary-subtle text-secondary fw-semibold"
+                            >{{ payout.status }}</span
+                          >
+                        }
+                      </td>
+                      <td class="text-muted">{{ payout.arrival_date }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-5">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-warning-subtle text-warning">
+              <i class="fas fa-crown"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Top 5 Clienti</h5>
+          </div>
+        </div>
+        <div class="content-card-body p-0">
+          @if (loadTopClients) {
+            <div class="d-flex justify-content-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadTopClients) {
+            @if (topClients.length === 0) {
+              <div class="text-center text-muted py-4">
+                Nessun dato disponibile
+              </div>
+            }
+            <div class="top-clients-list">
+              @for (client of topClients; track client.userId; let i = $index) {
+                <div
+                  class="top-client-item d-flex align-items-center gap-3 px-3 py-3"
+                >
+                  <div
+                    class="top-client-rank d-flex align-items-center justify-content-center"
+                    [style.background-color]="getRankColor(i)"
+                  >
+                    @if (getRankIcon(i)) {
+                      <i class="fas {{ getRankIcon(i) }} text-white"></i>
+                    } @else {
+                      <span class="text-white fw-bold">{{ i + 1 }}</span>
+                    }
+                  </div>
+                  <div class="top-client-info flex-grow-1">
+                    <div class="fw-semibold text-truncate">
+                      {{
+                        client.userName ||
+                          "Cliente" + " #" + client.userId.slice(-4)
+                      }}
                     </div>
-                  </td>
-                </tr>
-                <tr *ngFor="let payout of payouts.result">
-                  <td>{{ payout.amount }} €</td>
-
-                  <td>
-                    <span
-                      class="badge bg-success"
-                      *ngIf="payout.status === 'paid'"
-                      >Pagato</span
-                    >
-                    <span
-                      class="badge bg-secondary text-dark"
-                      *ngIf="payout.status == 'pending'"
-                      >In attesa</span
-                    >
-                    <span
-                      class="badge bg-warning text-dark"
-                      *ngIf="payout.status !== 'paid'"
-                      >{{ payout.status }}</span
-                    >
-                  </td>
-                  <td>{{ payout.arrival_date }}</td>
-                </tr>
-              </tbody>
-            </table>
+                    <div class="text-muted small">
+                      {{ client.totalBookings }} acquist{{
+                        client.totalBookings === 1 ? "o" : "i"
+                      }}
+                    </div>
+                  </div>
+                  <div class="top-client-spent text-end">
+                    <div class="fw-bold">
+                      {{ client.totalSpent.toFixed(2) }} €
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-7">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-success-subtle text-success">
+              <i class="fas fa-clock-rotate-left"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Ultimi Acquisti</h5>
+            @if (purchasesLoadingMore) {
+              <span class="ms-auto badge bg-primary-subtle text-primary">
+                <span class="spinner-border spinner-border-sm me-1"></span>
+                Aggiornamento...
+              </span>
+            }
           </div>
+        </div>
+        <div class="content-card-body p-0">
+          @if (loadRecentPurchases) {
+            <div class="d-flex justify-content-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadRecentPurchases) {
+            @if (recentPurchases.length === 0) {
+              <div class="text-center text-muted py-4">
+                Nessun acquisto recente
+              </div>
+            }
+            <div
+              #purchasesScroll
+              class="recent-purchases-scroll"
+              (scroll)="onPurchasesScroll()"
+            >
+              @for (
+                purchase of recentPurchases;
+                track purchase.numberOfTickets
+              ) {
+                <div
+                  class="purchase-item d-flex align-items-center gap-3 px-3 py-2"
+                >
+                  <div class="purchase-route flex-grow-1">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="fw-semibold">{{
+                        purchase.from.name || purchase.name.it || ""
+                      }}</span>
+                      <i class="fas fa-arrow-right text-muted small"></i>
+                      <span class="fw-semibold">{{
+                        purchase.to.name || ""
+                      }}</span>
+                    </div>
+                    <div class="text-muted small">
+                      {{ purchase.user.name || "Ospite" }}
+                      <span class="mx-1">·</span>
+                      {{ purchase.seats }} Passeggeri
+                    </div>
+                  </div>
+                  <div class="purchase-details text-end">
+                    <div class="fw-bold">
+                      {{ (purchase.total + purchase.luggage * luggagePrice).toFixed(2) }} €
+                    </div>
+                    <div class="text-muted small">
+                      {{ formatPurchaseDate(purchase.createdAt) }}
+                    </div>
+                  </div>
+                  <span class="badge {{ getStatusClass(purchase.status) }}">{{
+                    getStatusLabel(purchase.status)
+                  }}</span>
+                </div>
+              }
+              @if (purchasesLoadingMore) {
+                <div class="text-center py-3">
+                  <div
+                    class="spinner-border spinner-border-sm text-primary"
+                    role="status"
+                  ></div>
+                </div>
+              }
+            </div>
+          }
         </div>
       </div>
     </div>
   </div>
-  <!-- Sales Chart -->
-  <div class="row g-2 mt-4">
-    <div class="col-12 col-lg-6">
-      <div class="card border-0 shadow-sm rounded-4">
-        <div
-          class="card-body d-flex align-items-center justify-content-center w-100"
-        >
-          <div class="text-center" *ngIf="loadAndamento">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-          </div>
 
-          <canvas *ngIf="!loadAndamento" #salesChart class="w-100"></canvas>
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-success-subtle text-success">
+              <i class="fas fa-arrow-trend-up"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Ricavi Mese Corrente</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadMonthlyRevenue) {
+            <div class="d-flex justify-content-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadMonthlyRevenue && monthlyRevenue) {
+            <div class="revenue-stat-value text-success">
+              {{ monthlyRevenue.currentMonth.revenue.toFixed(2) }} €
+            </div>
+            <div
+              class="revenue-stat-change"
+              [class.text-success]="monthlyRevenue.revenueChange >= 0"
+              [class.text-danger]="monthlyRevenue.revenueChange < 0"
+            >
+              <i
+                class="fas {{
+                  monthlyRevenue.revenueChange >= 0
+                    ? 'fa-caret-up'
+                    : 'fa-caret-down'
+                }}"
+              ></i>
+              {{ monthlyRevenue.revenueChange > 0 ? "+" : ""
+              }}{{ monthlyRevenue.revenueChange }}%
+              <span class="text-muted fw-normal">vs mese scorso</span>
+            </div>
+            <div class="revenue-stat-sub text-muted mt-2">
+              Netto: {{ monthlyRevenue.currentMonth.net.toFixed(2) }} €
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-danger-subtle text-danger">
+              <i class="fas fa-rotate-left"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Rimborsi Mese Corrente</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadMonthlyRevenue) {
+            <div class="d-flex justify-content-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadMonthlyRevenue && monthlyRevenue) {
+            <div class="revenue-stat-value text-danger">
+              {{ monthlyRevenue.currentMonth.refunds.toFixed(2) }} €
+            </div>
+            <div
+              class="revenue-stat-change"
+              [class.text-danger]="monthlyRevenue.refundChange > 0"
+              [class.text-success]="monthlyRevenue.refundChange <= 0"
+            >
+              <i
+                class="fas {{
+                  monthlyRevenue.refundChange > 0
+                    ? 'fa-caret-up'
+                    : 'fa-caret-down'
+                }}"
+              ></i>
+              {{ monthlyRevenue.refundChange > 0 ? "+" : ""
+              }}{{ monthlyRevenue.refundChange }}%
+              <span class="text-muted fw-normal">vs mese scorso</span>
+            </div>
+            <div class="revenue-stat-sub text-muted mt-2">
+              {{ monthlyRevenue.lastMonth.refunds.toFixed(2) }} € il mese scorso
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-success-subtle text-success">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Tasso di Conversione</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadDashboardStats) {
+            <div class="d-flex justify-content-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadDashboardStats && dashboardStats) {
+            <div class="revenue-stat-value text-success">
+              {{ dashboardStats.conversion.conversionRate }}%
+            </div>
+            <div class="text-muted small mt-1">
+              {{ dashboardStats.conversion.confirmed }} acquisti confermati
+            </div>
+            <div class="mt-2">
+              <div class="d-flex justify-content-between text-muted small mb-1">
+                <span>Confermati</span>
+                <span>{{ dashboardStats.conversion.confirmed }}</span>
+              </div>
+              <div class="progress" style="height: 6px">
+                <div
+                  class="progress-bar bg-success"
+                  [style.width.%]="dashboardStats.conversion.conversionRate"
+                ></div>
+              </div>
+              <div class="d-flex justify-content-between text-muted small mt-2 mb-1">
+                <span>Abbandonati</span>
+                <span>{{ dashboardStats.conversion.abandoned }}</span>
+              </div>
+              <div class="progress" style="height: 6px">
+                <div
+                  class="progress-bar bg-danger"
+                  [style.width.%]="dashboardStats.conversion.abandonRate"
+                ></div>
+              </div>
+            </div>
+            <div class="text-muted small mt-2">
+              Totale: {{ dashboardStats.conversion.total }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-info-subtle text-info">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Registrazioni</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadDashboardStats) {
+            <div class="d-flex justify-content-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadDashboardStats && dashboardStats) {
+            <div class="revenue-stat-value text-primary">
+              {{ dashboardStats.registrations.total }}
+            </div>
+            <div class="text-muted small mt-1">utenti registrati</div>
+            <div class="mt-2">
+              <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
+                <span><i class="fas fa-envelope me-1"></i>Email</span>
+                <span class="fw-semibold">{{ dashboardStats.registrations.email }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
+                <span><i class="fab fa-google me-1"></i>Google</span>
+                <span class="fw-semibold">{{ dashboardStats.registrations.google }}</span>
+              </div>
+            </div>
+            <div class="mt-2">
+              <div class="progress" style="height: 8px">
+                @if (dashboardStats.registrations.total > 0) {
+                  <div
+                    class="progress-bar bg-primary"
+                    [style.width.%]="(dashboardStats.registrations.email / dashboardStats.registrations.total) * 100"
+                    title="Email: {{ dashboardStats.registrations.email }}"
+                  ></div>
+                }
+              </div>
+              <div class="progress mt-1" style="height: 8px">
+                @if (dashboardStats.registrations.total > 0) {
+                  <div
+                    class="progress-bar"
+                    style="background-color: #ea4335"
+                    [style.width.%]="(dashboardStats.registrations.google / dashboardStats.registrations.total) * 100"
+                    title="Google: {{ dashboardStats.registrations.google }}"
+                  ></div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-info-subtle text-info">
+              <i class="fas fa-chart-bar"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Ricavi vs Rimborsi (6 mesi)</h5>
+          </div>
+        </div>
+        <div class="content-card-body" style="height: 220px">
+          @if (loadMonthlyRevenue) {
+            <div class="d-flex justify-content-center h-100">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+          }
+          @if (!loadMonthlyRevenue) {
+            <canvas #revenueChart></canvas>
+          }
         </div>
       </div>
     </div>
     <div class="col-12 col-lg-6">
-      <div class="card border-0 shadow-sm rounded-4">
-        <div
-          class="card-body d-flex align-items-center justify-content-center w-100"
-        >
-          <div class="text-center" *ngIf="loadAndamentoVendite">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-primary-subtle text-primary">
+              <i class="fas fa-wallet"></i>
             </div>
+            <h5 class="mb-0 fw-bold">Entrate per Metodo di Pagamento</h5>
           </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadRevenueByPayment) {
+            <div class="d-flex justify-content-center py-4">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+          }
+          @if (!loadRevenueByPayment && revenueByPayment) {
+            <div class="row g-3">
+              <div class="col-6">
+                <div class="payment-method-card">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="payment-method-icon bg-primary-subtle text-primary">
+                      <i class="fas fa-credit-card"></i>
+                    </div>
+                    <span class="fw-semibold">Stripe</span>
+                  </div>
+                  <div class="payment-method-value text-primary">{{ revenueByPayment.stripe.toFixed(2) }} €</div>
+                  <div class="text-muted small">{{ revenueByPayment.stripeCount }} prenotazioni</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="payment-method-card">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="payment-method-icon bg-success-subtle text-success">
+                      <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <span class="fw-semibold">Contanti</span>
+                  </div>
+                  <div class="payment-method-value text-success">{{ revenueByPayment.cash.toFixed(2) }} €</div>
+                  <div class="text-muted small">{{ revenueByPayment.cashCount }} prenotazioni</div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-top">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Totale</span>
+                <span class="fw-bold fs-5">{{ revenueByPayment.total.toFixed(2) }} €</span>
+              </div>
+              @if (revenueByPayment.total > 0) {
+                <div class="mt-2">
+                  <div class="d-flex" style="height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div
+                      class="bg-primary"
+                      [style.width.%]="(revenueByPayment.stripe / revenueByPayment.total) * 100"
+                    ></div>
+                    <div
+                      class="bg-success"
+                      [style.width.%]="(revenueByPayment.cash / revenueByPayment.total) * 100"
+                    ></div>
+                  </div>
+                  <div class="d-flex justify-content-between text-muted small mt-1">
+                    <span>Stripe {{ ((revenueByPayment.stripe / revenueByPayment.total) * 100).toFixed(0) }}%</span>
+                    <span>Contanti {{ ((revenueByPayment.cash / revenueByPayment.total) * 100).toFixed(0) }}%</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
 
-          <canvas
-            *ngIf="!loadAndamentoVendite"
-            #salesChartVendite
-            class="w-100"
-          ></canvas>
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="content-card">
+        <div class="content-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-success-subtle text-success">
+              <i class="fas fa-route"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Entrate Giornaliere per Corsa</h5>
+          </div>
+          <input
+            type="date"
+            class="form-control form-control-sm"
+            style="width: auto;"
+            [(ngModel)]="dailyRouteDate"
+            (ngModelChange)="onDailyDateChange()"
+          />
+        </div>
+        <div class="content-card-body p-0">
+          @if (loadDailyRouteRevenue) {
+            <div class="d-flex justify-content-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadDailyRouteRevenue) {
+            @if (dailyRouteRevenue.length === 0) {
+              <div class="text-center text-muted py-4">
+                Nessuna prenotazione confermata per questa data
+              </div>
+            }
+            @if (dailyRouteRevenue.length > 0) {
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Corsa</th>
+                      <th>Tratta</th>
+                      <th class="text-center">Passeggeri</th>
+                      <th class="text-center">Prenotazioni</th>
+                      <th class="text-end">Stripe</th>
+                      <th class="text-end">Contanti</th>
+                      <th class="text-end fw-bold">Totale</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of dailyRouteRevenue; track row._id.routeId) {
+                      <tr>
+                        <td class="fw-semibold">{{ row._id.routeName?.it || row._id.routeName?.en || '-' }}</td>
+                        <td>
+                          <span class="text-muted small">
+                            {{ row._id.from?.name || '-' }} <i class="fas fa-arrow-right mx-1"></i> {{ row._id.to?.name || '-' }}
+                          </span>
+                        </td>
+                        <td class="text-center">{{ row.seats }}</td>
+                        <td class="text-center">{{ row.count }}</td>
+                        <td class="text-end text-primary">{{ getRoutePaymentTotal(row.byPayment, 'stripe').toFixed(2) }} €</td>
+                        <td class="text-end text-success">{{ getRoutePaymentTotal(row.byPayment, 'cash').toFixed(2) }} €</td>
+                        <td class="text-end fw-bold">{{ row.total.toFixed(2) }} €</td>
+                      </tr>
+                    }
+                  </tbody>
+                  <tfoot>
+                    <tr class="table-active fw-bold">
+                      <td colspan="2">Totale</td>
+                      <td class="text-center">{{ getDailyTotals('seats') }}</td>
+                      <td class="text-center">{{ getDailyTotals('count') }}</td>
+                      <td class="text-end text-primary">{{ getDailyPaymentTotal('stripe').toFixed(2) }} €</td>
+                      <td class="text-end text-success">{{ getDailyPaymentTotal('cash').toFixed(2) }} €</td>
+                      <td class="text-end">{{ getDailyTotals('total').toFixed(2) }} €</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-danger-subtle text-danger">
+              <i class="fas fa-receipt"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Ultimi Rimborsi</h5>
+          </div>
+        </div>
+        <div class="content-card-body p-0">
+          @if (loadRefunds) {
+            <div class="d-flex justify-content-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadRefunds) {
+            @if (refunds.length === 0) {
+              <div class="text-center text-muted py-4">
+                Nessun rimborso recente
+              </div>
+            }
+            <div class="refunds-list">
+              @for (refund of refunds; track refund.id) {
+                <div
+                  class="refund-item d-flex align-items-center gap-3 px-3 py-2"
+                >
+                  <div class="refund-amount text-end">
+                    <div class="fw-bold text-danger">
+                      -{{ refund.amount }} €
+                    </div>
+                  </div>
+                  <div class="refund-info flex-grow-1">
+                    <div class="text-muted small">{{ refund.reason }}</div>
+                    <div class="text-muted small">{{ refund.created }}</div>
+                  </div>
+                  <span
+                    class="badge {{
+                      refund.status === 'succeeded'
+                        ? 'bg-success-subtle text-success'
+                        : 'bg-warning-subtle text-warning'
+                    }}"
+                  >
+                    {{
+                      refund.status === "succeeded"
+                        ? "Completato"
+                        : refund.status
+                    }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-warning-subtle text-warning">
+              <i class="fas fa-scale-balanced"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Riepilogo Mensile</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadMonthlyRevenue) {
+            <div class="d-flex justify-content-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadMonthlyRevenue && monthlyRevenue) {
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Mese scorso</span>
+                <span class="summary-value text-muted"
+                  >{{ monthlyRevenue.lastMonth.revenue.toFixed(2) }} €</span
+                >
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Netto scorso</span>
+                <span class="summary-value text-muted"
+                  >{{ monthlyRevenue.lastMonth.net.toFixed(2) }} €</span
+                >
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Mese corrente</span>
+                <span class="summary-value text-success"
+                  >{{ monthlyRevenue.currentMonth.revenue.toFixed(2) }} €</span
+                >
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Netto corrente</span>
+                <span class="summary-value fw-bold"
+                  >{{ monthlyRevenue.currentMonth.net.toFixed(2) }} €</span
+                >
+              </div>
+            </div>
+            @if (monthlyRevenue.lastMonth.revenue > 0) {
+              <div class="mt-3 pt-3 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted small"
+                    >Variazione netta vs mese scorso</span
+                  >
+                  <span
+                    class="badge {{
+                      monthlyRevenue.currentMonth.net >=
+                      monthlyRevenue.lastMonth.net
+                        ? 'bg-success-subtle text-success'
+                        : 'bg-danger-subtle text-danger'
+                    }} fw-semibold"
+                  >
+                    @if (monthlyRevenue.lastMonth.net > 0) {
+                      {{
+                        (
+                          ((monthlyRevenue.currentMonth.net -
+                            monthlyRevenue.lastMonth.net) /
+                            monthlyRevenue.lastMonth.net) *
+                          100
+                        ).toFixed(1)
+                      }}%
+                    } @else {
+                      N/D
+                    }
+                  </span>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-danger-subtle text-danger">
+              <i class="fas fa-gavel"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Contestazioni</h5>
+            @if (getPendingDisputesCount() > 0) {
+              <span class="badge bg-danger text-white ms-2">
+                {{ getPendingDisputesCount() }} in attesa
+              </span>
+            }
+          </div>
+        </div>
+        <div class="content-card-body p-0">
+          @if (loadDisputes) {
+            <div class="d-flex justify-content-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadDisputes) {
+            @if (disputes.length === 0) {
+              <div class="text-center text-muted py-4">
+                Nessuna contestazione
+              </div>
+            }
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Importo</th>
+                    <th>Motivo</th>
+                    <th>Stato</th>
+                    <th>Scadenza evidenza</th>
+                    <th>Data</th>
+                    <th>Azioni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (dispute of disputes; track dispute.id) {
+                    <tr>
+                      <td>
+                        <span class="text-muted small">{{ dispute.id }}</span>
+                      </td>
+                      <td class="fw-bold text-danger">
+                        -{{ dispute.amount }} {{ dispute.currency }}
+                      </td>
+                      <td>{{ getDisputeReasonLabel(dispute.reason) }}</td>
+                      <td>
+                        <span class="badge {{ getDisputeStatusClass(dispute.status) }}">
+                          {{ getDisputeStatusLabel(dispute.status) }}
+                        </span>
+                      </td>
+                      <td>
+                        @if (dispute.evidenceDetails?.dueBy) {
+                          <span class="text-muted small">{{ dispute.evidenceDetails.dueBy }}</span>
+                        } @else {
+                          <span class="text-muted">-</span>
+                        }
+                      </td>
+                      <td class="text-muted small">{{ dispute.created }}</td>
+                      <td>
+                        @if (dispute.status === 'needs_response' || dispute.status === 'warning_needs_response') {
+                          <button
+                            class="btn btn-sm btn-outline-danger"
+                            (click)="closeDispute(dispute.id)"
+                          >
+                            Accetta e chiudi
+                          </button>
+                        } @else {
+                          <span class="text-muted small">-</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-6">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-info-subtle text-info">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Andamento Vendite</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadAndamento) {
+            <div class="d-flex justify-content-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadAndamento) {
+            <canvas #salesChart></canvas>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-success-subtle text-success">
+              <i class="fas fa-euro-sign"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Andamento Incasso</h5>
+          </div>
+        </div>
+        <div class="content-card-body">
+          @if (loadAndamentoVendite) {
+            <div class="d-flex justify-content-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          }
+          @if (!loadAndamentoVendite) {
+            <canvas #salesChartVendite></canvas>
+          }
         </div>
       </div>
     </div>

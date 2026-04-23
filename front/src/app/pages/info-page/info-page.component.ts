@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fadeAnimation } from '../../animations/fade.animation';
@@ -9,12 +9,11 @@ import { LngService } from '../../services/lng/lng.service';
 @Component({
   selector: 'app-info-page',
   imports: [
-    CommonModule,
     TitlePageComponent,
     FormsModule,
     ReactiveFormsModule,
-    FooterComponent,
-  ],
+    FooterComponent
+],
   templateUrl: './info-page.component.html',
   animations: [fadeAnimation],
   styleUrl: './info-page.component.scss',

@@ -1,38 +1,50 @@
 stages:
   - compilazione_back
-  - compila_front
-  - compila_dockerfile_back 
+  - compilazione_front
+  - compila_dockerfile_back
   - compila_dockerfile_front
+  - aggiorna_portainer
 
+########################
+# BUILD BACK
+########################
 compilazione_back:
   stage: compilazione_back
-  image: node:22.14
+  image: node:24.13
   script:
-    - "cd back"
-    - "rm package-lock.json"
-    - "npm install"
-    - "npm run build"
-      
+    - cd back
+    - npm ci
+    - npm run build
   artifacts:
     paths:
       - back/dist/
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev"'
+      changes:
+        - back/**/*
 
+########################
+# BUILD FRONT
+########################
 compilazione_front:
-  stage: compila_front
-  image: node:22.14
+  stage: compilazione_front
+  image: node:24.13
   script:
-    - "cd front"
-    - "rm package-lock.json"
-    - "npm install -g @angular/cli@19.1.8"
-    - "npm install"
-    - "npm run build-prod"
+    - cd front
+    - npm install -g @angular/cli@21.2.3
+    - npm ci
+    - npm run build-prod
   artifacts:
     paths:
       - front/dist/
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev"'
+      changes:
+        - front/**/*
+
+########################
+# DOCKER BACK
+########################
 compila_dockerfile_back:
   stage: compila_dockerfile_back
   image: docker:latest
@@ -44,28 +56,30 @@ compila_dockerfile_back:
     - cd back
     - docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - export GUID_TAG=$(uuidgen || echo $CI_PIPELINE_ID)
+
     - docker build -t $REGISTRY/pintour2/back:$GUID_TAG .
     - docker push $REGISTRY/pintour2/back:$GUID_TAG
 
-    # Tag addizionali
     - |
       if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
         docker tag $REGISTRY/pintour2/back:$GUID_TAG $REGISTRY/pintour2/back:dev
         docker push $REGISTRY/pintour2/back:dev
       fi
+
     - |
-      if [ "$CI_COMMIT_TAG" ] && [ "$CI_COMMIT_REF_NAME" == "main" ]; then
-        docker tag $REGISTRY/pintour2/back:$GUID_TAG $REGISTRY/pintour2/back:$CI_COMMIT_TAG
-        docker push $REGISTRY/pintour2/back:$CI_COMMIT_TAG
-      fi
-    - |
-      if [ "$CI_COMMIT_REF_NAME" == "main" ] && [ -z "$CI_COMMIT_TAG" ]; then
+      if [ "$CI_COMMIT_REF_NAME" == "main" ]; then
         docker tag $REGISTRY/pintour2/back:$GUID_TAG $REGISTRY/pintour2/back:latest
         docker push $REGISTRY/pintour2/back:latest
       fi
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_TAG'
 
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev"'
+      changes:
+        - back/**/*
+
+########################
+# DOCKER FRONT
+########################
 compila_dockerfile_front:
   stage: compila_dockerfile_front
   image: docker:latest
@@ -77,6 +91,7 @@ compila_dockerfile_front:
     - cd front
     - docker login $REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - export GUID_TAG=$(uuidgen || echo $CI_PIPELINE_ID)
+
     - docker build -t $REGISTRY/pintour2/front:$GUID_TAG .
     - docker push $REGISTRY/pintour2/front:$GUID_TAG
 
@@ -85,15 +100,35 @@ compila_dockerfile_front:
         docker tag $REGISTRY/pintour2/front:$GUID_TAG $REGISTRY/pintour2/front:dev
         docker push $REGISTRY/pintour2/front:dev
       fi
+
     - |
-      if [ "$CI_COMMIT_TAG" ] && [ "$CI_COMMIT_REF_NAME" == "main" ]; then
-        docker tag $REGISTRY/pintour2/front:$GUID_TAG $REGISTRY/pintour2/front:$CI_COMMIT_TAG
-        docker push $REGISTRY/pintour2/front:$CI_COMMIT_TAG
-      fi
-    - |
-      if [ "$CI_COMMIT_REF_NAME" == "main" ] && [ -z "$CI_COMMIT_TAG" ]; then
+      if [ "$CI_COMMIT_REF_NAME" == "main" ]; then
         docker tag $REGISTRY/pintour2/front:$GUID_TAG $REGISTRY/pintour2/front:latest
         docker push $REGISTRY/pintour2/front:latest
       fi
+
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev"'
+      changes:
+        - front/**/*
+
+########################
+# PORTAINER (UNICO WEBHOOK)
+########################
+aggiorna_portainer:
+  stage: aggiorna_portainer
+  image: curlimages/curl
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev"'
+      changes:
+        - back/**/*
+        - front/**/*
+  script:
+    - |
+      if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
+        curl --location --request POST "$PORTAINER_URL_DEV"
+      fi
+    - |
+      if [ "$CI_COMMIT_REF_NAME" == "main" ]; then
+        curl --location --request POST "$PORTAINER_URL"
+      fi

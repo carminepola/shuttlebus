@@ -16,6 +16,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { LngService } from './services/lng/lng.service';
 import { LoadingComponent } from './components/loading/loading/loading.component';
 import { CookiePolicyComponent } from './components/cookie-policy/cookie-policy.component';
+import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { version } from '../../package.json';
 @Component({
   selector: 'app-root',
@@ -27,6 +28,7 @@ import { version } from '../../package.json';
     LowBarComponent,
     NavbarComponent,
     CookiePolicyComponent,
+    ConfirmModalComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -66,35 +68,6 @@ export class AppComponent implements OnInit {
         });
       }
     });
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-      }
-    });
-    /*  this.router.events.subscribe(() => {
-      // Ottieni i dati dalla route corrente
-
-      const routeData = this.activatedRoute.snapshot.data;
-      console.log(routeData);
-      if (routeData && routeData['navbar'] !== undefined) {
-        this.navbarVisible = routeData['navbar'];
-      } else {
-        this.navbarVisible = false; // Se non ci sono dati, nascondi la navbar
-      }
-      if (routeData && routeData['lowBar'] !== undefined) {
-        this.lowBarVisible = routeData['lowBar'];
-      } else {
-        this.lowBarVisible = false; // Se non ci sono dati, nascondi la navbar
-      }
-    });*/
-
-    // window
-    //   .matchMedia('(prefers-color-scheme: dark)')
-    //   .addEventListener('change', (event) => {
-    //     if (localStorage['theme'] === 'auto') {
-    //       this.autoDarkMode();
-    //     }
-    //   });
-
     this.cookieService.startWatchingJwtChanges();
     document.body.setAttribute('data-bs-theme', 'light');
     // Sottoscriviti al comportamento del JWT per ottenere gli aggiornamenti
@@ -116,11 +89,9 @@ export class AppComponent implements OnInit {
   }
 
   loadLng() {
-    let browserLanguage = navigator.language;
-    let lng = 'it';
-    if (browserLanguage != 'it-IT') {
-      lng = 'en';
-    }
+    const browserLanguage = navigator.language.split('-')[0];
+    const supportedLngs = ['it', 'en', 'fr', 'de', 'es', 'jp'];
+    let lng = supportedLngs.includes(browserLanguage) ? browserLanguage : 'en';
 
     if (!localStorage['currentLng']) {
       this.lngService.setLng(lng);
@@ -140,11 +111,6 @@ export class AppComponent implements OnInit {
       'data-bs-theme',
       prefersDark.matches ? 'dark' : 'light'
     );
-    //force light
-    // document.body.setAttribute(
-    //   'data-bs-theme',
-    //   prefersDark.matches ? 'light' : 'light'
-    // );
   }
   getVersion() {
     return version;

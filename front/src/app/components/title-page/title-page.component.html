@@ -1,18 +1,28 @@
 <div class="pt-2">
-  <div class="text-muted" *ngIf="back">
-    <button
-      class="btn btn-link btn-sm ms-0 ps-0 text-secondary"
-      (click)="goBack()"
-    >
-      <i class="fas fa-arrow-left me-2"></i
-      ><span [innerText]="'str_go_back' | translate"></span>
-    </button>
+  @if (back) {
+    <div class="text-muted">
+      <button
+        class="btn btn-link btn-sm ms-0 ps-0 text-secondary"
+        (click)="goBack()"
+        >
+        <i class="fas fa-arrow-left me-2"></i
+          ><span [innerText]="'str_go_back' | translate"></span>
+        </button>
+      </div>
+    }
+    @if (title || subtitle) {
+      <div class="mb-3 mt-2">
+        @if (title) {
+          <h1 class="h3">
+            <span [innerHtml]="title" [ngClass]="id != '' ? 'me-2' : ''"></span>
+            @if (id) {
+              <span [innerHTML]="id" class="text-secondary fw-bold"></span>
+            }
+          </h1>
+        }
+        @if (subtitle) {
+          <p class="mt-2 text-muted" [innerHtml]="subtitle"></p>
+        }
+      </div>
+    }
   </div>
-  <div class="mb-3 mt-2" *ngIf="title || subtitle">
-    <h1 class="h3" *ngIf="title">
-      <span [innerHtml]="title" [ngClass]="id != '' ? 'me-2' : ''"></span>
-      <span *ngIf="id" [innerHTML]="id" class="text-secondary fw-bold"></span>
-    </h1>
-    <p class="mt-2 text-muted" *ngIf="subtitle" [innerHtml]="subtitle"></p>
-  </div>
-</div>

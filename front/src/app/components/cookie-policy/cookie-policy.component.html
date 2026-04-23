@@ -1,17 +1,23 @@
-<div class="cookie" *ngIf="show">
-  <div class="rounded-4">
-    <div [innerHTML]="'str_cookie_policy' | translate"></div>
-    <div class="d-flex mt-3">
-      <div
-        class="btn btn-primary w-50 me-1"
-        (click)="acceptCookies()"
-        [innerText]="'str_accept' | translate"
-      ></div>
-      <div
-        class="btn btn-outline-primary ms-1 w-50"
-        (click)="rejectCookies()"
-        [innerText]="'str_reject' | translate"
-      ></div>
+@if (show) {
+  <div class="cp-overlay">
+    <div class="cp-card glass">
+      <div class="cp-card-icon">
+        <i class="fa-solid fa-cookie-bite"></i>
+      </div>
+      <h3 class="cp-card-title">Cookie Policy</h3>
+      <p class="cp-card-text" [innerHTML]="'str_cookie_policy' | translate"></p>
+      <div class="cp-actions">
+        <button
+          class="cp-btn cp-btn-accept"
+          (click)="acceptCookies()"
+          [innerText]="'str_accept' | translate"
+        ></button>
+        <button
+          class="cp-btn cp-btn-reject"
+          (click)="rejectCookies()"
+          [innerText]="'str_reject' | translate"
+        ></button>
+      </div>
     </div>
   </div>
-</div>
+}

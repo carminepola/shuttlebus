@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { check, validationResult } from "express-validator";
-
+import LicensePlateServices from "../components/services/licensePlateServices";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 
 import { db } from "../index"; // Assuming db is exported from index.ts
@@ -27,6 +27,27 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 
     let position = await momap.getCurrent();
     res.json({ position: position });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/busStatus", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let momap: momapServices = new momapServices(db);
+
+    let busStatus = await momap.getBusStatus();
+    res.json({ busStatus: busStatus });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/devices", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let momap: momapServices = new momapServices(db);
+    let devices = await momap.getUserDevices();
+    res.json({ devices });
   } catch (error) {
     next(error);
   }

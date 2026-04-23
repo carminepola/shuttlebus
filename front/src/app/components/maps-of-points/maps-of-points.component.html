@@ -1,2 +1,45 @@
-<!-- maps-of-points.component.html -->
-<div id="map" style="height: 600px"></div>
+<div class="map-wrapper">
+  @if (loading) {
+    <div class="map-loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+
+  <div id="map" [style.height.px]="height"></div>
+
+  @if (showLiveBadge && !loading) {
+    <div class="map-live-badge">
+      <span class="live-dot"></span>
+      <span>Live</span>
+    </div>
+  }
+
+  @if (showLegend && !loading) {
+    <div class="map-legend">
+      <div class="legend-item">
+        <img
+          src="https://maps.google.com/mapfiles/kml/paddle/pink-blank.png"
+          alt="Fermata"
+          class="legend-icon"
+        />
+        <span>{{ "str_fermate" | translate }} ({{ stopCount }})</span>
+      </div>
+      <div class="legend-item">
+        <img
+          src="https://earth.google.com/images/kml-icons/track-directional/track-0.png"
+          alt="Autobus"
+          class="legend-icon legend-icon-bus"
+        />
+        <span>{{ "str_autobus" | translate }} ({{ busCount }})</span>
+      </div>
+    </div>
+  }
+
+  @if (lastUpdated && !loading) {
+    <div class="map-last-updated">
+      <small>{{ lastUpdated | date: "HH:mm" }}</small>
+    </div>
+  }
+</div>

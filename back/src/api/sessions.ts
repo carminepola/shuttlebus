@@ -13,6 +13,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 import UserServices from "../components/services/userServices";
 import FailToBanServices from "../components/services/failToBanServices";
 import SessionServices from "../components/services/sessionServices";
+import BookingsServices from "../components/services/bookingServices";
 const router = express.Router();
 
 router.post(
@@ -40,6 +41,10 @@ router.post(
       let sessionServices = new SessionServices(db);
       let userServices = new UserServices(db);
       let failToBanServices = new FailToBanServices(db);
+
+      if (await failToBanServices.isFail(res.locals.log.ip)) {
+        throw new ErrorModel(429, "Troppi tentativi. Riprova più tardi.");
+      }
 
       let loginResponse = await sessionServices.login(req.body.email, req.body.password, req.body.rememberMe);
 
@@ -96,6 +101,18 @@ router.delete("/", authMiddleware, async (req: Request, res: Response, next: Nex
   try {
     let result = {};
 
+    let bookingsServices = new BookingsServices(db);
+    let userId = res.locals.userLogged._id;
+    let pendingBookings = await bookingsServices.getBookingFromUser(userId);
+
+    if (pendingBookings && pendingBookings.length > 0) {
+      for (let booking of pendingBookings) {
+        if (booking.status === "pending") {
+          await bookingsServices.deleteBooking(booking.numberOfTickets, userId);
+        }
+      }
+    }
+
     let userServices = new UserServices(db);
     let ris = await userServices.deleteSession(res.locals.userLogged.email, res.locals.userLogged.session);
     res.clearCookie("jwt");
@@ -139,31 +156,19 @@ router.patch("/terms", authMiddleware, async (req: Request, res: Response, next:
   result = { message: "User upgraded" };
   res.json(result);
 });
-router.post(
-  "/recoverPassword",
-  [check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format")],
-  validateDataMiddleware,
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      let userDao = new UserDao(db);
-      let email = req.body.email;
-      let lng = req.body.lng ? (req.body.lng == "it" ? "it" : "en") : "en";
-      let user = await userDao.getUserByEmail(email);
-      if (user) {
-        let insert = await userDao.insertRecoverPassword(user.email, user.details.name, lng);
-        if (!insert) {
-          res.locals.customErrorMessage = "Limite di richieste raggiunto, riprova più tardi";
-          return res.sendStatus(429);
-        }
-
-        res.json({ message: "Una nuova password sarà inviata all'indirizzo email" });
-      } else {
-        throw new ErrorModel(404, "Utente non trovato");
-      }
-    } catch (error) {
-      next(error);
+router.post("/recoverPassword", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let userDao = new UserDao(db);
+    let email = req.body.email;
+    let lng = req.body.lng ? (req.body.lng == "it" ? "it" : "en") : "en";
+    let user = await userDao.getUserByEmail(email);
+    if (user) {
+      await userDao.insertRecoverPassword(user.email, user.details.name, lng);
     }
-  },
-);
+    res.json({ message: "Una nuova password sarà inviata all'indirizzo email" });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

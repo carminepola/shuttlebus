@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StopsService } from '../../services/stops/stops.service';
@@ -10,12 +10,11 @@ import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-stop-details',
   imports: [
-    CommonModule,
     TitlePageComponent,
     FormsModule,
     LoadingComponent,
-    ReactiveFormsModule,
-  ],
+    ReactiveFormsModule
+],
   animations: [fadeAnimation],
   templateUrl: './stop-details.component.html',
   styleUrl: './stop-details.component.scss',

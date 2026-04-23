@@ -1,9 +1,10 @@
 <!-- Mobile Header -->
-<div
-  class="overlay position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-lg-none"
-  *ngIf="isMenuOpen"
-  (click)="toggleMenu()"
-></div>
+@if (isMenuOpen) {
+  <div
+    class="overlay position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-lg-none"
+    (click)="toggleMenu()"
+  ></div>
+}
 <div style="width: 250px" class="d-lg-block d-none"></div>
 <div class="fixed-top bg-primary d-lg-none shadow p-3">
   <div class="d-flex align-items-center justify-content-between">
@@ -19,6 +20,12 @@
           <i class="fa-solid fa-ellipsis-vertical"></i>
         </button>
         <ul class="dropdown-menu px-1" aria-labelledby="dropdownMenuButton">
+          <li class="mb-2">
+            <a class="dropdown-item rounded" routerLink="/">
+              <i class="fas fa-house me-3 text-secondary"></i>
+              <span>Ritorna alla home</span>
+            </a>
+          </li>
           <li class="mb-2">
             <a
               class="dropdown-item rounded"
@@ -37,71 +44,77 @@
               class="dropdown-item bg-secondary rounded text-white"
               (click)="onLogout()"
             >
-              <i class="fas fa-sign-out-alt me-3"></i> Esci
+              <i class="fas fa-sign-out-alt me-3"></i> Logout
             </button>
           </li>
         </ul>
       </div>
-      <img
-        *ngIf="image"
-        [src]="image"
-        class="rounded-circle me-3"
-        style="width: 48px; height: 48px"
-      />
-      <div
-        *ngIf="!image"
-        class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
-        style="width: 40px; height: 40px"
-      >
-        <i class="fas fa-user text-white"></i>
-      </div>
+      @if (image) {
+        <img
+          [src]="image"
+          class="rounded-circle me-3"
+          style="width: 48px; height: 48px"
+        />
+      }
+      @if (!image) {
+        <div
+          class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
+          style="width: 40px; height: 40px"
+        >
+          <i class="fas fa-user text-white"></i>
+        </div>
+      }
       <div class="text-truncate" style="max-width: calc(100% - 2.5rem)">
         <h2 class="h5 fw-bold text-white mb-0 text-truncate">
           {{ username }}
         </h2>
         <p class="small text-light mb-0 text-truncate">Benvenuto</p>
       </div>
-      <div class="dropdown ms-3" *ngIf="notification.length > 0">
-        <button
-          class="btn btn-link text-white"
-          id="dropdownNotification"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          role="button"
-        >
-          <span
-            style="top: 80%; left: 80%; z-index: 20"
-            *ngIf="notification.length > 0"
-            class="position-absolute translate-middle badge rounded-pill bg-danger"
+      @if (notification.length > 0) {
+        <div class="dropdown ms-3">
+          <button
+            class="btn btn-link text-white"
+            id="dropdownNotification"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            role="button"
           >
-            {{ notification.length }}
-            <span class="visually-hidden">unread messages</span>
-          </span>
-
-          <i class="fa-solid fa-bell"></i>
-        </button>
-        <div
-          class="dropdown-menu px-1"
-          *ngIf="notification.length > 0"
-          style="max-height: 60vh; overflow-y: scroll; min-width: 80vw"
-          aria-labelledby="dropdownNotification"
-          style="min-width: 80vw"
-        >
-          <div class="list-group list-group-flush scrollarea">
-            <a
-              *ngFor="let nt of notification"
-              class="cursor-pointer list-group-item list-group-item-action py-3 lh-tight border-bottom"
-              aria-current="true"
+            @if (notification.length > 0) {
+              <span
+                style="top: 80%; left: 80%; z-index: 20"
+                class="position-absolute translate-middle badge rounded-pill bg-danger"
+              >
+                {{ notification.length }}
+                <span class="visually-hidden">unread messages</span>
+              </span>
+            }
+            <i class="fa-solid fa-bell"></i>
+          </button>
+          @if (notification.length > 0) {
+            <div
+              class="dropdown-menu px-1"
+              style="max-height: 60vh; overflow-y: scroll; min-width: 80vw"
+              aria-labelledby="dropdownNotification"
+              style="min-width: 80vw"
             >
-              <div class="fw-bold">{{ nt.title }}</div>
-              <div class="fs-6">
-                {{ nt.message }}
+              <div class="list-group list-group-flush scrollarea">
+                @for (nt of notification; track nt) {
+                  <a
+                    class="cursor-pointer list-group-item list-group-item-action py-3 lh-tight border-bottom"
+                    aria-current="true"
+                  >
+                    <div class="fw-bold">{{ nt.title }}</div>
+                    <div class="fs-6">
+                      {{ nt.message }}
+                    </div>
+                    <div class="small text-muted float-end">{{ nt.date }}</div>
+                  </a>
+                }
               </div>
-              <div class="small text-muted float-end">{{ nt.date }}</div>
-            </a>
-          </div>
+            </div>
+          }
         </div>
-      </div>
+      }
     </div>
 
     <button class="btn btn-link text-white p-2" (click)="toggleMenu()">
@@ -118,19 +131,21 @@
   <!-- Desktop Header -->
   <div class="d-none d-lg-flex align-items-center justify-content-between p-4">
     <div class="d-flex align-items-center">
-      <img
-        *ngIf="image"
-        [src]="image"
-        class="rounded-circle me-3"
-        style="width: 48px; height: 48px"
-      />
-      <div
-        *ngIf="!image"
-        class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
-        style="width: 48px; height: 48px"
-      >
-        <i class="fas fa-user text-white"></i>
-      </div>
+      @if (image) {
+        <img
+          [src]="image"
+          class="rounded-circle me-3"
+          style="width: 48px; height: 48px"
+        />
+      }
+      @if (!image) {
+        <div
+          class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3"
+          style="width: 48px; height: 48px"
+        >
+          <i class="fas fa-user text-white"></i>
+        </div>
+      }
       <div class="text-truncate">
         <h2 class="h4 fw-bold text-white mb-0 text-truncate">{{ username }}</h2>
         <p class="small text-light mb-0">Benvenuto</p>
@@ -149,50 +164,7 @@
           <span class="visually-hidden">Impostazioni</span>
         </button>
       </div>
-      <!-- <div class="col-4 text-center">
-        <div class="dropdown">
-          <button
-            class="btn btn-link text-white"
-            [disabled]="notification.length > 0"
-            id="dropdownNotification"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            role="button"
-          >
-            <span
-              style="top: 80%; left: 80%; z-index: 20"
-              *ngIf="notification.length > 0"
-              class="position-absolute translate-middle badge rounded-pill bg-danger"
-            >
-              {{ notification.length }}
-              <span class="visually-hidden">unread messages</span>
-            </span>
 
-            <i class="fa-solid fa-bell"></i>
-          </button>
-          <div
-            class="dropdown-menu px-1"
-            *ngIf="notification.length > 0"
-            style="max-height: 60vh; overflow-y: scroll; min-width: 80vw"
-            aria-labelledby="dropdownNotification"
-          >
-            <div class="list-group list-group-flush scrollarea">
-              <a
-                href="#"
-                *ngFor="let nt of notification"
-                class="list-group-item list-group-item-action py-3 lh-tight border-bottom"
-                aria-current="true"
-              >
-                <div class="fw-bold">{{ nt.title }}</div>
-                <div class="fs-6">
-                  {{ nt.message }}
-                </div>
-                <div class="small text-muted float-end">{{ nt.date }}</div>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div> -->
       <div class="col-4">
         <button class="btn w-100 text-white" routerLink="/">
           <i class="fa-solid fa-house"></i>
@@ -205,13 +177,16 @@
           (click)="onLogout()"
           class="btn btn-link text-white w-100"
         >
-          <i class="fas fa-sign-out-alt" *ngIf="!isLoadingLogout"></i>
-          <span
-            class="spinner-border spinner-border-sm"
-            role="status"
-            aria-hidden="true"
-            *ngIf="isLoadingLogout"
-          ></span>
+          @if (!isLoadingLogout) {
+            <i class="fas fa-sign-out-alt"></i>
+          }
+          @if (isLoadingLogout) {
+            <span
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+          }
           <span class="visually-hidden">Esci</span>
         </button>
       </div>
@@ -220,21 +195,23 @@
   <!-- Navigation -->
   <nav>
     <ul class="nav nav-pills flex-column mb-auto mx-2">
-      <li class="nav-item my-2" *ngFor="let item of menuItems">
-        <a
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          class="nav-link py-2-5"
-          (click)="onMenuItemClick()"
-        >
-          <i
-            class="fas text-secondary me-3"
-            style="min-width: 25px"
-            [ngClass]="item.icon"
-          ></i>
-          <span class="text-white" [innerHTML]="item.title"></span>
-        </a>
-      </li>
+      @for (item of menuItems; track item) {
+        <li class="nav-item my-2">
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            class="nav-link py-2-5"
+            (click)="onMenuItemClick()"
+          >
+            <i
+              class="fas me-3"
+              style="min-width: 25px; color: #ffa1d2"
+              [ngClass]="item.icon"
+            ></i>
+            <span class="text-white" [innerHTML]="item.title"></span>
+          </a>
+        </li>
+      }
     </ul>
   </nav>
 </aside>

@@ -1,125 +1,182 @@
-<form #f="ngForm" ngNativeValidate (ngSubmit)="onSubmit(f)">
-  <div class="row">
-    <div class="col-12 col-lg mb-2">
-      <label
-        for="partenza"
-        class="text-secondary mb-1"
-        [innerHTML]="'str_partenza' | translate"
-      ></label>
+<form #f="ngForm" (ngSubmit)="onSubmit(f)">
+  <div class="search-fields">
+    <div class="search-route-row">
+      <div class="search-field">
+        <div class="field-icon">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+        <div class="field-content">
+          <label
+            for="partenza"
+            [innerHTML]="'str_partenza' | translate"
+          ></label>
+          <select
+            [(ngModel)]="ricerca!.partenza"
+            class="form-select"
+            id="partenza"
+            required=""
+            name="partenza"
+            (change)="cambioPartenza()"
+          >
+            <option value="" selected>
+              {{ "str_partenza_placeholder" | translate }}
+            </option>
+            @for (s of selectStart; track s) {
+              <option [value]="s.id">
+                <div>{{ s.name }}</div>
+              </option>
+            }
+          </select>
+        </div>
+      </div>
 
-      <select
-        [(ngModel)]="ricerca!.partenza"
-        class="form-select"
-        id="partenza"
-        required=""
-        name="partenza"
-        (change)="cambioPartenza()"
+      <button
+        type="button"
+        class="swap-btn"
+        (click)="swapStops()"
+        aria-label="Swap"
       >
-        <option value="" selected>
-          {{ "str_partenza_placeholder" | translate }}
-        </option>
-        <option *ngFor="let s of selectStart" [value]="s.id">
-          <div>{{ s.name }}</div>
-        </option>
-      </select>
+        <i class="d-block d-sm-none fa-solid fa-arrows-up-down"></i>
+        <i class="d-none d-sm-block fa-solid fa-arrows-left-right"></i>
+      </button>
+
+      <div class="search-field">
+        <div class="field-icon field-icon-arrival">
+          <i class="fa-solid fa-flag-checkered"></i>
+        </div>
+        <div class="field-content">
+          <label for="arrivo" [innerHTML]="'str_arrivo' | translate"></label>
+          <select
+            [(ngModel)]="ricerca!.arrivo"
+            class="form-select"
+            id="arrivo"
+            name="arrivo"
+            (change)="cambioArrivo()"
+            required=""
+          >
+            <option value="" selected>
+              {{ "str_arrivo_placeholder" | translate }}
+            </option>
+            @for (s of selectEnd; track s) {
+              <option [value]="s.id">
+                <div>{{ s.name }}</div>
+              </option>
+            }
+          </select>
+        </div>
+      </div>
     </div>
-    <div class="col-12 col-lg mb-2">
-      <label
-        for="arrivo"
-        class="text-secondary mb-1"
-        [innerHTML]="'str_arrivo' | translate"
-      ></label>
-      <select
-        [(ngModel)]="ricerca!.arrivo"
-        class="form-select"
-        id="arrivo"
-        name="arrivo"
-        (change)="cambioArrivo()"
-        required=""
-      >
-        <option value="" selected>
-          {{ "str_arrivo_placeholder" | translate }}
-        </option>
-        <option *ngFor="let s of selectEnd" [value]="s.id">
-          <div>{{ s.name }}</div>
-        </option>
-      </select>
-    </div>
-    <div class="col-12 col-lg mb-2">
-      <label for="persone" class="text-secondary mb-1"
-        ><span [innerHTML]="'str_n_persone' | translate"></span
-      ></label>
-      <select
-        [(ngModel)]="ricerca!.persone"
-        name="persone"
-        id="persone"
-        class="form-select"
-        required=""
-      >
-        <option value="" selected>
-          {{ "str_n_persone_placeholder" | translate }}
-        </option>
-        <option *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" [value]="i">
-          {{ i }}
-        </option>
-      </select>
-    </div>
-    <div class="col-12 col-lg mb-2">
-      <label for="bagagli" class="text-secondary mb-1">
-        <span [innerHTML]="'str_bagagli' | translate"></span
-        ><i
-          data-bs-toggle="tooltip"
-          data-bs-placement="top"
-          [attr.data-bs-title]="'str_bagagli_tooltip' | translate"
-          class="fa fa-info-circle text-primary ms-2"
-        ></i
-      ></label>
-      <select
-        required
-        [(ngModel)]="ricerca!.bagagli"
-        name="bagagli"
-        id="bagagli"
-        class="form-select"
-      >
-        <option value="" selected>
-          {{ "str_bagagli_placeholder" | translate }}
-        </option>
-        <option
-          *ngFor="let i of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-          [value]="i"
-        >
-          {{ i }}
-        </option>
-      </select>
-    </div>
-    <div class="col-12 col-lg mb-2">
-      <label
-        for="giorno"
-        class="text-secondary mb-1"
-        [innerHTML]="'str_day' | translate"
-      ></label>
-      <input
-        required
-        [(ngModel)]="ricerca!.data"
-        name="data"
-        type="date"
-        id="giorno"
-        (ngModelChange)="updateDate($event)"
-        class="form-control"
-        [min]="today"
-      />
+
+    <div class="search-extra-fields">
+      @for (tt of ticketTypes; track tt.id) {
+        <div class="search-field">
+          <div class="field-icon">
+            <i class="fa-solid fa-ticket"></i>
+          </div>
+          <div class="field-content">
+            <label>
+              <span [innerHTML]="tt.name | translateName"></span>
+              <i
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                [attr.data-bs-title]="tt.description | translateName"
+                class="fa fa-circle-info field-info-icon"
+              ></i>
+            </label>
+            <div class="field-counter">
+              <button
+                type="button"
+                class="counter-btn counter-btn-minus"
+                [disabled]="!selectedTickets[tt.id]"
+                (click)="removeTicketType(tt.id)"
+              >
+                <i class="fa fa-minus"></i>
+              </button>
+              <span class="counter-value">{{
+                selectedTickets[tt.id] || 0
+              }}</span>
+              <button
+                type="button"
+                class="counter-btn counter-btn-plus"
+                [disabled]="getTotalPersone() >= maxTickets"
+                (click)="addTicketType(tt.id)"
+              >
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="search-field">
+        <div class="field-icon">
+          <i class="fa-solid fa-suitcase-rolling"></i>
+        </div>
+        <div class="field-content">
+          <label for="bagagli">
+            <span [innerHTML]="'str_bagagli' | translate"></span>
+            <i
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              [attr.data-bs-title]="'str_bagagli_tooltip' | translate"
+              class="fa fa-circle-info field-info-icon"
+            ></i>
+          </label>
+          <select
+            required
+            [(ngModel)]="ricerca!.bagagli"
+            name="bagagli"
+            id="bagagli"
+            class="form-select"
+          >
+            <option value="" selected>
+              {{ "str_bagagli_placeholder" | translate }}
+            </option>
+            @for (i of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track i) {
+              <option [value]="i">
+                {{ i }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="search-field search-field-full">
+        <div class="field-icon">
+          <i class="fa-regular fa-calendar"></i>
+        </div>
+        <div class="field-content">
+          <label for="giorno" [innerHTML]="'str_day' | translate"></label>
+          <input
+            required
+            [(ngModel)]="ricerca!.data"
+            name="data"
+            type="date"
+            id="giorno"
+            (ngModelChange)="updateDate($event)"
+            class="form-control"
+            [min]="today"
+          />
+        </div>
+      </div>
     </div>
   </div>
-  <div class="row">
-    <div class="col-12 d-flex justify-content-center align-items-center mt-2">
-      <button
-        style="min-width: 300px"
-        type="submit"
-        class="btn btn-primary mx-auto w-responsive"
-      >
-        <i class="fa fa-magnifying-glass me-3"></i
-        ><span [innerHTML]="'str_search' | translate"></span>
-      </button>
+
+  @if (errors.length > 0) {
+    <div class="search-errors">
+      @for (err of errors; track err) {
+        <div class="search-error-item">
+          <i class="fa-solid fa-circle-exclamation me-1"></i>
+          <span [innerHTML]="err | translate"></span>
+        </div>
+      }
     </div>
+  }
+
+  <div class="search-submit">
+    <button type="submit" class="submit-btn btn-secondary">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <span [innerHTML]="'str_search' | translate"></span>
+    </button>
   </div>
 </form>

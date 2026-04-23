@@ -18,7 +18,7 @@ export default class FailToBanDao {
     try {
       let ris = await this.db.collection(this.schema).find({ ip: ip }).toArray();
 
-      return ris.length > 10 || false;
+      return ris.length >= 10;
     } catch (error) {
       throw error;
     }
@@ -53,12 +53,7 @@ export default class FailToBanDao {
    */
   async insertIp(ip: string) {
     try {
-      let result = undefined;
-
-      if (process.env.ENVIRONMENT != "PROD") {
-        return true;
-      }
-      result = await this.db.collection(this.schema).insertOne({ ip: ip });
+      let result = await this.db.collection(this.schema).insertOne({ ip: ip, date: new Date() });
 
       if (result) {
         return true;

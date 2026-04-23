@@ -152,7 +152,7 @@ class MailService {
         }
       }
     } catch (error: any) {
-      throw error; // Propagazione opzionale
+      logger.error(`Email non inviata: ${error?.message || error}`);
     }
     return false;
   }

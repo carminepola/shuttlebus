@@ -1,131 +1,146 @@
-<div class="d-flex min-vh-100">
-  <div
-    class="d-none d-lg-block col-lg-6 bg-dark position-relative overflow-hidden"
-  >
-    <div
-      class="position-absolute top-0 start-0 w-100 h-100 background-gradient"
-    ></div>
-    <div
-      class="position-relative z-index-10 d-flex flex-column justify-content-center align-items-center h-100 text-white text-center p-5"
-    >
-      <i class="fas fa-user fa-8x mb-4"></i>
-      <h2 class="display-4 fw-bold mb-4">Benvenuto</h2>
-      <p class="fs-4 text-gray-300">
-        Accedi al pannello di controllo di Pintour
+<div class="login-page">
+  <div class="login-left d-none d-lg-flex">
+    <div class="login-left-bg"></div>
+    <div class="login-left-content">
+      <div class="login-left-logo">
+        <img src="../../../assets/pintour-logo.png" alt="Pintour" />
+      </div>
+      <h2 class="login-left-title">Pannello di Controllo</h2>
+      <p class="login-left-desc">
+        Gestisci le prenotazioni, le corse e il tuo servizio shuttle bus.
       </p>
+      <div class="login-left-features">
+        <div class="login-left-feature">
+          <i class="fa-solid fa-route"></i>
+          <span>Gestione corse</span>
+        </div>
+        <div class="login-left-feature">
+          <i class="fa-solid fa-ticket"></i>
+          <span>Prenotazioni</span>
+        </div>
+        <div class="login-left-feature">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Statistiche</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div
-    class="col-12 col-lg-6 d-flex align-items-center justify-content-center p-5"
-  >
-    <div class="w-100">
-      <div class="mb-4 text-center">
-        <h2 class="display-5 fw-bold text-primary">Accedi al tuo account</h2>
-        <p class="mt-2 text-muted">
-          Questa sezione è dedicata all'amministrazione
-        </p>
+  <div class="login-right">
+    <div class="login-right-inner">
+      <div class="login-mobile-logo d-lg-none mb-4">
+        <img src="../../../assets/pintour-logo.png" alt="Pintour" />
+      </div>
+
+      <div class="auth-header" style="margin-bottom: 1.5rem;">
+        <div class="auth-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="auth-title">Area Amministrazione</h2>
+        <p class="auth-subtitle" style="margin-top: 0.25rem;">Accedi con le tue credenziali</p>
       </div>
 
       <form [formGroup]="loginForm" (submit)="onSubmit($event)" novalidate>
-        <div *ngIf="loginError" class="alert alert-danger mb-4">
-          {{ loginError }}
-        </div>
+        @if (loginError) {
+          <div class="auth-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>{{ loginError }}</span>
+          </div>
+        }
 
-        <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <i class="fa-solid fa-envelope"></i>
+          </div>
           <input
-            id="email"
+            id="admin-email"
             formControlName="email"
             type="email"
             autocomplete="email"
-            class="form-control"
-            placeholder="Inserisci la tua email"
-            [ngClass]="{
-              'is-invalid': isSubmitted && formControls['email'].invalid,
-          
-            }"
+            class="auth-input"
+            placeholder="Email"
+            [ngClass]="{ 'is-invalid': isSubmitted && formControls['email'].invalid }"
           />
-          <div
-            *ngIf="isSubmitted && formControls['email'].errors"
-            class="invalid-feedback"
-          >
-            <div *ngIf="formControls['email'].errors['required']">
-              Email è richiesta
+          @if (isSubmitted && formControls['email'].errors) {
+            <div class="auth-field-error">
+              @if (formControls['email'].errors['required']) {
+                <span>Email richiesta</span>
+              }
+              @if (formControls['email'].errors['email']) {
+                <span>Email non valida</span>
+              }
             </div>
-            <div *ngIf="formControls['email'].errors['email']">
-              Email non valida
-            </div>
-          </div>
+          }
         </div>
 
-        <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <i class="fa-solid fa-lock"></i>
+          </div>
           <input
-            id="password"
+            id="admin-password"
             formControlName="password"
-            type="password"
-            autocomplete="password"
-            class="form-control"
-            placeholder="Inserisci la tua password"
-            [ngClass]="{
-              'is-invalid': isSubmitted && formControls['password'].invalid,
-             
-            }"
+            [type]="showPassword ? 'text' : 'password'"
+            autocomplete="current-password"
+            class="auth-input"
+            placeholder="Password"
+            [ngClass]="{ 'is-invalid': isSubmitted && formControls['password'].invalid }"
           />
-          <div
-            *ngIf="isSubmitted && formControls['password'].errors"
-            class="invalid-feedback"
-          >
-            <div *ngIf="formControls['password'].errors['required']">
-              Password è richiesta
+          <button type="button" class="auth-field-toggle" (click)="showPassword = !showPassword">
+            <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+          @if (isSubmitted && formControls['password'].errors) {
+            <div class="auth-field-error">
+              @if (formControls['password'].errors['required']) {
+                <span>Password richiesta</span>
+              }
+              @if (formControls['password'].errors['minlength']) {
+                <span>Minimo 6 caratteri</span>
+              }
             </div>
-            <div *ngIf="formControls['password'].errors['minlength']">
-              Password deve essere lunga almeno 6 caratteri
-            </div>
-          </div>
+          }
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="form-check">
+        <div class="auth-options">
+          <label class="auth-checkbox" for="admin-remember">
             <input
               formControlName="rememberMe"
-              id="rememberMe"
-              name="rememberMe"
+              id="admin-remember"
               type="checkbox"
-              class="form-check-input"
+              class="auth-checkbox-input"
             />
-            <label for="rememberMe" class="form-check-label">Ricordami</label>
-          </div>
-
-          <div class="text-end">
-            <a routerLink="/lostpassword" class="cursor-pointer text-secondary"
-              >Password dimenticata?</a
-            >
-          </div>
+            <span class="auth-checkbox-box">
+              <i class="fa-solid fa-check"></i>
+            </span>
+            <span>Ricordami</span>
+          </label>
+          <a routerLink="/lostpassword" class="auth-link">Password dimenticata?</a>
         </div>
 
-        <div
-          class="d-flex flex-column justify-content-center align-items-center"
-        >
-          <button
-            type="submit"
-            [disabled]="isLoading"
-            class="btn btn-secondary w-100 d-flex justify-content-center align-items-center"
-          >
-            <span *ngIf="!isLoading">Accedi</span>
-            <div
-              *ngIf="isLoading"
-              class="spinner-border spinner-border-sm text-white"
-              role="status"
-            ></div>
-          </button>
-
-          <button class="btn btn-danger w-100 mt-3" (click)="loginWithGoogle()">
-            <i class="fa-brands fa-google me-2"></i>Accedi con google
-          </button>
-        </div>
+        <button type="submit" [disabled]="isLoading" class="auth-submit">
+          @if (!isLoading) {
+            <span>Accedi</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          }
+          @if (isLoading) {
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          }
+        </button>
       </form>
+
+      <div class="auth-divider">
+        <span>o</span>
+      </div>
+
+      <button class="auth-google" (click)="loginWithGoogle()">
+        <svg viewBox="0 0 24 24" width="18" height="18">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        <span>Accedi con Google</span>
+      </button>
     </div>
   </div>
 </div>

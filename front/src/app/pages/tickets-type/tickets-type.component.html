@@ -5,125 +5,125 @@
     back="true"
   ></app-title-page>
 
-  <div
-    *ngIf="loading"
-    class="w-100 d-flex align-items-center justify-content-center"
-  >
-    <app-loading></app-loading>
-  </div>
-
-  <div class="card shadow border-0 rounded-4" *ngIf="!loading" @fadeInOut>
-    <!-- Header Section -->
-    <div class="card-header bg-white rounded-top-4 border-bottom py-4">
-      <div class="row align-items-center gy-3">
-        <div class="col-md">
-          <div class="input-group">
-            <span class="input-group-text bg-light border-0 icon-container"
-              ><i class="fas fa-search"></i
-            ></span>
-            <input
-              [(ngModel)]="search"
-              type="text"
-              class="form-control form-control-lg bg-light border-0"
-              placeholder="Cerca biglietto..."
-            />
-          </div>
-        </div>
-        <div class="col-md-auto">
-          <a
-            class="btn btn-primary btn-lg h-100 rounded-3 w-100"
-            [routerLink]="['/admin/ticket-details']"
-          >
-            <i class="fas fa-plus me-2"></i>Nuovo biglietto
-          </a>
-        </div>
-      </div>
-
-      <!-- Search Bar -->
-    </div>
-
-    <!-- Mobile View (Cards) -->
-
-    <div class="mobile-cards p-3 d-block d-lg-none">
-      <!-- Card 1 -->
-      <div
-        class="card mb-3 rounded-4"
-        *ngFor="let ticketType of ticketsType | filter : search"
+  @if (loading) {
+    <div
+      class="w-100 d-flex align-items-center justify-content-center"
       >
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <h5 class="card-title mb-0" [innerHTML]="ticketType.name"></h5>
-            <div>
-              <button
-                class="btn btn-warning btn-sm me-2 rounded-3"
-                (click)="edit(ticketType.id)"
-              >
-                <i class="fas fa-edit"></i>
-              </button>
-              <button
-                class="btn btn-danger btn-sm rounded-3"
-                (click)="delete(ticketType.id)"
-              >
-                <i class="fas fa-trash"></i>
-              </button>
+      <app-loading></app-loading>
+    </div>
+  }
+
+  @if (!loading) {
+    <div class="card shadow border-0 rounded-4" @fadeInOut>
+      <!-- Header Section -->
+      <div class="card-header bg-white rounded-top-4 border-bottom py-4">
+        <div class="row align-items-center gy-3">
+          <div class="col-md">
+            <div class="input-group">
+              <span class="input-group-text bg-light border-0 icon-container"
+                ><i class="fas fa-search"></i
+              ></span>
+              <input
+                [(ngModel)]="search"
+                type="text"
+                class="form-control form-control-lg bg-light border-0"
+                placeholder="Cerca biglietto..."
+                />
             </div>
           </div>
-
-          <p class="mb-2">
-            Descrizione:
-            <span
-              class="text-secondary"
-              [innerHTML]="ticketType.description"
-            ></span>
-          </p>
-          <p class="mb-0">
-            Prezzo:
-            <span class="text-secondary"
-              ><span [innerHTML]="ticketType.cost"></span>€</span
+          <div class="col-md-auto">
+            <a
+              class="btn btn-primary btn-lg h-100 rounded-3 w-100"
+              [routerLink]="['/admin/ticket-details']"
+              >
+              <i class="fas fa-plus me-2"></i>Nuovo biglietto
+            </a>
+          </div>
+        </div>
+        <!-- Search Bar -->
+      </div>
+      <!-- Mobile View (Cards) -->
+      <div class="mobile-cards p-3 d-block d-lg-none">
+        <!-- Card 1 -->
+        @for (ticketType of ticketsType | filter : search; track ticketType) {
+          <div
+            class="card mb-3 rounded-4"
             >
-          </p>
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title mb-0" [innerHTML]="ticketType.name"></h5>
+                <div>
+                  <button
+                    class="btn btn-warning btn-sm me-2 rounded-3"
+                    (click)="edit(ticketType.id)"
+                    >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button
+                    class="btn btn-danger btn-sm rounded-3"
+                    (click)="delete(ticketType.id)"
+                    >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="mb-2">
+                Descrizione:
+                <span
+                  class="text-secondary"
+                  [innerHTML]="ticketType.description"
+                ></span>
+              </p>
+              <p class="mb-0">
+                Prezzo:
+                <span class="text-secondary"
+                  ><span [innerHTML]="ticketType.cost"></span>€</span
+                  >
+                </p>
+              </div>
+            </div>
+          }
+        </div>
+        <!-- Desktop View (Table) -->
+        <div class="desktop-table p-4 d-none d-lg-block">
+          <div class="table-responsive">
+            <table class="table table-borderless table-striped align-middle">
+              <thead class="bg-light">
+                <tr>
+                  <th scope="col">Nome</th>
+                  <th scope="col">Descrizione</th>
+                  <th scope="col">Prezzo</th>
+                  <th scope="col" class="rounded-end-3">Azioni</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (ticketType of ticketsType | filter : search; track ticketType) {
+                  <tr
+                    class="bg-white mb-2"
+                    >
+                    <td [innerHTML]="ticketType.name"></td>
+                    <td [innerHTML]="ticketType.description"></td>
+                    <td>{{ ticketType.cost }}€</td>
+                    <td>
+                      <button
+                        class="btn btn-warning btn-sm me-2 rounded-3"
+                        (click)="edit(ticketType.id)"
+                        >
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button
+                        class="btn btn-danger btn-sm rounded-3"
+                        (click)="delete(ticketType.id)"
+                        >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Desktop View (Table) -->
-    <div class="desktop-table p-4 d-none d-lg-block">
-      <div class="table-responsive">
-        <table class="table table-borderless table-striped align-middle">
-          <thead class="bg-light">
-            <tr>
-              <th scope="col">Nome</th>
-              <th scope="col">Descrizione</th>
-              <th scope="col">Prezzo</th>
-              <th scope="col" class="rounded-end-3">Azioni</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              class="bg-white mb-2"
-              *ngFor="let ticketType of ticketsType | filter : search"
-            >
-              <td [innerHTML]="ticketType.name"></td>
-              <td [innerHTML]="ticketType.description"></td>
-              <td>{{ ticketType.cost }}€</td>
-              <td>
-                <button
-                  class="btn btn-warning btn-sm me-2 rounded-3"
-                  (click)="edit(ticketType.id)"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  class="btn btn-danger btn-sm rounded-3"
-                  (click)="delete(ticketType.id)"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    }
   </div>
-</div>

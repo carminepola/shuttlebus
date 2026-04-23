@@ -1,219 +1,198 @@
-<div class="container pt-2">
-  <div class="card marginTopBar rounded-4">
-    <div class="card-body">
+<div class="container topspace pt-2">
+  <app-title-page back="ture" class="toppad"> </app-title-page>
+  <app-step-indicator [steps]="funnelSteps" [current]="1"></app-step-indicator>
+  <div class="search-bar-card rounded-4">
+    <div class="card-body py-3 px-4">
       <app-search [ricerca]="ricercaFind"></app-search>
     </div>
   </div>
 </div>
 
-<div class="container" style="min-height: 50vh">
-  <div class="row h-100 my-5" *ngIf="loading">
-    <div class="col text-center h-100 d-flex flex-column align-items-center">
-      <app-loading></app-loading>
+<div class="container" style="min-height: 50vh" id="search-result">
+  @if (loading) {
+    <div class="row h-100 my-5">
+      <div class="col text-center h-100 d-flex flex-column align-items-center">
+        <app-loading></app-loading>
+      </div>
     </div>
-  </div>
-  <div class="row" *ngIf="params.length == 0 && !loading">
-    <div class="col text-center my-5">
-      <img
-        src="../../../assets/no-results.png"
-        class="img-fluid"
-        style="max-width: 200px"
-        alt="not-found"
-      />
-      <h1
-        class="text-primary mt-4"
-        [innerText]="'search_not_found' | translate"
-      ></h1>
+  }
+  @if (params.length == 0 && !loading) {
+    <div class="row">
+      <div class="col text-center my-5">
+        <div class="empty-state mx-auto">
+          <div class="empty-state-icon">
+            <i class="fa-solid fa-route"></i>
+          </div>
+          <h3
+            class="text-primary mt-4 mb-2"
+            [innerText]="'search_not_found' | translate"
+          ></h3>
+          <!-- <p class="text-secondary">
+            {{ "str_search_not_found_desc" | translate }}
+          </p> -->
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="row my-5" *ngIf="params.length > 0 && !loading">
-    <div
-      class="col-12 col-lg-10 mx-auto"
-      *ngFor="let param of params; let j = index"
-    >
-      <div class="card border-secondary rounded-4 mb-3" @fadeInOut>
-        <div class="card-body">
-          <div class="card-text">
-            <div class="row">
-              <div class="col-12 col-lg-4 align-self-start">
-                <div>
-                  <h5
-                    class="fw-bold text-primary"
-                    [innerHTML]="param.name | translateName"
-                  ></h5>
-                </div>
-                <div>
-                  <div
-                    class="fw-bold text-secondary"
-                    [innerHTML]="'str_partenza_da' | translate"
-                  ></div>
-                  <div class="d-flex justify-content-between">
-                    <div
-                      class="text-primary"
-                      [innerHTML]="param.from.name"
-                    ></div>
-                    <div
-                      class="text-primary fw-bold"
-                      [innerHTML]="param.from.stopTime"
-                    ></div>
-                  </div>
-                  <div
-                    class="text-muted"
-                    [innerHTML]="param.from.description | translateName"
-                  ></div>
-                </div>
-
-                <div class="mt-2">
-                  <div
-                    class="fw-bold text-secondary"
-                    [innerHTML]="'str_arrivo_a' | translate"
-                  ></div>
-                  <div class="d-flex justify-content-between">
-                    <div class="text-primary" [innerHTML]="param.to.name"></div>
-                    <div
-                      class="text-primary fw-bold"
-                      [innerHTML]="param.to.stopTime"
-                    ></div>
-                  </div>
-                  <div
-                    class="text-muted"
-                    [innerHTML]="param.to.description | translateName"
-                  ></div>
-                </div>
-              </div>
-              <hr class="w-100 my-3 d-block d-lg-none" />
-
-              <div class="col-12 col-lg-8">
-                <div
-                  class="mb-2 ps-0 fst-italic"
-                  [innerHTML]="
-                    'str_seleziona_biglietti_per_acquisto' | translate
-                  "
-                ></div>
-
-                <div class="list-group w-auto">
-                  <a
-                    *ngFor="let ticket of param.ticketTypes; let i = index"
-                    class="list-group-item list-group-item-action gap-3 py-3"
-                    aria-current="true"
-                  >
-                    <div class="d-flex gap-2 w-100 justify-content-between">
-                      <div>
-                        <h6
-                          class="mb-0"
-                          [innerHTML]="ticket.name | translateName"
-                        ></h6>
-
-                        <p
-                          class="mb-0 opacity-75"
-                          [innerHTML]="ticket.description | translateName"
-                        ></p>
-                      </div>
-
-                      <div class="fw-bold text-primary fs-3">
-                        <span [innerHTML]="ticket.cost"></span
-                        ><span class="text-secondary">€</span>
-                      </div>
-                    </div>
-                    <div class="w-100">
-                      <div
-                        class="d-flex mt-2 justify-content-center align-items-center"
-                      >
-                        <button
-                          class="btn btn-link me-3"
-                          [disabled]="ticket.count == 0"
-                          (click)="removeTicket(j, i)"
-                        >
-                          <i class="fa fa-minus"></i>
-                        </button>
-                        <div>
-                          <h3 [innerHTML]="ticket.count"></h3>
-                        </div>
-                        <button
-                          class="btn btn-link ms-3"
-                          (click)="addTicket(j, i)"
-                          [disabled]="param.seats == ricerca.persone"
-                        >
-                          <i class="fa fa-plus"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a
-                    *ngIf="ricerca.bagagli > 0"
-                    class="list-group-item list-group-item-action gap-3 py-3"
-                  >
-                    <div class="d-flex gap-2 w-100 justify-content-between">
-                      <div>
-                        <h6
-                          class="mb-0"
-                          [innerHTML]="'str_bagagli_aggiuntivi' | translate"
-                        ></h6>
-
-                        <p
-                          class="mb-0 opacity-75"
-                          [innerHTML]="
-                            'str_bagagli_aggiuntivi_descrizione' | translate
-                          "
-                        ></p>
-                      </div>
-
-                      <div class="fw-bold text-primary fs-3">
-                        <span>2</span><span class="text-secondary">€</span>
-                      </div>
-                    </div>
-                    <div class="w-100">
-                      <div
-                        class="d-flex mt-2 justify-content-center align-items-center"
-                      >
-                        <div>
-                          <h3 [innerHTML]="ricerca.bagagli"></h3>
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                </div>
+  }
+  @if (params.length > 0 && !loading) {
+    <div class="results-section my-4">
+      <div class="results-header mb-3">
+        <span class="results-count"
+          >{{ params.length }}
+          {{
+            params.length === 1
+              ? "str_corsa_disponibile"
+              : ("str_corse_disponibili" | translate)
+          }}</span
+        >
+      </div>
+      @for (param of params; track param; let j = $index) {
+        <div class="route-card rounded-4 mb-4" @fadeInOut>
+          <div class="route-card-header">
+            <div class="route-info-left">
+              <h5
+                class="route-name mb-1"
+                [innerHTML]="param.name | translateName"
+              ></h5>
+              <div class="route-date text-secondary">
+                <i class="fa-regular fa-calendar me-1"></i>
+                {{ param.date | date: "dd MMMM yyyy" }}
               </div>
             </div>
-            <div class="row mt-3">
-              <div class="col-6">
-                <div>
-                  <i class="fa-solid fa-person me-2 text-primary"></i>
-                  {{ param.availableSeats }}
-                </div>
-                <div>
-                  <i class="fa-solid fa-suitcase-rolling me-2 text-primary"></i>
-                  {{ param.availableLuggage }}
-                </div>
+            <div class="route-availability d-none d-lg-flex gap-3">
+              <div class="availability-badge">
+                <i class="fa-solid fa-user me-1"></i>
+                {{ param.availableSeats }} {{ "str_seats" | translate }}
               </div>
-              <div class="col-6">
-                <button
-                  class="btn btn-secondary btn-lg float-end w-sm-100"
-                  [disabled]="param.seats != ricerca.persone"
-                  (click)="acquista(param)"
-                >
-                  <span
-                    *ngIf="param.seats != ricerca.persone"
-                    [innerHTML]="'str_acquista' | translate"
-                  ></span>
-                  <span
-                    *ngIf="param.seats == ricerca.persone"
-                    [innerHTML]="'str_acquista_per' | translate"
-                    class="me-1"
-                  ></span>
-                  <span *ngIf="param.seats == ricerca.persone">
-                    {{ param.total }} €</span
-                  >
-                </button>
+              <div class="availability-badge">
+                <i class="fa-solid fa-suitcase-rolling me-1"></i>
+                {{ param.availableLuggage }} {{ "str_baggage" | translate }}
               </div>
             </div>
           </div>
 
-          <!-- {{ param | json }} -->
+          <div class="route-card-body">
+            <div class="route-timeline">
+              <div class="timeline-point departure">
+                <div class="timeline-dot"></div>
+                <div
+                  class="timeline-time"
+                  [innerHTML]="param.from.stopTime"
+                ></div>
+                <div class="timeline-label" [innerHTML]="param.from.name"></div>
+                <div
+                  class="timeline-desc"
+                  [innerHTML]="param.from.description | translateName"
+                ></div>
+              </div>
+              <div class="timeline-line">
+                <div class="timeline-line-inner"></div>
+                <i class="fa-solid fa-bus timeline-icon"></i>
+              </div>
+              <div class="timeline-point arrival">
+                <div class="timeline-dot"></div>
+                <div
+                  class="timeline-time"
+                  [innerHTML]="param.to.stopTime"
+                ></div>
+                <div class="timeline-label" [innerHTML]="param.to.name"></div>
+                <div
+                  class="timeline-desc"
+                  [innerHTML]="param.to.description | translateName"
+                ></div>
+              </div>
+            </div>
+
+            <hr class="route-divider" />
+
+            <div class="route-availability-mobile d-flex d-lg-none gap-3 mb-3">
+              <div class="availability-badge">
+                <i class="fa-solid fa-user me-1"></i>
+                {{ param.availableSeats }} {{ "str_seats" | translate }}
+              </div>
+              <div class="availability-badge">
+                <i class="fa-solid fa-suitcase-rolling me-1"></i>
+                {{ param.availableLuggage }} {{ "str_baggage" | translate }}
+              </div>
+            </div>
+
+            <div class="tickets-summary-section">
+              <div class="tickets-label mb-2">
+                <i class="fa-solid fa-ticket me-1 text-primary"></i>
+                <span
+                  class="fst-italic"
+                  [innerHTML]="
+                    'str_seleziona_biglietti_per_acquisto' | translate
+                  "
+                ></span>
+              </div>
+
+              <div class="tickets-summary">
+                @for (
+                  ticket of param.ticketTypes;
+                  track ticket;
+                  let i = $index
+                ) {
+                  @if (ticket.count > 0) {
+                    <div class="summary-row">
+                      <span class="summary-info">
+                        <span class="summary-count">{{ ticket.count }}x</span>
+                        <span
+                          class="summary-name"
+                          [innerHTML]="ticket.name | translateName"
+                        ></span>
+                      </span>
+                      <span class="summary-price"
+                        >{{ ticket.count * ticket.cost }}€</span
+                      >
+                    </div>
+                  }
+                }
+                @if (ricerca.bagagli > 0) {
+                  <div class="summary-row summary-row-luggage">
+                    <span class="summary-info">
+                      <span class="summary-count"
+                        ><i class="fa-solid fa-suitcase me-1"></i
+                        >{{ ricerca.bagagli }}x</span
+                      >
+                      <span
+                        class="summary-name"
+                        [innerHTML]="'str_bagagli_aggiuntivi' | translate"
+                      ></span>
+                    </span>
+                     <span class="summary-price"
+                       >{{ ricerca.bagagli * luggagePrice }}€</span
+                    >
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="route-card-footer">
+            <div class="selected-info">
+              <span class="seats-selected"></span>
+            </div>
+            <button
+              class="purchase-btn"
+              [class.active]="param.seats > 0"
+              [disabled]="param.seats === 0"
+              (click)="acquista(param)"
+            >
+              @if (param.seats > 0) {
+                <span class="purchase-total">{{ param.total }}€</span>
+                <span class="purchase-action">{{
+                  "str_acquista" | translate
+                }}</span>
+                <i class="fa-solid fa-arrow-right ms-2"></i>
+              } @else {
+                <span [innerHTML]="'str_acquista' | translate"></span>
+              }
+            </button>
+          </div>
         </div>
-      </div>
+      }
     </div>
-  </div>
+  }
 </div>
 <app-footer></app-footer>

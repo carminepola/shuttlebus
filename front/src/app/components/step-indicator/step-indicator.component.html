@@ -1,0 +1,18 @@
+<nav class="step-indicator">
+  @for (step of steps; track step; let i = $index) {
+    <div class="step-item" [class.step-active]="i === current" [class.step-done]="i < current">
+      <div class="step-circle">
+        @if (i < current) {
+          <i class="fa-solid fa-check"></i>
+        }
+        @if (i >= current) {
+          <span>{{ i + 1 }}</span>
+        }
+      </div>
+      <span class="step-label">{{ step | translate }}</span>
+      @if (i < steps.length - 1) {
+        <div class="step-line" [class.step-line-done]="i < current"></div>
+      }
+    </div>
+  }
+</nav>

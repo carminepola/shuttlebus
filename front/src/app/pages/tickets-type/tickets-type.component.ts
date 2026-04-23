@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
@@ -14,7 +14,6 @@ import { fadeAnimation } from '../../animations/fade.animation';
   imports: [
     TitlePageComponent,
     RouterModule,
-    CommonModule,
     LoadingComponent,
     FormsModule,
     FilterPipe,
@@ -29,7 +28,7 @@ export class TicketsTypeComponent implements OnInit {
   public search: string = '';
   constructor(
     private ticketTypeService: TicketTypeService,
-    private router: Router
+    private router: Router,
   ) {}
   ngOnInit(): void {
     this.readAll();
@@ -78,7 +77,7 @@ export class TicketsTypeComponent implements OnInit {
       customClass: {
         confirmButton: 'btn btn-primary btn-lg mr-2',
         denyButton: 'btn btn-danger btn-lg',
-        popup: 'rounded-4',
+        popup: 'rounded-4 glass',
       },
 
       showCancelButton: false,

@@ -1,0 +1,66 @@
+.cm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: cm-fade-in 0.2s ease;
+}
+
+@keyframes cm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.cm-dialog {
+  background: #fff;
+  border-radius: 16px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: cm-scale-in 0.2s ease;
+  overflow: hidden;
+}
+
+@keyframes cm-scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.cm-header {
+  padding: 20px 24px 0;
+}
+
+.cm-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #1a1064;
+  margin: 0;
+}
+
+.cm-body {
+  padding: 16px 24px;
+}
+
+.cm-message {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cm-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 0 24px 20px;
+}
+
+.cm-btn {
+  min-width: 100px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}

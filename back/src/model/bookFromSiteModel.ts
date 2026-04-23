@@ -1,3 +1,5 @@
+import { generateTicketId } from "../utils/ticketId";
+
 export default class booking {
   userId: string;
   numberOfTickets: string;
@@ -20,6 +22,7 @@ export default class booking {
   user: any;
   paymentIntentId?: string;
   cancelMotivation?: string;
+  scannedBy?: { driverId: string; driverName: string; scannedAt: number };
   constructor(book: any) {
     try {
       if (book.userId === undefined) throw new Error("userId is required");
@@ -36,7 +39,7 @@ export default class booking {
       if (book.lng === undefined) throw new Error("lng is required");
 
       this.userId = book.userId;
-      this.numberOfTickets = book.numberOfTickets || "PT" + book.date.replace(/-/g, "") + Math.round(new Date().getTime() / 1000) + book.seats.toString();
+      this.numberOfTickets = book.numberOfTickets || generateTicketId(book.date, book.user?.mail);
       this.date = book.date;
       this.scheduleId = book.scheduleId;
       this.routeId = book.routeId;
@@ -65,9 +68,17 @@ export default class booking {
 export class Name {
   it: string;
   en: string;
+  fr?: string;
+  de?: string;
+  es?: string;
+  jp?: string;
   constructor(name: any) {
     this.it = name.it;
     this.en = name.en;
+    this.fr = name.fr;
+    this.de = name.de;
+    this.es = name.es;
+    this.jp = name.jp;
   }
 }
 
@@ -89,9 +100,17 @@ export class From {
 export class Description {
   it: string;
   en: string;
+  fr?: string;
+  de?: string;
+  es?: string;
+  jp?: string;
   constructor(description: any) {
     this.it = description.it;
     this.en = description.en;
+    this.fr = description.fr;
+    this.de = description.de;
+    this.es = description.es;
+    this.jp = description.jp;
   }
 }
 

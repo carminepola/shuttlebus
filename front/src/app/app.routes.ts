@@ -34,6 +34,13 @@ import { InfoPageComponent } from './pages/info-page/info-page.component';
 import { DriverRoutesComponent } from './pages/driver-routes/driver-routes.component';
 import { TicketForRoutesComponent } from './pages/ticket-for-routes/ticket-for-routes.component';
 import { TicketCheckComponent } from './pages/ticket-check/ticket-check.component';
+import { TicketSearchComponent } from './pages/ticket-search/ticket-search.component';
+import { TargheComponent } from './pages/targhe/targhe.component';
+import { DepositoComponent } from './pages/deposito/deposito.component';
+import { UserDetailsComponent } from './pages/user-details/user-details.component';
+import { ContestazioniComponent } from './pages/contestazioni/contestazioni.component';
+import { PendingUsersComponent } from './pages/pending-users/pending-users.component';
+import { StripeComponent } from './pages/stripe/stripe.component';
 export const routes: Routes = [
   {
     path: '',
@@ -65,25 +72,21 @@ export const routes: Routes = [
   {
     path: 'info',
     component: InfoComponent,
-    canActivate: [],
     data: { lowBar: true },
   },
   {
     path: 'info/:id',
     component: InfoPageComponent,
-    canActivate: [],
     data: { lowBar: true },
   },
   {
-    path: 'search/:partenza/:arrivo/:persone/:data/:bagagli',
+    path: 'search',
     component: SearchPageComponent,
-    canActivate: [],
     data: { lowBar: true },
   },
   {
     path: 'riepilogo',
     component: RiepilogoComponent,
-    canActivate: [],
     data: { lowBar: true },
   },
   {
@@ -122,7 +125,7 @@ export const routes: Routes = [
       {
         path: 'check/:id',
         component: TicketCheckComponent,
-
+        canActivate: [AuthGuard],
         data: { requiredRole: 75 },
       },
     ],
@@ -133,13 +136,19 @@ export const routes: Routes = [
       {
         path: 'routes',
         component: DriverRoutesComponent,
-
+        canActivate: [AuthGuard],
         data: { lowBar: true, requiredRole: 75 },
       },
       {
         path: 'routes/:id',
         component: TicketForRoutesComponent,
-
+        canActivate: [AuthGuard],
+        data: { lowBar: true, requiredRole: 75 },
+      },
+      {
+        path: 'ticket-search',
+        component: TicketSearchComponent,
+        canActivate: [AuthGuard],
         data: { lowBar: true, requiredRole: 75 },
       },
     ],
@@ -152,13 +161,12 @@ export const routes: Routes = [
       {
         path: 'fermate',
         component: StopsComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'login',
         component: LoginComponent,
-
         data: { navbar: false },
       },
       {
@@ -172,103 +180,146 @@ export const routes: Routes = [
       {
         path: 'settings',
         component: ImpostazioniComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'usersettings',
         component: UserSettingsComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'fermata/:id',
         component: StopDetailsComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'fermata',
         component: StopDetailsComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'ticket-details',
         component: TicketTypeDetailsComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'ticket-details/:id',
         component: TicketTypeDetailsComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'corse',
         component: RouteComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'route',
         component: RouteDetailsComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'route/:id',
         component: RouteDetailsComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'prenotazioni',
         component: ReservationComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'biglietti',
         component: TicketsTypeComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'utenti',
         component: UsersComponent,
-
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'utente',
+        component: UserDetailsComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'utente/:id',
+        component: UserDetailsComponent,
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'clienti',
         component: ClientsComponent,
-
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'utenti-in-attesa',
+        component: PendingUsersComponent,
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'traduzioni',
         component: TraduzioniComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
+        path: 'targhe',
+        component: TargheComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'deposito',
+        component: DepositoComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'contestazioni',
+        component: ContestazioniComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'stripe',
+        component: StripeComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+
+      {
         path: 'schedules/:idRoute',
         component: ScheduleListComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'schedule/:idRoute',
         component: ScheduleComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
       {
         path: 'schedule/:idRoute/:idSchedule',
         component: ScheduleComponent,
-
+        canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
     ],

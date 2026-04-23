@@ -3,7 +3,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 import { StopsService } from '../../services/stops/stops.service';
 import { RoutesService } from '../../services/routes/routes.service';
-import { CommonModule } from '@angular/common';
+
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { SearchComponent } from '../../components/search/search.component';
@@ -13,25 +13,34 @@ import { LoadingComponent } from '../../components/loading/loading/loading.compo
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { LngService } from '../../services/lng/lng.service';
+import { DatePipe } from '@angular/common';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { TitlePageComponent } from '../../components/title-page/title-page.component';
+import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
+import { LUGGAGE_PRICE } from '../../constants/app.constants';
+import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
 @Component({
   selector: 'app-search-page',
   imports: [
     LoadingComponent,
     SearchComponent,
+    TitlePageComponent,
+    StepIndicatorComponent,
     TranslatePipe,
     TranslateNamePipe,
-    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     FooterComponent,
     LoadingComponent,
+    DatePipe,
   ],
   animations: [fadeAnimation],
   templateUrl: './search-page.component.html',
   styleUrl: './search-page.component.scss',
 })
 export class SearchPageComponent implements OnInit {
+  public luggagePrice = LUGGAGE_PRICE;
+  public funnelSteps = ['str_step_search', 'str_step_select', 'str_step_review', 'str_step_pay'];
   public ticketTypes: any[] = [];
   public loading: boolean = true;
   public ricerca = {
@@ -41,14 +50,14 @@ export class SearchPageComponent implements OnInit {
     data: '',
     bagagli: 0,
   };
-  public ricercaFind = {
+  public ricercaFind: any = {
     partenza: '',
     arrivo: '',
-    persone: 0,
     data: '',
     bagagli: 0,
+    ticketSelections: {} as { [id: string]: number },
   };
-
+  public ticketSelections: { [id: string]: number } = {};
   public params: any = [];
 
   constructor(
@@ -58,40 +67,32 @@ export class SearchPageComponent implements OnInit {
     private bookingService: BookingsService,
     private router: Router,
     private route: ActivatedRoute,
-    private ticketTypeService: TicketTypeService
+    private ticketTypeService: TicketTypeService,
+    private pendingBookingService: PendingBookingService,
   ) {}
 
   ngAfterViewInit(): void {}
   async ngOnInit(): Promise<void> {
-    this.route.params.subscribe((params) => {
-      this.ricerca.partenza = params['partenza'];
-      this.ricerca.arrivo = params['arrivo'];
-      this.ricerca.persone = parseInt(params['persone']);
-      this.ricerca.data = params['data'];
-      this.ricerca.bagagli = parseInt(params['bagagli']);
-      this.params = [];
-      this.ricercaFind = JSON.parse(JSON.stringify(this.ricerca));
-      this.load();
-    });
-  }
+    this.route.queryParams.subscribe(
+      (qParams) => {
+        this.ricerca.partenza = qParams['partenza'] || '';
+        this.ricerca.arrivo = qParams['arrivo'] || '';
+        this.ricerca.persone = parseInt(qParams['persone']) || 0;
+        this.ricerca.data = qParams['data'] || '';
+        this.ricerca.bagagli = parseInt(qParams['bagagli']) || 0;
+        this.ticketSelections = JSON.parse(qParams['tickets'] || '{}');
+        this.params = [];
+        this.ricercaFind = {
+          partenza: this.ricerca.partenza,
+          arrivo: this.ricerca.arrivo,
+          data: this.ricerca.data,
+          bagagli: this.ricerca.bagagli,
+          ticketSelections: { ...this.ticketSelections },
+        };
 
-  addTicket(j: number, i: number) {
-    this.params[j].seats++;
-    this.params[j].ticketTypes[i].count++;
-    this.params[j].total += this.params[j].ticketTypes[i].cost;
-  }
-  removeTicket(j: number, i: number) {
-    this.params[j].ticketTypes[i].count--;
-    this.params[j].seats--;
-    this.params[j].total -= this.params[j].ticketTypes[i].cost;
-  }
-  removeLuggage(j: number) {
-    this.params[j].total -= 2;
-    this.params[j].luggage--;
-  }
-  addLuggage(j: number) {
-    this.params[j].total += 2;
-    this.params[j].luggage++;
+        this.load();
+      },
+    );
   }
 
   async load() {
@@ -99,8 +100,21 @@ export class SearchPageComponent implements OnInit {
     let params = [];
     this.loading = true;
 
+    const pendingBooking =
+      await this.pendingBookingService.hasPendingBooking();
+    if (pendingBooking) {
+      const shouldContinue =
+        await this.pendingBookingService.showPendingModal();
+      if (shouldContinue) {
+        this.router.navigate(['/user/mytickets']);
+        return;
+      } else {
+        await this.pendingBookingService.cancelPendingBooking(pendingBooking);
+      }
+    }
+
     let risTicketTypes = await lastValueFrom(
-      this.ticketTypeService.getAllActiveTicketTypes()
+      this.ticketTypeService.getAllActiveTicketTypes(),
     );
     let risRoutes = await lastValueFrom(this.routesService.getRoutes());
     let risStops = await lastValueFrom(this.stopsService.getAllActiveStops());
@@ -110,8 +124,8 @@ export class SearchPageComponent implements OnInit {
         this.ricerca.arrivo,
         this.ricerca.persone,
         this.ricerca.data,
-        this.ricerca.bagagli
-      )
+        this.ricerca.bagagli,
+      ),
     );
 
     let ticketTypes = risTicketTypes.ticketType;
@@ -122,7 +136,7 @@ export class SearchPageComponent implements OnInit {
       let route: any = routes.find((t: any) => t.id === res[i].routeId);
       if (route && route.schedules) {
         let schedule = route?.schedules.find(
-          (t: any) => t.id === res[i].scheduleId
+          (t: any) => t.id === res[i].scheduleId,
         );
 
         let from: any = stops.find((t: any) => t.id === this.ricerca.partenza);
@@ -131,7 +145,7 @@ export class SearchPageComponent implements OnInit {
           date: this.ricerca.data,
           routeId: res[i].routeId,
           scheduleId: res[i].scheduleId,
-          total: 2 * this.ricerca.bagagli,
+          total: LUGGAGE_PRICE * this.ricerca.bagagli,
           luggage: this.ricerca.bagagli,
           seats: 0,
           availableSeats: res[i].availableSeats || 0,
@@ -144,7 +158,7 @@ export class SearchPageComponent implements OnInit {
             image: from.image,
             address: from.address,
             stopTime: schedule.stops.find(
-              (z: any) => z.id === this.ricerca.partenza
+              (z: any) => z.id === this.ricerca.partenza,
             ).stopTime,
           },
 
@@ -155,24 +169,33 @@ export class SearchPageComponent implements OnInit {
             image: to.image,
             address: to.address,
             stopTime: schedule.stops.find(
-              (z: any) => z.id === this.ricerca.arrivo
+              (z: any) => z.id === this.ricerca.arrivo,
             ).stopTime,
           },
           ticketTypes: JSON.parse(
             JSON.stringify(
               ticketTypes.map((t: any) => {
                 return ticketTypes.find((z: any) => z.id === t.id);
-              })
-            )
+              }),
+            ),
           ),
         };
 
         info.ticketTypes = info.ticketTypes.map((t: any) => {
           return {
             ...t,
-            count: 0,
+            count: this.ticketSelections[t.id] || 0,
           };
         });
+
+        info.total += info.ticketTypes.reduce(
+          (sum: number, t: any) => sum + t.count * t.cost,
+          0,
+        );
+        info.seats = info.ticketTypes.reduce(
+          (sum: number, t: any) => sum + t.count,
+          0,
+        );
 
         params.push(info);
       }
@@ -185,7 +208,7 @@ export class SearchPageComponent implements OnInit {
         let route: any = routes.find((t: any) => t.id === param.routeId);
         if (route) {
           let schedule = route?.schedules.find(
-            (t: any) => t.id === param.scheduleId
+            (t: any) => t.id === param.scheduleId,
           );
           if (!schedule) {
             return false;
@@ -208,6 +231,10 @@ export class SearchPageComponent implements OnInit {
     this.params = params;
 
     this.loading = false;
+    const searchResult = document.getElementById('search-result');
+    if (searchResult) {
+      searchResult.scrollIntoView({ behavior: 'smooth' });
+    }
   }
   acquista(param: any) {
     param.ticketTypes = param.ticketTypes.filter((t: any) => t.count > 0);
@@ -217,7 +244,6 @@ export class SearchPageComponent implements OnInit {
     delete param['availableSeats'];
     delete param['availableLuggage'];
 
-    console.log(param);
     this.router.navigate(['/riepilogo'], { state: { value: param } });
   }
 }

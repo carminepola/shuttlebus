@@ -1,46 +1,58 @@
 <div class="modal fade show" tabindex="-1" id="modalLogin2">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="d-flex justify-content-between align-items-center py-2 px-3">
-        <nav class="nav nav-pills nav-fill">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div
+      class="modal-content glass border-0 rounded-4 shadow-lg overflow-hidden"
+    >
+      <div class="modal-header border-0 px-4 pt-3 pb-0 position-relative">
+        <div class="nav nav-pills w-100 pe-5" role="tablist">
           <a
             (click)="login = true"
-            class="nav-link cursor-pointer"
-            [ngClass]="{ active: login }"
-            aria-current="page"
-            >LOGIN</a
+            class="nav-link flex-grow-1 text-center cursor-pointer rounded-pill me-2"
+            [ngClass]="{ active2: login }"
+            >{{ "str_login" | translate | uppercase }}</a
           >
           <a
             (click)="login = false"
-            class="nav-link cursor-pointer"
-            [ngClass]="{ active: !login }"
-            aria-current="page"
-            >REGISTRATI</a
+            class="nav-link flex-grow-1 text-center cursor-pointer rounded-pill"
+            [ngClass]="{ active2: !login }"
+            >{{ "str_registrati" | translate | uppercase }}</a
           >
-        </nav>
+        </div>
         <button
           type="button"
-          class="btn-close"
+          class="btn-close position-absolute top-0 end-0 m-2"
           data-bs-dismiss="modal"
           aria-label="Close"
         ></button>
       </div>
-      <div class="modal-body">
-        <app-login-form
-          *ngIf="login"
-          (loginSuccess)="onEvent()"
-        ></app-login-form>
-        <app-registrazione
-          (registerSuccess)="onComplete()"
-          *ngIf="!login"
-        ></app-registrazione>
+      <div class="modal-body px-4 pb-4 pt-3">
+        @if (login) {
+          <app-login-form (loginSuccess)="onEvent()"></app-login-form>
+        }
+        @if (!login) {
+          <app-registrazione
+            (registerSuccess)="onComplete()"
+          ></app-registrazione>
+        }
       </div>
     </div>
   </div>
 </div>
 <div class="space-lowBar d-block d-lg-none"></div>
+@if (showTour) {
+  <div class="tour-highlight"></div>
+  <div class="tour-popover">
+    <div class="tour-popover-arrow"></div>
+    <div class="tour-popover-title">{{ "str_tour_account_title" | translate }}</div>
+    <div class="tour-popover-desc">{{ "str_tour_account_desc" | translate }}</div>
+    <button class="tour-popover-btn" (click)="dismissTour()">
+      {{ "str_tour_got_it" | translate }}
+    </button>
+  </div>
+}
 <nav
-  class="card rounded-4 bg-white shadow d-block d-lg-none"
+  class="card rounded-4 shadow d-block d-lg-none glass"
+  id="lowBar"
   style="
     max-height: 58px;
     height: 58px;
@@ -48,59 +60,90 @@
     bottom: 5px;
     left: 5px;
     right: 5px;
-    z-index: 999;
+    z-index: 1002;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   "
 >
-  <div class="row h-100">
+  <div class="row h-100 position-relative">
     <div class="col">
       <a
+        #navLink
         [class.active]="getPath() == '/'"
-        routerLink="/"
         class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+        (click)="goPath('/')"
+        (mouseenter)="onNavMouseEnter($any($event.target))"
+        (mouseleave)="onNavMouseLeave()"
       >
         <i class="fa fa-home"></i>
-        <span class="ms-2 fw-bold d-none d-md-block" *ngIf="getPath() == '/'"
-          >Home</span
-        >
+        @if (getPath() == "/") {
+          <span class="ms-2 fw-bold d-none d-md-block">{{
+            "str_home" | translate
+          }}</span>
+        }
       </a>
     </div>
 
     <div class="col">
       <a
+        id="tour-account-icon"
+        #navLink
         class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
         (click)="onTicket()"
-        [class.active]="getPath().includes('/user/')"
+        [class.active]="
+          getPath().includes('/user/') || getPath().includes('/admin/')
+        "
+        (mouseenter)="onNavMouseEnter($any($event.target))"
+        (mouseleave)="onNavMouseLeave()"
       >
-        <i class="fa-solid fa-user"></i>
-        <span
-          class="ms-2 fw-bold d-none d-md-block"
-          *ngIf="getPath().includes('/user/') || getPath().includes('/admin/')"
-        >
-          Account</span
-        >
+        @if (isLoggedIn()) {
+          <i class="fa-solid fa-user-circle"></i>
+        } @else {
+          <i class="fa-solid fa-right-to-bracket"></i>
+        }
+
+        @if (getPath().includes("/user/") || getPath().includes("/admin/")) {
+          <span class="ms-2 fw-bold d-none d-md-block">
+            @if (isLoggedIn()) {
+              {{ "str_account" | translate }}
+            } @else {
+              {{ "str_login" | translate }}
+            }
+          </span>
+        }
       </a>
     </div>
     <div class="col">
       <a
+        #navLink
         class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
-        routerLink="/info"
-        routerLinkActive="active"
+        (click)="goPath('/info')"
+        [class.active]="
+          getPath().includes('/info') || getPath().includes('/busLine')
+        "
+        (mouseenter)="onNavMouseEnter($any($event.target))"
+        (mouseleave)="onNavMouseLeave()"
       >
         <i class="fa-solid fa-circle-info"></i>
-        <span
-          class="ms-2 fw-bold d-none d-md-block"
-          *ngIf="getPath().includes('/info/')"
-          >Info</span
-        >
+        @if (getPath().includes("/info") || getPath().includes("/busLine")) {
+          <span class="ms-2 fw-bold d-none d-md-block">{{
+            "str_info" | translate
+          }}</span>
+        }
       </a>
     </div>
     <div class="col">
       <a
+        #navLink
         class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
         href="https://api.whatsapp.com/send/?phone=%2B393356910211"
+        target="_blank"
+        rel="noopener noreferrer"
+        (mouseenter)="onNavMouseEnter($any($event.target))"
+        (mouseleave)="onNavMouseLeave()"
       >
         <i class="fa-brands fa-whatsapp"></i>
       </a>
     </div>
+    <div class="lowbar-indicator"></div>
   </div>
 </nav>

@@ -52,14 +52,14 @@ export class ReservationComponent implements OnInit {
     public routesService: RoutesService,
     public bookingsService: BookingsService,
     public ticketTypeService: TicketTypeService,
-    public stripeService: StripeService
+    public stripeService: StripeService,
   ) {}
 
   async ngOnInit(): Promise<void> {
     this.loading = true;
 
     let risTicketTypes = await lastValueFrom(
-      this.ticketTypeService.getAllActiveTicketTypes()
+      this.ticketTypeService.getAllActiveTicketTypes(),
     );
     let routes = await lastValueFrom(this.routesService.getRoutes());
     this.routes = routes.routes || [];
@@ -90,7 +90,7 @@ export class ReservationComponent implements OnInit {
       customClass: {
         confirmButton: 'btn btn-primary btn-lg mr-2',
         denyButton: 'btn btn-danger btn-lg',
-        popup: 'rounded-4',
+        popup: 'rounded-4 glass',
       },
 
       showCancelButton: false,
@@ -101,7 +101,7 @@ export class ReservationComponent implements OnInit {
       if (result.isConfirmed) {
         this.stripeService.refund(numberOfTickets.toString()).subscribe(() => {
           let bookIndex = this.booking.findIndex(
-            (b: any) => b.ticketId === numberOfTickets
+            (b: any) => b.ticketId === numberOfTickets,
           );
           this.booking[bookIndex].status = 'refunded';
         });
@@ -132,7 +132,7 @@ export class ReservationComponent implements OnInit {
       customClass: {
         confirmButton: 'btn btn-primary btn-lg mr-2',
         denyButton: 'btn btn-danger btn-lg',
-        popup: 'rounded-4',
+        popup: 'rounded-4 glass',
       },
 
       showCancelButton: false,
@@ -145,7 +145,7 @@ export class ReservationComponent implements OnInit {
           .cancelBooking(numberOfTickets.toString())
           .subscribe(() => {
             let bookIndex = this.booking.findIndex(
-              (b: any) => b.ticketId === numberOfTickets
+              (b: any) => b.ticketId === numberOfTickets,
             );
             this.booking[bookIndex].status = 'cancelled';
           });
@@ -173,8 +173,8 @@ export class ReservationComponent implements OnInit {
         this.filter.date,
         this.filter.routeId,
         this.filter.scheduleId,
-        this.filter.show
-      )
+        this.filter.show,
+      ),
     );
     ris = ris.ticket || [];
 

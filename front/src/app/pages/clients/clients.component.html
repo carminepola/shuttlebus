@@ -4,15 +4,7 @@
     subtitle="Gestisci i clienti"
     back="true"
   ></app-title-page>
-  <div
-    *ngIf="loading"
-    class="w-100 d-flex align-items-center justify-content-center"
-  >
-    <app-loading></app-loading>
-  </div>
-
-  <div class="card shadow border-0 rounded-4" *ngIf="!loading" @fadeInOut>
-    <!-- Header Section -->
+  <div class="card shadow border-0 rounded-4" @fadeInOut>
     <div class="card-header bg-white rounded-top-4 border-bottom py-4">
       <div class="row align-items-center gy-3">
         <div class="col">
@@ -21,83 +13,400 @@
               ><i class="fas fa-search"></i
             ></span>
             <input
-              [(ngModel)]="search"
               type="text"
               class="form-control form-control-lg bg-light border-0"
               placeholder="Cerca cliente..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchTermChange()"
             />
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Mobile View (Cards) -->
-    <div class="mobile-cards p-3 d-block d-lg-none">
-      <!-- Card 1 -->
-      <div
-        class="card mb-3 shadow-sm rounded-4"
-        *ngFor="let client of clients | filter : search"
-      >
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <h5 class="card-title mb-0" [innerHTML]="client.name"></h5>
-            <div>
-              <button class="btn btn-info btn-sm me-2 rounded-3">
-                <i class="fas fa-info-circle"></i>
-              </button>
-              <button class="btn btn-danger btn-sm rounded-3">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-          <p class="mb-2">
-            Email:
-            <span class="text-secondary" [innerHTML]="client.email"></span>
-          </p>
-          <p class="mb-2" *ngIf="client.phone">
-            Numero:
-            <span class="text-secondary" [innerHTML]="client.phone"></span>
-          </p>
+        <div class="col-auto">
+          <button class="btn btn-primary rounded-3" (click)="openCreateForm()">
+            <i class="fa-solid fa-plus me-2"></i> Nuovo
+          </button>
         </div>
       </div>
-      <!-- Additional cards can be added here -->
     </div>
 
-    <!-- Desktop View (Table) -->
-    <div class="desktop-table p-4 d-none d-lg-block">
-      <div class="table-responsive">
-        <table class="table table-borderless align-middle">
-          <thead class="bg-light">
-            <tr>
-              <th scope="col">Nome</th>
-              <th scope="col">Email</th>
-              <th scope="col">Numero</th>
-
-              <th scope="col" class="rounded-end-3">Azioni</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              class="bg-white mb-2"
-              *ngFor="let client of clients | filter : search"
-            >
-              <td [innerHTML]="client.name"></td>
-              <td [innerHTML]="client.email"></td>
-              <td [innerHTML]="client.phone"></td>
-
-              <td>
-                <button class="btn btn-info btn-sm me-2 rounded-3">
-                  <i class="fas fa-info-circle"></i>
-                </button>
-                <button class="btn btn-danger btn-sm rounded-3">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <!-- Additional rows can be added here -->
-          </tbody>
-        </table>
+    @if (loading) {
+      <div class="w-100 d-flex align-items-center justify-content-center py-5">
+        <app-loading></app-loading>
       </div>
-    </div>
+    }
+
+    @if (!loading) {
+      <div class="mobile-cards p-3 d-block d-lg-none">
+        @for (client of clients; track client._id) {
+          <div class="card mb-3 shadow-sm rounded-4">
+            <div class="card-body">
+              <div
+                class="d-flex justify-content-between align-items-start mb-3"
+              >
+                <h5 class="card-title mb-0" [innerHTML]="client.name"></h5>
+                <div>
+                  <button
+                    class="btn btn-warning btn-sm me-1 rounded-3"
+                    (click)="openEditForm(client)"
+                  >
+                    <i class="fas fa-pen"></i>
+                  </button>
+                  <button
+                    class="btn btn-info btn-sm me-1 rounded-3"
+                    (click)="openClientInfo(client)"
+                  >
+                    <i class="fas fa-info-circle"></i>
+                  </button>
+                  <button
+                    class="btn btn-danger btn-sm rounded-3"
+                    (click)="deleteClient(client)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="mb-2">
+                Email:
+                <span class="text-secondary" [innerHTML]="client.email"></span>
+              </p>
+              @if (client.phone) {
+                <p class="mb-2">
+                  Numero:
+                  <span
+                    class="text-secondary"
+                    [innerHTML]="client.phone"
+                  ></span>
+                </p>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="desktop-table p-4 d-none d-lg-block">
+        <div class="table-responsive">
+          <table class="table table-borderless align-middle">
+            <thead class="bg-light">
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Email</th>
+                <th scope="col">Numero</th>
+                <th scope="col" class="rounded-end-3">Azioni</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (client of clients; track client._id) {
+                <tr class="bg-white mb-2">
+                  <td [innerHTML]="client.name"></td>
+                  <td [innerHTML]="client.email"></td>
+                  <td [innerHTML]="client.phone || '-'"></td>
+                  <td>
+                    <button
+                      class="btn btn-warning btn-sm me-1 rounded-3"
+                      (click)="openEditForm(client)"
+                      title="Modifica"
+                    >
+                      <i class="fas fa-pen"></i>
+                    </button>
+                    <button
+                      class="btn btn-info btn-sm me-1 rounded-3"
+                      (click)="openClientInfo(client)"
+                      title="Info"
+                    >
+                      <i class="fas fa-info-circle"></i>
+                    </button>
+                    <button
+                      class="btn btn-danger btn-sm rounded-3"
+                      (click)="deleteClient(client)"
+                      title="Elimina"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      @if (loadingMore) {
+        <div
+          class="w-100 d-flex align-items-center justify-content-center py-4"
+        >
+          <app-loading></app-loading>
+        </div>
+      }
+
+      <div
+        id="infinite-scroll-sentinel"
+        style="height: 50px; width: 100%"
+      ></div>
+    }
   </div>
 </div>
+
+@if (showForm) {
+  <div class="ci-overlay" (click)="closeForm()"></div>
+  <div class="ci-panel" @slideInOut>
+    <div class="ci-header">
+      <h5 class="ci-title mb-0">
+        @if (formMode === "create") {
+          <i class="fa-solid fa-user-plus me-2"></i>
+          <span>Nuovo cliente</span>
+        }
+        @if (formMode === "edit") {
+          <i class="fa-solid fa-user-pen me-2"></i>
+          <span>Modifica cliente</span>
+        }
+      </h5>
+      <button class="ci-close" (click)="closeForm()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="ci-body">
+      <form (ngSubmit)="saveForm()">
+        <div class="ci-form-group">
+          <label class="ci-label">Nome</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="formData.name"
+            name="name"
+            [disabled]="formSaving"
+          />
+        </div>
+        <div class="ci-form-group">
+          <label class="ci-label">Telefono</label>
+          <input
+            type="tel"
+            class="form-control"
+            [(ngModel)]="formData.phone"
+            name="phone"
+            [disabled]="formSaving"
+          />
+        </div>
+        @if (formMode === "create") {
+          <div class="ci-form-group">
+            <label class="ci-label">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              [(ngModel)]="formData.email"
+              name="email"
+              [disabled]="formSaving"
+            />
+          </div>
+          <div class="ci-form-group">
+            <label class="ci-label">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              [(ngModel)]="formData.password"
+              name="password"
+              [disabled]="formSaving"
+            />
+          </div>
+        }
+        @if (formMode === "edit") {
+          <div class="ci-form-group">
+            <label class="ci-label">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              [ngModel]="formData.email"
+              name="email"
+              disabled
+            />
+          </div>
+        }
+        @if (formError) {
+          <div class="ci-form-error">{{ formError }}</div>
+        }
+        <button
+          type="submit"
+          class="btn btn-primary w-100 mt-3"
+          [disabled]="formSaving"
+        >
+          @if (formSaving) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+          }
+          {{ formMode === "create" ? "Crea" : "Salva" }}
+        </button>
+      </form>
+    </div>
+  </div>
+}
+
+@if (selectedClient) {
+  <div class="ci-overlay" (click)="closeClientInfo()"></div>
+  <div class="ci-panel" @slideInOut>
+    <div class="ci-header">
+      <h5 class="ci-title mb-0">
+        <i class="fa-solid fa-user me-2"></i>
+        <span [innerHTML]="selectedClient.name"></span>
+      </h5>
+      <div class="d-flex gap-2">
+        <button
+          class="btn btn-warning btn-sm rounded-3"
+          (click)="openEditForm(selectedClient)"
+        >
+          <i class="fa-solid fa-pen me-1"></i> Modifica
+        </button>
+        <button class="ci-close" (click)="closeClientInfo()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+    <div class="ci-body">
+      <div class="ci-info">
+        <div class="ci-info-row">
+          <i class="fa-solid fa-envelope ci-icon"></i>
+          <span [innerHTML]="selectedClient.email"></span>
+        </div>
+        @if (selectedClient.phone) {
+          <div class="ci-info-row">
+            <i class="fa-solid fa-phone ci-icon"></i>
+            <span [innerHTML]="selectedClient.phone"></span>
+          </div>
+        }
+        @if (selectedClient.pin) {
+          <div class="ci-info-row">
+            <i class="fa-solid fa-lock ci-icon"></i>
+            <span [innerHTML]="selectedClient.pin"></span>
+          </div>
+        }
+      </div>
+
+      @if (clientBookingsLoading) {
+        <div class="ci-loading">
+          <app-loading></app-loading>
+        </div>
+      }
+
+      @if (!clientBookingsLoading && clientBookings.length === 0) {
+        <div class="ci-empty">
+          <span>Nessun biglietto trovato</span>
+        </div>
+      }
+
+      @for (booking of clientBookings; track booking.numberOfTickets) {
+        <div class="ci-ticket">
+          <div class="ci-ticket-header">
+            <div>
+              <span class="ci-ticket-id">#{{ booking.numberOfTickets }}</span>
+              <span class="ci-ticket-date">
+                <i class="fa-regular fa-calendar me-1"></i>
+                {{ booking.date | date: "dd/MM/yyyy" }}
+              </span>
+            </div>
+            <span
+              class="ci-ticket-status"
+              [ngClass]="{
+                'ci-status-confirmed': booking.status === 'confirmed',
+                'ci-status-pending': booking.status === 'pending',
+                'ci-status-cancelled': booking.status === 'cancelled',
+                'ci-status-refunded': booking.status === 'refunded',
+              }"
+              [innerText]="booking.status"
+            ></span>
+          </div>
+          <div class="ci-ticket-route">
+            <div class="ci-ticket-stop">
+              <div class="ci-stop-dot ci-stop-dep"></div>
+              <div>
+                <span
+                  class="ci-stop-time"
+                  [innerText]="booking.from.stopTime"
+                ></span>
+                <span
+                  class="ci-stop-name"
+                  [innerText]="booking.from.name"
+                ></span>
+              </div>
+            </div>
+            <div class="ci-ticket-line"></div>
+            <div class="ci-ticket-stop">
+              <div class="ci-stop-dot ci-stop-arr"></div>
+              <div>
+                <span
+                  class="ci-stop-time"
+                  [innerText]="booking.to.stopTime"
+                ></span>
+                <span class="ci-stop-name" [innerText]="booking.to.name"></span>
+              </div>
+            </div>
+          </div>
+          <div class="ci-ticket-footer">
+            <div class="ci-ticket-details">
+              @for (ticket of booking.ticketTypes; track ticket) {
+                <span class="ci-detail-chip">
+                  {{ ticket.name | translateName }} x{{ ticket.count }}
+                </span>
+              }
+              @if (booking.luggage > 0) {
+                <span class="ci-detail-chip">
+                  Bagagli x{{ booking.luggage }}
+                </span>
+              }
+            </div>
+            <div class="ci-ticket-total">{{ booking.total }} &euro;</div>
+          </div>
+          @if (bookingActionLoading === booking.numberOfTickets) {
+            <div class="ci-ticket-actions">
+              <span class="ci-action-loading">
+                <span class="spinner-border spinner-border-sm"></span>
+                <span>Operazione in corso...</span>
+              </span>
+            </div>
+          } @else {
+            <div class="ci-ticket-actions">
+              @if (booking.status === "confirmed") {
+                <button
+                  class="ci-action-btn ci-action-refund"
+                  (click)="refundBooking(booking)"
+                  title="Rimborsa"
+                >
+                  <i class="fas fa-rotate-left"></i> Rimborsa
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (clientActivity.length > 0) {
+        <div class="ci-section-title mt-4">
+          <i class="fa-solid fa-clock-rotate-left me-2"></i>
+          Attività Recenti
+        </div>
+        @for (activity of clientActivity; track $index) {
+          <div
+            class="ci-activity-item"
+            [ngClass]="{ 'ci-activity-error': activity.status === 'error' }"
+          >
+            <div
+              class="ci-activity-dot"
+              [ngClass]="{
+                'ci-activity-dot-success': activity.status === 'success',
+                'ci-activity-dot-error': activity.status === 'error',
+              }"
+            ></div>
+            <div class="ci-activity-content">
+              <div class="ci-activity-main">
+                <span class="ci-activity-action">{{ activity.action }}</span>
+                <span class="ci-activity-booking">{{ activity.booking }}</span>
+              </div>
+              @if (activity.message) {
+                <div class="ci-activity-message">{{ activity.message }}</div>
+              }
+              <div class="ci-activity-time">
+                {{ activity.time | date: "HH:mm:ss" }}
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+}

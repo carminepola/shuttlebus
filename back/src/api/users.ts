@@ -51,7 +51,6 @@ router.post(
       user.options.lng = language;
       user.privacyAndPolicy = true;
       user.privacyAndPolicyConfirmDate = new Date().getTime();
-  
 
       let userServices = new UserServices(db);
       result = await userServices.register(user, language);
@@ -61,7 +60,7 @@ router.post(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
 
 router.post(
@@ -85,7 +84,7 @@ router.post(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
 router.post(
   "/",
@@ -104,6 +103,10 @@ router.post(
       user.email = req.body.email;
       user.password = req.body.password;
       user.details.name = req.body.name;
+      if (req.body.phone) {
+        user.details.phone = req.body.phone;
+      }
+      user.role = role.USER;
 
       let userServices = new UserServices(db);
       let oldUser = await userServices.getUserByEmail(user.email);
@@ -119,7 +122,7 @@ router.post(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
 
 router.patch(
@@ -148,7 +151,62 @@ router.patch(
       logger.error(error);
       next(error);
     }
-  }
+  },
+);
+
+router.patch(
+  "/updateDetails",
+  [check("name").notEmpty().withMessage("name is required"), check("phone").optional().isString().withMessage("phone must be a string")],
+  authMiddleware,
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let email = res.locals.userLogged.email;
+      let userServices = new UserServices(db);
+
+      const result = await userServices.updateUserDetails(email, req.body.name, req.body.phone);
+      res.json({ message: "Dettagli aggiornati con successo", user: result });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  },
+);
+
+router.patch(
+  "/updateRole",
+  [check("userId").notEmpty().withMessage("userId is required"), check("role").notEmpty().withMessage("role is required").isNumeric().withMessage("role must be a number")],
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, [requiredRole]),
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let userServices = new UserServices(db);
+      const result = await userServices.updateRole(req.body.userId, parseInt(req.body.role));
+      res.json({ message: "Ruolo aggiornato con successo", ...result });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  },
+);
+
+router.patch(
+  "/updateUserDetails",
+  [check("userId").notEmpty().withMessage("userId is required"), check("name").notEmpty().withMessage("name is required"), check("phone").optional().isString().withMessage("phone must be a string")],
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, [requiredRole]),
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let userServices = new UserServices(db);
+      const result = await userServices.updateUserDetailsById(req.body.userId, req.body.name, req.body.phone);
+      res.json({ message: "Dettagli utente aggiornati con successo", user: result });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  },
 );
 
 router.get("/getNormalUser", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
@@ -157,6 +215,63 @@ router.get("/getNormalUser", authMiddleware, checkPermissionMiddleware(role.ADMI
     const result = await userServices.getNormalUser();
     res.json({ listUser: result });
   } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/me", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let email = res.locals.userLogged.email;
+    let userServices = new UserServices(db);
+    const result = await userServices.getUserByEmailAll(email);
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    next(error);
+  }
+});
+
+router.get("/search", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const searchTerm = req.query.search as string;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    let userServices = new UserServices(db);
+    const result = await userServices.searchStaff(searchTerm, page, limit);
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    next(error);
+  }
+});
+
+router.get("/clients", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const searchTerm = req.query.search as string;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    let userServices = new UserServices(db);
+    const result = await userServices.searchUsers(searchTerm, page, limit);
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    next(error);
+  }
+});
+
+router.get("/no-permission", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const searchTerm = req.query.search as string;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    let userServices = new UserServices(db);
+    const result = await userServices.getNoPermissionUsers(searchTerm, page, limit);
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
     next(error);
   }
 });
@@ -188,8 +303,25 @@ router.put(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
+router.delete(
+  "/:id",
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, [requiredRole]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userServices = new UserServices(db);
+      const id = req.params.id;
+      await userServices.deleteUserById(id);
+      res.json({ message: "Utente eliminato con successo" });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  },
+);
+
 router.get("/:id?", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let userServices = new UserServices(db);
@@ -198,7 +330,9 @@ router.get("/:id?", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requi
       const result = await userServices.getUserById(id);
       res.json(result);
     } else {
-      const result = await userServices.getUsers();
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const result = await userServices.getStaff(page, limit);
       res.json(result);
     }
   } catch (error) {

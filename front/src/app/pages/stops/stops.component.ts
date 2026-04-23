@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { RouterModule, Router } from '@angular/router';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
@@ -13,7 +13,6 @@ import { fadeAnimation } from '../../animations/fade.animation';
   imports: [
     TitlePageComponent,
     RouterModule,
-    CommonModule,
     LoadingComponent,
     FormsModule,
     FilterPipe,
@@ -27,7 +26,10 @@ export class StopsComponent implements OnInit {
   public stops: any[] = [];
   public search: string = '';
 
-  constructor(private stopService: StopsService, private router: Router) {}
+  constructor(
+    private stopService: StopsService,
+    private router: Router,
+  ) {}
   ngOnInit(): void {
     this.readAll();
   }
@@ -83,7 +85,7 @@ export class StopsComponent implements OnInit {
       customClass: {
         confirmButton: 'btn btn-primary btn-lg mr-2',
         denyButton: 'btn btn-danger btn-lg',
-        popup: 'rounded-4',
+        popup: 'rounded-4 glass',
       },
 
       showCancelButton: false,

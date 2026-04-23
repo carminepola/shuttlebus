@@ -46,6 +46,7 @@ export default class SessionServices {
         rememberMe: rememberMe,
         session: sessionToken.newSession,
         email: email,
+        _id: userFind?._id,
         role: userFind?.role >= 0 && userFind?.role != undefined && userFind?.role != null ? userFind.role : 9999,
         permissions: userFind?.permissions ? userFind.permissions : [],
       };
@@ -79,6 +80,7 @@ export default class SessionServices {
       rememberMe: true,
       session: sessionToken.newSession,
       email: email,
+      _id: userFind?._id,
       role: userFind?.role >= 0 && userFind?.role != undefined && userFind?.role != null ? userFind.role : 100,
       permissions: userFind?.permissions ? userFind.permissions : [],
     };
@@ -117,8 +119,6 @@ export default class SessionServices {
           },
         }),
       );
-    } else {
-      throw new ErrorModel(404, "str_user_not_found");
     }
   }
 }

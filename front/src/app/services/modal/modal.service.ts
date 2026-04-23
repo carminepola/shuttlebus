@@ -9,16 +9,26 @@ declare var bootstrap: any;
 export class ModalService {
   private modalInstance: any = null;
   private modalSubject = new BehaviorSubject<boolean>(false);
+  private tabSubject = new BehaviorSubject<string>('login');
 
   constructor() {}
 
-  openModal(modalId: string) {
+  openModal(modalId: string, tab?: string) {
+    if (tab) {
+      this.tabSubject.next(tab);
+    } else {
+      this.tabSubject.next('login');
+    }
     const modalElement = document.getElementById(modalId);
     if (modalElement) {
       this.modalInstance = new bootstrap.Modal(modalElement);
       this.modalInstance.show();
       this.modalSubject.next(true);
     }
+  }
+
+  getTabState() {
+    return this.tabSubject.asObservable();
   }
 
   closeModal() {
