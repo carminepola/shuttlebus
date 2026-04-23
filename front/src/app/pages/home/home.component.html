@@ -675,9 +675,9 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (row of dailyRouteRevenue; track row._id.routeId) {
+                    @for (row of dailyRouteRevenue; track row._id.scheduleId + '-' + row._id.routeId + '-' + row._id.from?.id + '-' + row._id.to?.id) {
                       <tr>
-                        <td class="fw-semibold">{{ row._id.routeName?.it || row._id.routeName?.en || '-' }}</td>
+                        <td class="fw-semibold">{{ row._id.routeName?.it || row._id.routeName?.en || '-' }} {{ row._id.from?.stopTime ? row._id.from.stopTime : '' }}</td>
                         <td>
                           <span class="text-muted small">
                             {{ row._id.from?.name || '-' }} <i class="fas fa-arrow-right mx-1"></i> {{ row._id.to?.name || '-' }}
