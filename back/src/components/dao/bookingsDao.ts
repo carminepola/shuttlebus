@@ -763,7 +763,14 @@ export default class BookingsDAO {
         },
         {
           $addFields: {
-            userIdObj: { $toObjectId: "$userId" },
+            userIdObj: {
+              $convert: {
+                input: "$userId",
+                to: "objectId",
+                onError: null,
+                onNull: null,
+              },
+            },
           },
         },
         {
@@ -777,6 +784,7 @@ export default class BookingsDAO {
         {
           $match: {
             $or: [
+              { userIdObj: null },
               { userDoc: { $size: 0 } },
               { "userDoc.role": { $lt: 75 } },
             ],
@@ -816,39 +824,43 @@ export default class BookingsDAO {
 
   async recentPurchases(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
-    const matchStage: any = {
-      status: { $in: ["confirmed", "pending"] },
-      $or: [
-        { userDoc: { $size: 0 } },
-        { "userDoc.role": { $lt: 75 } },
-      ],
+    const convertStage = {
+      $addFields: {
+        userIdObj: {
+          $convert: {
+            input: "$userId",
+            to: "objectId",
+            onError: null,
+            onNull: null,
+          },
+        },
+      },
+    };
+    const lookupStage = {
+      $lookup: {
+        from: "users",
+        localField: "userIdObj",
+        foreignField: "_id",
+        as: "userDoc",
+      },
+    };
+    const roleMatchStage = {
+      $match: {
+        $or: [
+          { userIdObj: null },
+          { userDoc: { $size: 0 } },
+          { "userDoc.role": { $lt: 75 } },
+        ],
+      },
     };
     const [results, total] = await Promise.all([
       this.db
         .collection("bookings")
         .aggregate([
           { $match: { status: { $in: ["confirmed", "pending"] } } },
-          {
-            $addFields: {
-              userIdObj: { $toObjectId: "$userId" },
-            },
-          },
-          {
-            $lookup: {
-              from: "users",
-              localField: "userIdObj",
-              foreignField: "_id",
-              as: "userDoc",
-            },
-          },
-          {
-            $match: {
-              $or: [
-                { userDoc: { $size: 0 } },
-                { "userDoc.role": { $lt: 75 } },
-              ],
-            },
-          },
+          convertStage,
+          lookupStage,
+          roleMatchStage,
           {
             $project: {
               date: 1,
@@ -875,27 +887,9 @@ export default class BookingsDAO {
         .collection("bookings")
         .aggregate([
           { $match: { status: { $in: ["confirmed", "pending"] } } },
-          {
-            $addFields: {
-              userIdObj: { $toObjectId: "$userId" },
-            },
-          },
-          {
-            $lookup: {
-              from: "users",
-              localField: "userIdObj",
-              foreignField: "_id",
-              as: "userDoc",
-            },
-          },
-          {
-            $match: {
-              $or: [
-                { userDoc: { $size: 0 } },
-                { "userDoc.role": { $lt: 75 } },
-              ],
-            },
-          },
+          convertStage,
+          lookupStage,
+          roleMatchStage,
           { $count: "total" },
         ])
         .toArray()
