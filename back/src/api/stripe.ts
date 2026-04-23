@@ -308,8 +308,8 @@ router.get("/getTransactionsByEmail/:email", authMiddleware, checkPermissionMidd
 });
 router.get("/getMonthlyRevenue", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req, res, next) => {
   try {
-    let stripeServices = new StripeServices();
-    let revenue = await stripeServices.getMonthlyRevenue();
+    let bookingServices = new BookingsServices(db);
+    let revenue = await bookingServices.getMonthlyRevenue();
     res.json({ result: revenue });
   } catch (error) {
     next(error);

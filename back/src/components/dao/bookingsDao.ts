@@ -1014,4 +1014,79 @@ export default class BookingsDAO {
       { $sort: { total: -1 } },
     ]).toArray();
   }
+
+  async getMonthlyRevenue() {
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonth = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth() + 1).padStart(2, "0")}`;
+
+    const monthRanges: { label: string; prefix: string }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const prefix = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      monthRanges.push({
+        label: d.toLocaleDateString("it-IT", { month: "short", year: "2-digit" }),
+        prefix,
+      });
+    }
+
+    const confirmedByMonth = await this.db.collection("bookings").aggregate([
+      { $match: { status: "confirmed" } },
+      {
+        $group: {
+          _id: { $substr: ["$date", 0, 7] },
+          revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+          count: { $sum: 1 },
+        },
+      },
+    ]).toArray();
+
+    const refundedByMonth = await this.db.collection("bookings").aggregate([
+      { $match: { status: "refunded" } },
+      {
+        $group: {
+          _id: { $substr: ["$date", 0, 7] },
+          refunds: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+          count: { $sum: 1 },
+        },
+      },
+    ]).toArray();
+
+    const revenueMap = new Map(confirmedByMonth.map((r: any) => [r._id, r.revenue]));
+    const refundMap = new Map(refundedByMonth.map((r: any) => [r._id, r.refunds]));
+
+    const getRevenue = (prefix: string) => revenueMap.get(prefix) || 0;
+    const getRefunds = (prefix: string) => refundMap.get(prefix) || 0;
+
+    const currentRevenue = getRevenue(currentMonth);
+    const currentRefundTotal = getRefunds(currentMonth);
+    const lastMonthRevenue = getRevenue(lastMonth);
+    const lastMonthRefundTotal = getRefunds(lastMonth);
+
+    const revenueChange = lastMonthRevenue > 0 ? ((currentRevenue - lastMonthRevenue) / lastMonthRevenue * 100) : 0;
+    const refundChange = lastMonthRefundTotal > 0 ? ((currentRefundTotal - lastMonthRefundTotal) / lastMonthRefundTotal * 100) : 0;
+
+    const last6Months = monthRanges.map((mr) => ({
+      month: mr.label,
+      revenue: getRevenue(mr.prefix),
+      refunds: getRefunds(mr.prefix),
+    }));
+
+    return {
+      currentMonth: {
+        revenue: currentRevenue,
+        refunds: currentRefundTotal,
+        net: currentRevenue - currentRefundTotal,
+      },
+      lastMonth: {
+        revenue: lastMonthRevenue,
+        refunds: lastMonthRefundTotal,
+        net: lastMonthRevenue - lastMonthRefundTotal,
+      },
+      revenueChange: +revenueChange.toFixed(1),
+      refundChange: +refundChange.toFixed(1),
+      last6Months,
+    };
+  }
 }

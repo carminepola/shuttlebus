@@ -436,6 +436,10 @@ class BookingsServices {
   async dailyRevenueByRoute(date: string) {
     return await this.bookingDao.dailyRevenueByRoute(date);
   }
+
+  async getMonthlyRevenue() {
+    return await this.bookingDao.getMonthlyRevenue();
+  }
 }
 
 export default BookingsServices;
