@@ -6,8 +6,6 @@ import { fadeAnimation } from '../../animations/fade.animation';
 import { BookingsService } from '../../services/bookings/bookings.service';
 import { Route, ActivatedRoute, Router } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
-import { TranslateNamePipe } from '../../pipe/translateName.pipe';
-import { TranslatePipe } from '../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-ticket-for-routes',
@@ -15,8 +13,6 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
     LoadingComponent,
     CommonModule,
     TitlePageComponent,
-    TranslateNamePipe,
-    TranslatePipe,
   ],
   templateUrl: './ticket-for-routes.component.html',
   styleUrl: './ticket-for-routes.component.scss',

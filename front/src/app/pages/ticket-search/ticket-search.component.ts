@@ -2,9 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '../../pipe/translate.pipe';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
-import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { BookingsService } from '../../services/bookings/bookings.service';
 import { lastValueFrom } from 'rxjs';
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
@@ -12,7 +10,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
 
 @Component({
   selector: 'app-ticket-search',
-  imports: [CommonModule, FormsModule, TranslatePipe, TitlePageComponent, LoadingComponent],
+  imports: [CommonModule, FormsModule, TitlePageComponent],
   templateUrl: './ticket-search.component.html',
   styleUrl: './ticket-search.component.scss',
   animations: [fadeAnimation],

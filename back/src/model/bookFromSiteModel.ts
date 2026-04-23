@@ -1,3 +1,5 @@
+import { generateTicketId } from "../utils/ticketId";
+
 export default class booking {
   userId: string;
   numberOfTickets: string;
@@ -37,7 +39,7 @@ export default class booking {
       if (book.lng === undefined) throw new Error("lng is required");
 
       this.userId = book.userId;
-      this.numberOfTickets = book.numberOfTickets || "PT" + book.date.replace(/-/g, "") + Math.round(new Date().getTime() / 1000) + book.seats.toString();
+      this.numberOfTickets = book.numberOfTickets || generateTicketId(book.date, book.user?.mail);
       this.date = book.date;
       this.scheduleId = book.scheduleId;
       this.routeId = book.routeId;

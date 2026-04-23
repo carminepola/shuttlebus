@@ -27,7 +27,7 @@ const consoleTransport = new winston.transports.Console({
         }
       }
       return out;
-    })
+    }),
   ),
 });
 transportsType.push(consoleTransport);
@@ -42,7 +42,7 @@ if (env.LOG_URL && env.LOG_API_KEY) {
       },
       handleExceptions: true,
       handleRejections: true,
-    })
+    }),
   );
 } else {
   transportsType.push(
@@ -50,7 +50,7 @@ if (env.LOG_URL && env.LOG_API_KEY) {
       filename: "app.log",
       level: env.LOGLEVEL || "error", // Solo errori
       format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-    })
+    }),
   );
 }
 
