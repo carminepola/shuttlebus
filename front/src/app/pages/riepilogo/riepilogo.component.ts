@@ -230,6 +230,7 @@ export class RiepilogoComponent implements OnInit {
       next: () => {
         this.checkoutLoginLoading = false;
         this.checkoutLoginError = '';
+        this.checkCashEligibility();
         this.checkDuplicateTicket();
       },
       error: (e: any) => {
