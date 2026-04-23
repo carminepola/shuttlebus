@@ -109,4 +109,8 @@ export class BookingsService {
       params: { date },
     });
   }
+
+  getMonthlyRevenue(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/getMonthlyRevenue`);
+  }
 }

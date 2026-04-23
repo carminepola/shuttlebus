@@ -763,6 +763,27 @@ export default class BookingsDAO {
         },
         {
           $addFields: {
+            userIdObj: { $toObjectId: "$userId" },
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "userIdObj",
+            foreignField: "_id",
+            as: "userDoc",
+          },
+        },
+        {
+          $match: {
+            $or: [
+              { userDoc: { $size: 0 } },
+              { "userDoc.role": { $lt: 75 } },
+            ],
+          },
+        },
+        {
+          $addFields: {
             bookingValue: {
               $add: ["$total", { $multiply: ["$luggage", 2] }],
             },
@@ -795,13 +816,41 @@ export default class BookingsDAO {
 
   async recentPurchases(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
+    const matchStage: any = {
+      status: { $in: ["confirmed", "pending"] },
+      $or: [
+        { userDoc: { $size: 0 } },
+        { "userDoc.role": { $lt: 75 } },
+      ],
+    };
     const [results, total] = await Promise.all([
       this.db
         .collection("bookings")
-        .find(
-          { status: { $in: ["confirmed", "pending"] } },
+        .aggregate([
+          { $match: { status: { $in: ["confirmed", "pending"] } } },
           {
-            projection: {
+            $addFields: {
+              userIdObj: { $toObjectId: "$userId" },
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "userIdObj",
+              foreignField: "_id",
+              as: "userDoc",
+            },
+          },
+          {
+            $match: {
+              $or: [
+                { userDoc: { $size: 0 } },
+                { "userDoc.role": { $lt: 75 } },
+              ],
+            },
+          },
+          {
+            $project: {
               date: 1,
               createdAt: 1,
               numberOfTickets: 1,
@@ -813,14 +862,44 @@ export default class BookingsDAO {
               seats: 1,
               name: 1,
               user: 1,
+              userDoc: 0,
+              userIdObj: 0,
             },
           },
-        )
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
+          { $sort: { createdAt: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ])
         .toArray(),
-      this.db.collection("bookings").countDocuments({ status: { $in: ["confirmed", "pending"] } }),
+      this.db
+        .collection("bookings")
+        .aggregate([
+          { $match: { status: { $in: ["confirmed", "pending"] } } },
+          {
+            $addFields: {
+              userIdObj: { $toObjectId: "$userId" },
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "userIdObj",
+              foreignField: "_id",
+              as: "userDoc",
+            },
+          },
+          {
+            $match: {
+              $or: [
+                { userDoc: { $size: 0 } },
+                { "userDoc.role": { $lt: 75 } },
+              ],
+            },
+          },
+          { $count: "total" },
+        ])
+        .toArray()
+        .then((res) => (res.length > 0 ? res[0].total : 0)),
     ]);
 
     return { results, total, page, limit };
@@ -980,6 +1059,7 @@ export default class BookingsDAO {
       {
         $group: {
           _id: {
+            scheduleId: "$scheduleId",
             routeId: "$routeId",
             routeName: "$name",
             paymentMethod: "$paymentMethod",
@@ -994,6 +1074,7 @@ export default class BookingsDAO {
       {
         $group: {
           _id: {
+            scheduleId: "$_id.scheduleId",
             routeId: "$_id.routeId",
             routeName: "$_id.routeName",
             from: "$_id.from",

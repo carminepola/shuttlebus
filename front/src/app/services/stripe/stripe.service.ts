@@ -58,13 +58,6 @@ export class StripeService {
       })
     );
   }
-  getMonthlyRevenue(): Observable<any> {
-    return this.http.get(this.apiUrl + '/getMonthlyRevenue').pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
-  }
   getDisputes(): Observable<any> {
     return this.http.get(this.apiUrl + '/getDisputes').pipe(
       catchError((error) => {

@@ -27,6 +27,7 @@
   color: rgba(var(--bs-primary-rgb), 0.75);
   transition: color 0.25s ease;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .nav-link:hover {

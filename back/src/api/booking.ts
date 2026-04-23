@@ -284,6 +284,16 @@ router.get("/dailyRevenueByRoute", authMiddleware, checkPermissionMiddleware(rol
   }
 });
 
+router.get("/getMonthlyRevenue", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let revenue = await bookingServices.getMonthlyRevenue();
+    res.json({ result: revenue });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
 
 /*

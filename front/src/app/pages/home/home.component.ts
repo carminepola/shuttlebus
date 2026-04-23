@@ -743,7 +743,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getMonthlyRevenue() {
-    this.stripeService.getMonthlyRevenue().subscribe((res: any) => {
+    this.bookingsService.getMonthlyRevenue().subscribe((res: any) => {
       this.monthlyRevenue = res.result;
       this.loadMonthlyRevenue = false;
       if (res.result?.last6Months) {
