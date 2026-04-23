@@ -753,41 +753,19 @@ export default class BookingsDAO {
     return { completeData, startDateYearAgo: formatDate(startDateYearAgoCurrent), endDateYearAgo: formatDate(endDateYearAgoCurrent) };
   }
   async topClients() {
+    const excludedUsers = await this.db
+      .collection("users")
+      .find({ role: { $lte: 75 } }, { projection: { email: 1 } })
+      .toArray();
+    const excludedEmails = excludedUsers.map((u: any) => u.email).filter(Boolean);
+
     return this.db
       .collection("bookings")
       .aggregate([
         {
           $match: {
-            status: { $eq: "confirmed" },
-          },
-        },
-        {
-          $addFields: {
-            userIdObj: {
-              $convert: {
-                input: "$userId",
-                to: "objectId",
-                onError: null,
-                onNull: null,
-              },
-            },
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "userIdObj",
-            foreignField: "_id",
-            as: "userDoc",
-          },
-        },
-        {
-          $match: {
-            $or: [
-              { userIdObj: null },
-              { userDoc: { $size: 0 } },
-              { "userDoc.role": { $lt: 75 } },
-            ],
+            status: "confirmed",
+            "user.mail": { $nin: excludedEmails },
           },
         },
         {

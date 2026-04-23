@@ -223,6 +223,7 @@
                           "Cliente" + " #" + client.userId.slice(-4)
                       }}
                     </div>
+                    <div class="text-muted small text-truncate">{{ client.userEmail || '' }}</div>
                     <div class="text-muted small">
                       {{ client.totalBookings }} acquist{{
                         client.totalBookings === 1 ? "o" : "i"
