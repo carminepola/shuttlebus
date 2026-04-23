@@ -1062,6 +1062,7 @@ export default class BookingsDAO {
           routeId: "$id",
           routeName: "$name",
           totalSeats: "$schedules.totalSeats",
+          stops: "$schedules.stops",
         },
       },
     ]).toArray();
@@ -1106,11 +1107,13 @@ export default class BookingsDAO {
       processed.add(sid);
       const booking = bookingMap.get(sid);
       if (!booking) continue;
+      const firstActiveStop = (schedule.stops || []).find((s: any) => s.status === "active");
       result.push({
         scheduleId: sid,
         routeId: schedule.routeId,
         routeName: schedule.routeName,
         totalSeats: schedule.totalSeats,
+        departureTime: firstActiveStop?.stopTime || "",
         total: booking.total,
         seats: booking.seats,
         count: booking.count,

@@ -676,7 +676,7 @@
                   <tbody>
                     @for (row of dailyRouteRevenue; track row.scheduleId) {
                       <tr>
-                        <td class="fw-semibold">{{ row.routeName?.it || row.routeName?.en || '-' }}</td>
+                        <td class="fw-semibold">{{ row.routeName?.it || row.routeName?.en || '-' }} <span class="text-muted fw-normal">({{ row.departureTime || '-' }})</span></td>
                         <td class="text-center">{{ row.seats }}</td>
                         <td class="text-center">{{ row.count }}</td>
                         <td class="text-end text-primary">{{ getRoutePaymentTotal(row.byPayment, 'stripe').toFixed(2) }} €</td>
