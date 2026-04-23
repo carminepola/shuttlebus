@@ -666,7 +666,6 @@
                   <thead>
                     <tr>
                       <th>Corsa</th>
-                      <th>Tratta</th>
                       <th class="text-center">Passeggeri</th>
                       <th class="text-center">Prenotazioni</th>
                       <th class="text-end">Stripe</th>
@@ -675,14 +674,9 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (row of dailyRouteRevenue; track row._id.scheduleId + '-' + row._id.routeId + '-' + row._id.from?.id + '-' + row._id.to?.id) {
+                    @for (row of dailyRouteRevenue; track row.scheduleId) {
                       <tr>
-                        <td class="fw-semibold">{{ row._id.routeName?.it || row._id.routeName?.en || '-' }} {{ row._id.from?.stopTime ? row._id.from.stopTime : '' }}</td>
-                        <td>
-                          <span class="text-muted small">
-                            {{ row._id.from?.name || '-' }} <i class="fas fa-arrow-right mx-1"></i> {{ row._id.to?.name || '-' }}
-                          </span>
-                        </td>
+                        <td class="fw-semibold">{{ row.routeName?.it || row.routeName?.en || '-' }}</td>
                         <td class="text-center">{{ row.seats }}</td>
                         <td class="text-center">{{ row.count }}</td>
                         <td class="text-end text-primary">{{ getRoutePaymentTotal(row.byPayment, 'stripe').toFixed(2) }} €</td>
@@ -693,7 +687,7 @@
                   </tbody>
                   <tfoot>
                     <tr class="table-active fw-bold">
-                      <td colspan="2">Totale</td>
+                      <td>Totale</td>
                       <td class="text-center">{{ getDailyTotals('seats') }}</td>
                       <td class="text-center">{{ getDailyTotals('count') }}</td>
                       <td class="text-end text-primary">{{ getDailyPaymentTotal('stripe').toFixed(2) }} €</td>

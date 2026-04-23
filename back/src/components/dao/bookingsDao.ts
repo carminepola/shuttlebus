@@ -1034,17 +1034,45 @@ export default class BookingsDAO {
   }
 
   async dailyRevenueByRoute(date: string) {
-    return this.db.collection("bookings").aggregate([
+    const dateObj = new Date(date + "T00:00:00");
+    const dayOfWeek = (dateObj.getDay() + 6) % 7;
+
+    const schedules = await this.db.collection("routes").aggregate([
+      { $unwind: "$schedules" },
+      {
+        $match: {
+          "schedules.status": "active",
+          "schedules.startDate": { $lte: date },
+          "schedules.endDate": { $gte: date },
+          $or: [
+            { "schedules.extraDates": { $elemMatch: { $eq: date } } },
+            {
+              $and: [
+                { "schedules.daysOfWeek": { $not: { $elemMatch: { $eq: dayOfWeek } } } },
+                { "schedules.excludedDates": { $nin: [date] } },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          scheduleId: "$schedules.id",
+          routeId: "$id",
+          routeName: "$name",
+          totalSeats: "$schedules.totalSeats",
+        },
+      },
+    ]).toArray();
+
+    const bookings = await this.db.collection("bookings").aggregate([
       { $match: { date, status: "confirmed" } },
       {
         $group: {
           _id: {
             scheduleId: "$scheduleId",
-            routeId: "$routeId",
-            routeName: "$name",
             paymentMethod: "$paymentMethod",
-            from: "$from",
-            to: "$to",
           },
           total: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
           seats: { $sum: "$seats" },
@@ -1053,13 +1081,7 @@ export default class BookingsDAO {
       },
       {
         $group: {
-          _id: {
-            scheduleId: "$_id.scheduleId",
-            routeId: "$_id.routeId",
-            routeName: "$_id.routeName",
-            from: "$_id.from",
-            to: "$_id.to",
-          },
+          _id: "$_id.scheduleId",
           total: { $sum: "$total" },
           seats: { $sum: "$seats" },
           count: { $sum: "$count" },
@@ -1072,8 +1094,46 @@ export default class BookingsDAO {
           },
         },
       },
-      { $sort: { total: -1 } },
     ]).toArray();
+
+    const bookingMap = new Map(bookings.map((b: any) => [b._id, b]));
+
+    const result: any[] = [];
+    const processed = new Set<string>();
+
+    for (const schedule of schedules) {
+      const sid = schedule.scheduleId;
+      processed.add(sid);
+      const booking = bookingMap.get(sid);
+      if (!booking) continue;
+      result.push({
+        scheduleId: sid,
+        routeId: schedule.routeId,
+        routeName: schedule.routeName,
+        totalSeats: schedule.totalSeats,
+        total: booking.total,
+        seats: booking.seats,
+        count: booking.count,
+        byPayment: booking.byPayment,
+      });
+    }
+
+    for (const [sid, booking] of bookingMap) {
+      if (!processed.has(sid)) {
+        result.push({
+          scheduleId: sid,
+          routeId: "",
+          routeName: { it: "Sconosciuto", en: "Unknown" },
+          totalSeats: 0,
+          total: booking.total,
+          seats: booking.seats,
+          count: booking.count,
+          byPayment: booking.byPayment,
+        });
+      }
+    }
+
+    return result.sort((a: any, b: any) => b.total - a.total);
   }
 
   async getMonthlyRevenue() {
