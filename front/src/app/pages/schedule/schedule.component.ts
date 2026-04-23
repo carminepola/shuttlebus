@@ -65,7 +65,7 @@ export class ScheduleComponent implements OnInit {
         this.ticket = res.ticketType;
       }
     });
-    this.stopsService.getAllActiveStops().subscribe((res) => {
+    this.stopsService.getAllStops().subscribe((res) => {
       if (res) {
         this.stops = res.stops;
       }
@@ -107,8 +107,10 @@ export class ScheduleComponent implements OnInit {
     if (!id) {
       return { name: '' };
     }
-    if (!this.stops) return { name: '' };
-    return this.stops.find((s: any) => s.id === id);
+    if (!this.stops) return { name: 'Fermata non trovata' };
+    let stop = this.stops.find((s: any) => s.id === id);
+    if (!stop) return { name: 'Fermata non trovata' };
+    return stop;
   }
   toggleStatus(i: number) {
     const index = i;

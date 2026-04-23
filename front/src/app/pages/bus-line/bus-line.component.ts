@@ -52,14 +52,16 @@ export class BusLineComponent implements OnInit {
       this.routes[j].schedules = this.routes[j].schedules.filter(
         (x: any) => x.status === 'active'
       );
-      let validStops: any[] = [];
       for (let i = 0; i < this.routes[j].stops.length; i++) {
         let stop = this.stops.find(
           (t: any) => t.id === this.routes[j].stops[i].id
         );
-        if (stop) validStops.push(stop);
+        if (stop) {
+          this.routes[j].stops[i] = stop;
+        } else {
+          this.routes[j].stops[i] = { ...this.routes[j].stops[i], name: '', description: { it: '', en: '' }, location: { latitude: 0, longitude: 0 } };
+        }
       }
-      this.routes[j].stops = validStops;
     }
     this.routes = this.routes.filter((x) => x.enabled == true);
 

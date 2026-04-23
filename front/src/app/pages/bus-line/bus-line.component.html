@@ -34,6 +34,7 @@
 
       <div class="bl-timeline">
         @for (stop of routes[lineSelected].stops; track stop; let j = $index) {
+          @if (stop.name) {
           <div class="bl-stop-card">
             <div class="bl-stop-track">
               <div class="bl-stop-dot"></div>
@@ -81,6 +82,7 @@
               </div>
             </div>
           </div>
+          }
         }
       </div>
 
