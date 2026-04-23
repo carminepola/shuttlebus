@@ -26,6 +26,8 @@ function getStripeLabel(key: string, lng: string): string {
 
 class StripeServices {
   private stripe: any;
+  private revenueCache: { data: any; timestamp: number } | null = null;
+  private static CACHE_TTL = 5 * 60 * 1000;
   constructor() {
     this.stripe = StripeInstance.getInstance();
   }
@@ -359,81 +361,89 @@ class StripeServices {
     }
   }
 
+  private async fetchAllCharges(created: { gte: number; lt?: number }): Promise<any[]> {
+    const all: any[] = [];
+    let params: any = { created, limit: 100 };
+    let hasMore = true;
+    while (hasMore) {
+      const resp = await this.stripe.charges.list(params);
+      all.push(...resp.data.filter((c: any) => c.status === "succeeded"));
+      hasMore = resp.has_more;
+      if (hasMore) params.starting_after = resp.data[resp.data.length - 1].id;
+    }
+    return all;
+  }
+
+  private async fetchAllRefunds(created: { gte: number; lt?: number }): Promise<any[]> {
+    const all: any[] = [];
+    let params: any = { created, limit: 100 };
+    let hasMore = true;
+    while (hasMore) {
+      const resp = await this.stripe.refunds.list(params);
+      all.push(...resp.data.filter((r: any) => r.status === "succeeded"));
+      hasMore = resp.has_more;
+      if (hasMore) params.starting_after = resp.data[resp.data.length - 1].id;
+    }
+    return all;
+  }
+
   public async getMonthlyRevenue() {
     try {
+      if (this.revenueCache && Date.now() - this.revenueCache.timestamp < StripeServices.CACHE_TTL) {
+        return this.revenueCache.data;
+      }
+
       const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
 
-      const [currentCharges, lastMonthCharges, currentRefunds, lastMonthRefunds] = await Promise.all([
-        this.stripe.charges.list({
-          created: { gte: Math.floor(startOfMonth.getTime() / 1000) },
-          limit: 100,
-        }),
-        this.stripe.charges.list({
-          created: { gte: Math.floor(startOfLastMonth.getTime() / 1000), lt: Math.floor(endOfLastMonth.getTime() / 1000) + 1 },
-          limit: 100,
-        }),
-        this.stripe.refunds.list({
-          created: { gte: Math.floor(startOfMonth.getTime() / 1000) },
-          limit: 100,
-        }),
-        this.stripe.refunds.list({
-          created: { gte: Math.floor(startOfLastMonth.getTime() / 1000), lt: Math.floor(endOfLastMonth.getTime() / 1000) + 1 },
-          limit: 100,
-        }),
-      ]);
+      const sumAmounts = (items: any[]) => items.reduce((sum: number, item: any) => sum + item.amount, 0);
 
-      const sumCharges = (charges: any[]) =>
-        charges.filter((c: any) => c.status === "succeeded").reduce((sum: number, c: any) => sum + c.amount, 0);
+      const monthRanges: { label: string; start: number; end: number }[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const dEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+        monthRanges.push({
+          label: d.toLocaleDateString("it-IT", { month: "short", year: "2-digit" }),
+          start: Math.floor(d.getTime() / 1000),
+          end: Math.floor(dEnd.getTime() / 1000),
+        });
+      }
 
-      const sumRefunds = (refunds: any[]) =>
-        refunds.filter((r: any) => r.status === "succeeded").reduce((sum: number, r: any) => sum + r.amount, 0);
+      const allMonthPromises = monthRanges.map((mr) =>
+        Promise.all([
+          this.fetchAllCharges({ gte: mr.start, lt: mr.end + 1 }),
+          this.fetchAllRefunds({ gte: mr.start, lt: mr.end + 1 }),
+        ]).then(([charges, refunds]) => ({
+          label: mr.label,
+          revenue: sumAmounts(charges) / 100,
+          refunds: sumAmounts(refunds) / 100,
+        }))
+      );
 
-      const currentRevenue = sumCharges(currentCharges.data);
-      const lastMonthRevenue = sumCharges(lastMonthCharges.data);
-      const currentRefundTotal = sumRefunds(currentRefunds.data);
-      const lastMonthRefundTotal = sumRefunds(lastMonthRefunds.data);
+      const monthsData = await Promise.all(allMonthPromises);
+
+      const currentMonthData = monthsData[5];
+      const lastMonthData = monthsData[4];
+
+      const currentRevenue = currentMonthData.revenue;
+      const currentRefundTotal = currentMonthData.refunds;
+      const lastMonthRevenue = lastMonthData.revenue;
+      const lastMonthRefundTotal = lastMonthData.refunds;
       const currentNet = currentRevenue - currentRefundTotal;
       const lastMonthNet = lastMonthRevenue - lastMonthRefundTotal;
 
       const revenueChange = lastMonthRevenue > 0 ? ((currentRevenue - lastMonthRevenue) / lastMonthRevenue * 100) : 0;
       const refundChange = lastMonthRefundTotal > 0 ? ((currentRefundTotal - lastMonthRefundTotal) / lastMonthRefundTotal * 100) : 0;
 
-      const last6Months: { month: string; revenue: number; refunds: number }[] = [];
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const monthStart = Math.floor(d.getTime() / 1000);
-        const monthEnd = Math.floor(new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999).getTime() / 1000);
-
-        const [mCharges, mRefunds] = await Promise.all([
-          this.stripe.charges.list({ created: { gte: monthStart, lt: monthEnd + 1 }, limit: 100 }),
-          this.stripe.refunds.list({ created: { gte: monthStart, lt: monthEnd + 1 }, limit: 100 }),
-        ]);
-
-        last6Months.push({
-          month: d.toLocaleDateString("it-IT", { month: "short", year: "2-digit" }),
-          revenue: sumCharges(mCharges.data) / 100,
-          refunds: sumRefunds(mRefunds.data) / 100,
-        });
-      }
-
-      return {
-        currentMonth: {
-          revenue: currentRevenue / 100,
-          refunds: currentRefundTotal / 100,
-          net: currentNet / 100,
-        },
-        lastMonth: {
-          revenue: lastMonthRevenue / 100,
-          refunds: lastMonthRefundTotal / 100,
-          net: lastMonthNet / 100,
-        },
+      const result = {
+        currentMonth: { revenue: currentRevenue, refunds: currentRefundTotal, net: currentNet },
+        lastMonth: { revenue: lastMonthRevenue, refunds: lastMonthRefundTotal, net: lastMonthNet },
         revenueChange: +revenueChange.toFixed(1),
         refundChange: +refundChange.toFixed(1),
-        last6Months,
+        last6Months: monthsData.map((m) => ({ month: m.label, revenue: m.revenue, refunds: m.refunds })),
       };
+
+      this.revenueCache = { data: result, timestamp: Date.now() };
+      return result;
     } catch (err) {
       logger.error("Errore nel recupero monthly revenue", err);
       throw err;

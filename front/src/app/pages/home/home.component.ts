@@ -182,7 +182,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.purchasePollingInterval = setInterval(() => {
       this.getRecentPurchases(true);
-    }, 15000);
+    }, 60000);
   }
 
   getPayouts() {
