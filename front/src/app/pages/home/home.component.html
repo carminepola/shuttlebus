@@ -156,14 +156,14 @@
                         }
                         @if (payout.status == "in_transit") {
                           <span
-                            class="badge bg-warning-subtle text-info fw-semibold"
+                            class="badge bg-info-subtle text-info fw-semibold"
                             >In transito</span
                           >
                         }
                         @if (
                           payout.status !== "paid" &&
                           payout.status !== "pending" &&
-                          payouts.status !== "in_transit"
+                          payout.status !== "in_transit"
                         ) {
                           <span
                             class="badge bg-secondary-subtle text-secondary fw-semibold"
