@@ -39,14 +39,19 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = this.authService.getDecodedToken();
+    this.setUserData(this.user);
 
     this.cookieService.watchCookie().subscribe((newJwtToken) => {
       this.user = newJwtToken;
-      this.username = this.user?.details?.name.split(' ')[0].toUpperCase();
-      if (this.user?.options?.google?.photos?.length > 0) {
-        this.image = this.user.options.google.photos[0].value;
-      }
+      this.setUserData(this.user);
     });
+  }
+
+  private setUserData(user: any) {
+    this.username = user?.details?.name?.split(' ')[0]?.toUpperCase() || '';
+    if (user?.options?.google?.photos?.length > 0) {
+      this.image = user.options.google.photos[0].value;
+    }
   }
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
