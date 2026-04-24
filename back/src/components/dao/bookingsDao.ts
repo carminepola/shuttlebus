@@ -824,11 +824,7 @@ export default class BookingsDAO {
     };
     const roleMatchStage = {
       $match: {
-        $or: [
-          { userIdObj: null },
-          { userDoc: { $size: 0 } },
-          { "userDoc.role": { $lt: 75 } },
-        ],
+        $or: [{ userIdObj: null }, { userDoc: { $size: 0 } }, { "userDoc.role": { $gte: 100 } }],
       },
     };
     const [results, total] = await Promise.all([
@@ -849,13 +845,7 @@ export default class BookingsDAO {
         .toArray(),
       this.db
         .collection("bookings")
-        .aggregate([
-          { $match: { status: { $in: ["confirmed", "pending"] } } },
-          convertStage,
-          lookupStage,
-          roleMatchStage,
-          { $count: "total" },
-        ])
+        .aggregate([{ $match: { status: { $in: ["confirmed", "pending"] } } }, convertStage, lookupStage, roleMatchStage, { $count: "total" }])
         .toArray()
         .then((res) => (res.length > 0 ? res[0].total : 0)),
     ]);
@@ -999,81 +989,87 @@ export default class BookingsDAO {
       if (startDate) match.date.$gte = startDate;
       if (endDate) match.date.$lte = endDate;
     }
-    return this.db.collection("bookings").aggregate([
-      { $match: match },
-      {
-        $group: {
-          _id: "$paymentMethod",
-          total: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
-          count: { $sum: 1 },
+    return this.db
+      .collection("bookings")
+      .aggregate([
+        { $match: match },
+        {
+          $group: {
+            _id: "$paymentMethod",
+            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+            count: { $sum: 1 },
+          },
         },
-      },
-    ]).toArray();
+      ])
+      .toArray();
   }
 
   async dailyRevenueByRoute(date: string) {
     const dateObj = new Date(date + "T00:00:00");
     const dayOfWeek = (dateObj.getDay() + 6) % 7;
 
-    const schedules = await this.db.collection("routes").aggregate([
-      { $unwind: "$schedules" },
-      {
-        $match: {
-          "schedules.status": "active",
-          "schedules.startDate": { $lte: date },
-          "schedules.endDate": { $gte: date },
-          $or: [
-            { "schedules.extraDates": { $elemMatch: { $eq: date } } },
-            {
-              $and: [
-                { "schedules.daysOfWeek": { $not: { $elemMatch: { $eq: dayOfWeek } } } },
-                { "schedules.excludedDates": { $nin: [date] } },
-              ],
-            },
-          ],
+    const schedules = await this.db
+      .collection("routes")
+      .aggregate([
+        { $unwind: "$schedules" },
+        {
+          $match: {
+            "schedules.status": "active",
+            "schedules.startDate": { $lte: date },
+            "schedules.endDate": { $gte: date },
+            $or: [
+              { "schedules.extraDates": { $elemMatch: { $eq: date } } },
+              {
+                $and: [{ "schedules.daysOfWeek": { $not: { $elemMatch: { $eq: dayOfWeek } } } }, { "schedules.excludedDates": { $nin: [date] } }],
+              },
+            ],
+          },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          scheduleId: "$schedules.id",
-          routeId: "$id",
-          routeName: "$name",
-          totalSeats: "$schedules.totalSeats",
-          stops: "$schedules.stops",
+        {
+          $project: {
+            _id: 0,
+            scheduleId: "$schedules.id",
+            routeId: "$id",
+            routeName: "$name",
+            totalSeats: "$schedules.totalSeats",
+            stops: "$schedules.stops",
+          },
         },
-      },
-    ]).toArray();
+      ])
+      .toArray();
 
-    const bookings = await this.db.collection("bookings").aggregate([
-      { $match: { date, status: "confirmed" } },
-      {
-        $group: {
-          _id: {
-            scheduleId: "$scheduleId",
-            paymentMethod: "$paymentMethod",
+    const bookings = await this.db
+      .collection("bookings")
+      .aggregate([
+        { $match: { date, status: "confirmed" } },
+        {
+          $group: {
+            _id: {
+              scheduleId: "$scheduleId",
+              paymentMethod: "$paymentMethod",
+            },
+            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+            seats: { $sum: "$seats" },
+            count: { $sum: 1 },
           },
-          total: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
-          seats: { $sum: "$seats" },
-          count: { $sum: 1 },
         },
-      },
-      {
-        $group: {
-          _id: "$_id.scheduleId",
-          total: { $sum: "$total" },
-          seats: { $sum: "$seats" },
-          count: { $sum: "$count" },
-          byPayment: {
-            $push: {
-              method: "$_id.paymentMethod",
-              total: "$total",
-              count: "$count",
+        {
+          $group: {
+            _id: "$_id.scheduleId",
+            total: { $sum: "$total" },
+            seats: { $sum: "$seats" },
+            count: { $sum: "$count" },
+            byPayment: {
+              $push: {
+                method: "$_id.paymentMethod",
+                total: "$total",
+                count: "$count",
+              },
             },
           },
         },
-      },
-    ]).toArray();
+      ])
+      .toArray();
 
     const bookingMap = new Map(bookings.map((b: any) => [b._id, b]));
 
@@ -1133,27 +1129,33 @@ export default class BookingsDAO {
       });
     }
 
-    const confirmedByMonth = await this.db.collection("bookings").aggregate([
-      { $match: { status: "confirmed" } },
-      {
-        $group: {
-          _id: { $substr: ["$date", 0, 7] },
-          revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
-          count: { $sum: 1 },
+    const confirmedByMonth = await this.db
+      .collection("bookings")
+      .aggregate([
+        { $match: { status: "confirmed" } },
+        {
+          $group: {
+            _id: { $substr: ["$date", 0, 7] },
+            revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+            count: { $sum: 1 },
+          },
         },
-      },
-    ]).toArray();
+      ])
+      .toArray();
 
-    const refundedByMonth = await this.db.collection("bookings").aggregate([
-      { $match: { status: "refunded" } },
-      {
-        $group: {
-          _id: { $substr: ["$date", 0, 7] },
-          refunds: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
-          count: { $sum: 1 },
+    const refundedByMonth = await this.db
+      .collection("bookings")
+      .aggregate([
+        { $match: { status: "refunded" } },
+        {
+          $group: {
+            _id: { $substr: ["$date", 0, 7] },
+            refunds: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+            count: { $sum: 1 },
+          },
         },
-      },
-    ]).toArray();
+      ])
+      .toArray();
 
     const revenueMap = new Map(confirmedByMonth.map((r: any) => [r._id, r.revenue]));
     const refundMap = new Map(refundedByMonth.map((r: any) => [r._id, r.refunds]));
@@ -1166,8 +1168,8 @@ export default class BookingsDAO {
     const lastMonthRevenue = getRevenue(lastMonth);
     const lastMonthRefundTotal = getRefunds(lastMonth);
 
-    const revenueChange = lastMonthRevenue > 0 ? ((currentRevenue - lastMonthRevenue) / lastMonthRevenue * 100) : 0;
-    const refundChange = lastMonthRefundTotal > 0 ? ((currentRefundTotal - lastMonthRefundTotal) / lastMonthRefundTotal * 100) : 0;
+    const revenueChange = lastMonthRevenue > 0 ? ((currentRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
+    const refundChange = lastMonthRefundTotal > 0 ? ((currentRefundTotal - lastMonthRefundTotal) / lastMonthRefundTotal) * 100 : 0;
 
     const last6Months = monthRanges.map((mr) => ({
       month: mr.label,
