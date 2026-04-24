@@ -831,7 +831,7 @@ export default class BookingsDAO {
       this.db
         .collection("bookings")
         .aggregate([
-          { $match: { status: { $in: ["confirmed", "pending"] } } },
+          { $match: { status: "confirmed" } },
           convertStage,
           lookupStage,
           roleMatchStage,
@@ -845,7 +845,7 @@ export default class BookingsDAO {
         .toArray(),
       this.db
         .collection("bookings")
-        .aggregate([{ $match: { status: { $in: ["confirmed", "pending"] } } }, convertStage, lookupStage, roleMatchStage, { $count: "total" }])
+        .aggregate([{ $match: { status: "confirmed" } }, convertStage, lookupStage, roleMatchStage, { $count: "total" }])
         .toArray()
         .then((res) => (res.length > 0 ? res[0].total : 0)),
     ]);
