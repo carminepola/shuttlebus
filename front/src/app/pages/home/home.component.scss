@@ -231,6 +231,7 @@
 }
 
 .recent-purchases-scroll {
+  flex: 1;
   overflow-y: auto;
   scroll-behavior: smooth;
 
