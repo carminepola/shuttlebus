@@ -1,5 +1,5 @@
-import { Db } from "mongodb";
-import FailToBanDao from "../dao/failToBan";
+import { Db } from 'mongodb';
+import FailToBanDao from '../dao/failToBan';
 export default class FailToBanServices {
   private readonly failToBanDao: FailToBanDao;
 

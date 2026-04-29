@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from "express";
-import MessageModel from "../model/messageModel";
-import { Guid } from "guid-typescript";
-import { logger } from "..";
+import { NextFunction, Request, Response } from 'express';
+import MessageModel from '../model/messageModel';
+import { Guid } from 'guid-typescript';
+import { logger } from '..';
 
 /**
  * Crea un token univoco per ogni richiesta e lo inserisce
@@ -20,7 +20,7 @@ export default function tokenRequestMiddleware(req: Request, res: Response, next
     next();
   } catch (error) {
     // se va in errore logga l'errore e chiama la funzione successiva
-    logger.error("Errore in tokenRequestMiddleware: " + JSON.stringify(error), res.locals.log);
+    logger.error('Errore in tokenRequestMiddleware: ' + JSON.stringify(error), res.locals.log);
     next(error);
   }
 }

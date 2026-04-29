@@ -1,10 +1,12 @@
-import { Db } from "mongodb";
-import { logger } from "../../index";
-import { MailModel } from "../../model/mailModel";
+import { Db } from 'mongodb';
+import { logger } from '../../index';
+import { MailModel } from '../../model/mailModel';
 
 export class MailDao {
   private db: Db;
-  private schema: string = "mail";
+
+  private schema: string = 'mail';
+
   private logInfo: any;
 
   constructor(db: Db, logInfo?: any) {
@@ -68,7 +70,7 @@ export class MailDao {
             sended,
           },
           $inc: { tryNumber: 1 },
-        }
+        },
       );
     } catch (error) {
       logger.error(error);

@@ -1,5 +1,5 @@
-import { Db } from "mongodb";
-import ExempleDao from "../dao/exempleDao";
+import { Db } from 'mongodb';
+import ExempleDao from '../dao/exempleDao';
 
 class ExempleServices {
   private exempleDao: ExempleDao;

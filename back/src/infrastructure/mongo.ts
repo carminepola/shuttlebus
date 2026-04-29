@@ -1,6 +1,6 @@
 // File: db.ts
-import { MongoClient, Db } from "mongodb";
-import { logger } from "..";
+import { MongoClient, Db } from 'mongodb';
+import { logger } from '..';
 export default class Mongo {
   private connectionString: string | undefined;
 
@@ -13,26 +13,26 @@ export default class Mongo {
   async init(connectionString: string) {
     try {
       if (connectionString) {
-        logger.info("Connessione al db mongo");
+        logger.info('Connessione al db mongo');
         this.connectionString = connectionString;
         this.client = new MongoClient(this.connectionString);
 
         await this.client?.connect();
-        logger.info("Connesso al db mongo");
+        logger.info('Connesso al db mongo');
         this.db = await this.client.db();
         return { client: this.client, db: this.db };
       } else {
-        logger.error("Nessuna string di connessione");
+        logger.error('Nessuna string di connessione');
       }
     } catch (error) {
-      logger.error("Impossibile connettersi al db mongo: ", error);
+      logger.error('Impossibile connettersi al db mongo: ', error);
     }
     return null;
   }
 
   getDb(): Db {
     if (!this.db) {
-      throw new Error("Database non connesso");
+      throw new Error('Database non connesso');
     }
     return this.db;
   }
@@ -43,6 +43,6 @@ export default class Mongo {
 
   async close(): Promise<void> {
     await this.client?.close();
-    logger.info("Connessione chiusa");
+    logger.info('Connessione chiusa');
   }
 }

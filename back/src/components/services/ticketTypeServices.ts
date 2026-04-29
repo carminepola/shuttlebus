@@ -1,7 +1,7 @@
-import { Db } from "mongodb";
+import { Db } from 'mongodb';
 
-import TicketTypeDao from "../dao/ticketTypeDao";
-import TicketTypeModel from "../../model/ticketTypeModel";
+import TicketTypeDao from '../dao/ticketTypeDao';
+import TicketTypeModel from '../../model/ticketTypeModel';
 class TicketTypeServices {
   private ticketTypeDao: TicketTypeDao;
 
@@ -11,27 +11,28 @@ class TicketTypeServices {
 
   async createTicketType(obj: any) {
     let ticketTypeData = new TicketTypeModel(obj);
-    return await this.ticketTypeDao.createTicketType(ticketTypeData);
+    return this.ticketTypeDao.createTicketType(ticketTypeData);
   }
 
   async getAllTicketTypes() {
-    return await this.ticketTypeDao.getAllTicketType();
+    return this.ticketTypeDao.getAllTicketType();
   }
+
   async getAllActiveTicketTypes() {
-    return await this.ticketTypeDao.getAllActiveTicketType();
+    return this.ticketTypeDao.getAllActiveTicketType();
   }
 
   async getTicketType(id: string) {
-    return await this.ticketTypeDao.getTicketType(id);
+    return this.ticketTypeDao.getTicketType(id);
   }
 
   async updateTicketType(obj: any) {
     let ticketTypeData = new TicketTypeModel(obj);
-    return await this.ticketTypeDao.updateTicketType(ticketTypeData);
+    return this.ticketTypeDao.updateTicketType(ticketTypeData);
   }
 
   async deleteTicketType(id: string) {
-    return await this.ticketTypeDao.deleteTicketType(id);
+    return this.ticketTypeDao.deleteTicketType(id);
   }
 }
 

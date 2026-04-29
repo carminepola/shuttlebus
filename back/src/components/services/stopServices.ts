@@ -1,7 +1,7 @@
-import { Db } from "mongodb";
+import { Db } from 'mongodb';
 
-import StopsDao from "../dao/stopsDao";
-import StopModel from "../../model/stopsModel";
+import StopsDao from '../dao/stopsDao';
+import StopModel from '../../model/stopsModel';
 class StopServices {
   private stopsDao: StopsDao;
 
@@ -11,28 +11,28 @@ class StopServices {
 
   async createStop(obj: any) {
     const stopData: StopModel = new StopModel(obj);
-    return await this.stopsDao.createStop(stopData);
+    return this.stopsDao.createStop(stopData);
   }
 
   async getAllStops() {
-    return await this.stopsDao.getAllStops();
+    return this.stopsDao.getAllStops();
   }
 
   async getAllActiveStops() {
-    return await this.stopsDao.getAllActiveStops();
+    return this.stopsDao.getAllActiveStops();
   }
 
   async getStop(id: string) {
-    return await this.stopsDao.getStops(id);
+    return this.stopsDao.getStops(id);
   }
 
   async updateStop(obj: any) {
     const updateData: StopModel = new StopModel(obj);
-    return await this.stopsDao.updateStop(updateData);
+    return this.stopsDao.updateStop(updateData);
   }
 
   async deleteStop(id: string) {
-    return await this.stopsDao.deleteStop(id);
+    return this.stopsDao.deleteStop(id);
   }
 }
 

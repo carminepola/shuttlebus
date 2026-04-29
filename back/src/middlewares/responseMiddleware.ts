@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response } from "express";
-import MessageModel from "../model/messageModel";
-import ErrorModel from "../model/errorModel";
-import { logger, db } from "..";
-import express from "express";
+import { NextFunction, Request, Response } from 'express';
+import MessageModel from '../model/messageModel';
+import ErrorModel from '../model/errorModel';
+import { logger, db } from '..';
+import express from 'express';
 
 export default async function responseMiddleware(req: Request, res: Response<MessageModel>, next: NextFunction) {
   try {
@@ -14,22 +14,22 @@ export default async function responseMiddleware(req: Request, res: Response<Mes
       res.locals.log.response = res.locals.response;
       if (statusCode >= 400 && statusCode <= 599) {
         if (statusCode >= 500 && statusCode <= 599) {
-          logger.error(`Richiesta completata`, res.locals.log);
+          logger.error('Richiesta completata', res.locals.log);
         } else {
-          logger.warn(`Richiesta completata`, res.locals.log);
+          logger.warn('Richiesta completata', res.locals.log);
         }
       } else {
         res.locals.log.body = body;
 
         Object.assign(res.locals.response, body);
-        logger.info(`Richiesta completata`, res.locals.log);
+        logger.info('Richiesta completata', res.locals.log);
       }
 
       if (res.locals.response.stack) {
         delete res.locals.response.stack;
       }
 
-      res.removeHeader("Content-Security-Policy");
+      res.removeHeader('Content-Security-Policy');
       return originalJson.call(this, res.locals.response);
     };
 

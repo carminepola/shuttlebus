@@ -1,23 +1,23 @@
-import express from "express";
-import { db, logger } from "../index";
+import express from 'express';
+import { db, logger } from '../index';
 
-import UserServices from "../components/services/userServices";
-import { check } from "express-validator";
+import UserServices from '../components/services/userServices';
+import { check } from 'express-validator';
 
-import ErrorModel from "../model/errorModel";
+import ErrorModel from '../model/errorModel';
 
-import { Request, Response, NextFunction } from "express";
-import validateDataMiddleware from "../middlewares/validateDataMiddleware";
-import authMiddleware from "../middlewares/authMiddleware";
-import userModel from "../model/userModel";
-import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
-import { role } from "../enum/role";
-import MailService from "../components/services/mailServices";
-import { Mail } from "../model/mailModel";
+import { Request, Response, NextFunction } from 'express';
+import validateDataMiddleware from '../middlewares/validateDataMiddleware';
+import authMiddleware from '../middlewares/authMiddleware';
+import userModel from '../model/userModel';
+import checkPermissionMiddleware from '../middlewares/checkPermissionMiddleware';
+import { role } from '../enum/role';
+import MailService from '../components/services/mailServices';
+import { Mail } from '../model/mailModel';
 const router = express.Router();
-let requiredRole = "USER_MANAGEMENT";
+let requiredRole = 'USER_MANAGEMENT';
 
-router.get("/email/:email", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/email/:email', authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let userServices = new UserServices(db);
     let email = req.params.email;
@@ -30,11 +30,11 @@ router.get("/email/:email", authMiddleware, checkPermissionMiddleware(role.ADMIN
 });
 
 router.post(
-  "/register",
+  '/register',
   [
-    check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
-    check("password").notEmpty().withMessage("password is required"),
-    check("name").notEmpty().withMessage("name is required"),
+    check('email').notEmpty().withMessage('email is required').isEmail().withMessage('Invalid email format'),
+    check('password').notEmpty().withMessage('password is required'),
+    check('name').notEmpty().withMessage('name is required'),
   ],
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
@@ -55,7 +55,7 @@ router.post(
       let userServices = new UserServices(db);
       result = await userServices.register(user, language);
 
-      res.json({ message: "Registrazione effettuata con successo" });
+      res.json({ message: 'Registrazione effettuata con successo' });
     } catch (error) {
       logger.error(error);
       next(error);
@@ -64,10 +64,10 @@ router.post(
 );
 
 router.post(
-  "/validateEmail",
+  '/validateEmail',
   [
-    check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
-    check("pin").notEmpty().withMessage("pin is required").isNumeric().withMessage("pin must be a number"),
+    check('email').notEmpty().withMessage('email is required').isEmail().withMessage('Invalid email format'),
+    check('pin').notEmpty().withMessage('pin is required').isNumeric().withMessage('pin must be a number'),
   ],
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
@@ -79,7 +79,7 @@ router.post(
       let userServices = new UserServices(db);
       await userServices.validateEmail(email, pin);
 
-      res.json({ message: "Email validata con successo" });
+      res.json({ message: 'Email validata con successo' });
     } catch (error) {
       logger.error(error);
       next(error);
@@ -87,11 +87,11 @@ router.post(
   },
 );
 router.post(
-  "/",
+  '/',
   [
-    check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
-    check("password").notEmpty().withMessage("password is required"),
-    check("name").notEmpty().withMessage("name is required"),
+    check('email').notEmpty().withMessage('email is required').isEmail().withMessage('Invalid email format'),
+    check('password').notEmpty().withMessage('password is required'),
+    check('name').notEmpty().withMessage('name is required'),
   ],
   authMiddleware,
   checkPermissionMiddleware(role.ADMIN, [requiredRole]),
@@ -111,7 +111,7 @@ router.post(
       let userServices = new UserServices(db);
       let oldUser = await userServices.getUserByEmail(user.email);
       if (oldUser) {
-        res.locals.customErrorMessage = "Utente già esistente";
+        res.locals.customErrorMessage = 'Utente già esistente';
         return res.sendStatus(409);
       } else {
         result = await userServices.createUser(user);
@@ -126,11 +126,11 @@ router.post(
 );
 
 router.patch(
-  "/changePassword",
+  '/changePassword',
   [
-    check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
-    check("password").notEmpty().withMessage("password is required"),
-    check("oldPassword").notEmpty().withMessage("oldPassword is required"),
+    check('email').notEmpty().withMessage('email is required').isEmail().withMessage('Invalid email format'),
+    check('password').notEmpty().withMessage('password is required'),
+    check('oldPassword').notEmpty().withMessage('oldPassword is required'),
   ],
   authMiddleware,
   validateDataMiddleware,
@@ -155,8 +155,8 @@ router.patch(
 );
 
 router.patch(
-  "/updateDetails",
-  [check("name").notEmpty().withMessage("name is required"), check("phone").optional().isString().withMessage("phone must be a string")],
+  '/updateDetails',
+  [check('name').notEmpty().withMessage('name is required'), check('phone').optional().isString().withMessage('phone must be a string')],
   authMiddleware,
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
@@ -165,7 +165,7 @@ router.patch(
       let userServices = new UserServices(db);
 
       const result = await userServices.updateUserDetails(email, req.body.name, req.body.phone);
-      res.json({ message: "Dettagli aggiornati con successo", user: result });
+      res.json({ message: 'Dettagli aggiornati con successo', user: result });
     } catch (error) {
       logger.error(error);
       next(error);
@@ -174,8 +174,8 @@ router.patch(
 );
 
 router.patch(
-  "/updateRole",
-  [check("userId").notEmpty().withMessage("userId is required"), check("role").notEmpty().withMessage("role is required").isNumeric().withMessage("role must be a number")],
+  '/updateRole',
+  [check('userId').notEmpty().withMessage('userId is required'), check('role').notEmpty().withMessage('role is required').isNumeric().withMessage('role must be a number')],
   authMiddleware,
   checkPermissionMiddleware(role.ADMIN, [requiredRole]),
   validateDataMiddleware,
@@ -183,7 +183,7 @@ router.patch(
     try {
       let userServices = new UserServices(db);
       const result = await userServices.updateRole(req.body.userId, parseInt(req.body.role));
-      res.json({ message: "Ruolo aggiornato con successo", ...result });
+      res.json({ message: 'Ruolo aggiornato con successo', ...result });
     } catch (error) {
       logger.error(error);
       next(error);
@@ -192,8 +192,8 @@ router.patch(
 );
 
 router.patch(
-  "/updateUserDetails",
-  [check("userId").notEmpty().withMessage("userId is required"), check("name").notEmpty().withMessage("name is required"), check("phone").optional().isString().withMessage("phone must be a string")],
+  '/updateUserDetails',
+  [check('userId').notEmpty().withMessage('userId is required'), check('name').notEmpty().withMessage('name is required'), check('phone').optional().isString().withMessage('phone must be a string')],
   authMiddleware,
   checkPermissionMiddleware(role.ADMIN, [requiredRole]),
   validateDataMiddleware,
@@ -201,7 +201,7 @@ router.patch(
     try {
       let userServices = new UserServices(db);
       const result = await userServices.updateUserDetailsById(req.body.userId, req.body.name, req.body.phone);
-      res.json({ message: "Dettagli utente aggiornati con successo", user: result });
+      res.json({ message: 'Dettagli utente aggiornati con successo', user: result });
     } catch (error) {
       logger.error(error);
       next(error);
@@ -209,7 +209,7 @@ router.patch(
   },
 );
 
-router.get("/getNormalUser", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/getNormalUser', authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let userServices = new UserServices(db);
     const result = await userServices.getNormalUser();
@@ -219,7 +219,7 @@ router.get("/getNormalUser", authMiddleware, checkPermissionMiddleware(role.ADMI
   }
 });
 
-router.get("/me", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/me', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     let email = res.locals.userLogged.email;
     let userServices = new UserServices(db);
@@ -231,7 +231,7 @@ router.get("/me", authMiddleware, async (req: Request, res: Response, next: Next
   }
 });
 
-router.get("/search", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/search', authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const searchTerm = req.query.search as string;
     const page = parseInt(req.query.page as string) || 1;
@@ -246,7 +246,7 @@ router.get("/search", authMiddleware, checkPermissionMiddleware(role.ADMIN, [req
   }
 });
 
-router.get("/clients", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/clients', authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const searchTerm = req.query.search as string;
     const page = parseInt(req.query.page as string) || 1;
@@ -261,7 +261,7 @@ router.get("/clients", authMiddleware, checkPermissionMiddleware(role.ADMIN, [re
   }
 });
 
-router.get("/no-permission", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/no-permission', authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const searchTerm = req.query.search as string;
     const page = parseInt(req.query.page as string) || 1;
@@ -277,15 +277,15 @@ router.get("/no-permission", authMiddleware, checkPermissionMiddleware(role.ADMI
 });
 
 router.put(
-  "/updateOptions",
-  [check("options").notEmpty().withMessage("options is required").isObject().withMessage("options must be an object"), check("options.*").exists().withMessage("options must not be empty")],
+  '/updateOptions',
+  [check('options').notEmpty().withMessage('options is required').isObject().withMessage('options must be an object'), check('options.*').exists().withMessage('options must not be empty')],
   authMiddleware,
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let result: any;
 
-      console.log("options");
+      console.log('options');
       let email = res.locals.userLogged.email;
       let userServices = new UserServices(db);
 
@@ -298,7 +298,7 @@ router.put(
         }
       }
 
-      return res.status(205).json({ message: "Opzioni aggiornate con successo" });
+      return res.status(205).json({ message: 'Opzioni aggiornate con successo' });
     } catch (error) {
       logger.error(error);
       next(error);
@@ -306,7 +306,7 @@ router.put(
   },
 );
 router.delete(
-  "/:id",
+  '/:id',
   authMiddleware,
   checkPermissionMiddleware(role.ADMIN, [requiredRole]),
   async (req: Request, res: Response, next: NextFunction) => {
@@ -314,7 +314,7 @@ router.delete(
       const userServices = new UserServices(db);
       const id = req.params.id;
       await userServices.deleteUserById(id);
-      res.json({ message: "Utente eliminato con successo" });
+      res.json({ message: 'Utente eliminato con successo' });
     } catch (error) {
       logger.error(error);
       next(error);
@@ -322,7 +322,7 @@ router.delete(
   },
 );
 
-router.get("/:id?", authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id?', authMiddleware, checkPermissionMiddleware(role.ADMIN, [requiredRole]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let userServices = new UserServices(db);
     let id = req.params.id ? req.params.id : undefined;

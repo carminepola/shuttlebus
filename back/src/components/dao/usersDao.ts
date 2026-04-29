@@ -1,17 +1,20 @@
-import { Db, ObjectId } from "mongodb";
-import { logger } from "../../index";
-import bcrypt from "bcrypt";
-import { Guid } from "guid-typescript";
-import userModel from "../../model/userModel";
-import sessionModel from "../../model/sessionModel";
-import * as CryptoJS from "crypto-js";
-import ErrorModel from "../../model/errorModel";
-import { role } from "../../enum/role";
-import MailSenderServices from "../services/mailSender";
+import { Db, ObjectId } from 'mongodb';
+import { logger } from '../../index';
+import bcrypt from 'bcrypt';
+import { Guid } from 'guid-typescript';
+import userModel from '../../model/userModel';
+import sessionModel from '../../model/sessionModel';
+import * as CryptoJS from 'crypto-js';
+import ErrorModel from '../../model/errorModel';
+import { role } from '../../enum/role';
+import MailSenderServices from '../services/mailSender';
 export default class UsersDao {
   db: Db;
-  schema: string = "users";
+
+  schema: string = 'users';
+
   loggerInfo: any;
+
   constructor(db: Db) {
     this.db = db;
   }
@@ -59,11 +62,11 @@ export default class UsersDao {
   async searchUsers(searchTerm: string, page: number = 1, limit: number = 10) {
     try {
       const skip = (page - 1) * limit;
-      const searchRegex = new RegExp(searchTerm, "i");
+      const searchRegex = new RegExp(searchTerm, 'i');
 
       let json = {
         role: { $eq: role.USER },
-        $or: [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
+        $or: [{ 'details.name': { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
       };
 
       let list = await this.db.collection(this.schema).find(json).sort({ _id: -1 }).skip(skip).limit(limit).toArray();
@@ -76,10 +79,10 @@ export default class UsersDao {
 
         return {
           _id: user._id,
-          name: user.details?.name || "",
+          name: user.details?.name || '',
           email: user.email,
-          phone: user.details?.phone || "",
-          pin: user.options?.pin || "",
+          phone: user.details?.phone || '',
+          pin: user.options?.pin || '',
         };
       });
 
@@ -133,11 +136,11 @@ export default class UsersDao {
   async searchStaff(searchTerm: string, page: number = 1, limit: number = 10) {
     try {
       const skip = (page - 1) * limit;
-      const searchRegex = new RegExp(searchTerm, "i");
+      const searchRegex = new RegExp(searchTerm, 'i');
 
       let json = {
         role: { $lt: role.USER },
-        $or: [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
+        $or: [{ 'details.name': { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
       };
 
       let list = await this.db.collection(this.schema).find(json).sort({ _id: -1 }).skip(skip).limit(limit).toArray();
@@ -150,10 +153,10 @@ export default class UsersDao {
 
         return {
           _id: user._id,
-          name: user.details?.name || "",
+          name: user.details?.name || '',
           email: user.email,
-          phone: user.details?.phone || "",
-          pin: user.options?.pin || "",
+          phone: user.details?.phone || '',
+          pin: user.options?.pin || '',
         };
       });
 
@@ -180,8 +183,8 @@ export default class UsersDao {
         role: { $eq: role.NO_PERMISSION },
       };
       if (searchTerm) {
-        const searchRegex = new RegExp(searchTerm, "i");
-        json.$or = [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }];
+        const searchRegex = new RegExp(searchTerm, 'i');
+        json.$or = [{ 'details.name': { $regex: searchRegex } }, { email: { $regex: searchRegex } }];
         json.role = { $eq: role.NO_PERMISSION };
       }
       const totalCount = await this.db.collection(this.schema).countDocuments(json);
@@ -194,10 +197,10 @@ export default class UsersDao {
         delete user?.options?.google?._json;
         return {
           _id: user._id,
-          name: user.details?.name || "",
+          name: user.details?.name || '',
           email: user.email,
-          phone: user.details?.phone || "",
-          pin: user.options?.pin || "",
+          phone: user.details?.phone || '',
+          pin: user.options?.pin || '',
         };
       });
       return {
@@ -213,6 +216,7 @@ export default class UsersDao {
       throw error;
     }
   }
+
   /**
    * Retrieves a user from the database by its id.
    *
@@ -269,6 +273,7 @@ export default class UsersDao {
       throw error;
     }
   }
+
   async getUserByEmailAll(email: string) {
     try {
       email = email.toLowerCase();
@@ -288,6 +293,7 @@ export default class UsersDao {
       throw error;
     }
   }
+
   async getUserByEmailNotPermission(email: string) {
     try {
       email = email.toLowerCase();
@@ -308,6 +314,7 @@ export default class UsersDao {
       throw error;
     }
   }
+
   /**
    * Retrieves the role and permissions of a user from the database by its email.
    *
@@ -330,17 +337,18 @@ export default class UsersDao {
       throw error;
     }
   }
+
   async setFalseUserPermissions(email: string, session: string) {
     try {
       email = email.toLowerCase();
       let user = await this.db.collection(this.schema).findOneAndUpdate(
         {
           email: email,
-          "sessions.id": session,
+          'sessions.id': session,
         },
         {
           $set: {
-            "sessions.$.update": false,
+            'sessions.$.update': false,
           },
         },
       );
@@ -350,6 +358,7 @@ export default class UsersDao {
       throw error;
     }
   }
+
   /**
    * Verifies the password for a user in the database.
    *
@@ -400,9 +409,9 @@ export default class UsersDao {
   }
 
   generateSecurePassword() {
-    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const bytes = CryptoJS.lib.WordArray.random(6); // 6 byte = 6 caratteri
-    let password = "";
+    let password = '';
 
     for (let i = 0; i < 6; i++) {
       // Usa ogni byte per indicizzare nel charset
@@ -412,6 +421,7 @@ export default class UsersDao {
 
     return password;
   }
+
   async insertRecoverPassword(email: string, username: string, lng: string): Promise<boolean> {
     try {
       email = email.toLowerCase();
@@ -458,7 +468,7 @@ export default class UsersDao {
             options: {
               [key]: value,
             },
-            "sessions.$[].update": true,
+            'sessions.$[].update': true,
           },
         },
       );
@@ -467,6 +477,7 @@ export default class UsersDao {
     }
     return true;
   }
+
   /**
    * Inserts a new user in the database.
    *
@@ -493,6 +504,7 @@ export default class UsersDao {
       throw error;
     }
   }
+
   /**
    * Updates the password for a user in the database.
    *
@@ -589,6 +601,7 @@ export default class UsersDao {
       throw error;
     }
   }
+
   async deleteOldSessions(email: string): Promise<boolean> {
     try {
       const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
@@ -619,6 +632,7 @@ export default class UsersDao {
       throw error;
     }
   }
+
   async checkSession(email: string, sessionID: string): Promise<number> {
     try {
       email = email.toLowerCase();
@@ -626,11 +640,11 @@ export default class UsersDao {
       const result = await this.db.collection(this.schema).findOneAndUpdate(
         {
           email: email,
-          "sessions.id": sessionID, // Cerca la sessione per email e sessionID
+          'sessions.id': sessionID, // Cerca la sessione per email e sessionID
         },
         {
           $set: {
-            "sessions.$.updatedAt": new Date().getTime(), // Aggiorna l'updatedAt della sessione
+            'sessions.$.updatedAt': new Date().getTime(), // Aggiorna l'updatedAt della sessione
           },
         },
       );
@@ -656,6 +670,7 @@ export default class UsersDao {
       throw error; // Rilancia l'errore
     }
   }
+
   /**
    * Controlla se il token di refresh e la sessione sono validi e restituisce
    * true se il token di refresh e la sessione sono validi
@@ -717,6 +732,7 @@ export default class UsersDao {
       throw new Error("Errore nell'eliminazione delle sessioni");
     }
   }
+
   /**
    * Restituisce gli utenti con un ruolo specifico
    * @param {role} role - Il ruolo da cercare
@@ -727,12 +743,13 @@ export default class UsersDao {
       // Trova tutti gli utenti con il ruolo selezionato
       const result = await this.db.collection<userModel>(this.schema).find({ disabled: false, isDeleted: false, role: { $in: role } });
       // Ritorna l'array di utenti
-      return result.toArray();
+      return await result.toArray();
     } catch (error) {
-      console.error("Errore durante la ricerca degli utenti con il ruolo selezionato:", error);
+      console.error('Errore durante la ricerca degli utenti con il ruolo selezionato:', error);
       throw error; // Rilancia l'errore
     }
   }
+
   async updateGoogleInfo(email: string, googleInfo: any) {
     try {
       email = email.toLowerCase();
@@ -743,14 +760,14 @@ export default class UsersDao {
         },
         {
           $set: {
-            "options.google": googleInfo,
+            'options.google': googleInfo,
           },
         },
       );
 
       // Verifica se `result` è nullo o se `result.value` è nullo
       if (!result) {
-        throw new Error("Utente non trovato");
+        throw new Error('Utente non trovato');
       }
 
       return result.modifiedCount;
@@ -759,17 +776,19 @@ export default class UsersDao {
       throw error; // Rilancia l'errore
     }
   }
+
   async getUsersByRole(role: role): Promise<userModel[]> {
     try {
       // Trova tutti gli utenti con il ruolo selezionato
       const result = await this.db.collection<userModel>(this.schema).find({ disabled: false, role: role }, { projection: { email: 1, details: 1, name: 1, surname: 1, role: 1, permissions: 1 } });
       // Ritorna l'array di utenti
-      return result.toArray();
+      return await result.toArray();
     } catch (error) {
-      console.error("Errore durante la ricerca degli utenti con il ruolo selezionato:", error);
+      console.error('Errore durante la ricerca degli utenti con il ruolo selezionato:', error);
       throw error; // Rilancia l'errore
     }
   }
+
   async deleteUser(email: string): Promise<boolean> {
     try {
       email = email.toLowerCase();
@@ -777,7 +796,7 @@ export default class UsersDao {
       const result = await this.db.collection<userModel>(this.schema).deleteOne({ email: email });
       // Verifica se `result` è nullo o se `result.value` è nullo
       if (!result) {
-        throw new Error("Utente non trovato");
+        throw new Error('Utente non trovato');
       }
       return true;
     } catch (error) {
@@ -786,6 +805,7 @@ export default class UsersDao {
     }
     return false;
   }
+
   async validateEmail(email: string): Promise<void> {
     try {
       email = email.toLowerCase();
@@ -794,7 +814,7 @@ export default class UsersDao {
         { email: email },
         {
           $set: {
-            "options.pin": "",
+            'options.pin': '',
           },
         },
       );
@@ -806,6 +826,7 @@ export default class UsersDao {
       throw error;
     }
   }
+
   async updateUser(user: any): Promise<boolean> {
     try {
       // Aggiorna l'utente
@@ -818,7 +839,7 @@ export default class UsersDao {
       const result = await this.db.collection<userModel>(this.schema).updateOne({ email: user.email }, { $set: user });
       // Verifica se `result`è nullo o se `result.value`è nullo
       if (!result) {
-        throw new Error("Utente non trovato");
+        throw new Error('Utente non trovato');
       }
       return true;
     } catch (error) {
@@ -832,7 +853,7 @@ export default class UsersDao {
       email = email.toLowerCase();
       const result = await this.db.collection<userModel>(this.schema).updateOne({ email: email }, { $set: updateData });
       if (!result) {
-        throw new Error("Utente non trovato");
+        throw new Error('Utente non trovato');
       }
       return true;
     } catch (error) {
@@ -845,7 +866,7 @@ export default class UsersDao {
     try {
       const result = await this.db.collection<userModel>(this.schema).updateOne({ _id: new ObjectId(userId) }, { $set: updateData });
       if (!result) {
-        throw new Error("Utente non trovato");
+        throw new Error('Utente non trovato');
       }
       return true;
     } catch (error) {
@@ -853,11 +874,12 @@ export default class UsersDao {
       throw error;
     }
   }
+
   async deleteUserById(id: string): Promise<boolean> {
     try {
       const result = await this.db.collection<userModel>(this.schema).deleteOne({ _id: new ObjectId(id) });
       if (!result || result.deletedCount === 0) {
-        throw new Error("Utente non trovato");
+        throw new Error('Utente non trovato');
       }
       return true;
     } catch (error) {
@@ -865,6 +887,7 @@ export default class UsersDao {
       throw error;
     }
   }
+
   async acceptTerms(id: string): Promise<boolean> {
     try {
       this.db.collection<userModel>(this.schema).updateOne({ _id: new ObjectId(id) }, { $set: { privacyAndPolicy: true, privacyAndPolicyConfirmDate: new Date().getTime() } });

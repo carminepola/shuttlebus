@@ -1,25 +1,25 @@
-import express, { response } from "express";
-import { db, logger } from "../index";
-import { check, validationResult } from "express-validator";
+import express, { response } from 'express';
+import { db, logger } from '../index';
+import { check, validationResult } from 'express-validator';
 
-import { Router, Request, Response, NextFunction } from "express";
-import BookingServices from "../components/services/bookingServices";
-import validateDataMiddleware from "../middlewares/validateDataMiddleware";
-import authMiddleware from "../middlewares/authMiddleware";
-import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
-import { role } from "../enum/role";
-import { url } from "inspector";
+import { Router, Request, Response, NextFunction } from 'express';
+import BookingServices from '../components/services/bookingServices';
+import validateDataMiddleware from '../middlewares/validateDataMiddleware';
+import authMiddleware from '../middlewares/authMiddleware';
+import checkPermissionMiddleware from '../middlewares/checkPermissionMiddleware';
+import { role } from '../enum/role';
+import { url } from 'inspector';
 
 const router = express.Router();
 
 router.post(
-  "/findAvailableRoutes",
+  '/findAvailableRoutes',
   [
-    check("travelDate").notEmpty().withMessage("travelDate is required").isISO8601().withMessage("Invalid date format"),
-    check("fromStopId").notEmpty().withMessage("fromStopId is required"),
-    check("toStopId").notEmpty().withMessage("toStopId is required"),
-    check("posti").notEmpty().withMessage("posti is required").isInt().withMessage("posti must be a number"),
-    check("bagagli").notEmpty().withMessage("bagagli is required").isInt().withMessage("bagagli must be a number"),
+    check('travelDate').notEmpty().withMessage('travelDate is required').isISO8601().withMessage('Invalid date format'),
+    check('fromStopId').notEmpty().withMessage('fromStopId is required'),
+    check('toStopId').notEmpty().withMessage('toStopId is required'),
+    check('posti').notEmpty().withMessage('posti is required').isInt().withMessage('posti must be a number'),
+    check('bagagli').notEmpty().withMessage('bagagli is required').isInt().withMessage('bagagli must be a number'),
   ],
 
   validateDataMiddleware,
@@ -40,21 +40,21 @@ router.post(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
-router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/insertBooking', authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let book = req.body;
     let userRole = res.locals.userLogged?.role;
-    if (book.paymentType === "cash" && (!userRole || userRole > role.DRIVER)) {
-      res.status(403).json({ message: "str_error_cash_not_allowed" });
+    if (book.paymentType === 'cash' && (!userRole || userRole > role.DRIVER)) {
+      res.status(403).json({ message: 'str_error_cash_not_allowed' });
       return;
     }
     let bookingServices = new BookingServices(db);
 
-    let response: any = await bookingServices.insertBooking(book, res.locals.userLogged["_id"]);
+    let response: any = await bookingServices.insertBooking(book, res.locals.userLogged._id);
 
-    if (typeof response === "object" && response.type === "cash") {
+    if (typeof response === 'object' && response.type === 'cash') {
       res.json({ url: `/payment/cash/success/${response.bookingId}` });
     } else {
       res.json({ url: response });
@@ -65,10 +65,10 @@ router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USE
 });
 
 router.post(
-  "/readBookingConfirmed",
+  '/readBookingConfirmed',
   authMiddleware,
   checkPermissionMiddleware(role.ADMIN, []),
-  [check("date").notEmpty().withMessage("date is required").isISO8601().withMessage("Invalid date format")],
+  [check('date').notEmpty().withMessage('date is required').isISO8601().withMessage('Invalid date format')],
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -78,14 +78,14 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
-router.get("/getBookingFromUser", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/getBookingFromUser', authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     await bookingServices.removeExpiredPendingBookings();
-    let result = await bookingServices.getBookingFromUser(res.locals.userLogged["_id"]);
+    let result = await bookingServices.getBookingFromUser(res.locals.userLogged._id);
 
     res.json({ booking: result });
   } catch (error) {
@@ -93,25 +93,25 @@ router.get("/getBookingFromUser", authMiddleware, checkPermissionMiddleware(role
   }
 });
 
-router.get("/hasTicketForRoute", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/hasTicketForRoute', authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const routeId = req.query.routeId as string;
     const date = req.query.date as string;
     const fromStopId = req.query.fromStopId as string;
     const toStopId = req.query.toStopId as string;
     if (!routeId || !date || !fromStopId || !toStopId) {
-      res.status(400).json({ message: "routeId, date, fromStopId and toStopId are required" });
+      res.status(400).json({ message: 'routeId, date, fromStopId and toStopId are required' });
       return;
     }
     let bookingServices = new BookingServices(db);
-    let result = await bookingServices.hasTicketForRoute(res.locals.userLogged["_id"], routeId, date, fromStopId, toStopId);
+    let result = await bookingServices.hasTicketForRoute(res.locals.userLogged._id, routeId, date, fromStopId, toStopId);
     res.json(result);
   } catch (error) {
     next(error);
   }
 });
 
-router.get("/getBookingByUserId/:userId", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/getBookingByUserId/:userId', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.getBookingFromUser(req.params.userId);
@@ -120,35 +120,35 @@ router.get("/getBookingByUserId/:userId", authMiddleware, checkPermissionMiddlew
     next(error);
   }
 });
-router.post("/refundBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/refundBooking', authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
-    let result = await bookingServices.refundBooking(req.body.id, res.locals.userLogged["_id"]);
-    res.json({ message: "Rimborso effettuato" });
+    let result = await bookingServices.refundBooking(req.body.id, res.locals.userLogged._id);
+    res.json({ message: 'Rimborso effettuato' });
   } catch (error) {
     next(error);
   }
 });
-router.post("/cancelBooking", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/cancelBooking', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.cancelBooking(req.body.id);
-    res.json({ message: "Rimborso effettuato" });
+    res.json({ message: 'Rimborso effettuato' });
   } catch (error) {
     next(error);
   }
 });
-router.post("/deleteBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/deleteBooking', authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
-    let result = await bookingServices.deleteBooking(req.body.id, res.locals.userLogged["_id"]);
+    let result = await bookingServices.deleteBooking(req.body.id, res.locals.userLogged._id);
 
-    res.json({ message: "Booking deleted" });
+    res.json({ message: 'Booking deleted' });
   } catch (error) {
     next(error);
   }
 });
-router.get("/ticketToDay", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/ticketToDay', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.ticketToDay();
@@ -157,7 +157,7 @@ router.get("/ticketToDay", authMiddleware, checkPermissionMiddleware(role.ADMIN,
     next(error);
   }
 });
-router.get("/seatsToDay", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/seatsToDay', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.seatsToDay();
@@ -167,7 +167,7 @@ router.get("/seatsToDay", authMiddleware, checkPermissionMiddleware(role.ADMIN, 
   }
 });
 
-router.get("/andamento", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/andamento', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.andamento();
@@ -176,7 +176,7 @@ router.get("/andamento", authMiddleware, checkPermissionMiddleware(role.ADMIN, [
     next(error);
   }
 });
-router.get("/andamentoVendite", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/andamentoVendite', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.andamentoVendite();
@@ -185,7 +185,7 @@ router.get("/andamentoVendite", authMiddleware, checkPermissionMiddleware(role.A
     next(error);
   }
 });
-router.post("/currentDayBookingsFromScheduleId", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/currentDayBookingsFromScheduleId', authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
 
@@ -196,7 +196,7 @@ router.post("/currentDayBookingsFromScheduleId", authMiddleware, checkPermission
     next(error);
   }
 });
-router.post("/readBookingById", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/readBookingById', authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
 
@@ -208,7 +208,7 @@ router.post("/readBookingById", authMiddleware, checkPermissionMiddleware(role.D
   }
 });
 
-router.post("/scanTicket", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/scanTicket', authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let id: string = req.body.id;
@@ -225,7 +225,7 @@ router.post("/scanTicket", authMiddleware, checkPermissionMiddleware(role.DRIVER
   }
 });
 
-router.get("/topClients", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/topClients', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.topClients();
@@ -235,7 +235,7 @@ router.get("/topClients", authMiddleware, checkPermissionMiddleware(role.ADMIN, 
   }
 });
 
-router.get("/recentPurchases", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/recentPurchases', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let page = parseInt(req.query.page as string) || 1;
@@ -247,7 +247,7 @@ router.get("/recentPurchases", authMiddleware, checkPermissionMiddleware(role.AD
   }
 });
 
-router.get("/dashboardStats", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/dashboardStats', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.dashboardStats();
@@ -257,7 +257,7 @@ router.get("/dashboardStats", authMiddleware, checkPermissionMiddleware(role.ADM
   }
 });
 
-router.get("/revenueByPaymentMethod", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/revenueByPaymentMethod', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let startDate = req.query.startDate as string | undefined;
@@ -269,12 +269,12 @@ router.get("/revenueByPaymentMethod", authMiddleware, checkPermissionMiddleware(
   }
 });
 
-router.get("/dailyRevenueByRoute", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/dailyRevenueByRoute', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let date = req.query.date as string;
     if (!date) {
-      res.status(400).json({ message: "date is required" });
+      res.status(400).json({ message: 'date is required' });
       return;
     }
     let result = await bookingServices.dailyRevenueByRoute(date);
@@ -284,7 +284,7 @@ router.get("/dailyRevenueByRoute", authMiddleware, checkPermissionMiddleware(rol
   }
 });
 
-router.get("/getMonthlyRevenue", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/getMonthlyRevenue', authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
     let revenue = await bookingServices.getMonthlyRevenue();

@@ -1,10 +1,10 @@
-import express from "express";
+import express from 'express';
 const router = express.Router();
-import uploadImagesMiddleware from "../middlewares/uploadImage";
-import authMiddleware from "../middlewares/authMiddleware";
-router.get("/", async (req, res, next) => {
+import uploadImagesMiddleware from '../middlewares/uploadImage';
+import authMiddleware from '../middlewares/authMiddleware';
+router.get('/', async (req, res, next) => {
   try {
-    res.locals.response.message = "OK";
+    res.locals.response.message = 'OK';
 
     res.json({
       headers: req.headers,
@@ -15,9 +15,9 @@ router.get("/", async (req, res, next) => {
     next(error);
   }
 });
-router.post("/", async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
-    res.locals.response.message = "OK";
+    res.locals.response.message = 'OK';
 
     res.json({
       headers: req.headers,

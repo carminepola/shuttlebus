@@ -1,4 +1,4 @@
-import ErrorResponse from "./errorModel";
+import ErrorResponse from './errorModel';
 
 export default class MessageModel {
   public object?: any;

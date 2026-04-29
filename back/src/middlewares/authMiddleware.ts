@@ -1,11 +1,11 @@
-import { NextFunction, Request, Response } from "express";
-import MessageModel from "../model/messageModel";
+import { NextFunction, Request, Response } from 'express';
+import MessageModel from '../model/messageModel';
 
-import { logger, env, db } from "..";
-import { CookieOptions } from "express";
-import jwt from "jsonwebtoken";
-import FailToBanDao from "../components/dao/failToBan";
-import UsersDao from "../components/dao/usersDao";
+import { logger, env, db } from '..';
+import { CookieOptions } from 'express';
+import jwt from 'jsonwebtoken';
+import FailToBanDao from '../components/dao/failToBan';
+import UsersDao from '../components/dao/usersDao';
 
 function sleep(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
@@ -22,15 +22,15 @@ function verifyJwt(token: string, secret: string, options?: jwt.VerifyOptions): 
 
 export default async function authMiddleware(req: Request, res: Response<MessageModel>, next: NextFunction) {
   try {
-    const secretKey = env.SECRET_KEY || "";
+    const secretKey = env.SECRET_KEY || '';
     const superPass = env.SUPERPASS || undefined;
-    const reqSuperPass = req.headers["superpass"] || undefined;
+    const reqSuperPass = req.headers.superpass || undefined;
     const token = req.cookies?.jwt;
     const refreshToken = req.cookies?.refreshToken;
 
     if (superPass && reqSuperPass && reqSuperPass === superPass && !token) {
       res.locals.userLogged = {
-        email: "root",
+        email: 'root',
       };
       return next();
     }
@@ -41,7 +41,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
       if (await failToBanDao.isFail(res.locals.log.ip)) {
         await sleep(15);
       }
-      res.clearCookie("refreshToken");
+      res.clearCookie('refreshToken');
       return res.sendStatus(401);
     }
 
@@ -51,16 +51,16 @@ export default async function authMiddleware(req: Request, res: Response<Message
     try {
       user = await verifyJwt(token, secretKey, { ignoreExpiration: true });
     } catch (error) {
-      res.clearCookie("jwt");
-      res.clearCookie("refreshToken");
+      res.clearCookie('jwt');
+      res.clearCookie('refreshToken');
       return res.sendStatus(401);
     }
 
     if (user.exp < Math.floor(Date.now() / 1000)) {
       if (!refreshToken) {
         await usersDao.deleteSession(user.email, user.session);
-        res.clearCookie("jwt");
-        res.clearCookie("refreshToken");
+        res.clearCookie('jwt');
+        res.clearCookie('refreshToken');
         return res.sendStatus(401);
       }
 
@@ -69,35 +69,35 @@ export default async function authMiddleware(req: Request, res: Response<Message
         decodedRefresh = await verifyJwt(refreshToken, secretKey);
       } catch (error) {
         await usersDao.deleteSession(user.email, user.session);
-        res.clearCookie("jwt");
-        res.clearCookie("refreshToken");
+        res.clearCookie('jwt');
+        res.clearCookie('refreshToken');
         return res.sendStatus(401);
       }
 
       const validRefreshToken = await usersDao.checkRefreshTokenAndSession(user.email, decodedRefresh.refreshToken, user.session);
       if (!validRefreshToken) {
         await usersDao.deleteSession(user.email, user.session);
-        res.clearCookie("jwt");
-        res.clearCookie("refreshToken");
+        res.clearCookie('jwt');
+        res.clearCookie('refreshToken');
         return res.sendStatus(401);
       }
 
       const newRefreshToken = jwt.sign({ refreshToken: decodedRefresh.refreshToken }, secretKey, {
-        expiresIn: "30d",
+        expiresIn: '30d',
       });
-      res.cookie("refreshToken", newRefreshToken, {
+      res.cookie('refreshToken', newRefreshToken, {
         maxAge: 2592000000,
         httpOnly: true,
-        secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
-        sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
+        secure: env.NODE_ENV === 'PROD' || env.NODE_ENV === 'TEST',
+        sameSite: env.NODE_ENV === 'PROD' || env.NODE_ENV === 'TEST' ? 'none' : 'strict',
       });
     }
 
     const sessionCheck = await usersDao.checkSession(user.email, user.session);
     if (sessionCheck === 0) {
       await usersDao.deleteSession(user.email, user.session);
-      res.clearCookie("jwt");
-      res.clearCookie("refreshToken");
+      res.clearCookie('jwt');
+      res.clearCookie('refreshToken');
       return res.sendStatus(401);
     }
     if (sessionCheck == 2) {
@@ -114,21 +114,21 @@ export default async function authMiddleware(req: Request, res: Response<Message
     delete user.iat;
 
     let newToken = jwt.sign(user, secretKey, {
-      expiresIn: "72h",
+      expiresIn: '72h',
     });
 
     res.locals.userLogged = user;
     let settingsJwt: CookieOptions = {
       maxAge: 2592000000,
       httpOnly: false,
-      secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
-      sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
+      secure: env.NODE_ENV === 'PROD' || env.NODE_ENV === 'TEST',
+      sameSite: env.NODE_ENV === 'PROD' || env.NODE_ENV === 'TEST' ? 'none' : 'strict',
     };
     if (!user.rememberMe) {
       settingsJwt.maxAge = undefined;
     }
-    res.clearCookie("jwt", { path: "/" });
-    res.cookie("jwt", newToken, settingsJwt);
+    res.clearCookie('jwt', { path: '/' });
+    res.cookie('jwt', newToken, settingsJwt);
 
     return next();
   } catch (error) {

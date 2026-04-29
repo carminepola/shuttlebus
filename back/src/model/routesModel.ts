@@ -20,7 +20,7 @@ interface Route {
 interface ScheduleStop {
   id: string;
   stopTime?: string;
-  status: "active" | "disabled" | "deleted"; // Permette di disattivare fermate senza eliminare la corsa
+  status: 'active' | 'disabled' | 'deleted'; // Permette di disattivare fermate senza eliminare la corsa
 }
 
 /** 📁 Modello per la Corsa (Schedule) */
@@ -35,7 +35,7 @@ interface Schedule {
   stops: ScheduleStop[]; // Fermate della corsa con orari
   excludedDates: string[]; // Date in cui la corsa è disabilitata (YYYY-MM-DD)
   extraDates: string[]; // Date in cui la corsa è attiva anche se normalmente disabilitata
-  status: "active" | "disabled" | "deleted"; // Stato della corsa
+  status: 'active' | 'disabled' | 'deleted'; // Stato della corsa
   busId: string;
 }
 

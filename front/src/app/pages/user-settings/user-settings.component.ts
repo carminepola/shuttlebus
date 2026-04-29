@@ -12,6 +12,8 @@ import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle
 import { AuthService } from '../../services/auth/auth.service';
 import { UserService } from '../../services/user/user.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { PasskeyService } from '../../services/passkey/passkey.service';
+import Swal from 'sweetalert2';
 import * as CryptoJS from 'crypto-js';
 @Component({
   selector: 'app-user-settings',
@@ -35,6 +37,10 @@ export class UserSettingsComponent implements OnInit {
   errorMessage = '';
   successMessageDetails = '';
   errorMessageDetails = '';
+  passkeys: any[] = [];
+  loadingPasskeys = false;
+  registeringPasskey = false;
+  passkeySupported = false;
   pwdRules = {
     minLength: false,
     hasUpper: false,
@@ -46,6 +52,7 @@ export class UserSettingsComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private userService: UserService,
+    private passkeyService: PasskeyService,
   ) {
     this.changePasswordForm = new FormGroup({
       oldPassword: new FormControl('', Validators.required),
@@ -65,7 +72,9 @@ export class UserSettingsComponent implements OnInit {
   navBar = false;
   ngOnInit(): void {
     this.navBar = !window.location.pathname.includes('admin');
+    this.passkeySupported = this.passkeyService.isSupported();
     this.loadCurrentUser();
+    this.loadPasskeys();
   }
 
   loadCurrentUser(): void {
@@ -210,5 +219,106 @@ export class UserSettingsComponent implements OnInit {
         }
       },
     );
+  }
+
+  loadPasskeys(): void {
+    this.loadingPasskeys = true;
+    this.passkeyService.getPasskeys().subscribe({
+      next: (passkeys) => {
+        this.passkeys = passkeys || [];
+        this.loadingPasskeys = false;
+      },
+      error: () => {
+        this.passkeys = [];
+        this.loadingPasskeys = false;
+      },
+    });
+  }
+
+  async registerNewPasskey(): Promise<void> {
+    this.registeringPasskey = true;
+    try {
+      const result = await this.passkeyService.register();
+      if (result) {
+        Swal.fire({
+          title: 'Passkey registrata!',
+          text: 'Puoi usare questa passkey per accedere in futuro.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          customClass: {
+            confirmButton: 'btn btn-secondary btn-lg',
+            popup: 'rounded-4',
+          },
+        });
+        this.loadPasskeys();
+      }
+    } catch (error: any) {
+      console.error('Errore durante la registrazione della passkey:', error);
+      if (error?.name === 'NotAllowedError') {
+        Swal.fire({
+          title: 'Registrazione annullata',
+          text: "L'operazione è stata annullata o il dispositivo non supporta le passkey.",
+          icon: 'info',
+          confirmButtonText: 'OK',
+        });
+      } else {
+        Swal.fire({
+          title: 'Errore',
+          text: "Si è verificato un errore durante la registrazione della passkey.",
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      }
+    } finally {
+      this.registeringPasskey = false;
+    }
+  }
+
+  async deletePasskey(passkey: any): Promise<void> {
+    const result = await Swal.fire({
+      title: 'Eliminare la passkey?',
+      text: `Stai per eliminare "${passkey.name}". Questa azione non può essere annullata.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Elimina',
+      cancelButtonText: 'Annulla',
+      customClass: {
+        confirmButton: 'btn btn-danger btn-lg',
+        cancelButton: 'btn btn-secondary btn-lg',
+        popup: 'rounded-4',
+      },
+    });
+
+    if (result.isConfirmed) {
+      this.passkeyService.deletePasskey(passkey.id).subscribe({
+        next: () => {
+          this.loadPasskeys();
+        },
+        error: (err) => {
+          console.error('Errore durante l\'eliminazione della passkey:', err);
+        },
+      });
+    }
+  }
+
+  getDeviceIcon(deviceType?: string): string {
+    if (deviceType === 'singleDevice') return 'fa-solid fa-mobile-screen';
+    if (deviceType === 'multiDevice') return 'fa-solid fa-laptop';
+    return 'fa-solid fa-key';
+  }
+
+  getDeviceLabel(deviceType?: string): string {
+    if (deviceType === 'singleDevice') return 'Dispositivo singolo';
+    if (deviceType === 'multiDevice') return 'Multi-dispositivo';
+    return 'Dispositivo';
+  }
+
+  formatDate(timestamp: number): string {
+    return new Date(timestamp).toLocaleDateString('it-IT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
   }
 }

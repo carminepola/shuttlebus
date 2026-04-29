@@ -1,8 +1,8 @@
-import passport from "passport";
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import dotenv from "dotenv";
-import { logger } from "./index";
-import https from "https";
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import dotenv from 'dotenv';
+import { logger } from './index';
+import https from 'https';
 
 dotenv.config();
 
@@ -10,15 +10,15 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.
   passport.use(
     new GoogleStrategy(
       {
-        clientID: process.env.GOOGLE_CLIENT_ID || "",
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-        callbackURL: process.env.GOOGLE_CALLBACK_URL || "",
+        clientID: process.env.GOOGLE_CLIENT_ID || '',
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+        callbackURL: process.env.GOOGLE_CALLBACK_URL || '',
       },
       async (accessToken, refreshToken, profile: any, done) => {
         try {
           const data = await verifyGoogleAccessToken(accessToken);
           if (!data) {
-            throw new Error("Access Token non valido");
+            throw new Error('Access Token non valido');
           }
 
           // const phoneNumber = await getGooglePhoneNumber(accessToken);
@@ -28,8 +28,8 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.
         } catch (error) {
           logger.error(error);
         }
-      }
-    )
+      },
+    ),
   );
 }
 
@@ -46,16 +46,16 @@ async function getGooglePhoneNumber(accessToken: string) {
   return new Promise((resolve, reject) => {
     https
       .get(
-        `https://people.googleapis.com/v1/people/me?personFields=phoneNumbers`,
+        'https://people.googleapis.com/v1/people/me?personFields=phoneNumbers',
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         },
         (res) => {
-          let data = "";
-          res.on("data", (chunk) => (data += chunk));
-          res.on("end", () => {
+          let data = '';
+          res.on('data', (chunk) => (data += chunk));
+          res.on('end', () => {
             try {
               const json = JSON.parse(data);
               if (json.error) {
@@ -67,9 +67,9 @@ async function getGooglePhoneNumber(accessToken: string) {
               reject(error);
             }
           });
-        }
+        },
       )
-      .on("error", (error) => reject(error));
+      .on('error', (error) => reject(error));
   });
 }
 
@@ -77,9 +77,9 @@ async function verifyGoogleAccessToken(accessToken: string) {
   return new Promise((resolve, reject) => {
     https
       .get(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${accessToken}`, (res) => {
-        let data = "";
-        res.on("data", (chunk) => (data += chunk));
-        res.on("end", () => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
           try {
             const json = JSON.parse(data);
             if (json.error) {
@@ -92,6 +92,6 @@ async function verifyGoogleAccessToken(accessToken: string) {
           }
         });
       })
-      .on("error", (error) => reject(error));
+      .on('error', (error) => reject(error));
   });
 }

@@ -1,12 +1,12 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from 'express';
 
-import { logger } from "..";
-import { validationResult } from "express-validator";
-import ErrorModel from "../model/errorModel";
+import { logger } from '..';
+import { validationResult } from 'express-validator';
+import ErrorModel from '../model/errorModel';
 export default function validateDataMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     const errors = validationResult(req);
@@ -15,7 +15,7 @@ export default function validateDataMiddleware(
 
         400, undefined,
         undefined,
-        errors.array()
+        errors.array(),
       );
 
       Object.assign(res.locals.response, error);
@@ -25,8 +25,8 @@ export default function validateDataMiddleware(
     next();
   } catch (error) {
     logger.error(
-      "Errore in tokenRequestMiddleware: " + JSON.stringify(error),
-      res.locals.log
+      'Errore in tokenRequestMiddleware: ' + JSON.stringify(error),
+      res.locals.log,
     );
     next(error);
   }

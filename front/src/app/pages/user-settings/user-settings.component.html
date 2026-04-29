@@ -350,4 +350,79 @@
       </div>
     </div>
   </div>
+
+  @if (passkeySupported) {
+    <div class="card border-0 rounded-4 shadow mt-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h3 class="text-muted mb-1">
+              <i class="fa-solid fa-fingerprint me-2"></i>Passkey
+            </h3>
+            <small class="text-muted">Accedi senza password usando le passkey del tuo dispositivo</small>
+          </div>
+          <button
+            class="btn btn-primary"
+            (click)="registerNewPasskey()"
+            [disabled]="registeringPasskey"
+          >
+            @if (registeringPasskey) {
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              <span>Registrazione...</span>
+            } @else {
+              <i class="fa-solid fa-plus me-2"></i>
+              <span>Aggiungi passkey</span>
+            }
+          </button>
+        </div>
+
+        @if (loadingPasskeys) {
+          <div class="text-center py-4">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <span class="ms-2 text-muted">Caricamento passkey...</span>
+          </div>
+        }
+
+        @if (!loadingPasskeys && passkeys.length === 0) {
+          <div class="text-center py-4 text-muted">
+            <i class="fa-solid fa-key fa-2x mb-3 d-block opacity-25"></i>
+            <p class="mb-0">Nessuna passkey registrata</p>
+            <small>Aggiungi una passkey per accedere in modo più sicuro e veloce</small>
+          </div>
+        }
+
+        @if (!loadingPasskeys && passkeys.length > 0) {
+          <ul class="list-group list-group-flush">
+            @for (passkey of passkeys; track passkey.id) {
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div class="d-flex align-items-center">
+                  <div class="me-3 text-primary">
+                    <i class="{{ getDeviceIcon(passkey.deviceType) }} fs-4"></i>
+                  </div>
+                  <div>
+                    <div class="fw-semibold">{{ passkey.name }}</div>
+                    <small class="text-muted">
+                      {{ getDeviceLabel(passkey.deviceType) }}
+                      @if (passkey.backedUp) {
+                        <i class="fa-solid fa-cloud ms-1" title="Sincronizzata"></i>
+                      }
+                      &middot; Aggiunta il {{ formatDate(passkey.createdAt) }}
+                    </small>
+                  </div>
+                </div>
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="deletePasskey(passkey)"
+                  [disabled]="passkeys.length === 1"
+                  [title]="passkeys.length === 1 ? 'Devi avere almeno una passkey' : 'Elimina passkey'"
+                >
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  }
 </div>

@@ -1,15 +1,15 @@
-import express from "express";
-import { db } from "../index";
-import RoutesServices from "../components/services/routesServices";
+import express from 'express';
+import { db } from '../index';
+import RoutesServices from '../components/services/routesServices';
 const router = express.Router();
-import { Request, Response, NextFunction } from "express";
-import authMiddleware from "../middlewares/authMiddleware";
-import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
-import { role } from "../enum/role";
-import validateDataMiddleware from "../middlewares/validateDataMiddleware";
-import { check } from "express-validator";
+import { Request, Response, NextFunction } from 'express';
+import authMiddleware from '../middlewares/authMiddleware';
+import checkPermissionMiddleware from '../middlewares/checkPermissionMiddleware';
+import { role } from '../enum/role';
+import validateDataMiddleware from '../middlewares/validateDataMiddleware';
+import { check } from 'express-validator';
 
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.getRoutes();
@@ -19,7 +19,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-router.post("/", [check("route").notEmpty().withMessage("route data is required")], authMiddleware, validateDataMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/', [check('route').notEmpty().withMessage('route data is required')], authMiddleware, validateDataMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.insertRoute(req.body.route);
@@ -30,13 +30,13 @@ router.post("/", [check("route").notEmpty().withMessage("route data is required"
 });
 
 router.put(
-  "/:id",
+  '/:id',
   [
-    check("name.it").optional().isString().withMessage("name in Italian must be a string"),
-    check("name.en").optional().isString().withMessage("name in English must be a string"),
-    check("stops").isArray().withMessage("stops must be an array"),
-    check("ticketTypes").isArray().withMessage("ticketTypes must be an array"),
-    check("enabled").isBoolean().withMessage("enabled must be a boolean"),
+    check('name.it').optional().isString().withMessage('name in Italian must be a string'),
+    check('name.en').optional().isString().withMessage('name in English must be a string'),
+    check('stops').isArray().withMessage('stops must be an array'),
+    check('ticketTypes').isArray().withMessage('ticketTypes must be an array'),
+    check('enabled').isBoolean().withMessage('enabled must be a boolean'),
   ],
   authMiddleware,
   validateDataMiddleware,
@@ -49,10 +49,10 @@ router.put(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
-router.delete("/:id", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.deleteRoute(req.params.id);
@@ -62,7 +62,7 @@ router.delete("/:id", authMiddleware, async (req: Request, res: Response, next: 
   }
 });
 
-router.get("/enabled", async (req: Request, res: Response, next: NextFunction) => {
+router.get('/enabled', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.getEnabledRoutes();
@@ -73,8 +73,8 @@ router.get("/enabled", async (req: Request, res: Response, next: NextFunction) =
 });
 
 router.post(
-  "/schedule/:id",
-  [check("schedule").notEmpty().withMessage("schedule data is required")],
+  '/schedule/:id',
+  [check('schedule').notEmpty().withMessage('schedule data is required')],
   authMiddleware,
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
@@ -85,12 +85,12 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.put(
-  "/schedule/:id/:scheduleId",
-  [check("schedule").notEmpty().withMessage("schedule data is required")],
+  '/schedule/:id/:scheduleId',
+  [check('schedule').notEmpty().withMessage('schedule data is required')],
   authMiddleware,
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
@@ -101,9 +101,9 @@ router.put(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
-router.get("/routesToday", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/routesToday', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.getRoutesToDay();
@@ -112,7 +112,7 @@ router.get("/routesToday", authMiddleware, async (req: Request, res: Response, n
     next(error);
   }
 });
-router.get("/getCurrentSchedule", async (req: Request, res: Response, next: NextFunction) => {
+router.get('/getCurrentSchedule', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.getCurrentSchedules();
@@ -121,7 +121,7 @@ router.get("/getCurrentSchedule", async (req: Request, res: Response, next: Next
     next(error);
   }
 });
-router.get("/routesTodayList", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/routesTodayList', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.getRoutesToDayList();
@@ -130,7 +130,7 @@ router.get("/routesTodayList", authMiddleware, async (req: Request, res: Respons
     next(error);
   }
 });
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.getRouteById(req.params.id);

@@ -1,7 +1,8 @@
-import { Db } from "mongodb";
+import { Db } from 'mongodb';
 export default class permissionDao {
   db: Db;
-  schema: string = "permissions";
+
+  schema: string = 'permissions';
 
   constructor(db: Db) {
     this.db = db;
@@ -11,7 +12,7 @@ export default class permissionDao {
     try {
       const existingPermission = await this.db.collection(this.schema).findOne({ id: permission.id });
       if (existingPermission) {
-        throw new Error("Permission already exists");
+        throw new Error('Permission already exists');
       }
       const result = await this.db.collection(this.schema).insertOne(permission);
       return result.insertedId;
@@ -25,7 +26,7 @@ export default class permissionDao {
     try {
       const result = await this.db.collection(this.schema).deleteOne({ id: permissionId });
       if (result.deletedCount === 0) {
-        throw new Error("Permission not found");
+        throw new Error('Permission not found');
       }
       return true;
     } catch (error) {

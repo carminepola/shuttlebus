@@ -1,12 +1,13 @@
-import app from "../app";
-import http from "http"; // Importa il modulo http di Node.js
-import { logger } from "../index";
+import app from '../app';
+import http from 'http'; // Importa il modulo http di Node.js
+import { logger } from '../index';
 export default class RestServer {
   private port: number;
 
 
 
   private serverRunning = false;
+
   constructor(port: number) {
     this.port = port;
   }
@@ -23,7 +24,7 @@ export default class RestServer {
         logger.info(`Server in ascolto all'indirizzo http://localhost:${this.port}`);
       });
     } catch (error) {
-      logger.error("Errore in restServer: " + JSON.stringify(error));
+      logger.error('Errore in restServer: ' + JSON.stringify(error));
     }
   }
 }

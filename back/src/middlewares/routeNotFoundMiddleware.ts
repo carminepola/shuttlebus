@@ -6,6 +6,6 @@ export default function routeNotFoundMiddleware(req: Request, res: Response, nex
    
  
   res.status(404); 
-  const error = new Error('Pagina non trovata',res.locals.log);   
+  const error = new Error('Pagina non trovata', res.locals.log);   
   next(error);
 }

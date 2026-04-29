@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
+import { PasskeyService } from '../../services/passkey/passkey.service';
 import CryptoJS from 'crypto-js';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
 @Component({
@@ -24,21 +25,31 @@ export class LoginComponent implements OnInit {
   loginError = '';
   isLoading = false;
   showPassword = false;
+  passkeySupported = false;
+  passkeyLoading = false;
+  showPasskeyLogin = false;
+  loginWithPasskeyForm!: FormGroup;
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private googleAuthService: GoogleAuthService
+    private googleAuthService: GoogleAuthService,
+    private passkeyService: PasskeyService,
   ) {}
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/admin/home']);
     }
+    this.passkeySupported = this.passkeyService.isSupported();
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
+      rememberMe: [false],
+    });
+    this.loginWithPasskeyForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
       rememberMe: [false],
     });
   }
@@ -90,6 +101,42 @@ export class LoginComponent implements OnInit {
       this.isLoading = false;
       console.error(e);
       this.loginError = 'Errore durante la navigazione. Riprova.';
+    }
+  }
+
+  togglePasskeyLogin(): void {
+    this.showPasskeyLogin = !this.showPasskeyLogin;
+    this.loginError = '';
+  }
+
+  async loginWithPasskey(): Promise<void> {
+    const email = this.loginWithPasskeyForm.get('email')?.value;
+    const rememberMe = this.loginWithPasskeyForm.get('rememberMe')?.value;
+
+    if (!email) {
+      this.loginError = 'Inserisci la tua email per usare la passkey';
+      return;
+    }
+
+    this.passkeyLoading = true;
+    this.loginError = '';
+
+    try {
+      await this.passkeyService.authenticate(email, rememberMe || false);
+      this.passkeyLoading = false;
+      this.router.navigate(['/admin/home']).catch(() => {
+        this.loginError = 'Errore durante la navigazione. Riprova.';
+      });
+    } catch (error: any) {
+      this.passkeyLoading = false;
+      console.error(error);
+      if (error?.name === 'NotAllowedError') {
+        this.loginError = 'Autenticazione annullata dal dispositivo';
+      } else if (error?.error?.message) {
+        this.loginError = error.error.message;
+      } else {
+        this.loginError = 'Autenticazione con passkey fallita. Riprova.';
+      }
     }
   }
 }

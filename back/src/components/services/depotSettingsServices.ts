@@ -1,6 +1,6 @@
-import { Db } from "mongodb";
-import DepotSettingsDao from "../dao/depotSettingsDao";
-import depotSettingsModel from "../../model/depotSettingsModel";
+import { Db } from 'mongodb';
+import DepotSettingsDao from '../dao/depotSettingsDao';
+import depotSettingsModel from '../../model/depotSettingsModel';
 
 class DepotSettingsServices {
   private depotSettingsDao: DepotSettingsDao;
@@ -10,15 +10,15 @@ class DepotSettingsServices {
   }
 
   async get() {
-    return await this.depotSettingsDao.get();
+    return this.depotSettingsDao.get();
   }
 
   async update(obj: Partial<depotSettingsModel>) {
     if (!obj || Object.keys(obj).length === 0) {
-      throw new Error("Invalid input: settings object is required");
+      throw new Error('Invalid input: settings object is required');
     }
     let model = new depotSettingsModel(obj);
-    return await this.depotSettingsDao.update(model);
+    return this.depotSettingsDao.update(model);
   }
 }
 

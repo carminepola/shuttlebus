@@ -1,8 +1,8 @@
-import { Db, MongoClient } from "mongodb";
-import { RouteDAO } from "../dao/routeDao";
-import { Route, Stop, Schedule, ScheduleStop } from "../../model/routesModel";
-import ErrorModel from "../../model/errorModel";
-import { Guid } from "guid-typescript";
+import { Db, MongoClient } from 'mongodb';
+import { RouteDAO } from '../dao/routeDao';
+import { Route, Stop, Schedule, ScheduleStop } from '../../model/routesModel';
+import ErrorModel from '../../model/errorModel';
+import { Guid } from 'guid-typescript';
 
 export default class RoutesServices {
   private routeDao: RouteDAO;
@@ -29,12 +29,15 @@ export default class RoutesServices {
   getRoutes() {
     return this.routeDao.getRoutes();
   }
+
   getRouteById(id: string) {
     return this.routeDao.getRouteById(id);
   }
+
   deleteRoute(id: string) {
     return this.routeDao.deleteRoute(id);
   }
+
   getEnabledRoutes() {
     return this.routeDao.getEnabledRoutes();
   }
@@ -47,21 +50,26 @@ export default class RoutesServices {
    */
   insertSchedule(schedule: Partial<Schedule>, routeId: string) {
     schedule.id = Guid.create().toString();
-    schedule.status = "active";
+    schedule.status = 'active';
     return this.routeDao.insertSchedule(schedule, routeId);
   }
+
   updateSchedule(scheduleId: string, schedule: Partial<Schedule>, routeId: string) {
     return this.routeDao.updateSchedule(scheduleId, schedule, routeId);
   }
+
   getRoutesToDay() {
     return this.routeDao.routesToDay();
   }
+
   getRoutesToDayList() {
     return this.routeDao.routesToDayList();
   }
+
   getCurrentSchedules() {
     return this.routeDao.currentSchedules();
   }
+
   getListScheduleForBusId() {
     return this.routeDao.listScheduleForBusId();
   }

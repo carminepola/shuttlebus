@@ -1,12 +1,13 @@
-import { Db } from "mongodb";
-import { Mail } from "../../model/mailModel";
-import { MailDao } from "../dao/mailDao";
-import { logger, mailConfig, env } from "../../index";
-import nodemailer from "nodemailer";
-import { TemplateMailDao } from "../dao/templateMailDao";
+import { Db } from 'mongodb';
+import { Mail } from '../../model/mailModel';
+import { MailDao } from '../dao/mailDao';
+import { logger, mailConfig, env } from '../../index';
+import nodemailer from 'nodemailer';
+import { TemplateMailDao } from '../dao/templateMailDao';
 
 class MailService {
   private mailDao: MailDao;
+
   private templateMailDao: TemplateMailDao;
 
   constructor(db: Db) {
@@ -26,18 +27,18 @@ class MailService {
       from: mailConfig.auth.user,
       to: mail.to,
       headers: {
-        "Content-Type": "text/html; charset=UTF-8",
-        "Content-Transfer-Encoding": "base64",
+        'Content-Type': 'text/html; charset=UTF-8',
+        'Content-Transfer-Encoding': 'base64',
       },
-      encoding: "base64",
-      subject: "",
-      html: "",
+      encoding: 'base64',
+      subject: '',
+      html: '',
     };
 
-    if (mail.type && mail.type != "default") {
+    if (mail.type && mail.type != 'default') {
       const templateMail = await this.templateMailDao.readTemplateMailType(mail.type);
       if (!templateMail) {
-        mail.type = "default";
+        mail.type = 'default';
       } else {
         for (const [key, value] of Object.entries(mail.bodyVariables || {})) {
           templateMail.title = templateMail.title.replaceAll(`{${key}}`, value);
@@ -49,8 +50,8 @@ class MailService {
         newMail.html = templateMail.body;
       }
     } else {
-      newMail.subject = mail.title || "Nessun titolo";
-      newMail.html = mail.message || "Nessun messaggio";
+      newMail.subject = mail.title || 'Nessun titolo';
+      newMail.html = mail.message || 'Nessun messaggio';
     }
 
     return newMail;
@@ -62,7 +63,7 @@ class MailService {
 
     let id = newMail.id;
     let attempts = 0;
-    let errorMessage = "";
+    let errorMessage = '';
 
     let log = {
       id,
@@ -74,7 +75,7 @@ class MailService {
         transporter = nodemailer.createTransport(mailConfig as nodemailer.TransportOptions);
         const isValid = await transporter.verify();
         if (!isValid) {
-          throw new Error("Failed to initialize email transport");
+          throw new Error('Failed to initialize email transport');
         }
         try {
           let res = await transporter.sendMail(newMail);
@@ -82,7 +83,7 @@ class MailService {
             mailSended = true;
             await this.mailDao.updateTry(id, true);
           } else {
-            throw new Error("Failed to send");
+            throw new Error('Failed to send');
           }
         } catch (error: any) {
           attempts++;
@@ -92,7 +93,7 @@ class MailService {
           if (attempts < 3) {
             await new Promise((resolve) => setTimeout(resolve, 5000));
           } else {
-            throw new Error("Failed to send email after 3 attempts");
+            throw new Error('Failed to send email after 3 attempts');
           }
         }
       } while (!mailSended && attempts < 3);
@@ -106,13 +107,14 @@ class MailService {
     }
     return { mailSent: mailSended, errorMessage };
   }
+
   public async sendMail(mailData: Mail): Promise<boolean> {
     try {
       if (!mailConfig) {
-        throw new Error("Email: manca la configurazione");
+        throw new Error('Email: manca la configurazione');
       }
       if (!mailData.to) {
-        throw new Error("Email, manca il destinatario");
+        throw new Error('Email, manca il destinatario');
       }
       const createdMail = await this.mailDao.createMail(mailData);
       if (createdMail._id) return await this.sendMailId(createdMail.id!);
@@ -125,7 +127,7 @@ class MailService {
   public async sendMailId(id: string): Promise<boolean> {
     try {
       if (!mailConfig) {
-        throw new Error("Email: manca la configurazione");
+        throw new Error('Email: manca la configurazione');
       }
 
       if (!id) {
@@ -140,9 +142,9 @@ class MailService {
 
       const newMail = await this.templateParser(mail);
       if (!newMail) {
-        throw new Error("Email: manca il template");
+        throw new Error('Email: manca il template');
       }
-      if (env.EMAIL_ASYNC?.toLocaleLowerCase() == "true") {
+      if (env.EMAIL_ASYNC?.toLocaleLowerCase() == 'true') {
         this.send(newMail);
         return true;
       } else {

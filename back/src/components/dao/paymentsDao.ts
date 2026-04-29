@@ -1,4 +1,4 @@
-import { Db, ClientSession } from "mongodb";
+import { Db, ClientSession } from 'mongodb';
 
 export default class PaymentsDAO {
   private db: Db;
@@ -8,6 +8,6 @@ export default class PaymentsDAO {
   }
 
   async getPaymentMethod() {
-    return await this.db.collection("paymentMethods").findOne({ enabled: true });
+    return this.db.collection('paymentMethods').findOne({ enabled: true });
   }
 }

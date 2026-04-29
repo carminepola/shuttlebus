@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { env } from "..";
+import { Request, Response, NextFunction } from 'express';
+import { env } from '..';
 
-import MessageModel from "../model/messageModel";
+import MessageModel from '../model/messageModel';
 
 // Secret utilizzato per firmare i JWT (deve essere uguale a quello usato per firmare il token)
 
@@ -24,7 +24,7 @@ const checkPermissionMiddleware = (requiredRoles: RequiredRole, requiredPermissi
     // che il middleware successivo gestisca la richiesta
 
     let superPass = env.SUPERPASS || undefined;
-    let reqSuperPass = req.headers["superpass"] || undefined;
+    let reqSuperPass = req.headers.superpass || undefined;
 
     if (superPass && reqSuperPass && superPass != reqSuperPass) {
       return res.sendStatus(403);
@@ -44,7 +44,7 @@ const checkPermissionMiddleware = (requiredRoles: RequiredRole, requiredPermissi
         if (hasRequiredRole || hasRequiredPermission) {
           next();
         } else {
-          res.locals.customErrorMessage = "Permessi insufficienti";
+          res.locals.customErrorMessage = 'Permessi insufficienti';
           return res.sendStatus(403);
         }
       }

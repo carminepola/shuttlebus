@@ -1,5 +1,5 @@
-import nodemailer from "nodemailer";
-import { Guid } from "guid-typescript";
+import nodemailer from 'nodemailer';
+import { Guid } from 'guid-typescript';
 
 export interface MailModel {
   to: string;
@@ -26,21 +26,37 @@ export interface MailModel {
 
 export class Mail implements MailModel {
   public to: string;
+
   public title?: string;
+
   public message?: string;
+
   public createdAt?: number;
+
   public lastTry?: number;
+
   public tryNumber?: number;
+
   public sended?: boolean;
+
   public id: string;
+
   public type: string;
+
   public titleVariables?: { [key: string]: string };
+
   public bodyVariables?: { [key: string]: string };
+
   public cc?: string[];
+
   public bcc?: string[];
+
   public encoding?: string;
+
   public headers?: { [key: string]: string };
+
   public html?: string;
+
   public attachments?: Array<{
     filename: string;
     path?: string;
@@ -48,9 +64,10 @@ export class Mail implements MailModel {
     contentType?: string;
     cid?: string;
   }>;
+
   constructor(mail: any) {
     if (!mail.to) {
-      throw new Error("Manca il destinatario");
+      throw new Error('Manca il destinatario');
     }
 
     this.id = mail.id || Guid.create().toString();
@@ -69,13 +86,13 @@ export class Mail implements MailModel {
     this.titleVariables = mail.titleVariables || {};
     this.bodyVariables = mail.bodyVariables || {};
 
-    this.type = mail.type || "default";
+    this.type = mail.type || 'default';
     this.sended = false;
     this.html = mail.message;
-    this.encoding = "base64";
+    this.encoding = 'base64';
     this.headers = {
-      "Content-Type": "text/html; charset=UTF-8",
-      "Content-Transfer-Encoding": "base64",
+      'Content-Type': 'text/html; charset=UTF-8',
+      'Content-Transfer-Encoding': 'base64',
     };
   }
 }

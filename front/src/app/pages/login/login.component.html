@@ -48,85 +48,148 @@
           </div>
         }
 
-        <div class="auth-field">
-          <div class="auth-field-icon">
-            <i class="fa-solid fa-envelope"></i>
-          </div>
-          <input
-            id="admin-email"
-            formControlName="email"
-            type="email"
-            autocomplete="email"
-            class="auth-input"
-            placeholder="Email"
-            [ngClass]="{ 'is-invalid': isSubmitted && formControls['email'].invalid }"
-          />
-          @if (isSubmitted && formControls['email'].errors) {
-            <div class="auth-field-error">
-              @if (formControls['email'].errors['required']) {
-                <span>Email richiesta</span>
-              }
-              @if (formControls['email'].errors['email']) {
-                <span>Email non valida</span>
-              }
+        @if (showPasskeyLogin) {
+          <div class="auth-field">
+            <div class="auth-field-icon">
+              <i class="fa-solid fa-envelope"></i>
             </div>
-          }
-        </div>
-
-        <div class="auth-field">
-          <div class="auth-field-icon">
-            <i class="fa-solid fa-lock"></i>
-          </div>
-          <input
-            id="admin-password"
-            formControlName="password"
-            [type]="showPassword ? 'text' : 'password'"
-            autocomplete="current-password"
-            class="auth-input"
-            placeholder="Password"
-            [ngClass]="{ 'is-invalid': isSubmitted && formControls['password'].invalid }"
-          />
-          <button type="button" class="auth-field-toggle" (click)="showPassword = !showPassword">
-            <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-          </button>
-          @if (isSubmitted && formControls['password'].errors) {
-            <div class="auth-field-error">
-              @if (formControls['password'].errors['required']) {
-                <span>Password richiesta</span>
-              }
-              @if (formControls['password'].errors['minlength']) {
-                <span>Minimo 6 caratteri</span>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="auth-options">
-          <label class="auth-checkbox" for="admin-remember">
             <input
-              formControlName="rememberMe"
-              id="admin-remember"
-              type="checkbox"
-              class="auth-checkbox-input"
+              id="passkey-email"
+              formControlName="email"
+              type="email"
+              autocomplete="email"
+              class="auth-input"
+              placeholder="Email"
+              [ngClass]="{ 'is-invalid': loginWithPasskeyForm.get('email')?.touched && loginWithPasskeyForm.get('email')?.invalid }"
             />
-            <span class="auth-checkbox-box">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span>Ricordami</span>
-          </label>
-          <a routerLink="/lostpassword" class="auth-link">Password dimenticata?</a>
+            @if (loginWithPasskeyForm.get('email')?.touched && loginWithPasskeyForm.get('email')?.invalid) {
+              <div class="auth-field-error">
+                @if (loginWithPasskeyForm.get('email')?.errors?.['required']) {
+                  <span>Email richiesta</span>
+                }
+                @if (loginWithPasskeyForm.get('email')?.errors?.['email']) {
+                  <span>Email non valida</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="auth-options">
+            <label class="auth-checkbox" for="passkey-remember">
+              <input
+                formControlName="rememberMe"
+                id="passkey-remember"
+                type="checkbox"
+                class="auth-checkbox-input"
+              />
+              <span class="auth-checkbox-box">
+                <i class="fa-solid fa-check"></i>
+              </span>
+              <span>Ricordami</span>
+            </label>
+          </div>
+
+          <button type="button" [disabled]="passkeyLoading" class="auth-submit" (click)="loginWithPasskey()">
+            @if (!passkeyLoading) {
+              <span>Accedi con passkey</span>
+              <i class="fa-solid fa-fingerprint"></i>
+            }
+            @if (passkeyLoading) {
+              <div class="spinner-border spinner-border-sm" role="status"></div>
+            }
+          </button>
+        } @else {
+          <div class="auth-field">
+            <div class="auth-field-icon">
+              <i class="fa-solid fa-envelope"></i>
+            </div>
+            <input
+              id="admin-email"
+              formControlName="email"
+              type="email"
+              autocomplete="email"
+              class="auth-input"
+              placeholder="Email"
+              [ngClass]="{ 'is-invalid': isSubmitted && formControls['email'].invalid }"
+            />
+            @if (isSubmitted && formControls['email'].errors) {
+              <div class="auth-field-error">
+                @if (formControls['email'].errors['required']) {
+                  <span>Email richiesta</span>
+                }
+                @if (formControls['email'].errors['email']) {
+                  <span>Email non valida</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="auth-field">
+            <div class="auth-field-icon">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+            <input
+              id="admin-password"
+              formControlName="password"
+              [type]="showPassword ? 'text' : 'password'"
+              autocomplete="current-password"
+              class="auth-input"
+              placeholder="Password"
+              [ngClass]="{ 'is-invalid': isSubmitted && formControls['password'].invalid }"
+            />
+            <button type="button" class="auth-field-toggle" (click)="showPassword = !showPassword">
+              <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+            @if (isSubmitted && formControls['password'].errors) {
+              <div class="auth-field-error">
+                @if (formControls['password'].errors['required']) {
+                  <span>Password richiesta</span>
+                }
+                @if (formControls['password'].errors['minlength']) {
+                  <span>Minimo 6 caratteri</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="auth-options">
+            <label class="auth-checkbox" for="admin-remember">
+              <input
+                formControlName="rememberMe"
+                id="admin-remember"
+                type="checkbox"
+                class="auth-checkbox-input"
+              />
+              <span class="auth-checkbox-box">
+                <i class="fa-solid fa-check"></i>
+              </span>
+              <span>Ricordami</span>
+            </label>
+            <a routerLink="/lostpassword" class="auth-link">Password dimenticata?</a>
+          </div>
+
+          <button type="submit" [disabled]="isLoading" class="auth-submit">
+            @if (!isLoading) {
+              <span>Accedi</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            }
+            @if (isLoading) {
+              <div class="spinner-border spinner-border-sm" role="status"></div>
+            }
+          </button>
+        }
+      </form>
+
+      @if (passkeySupported) {
+        <div class="auth-divider">
+          <span>o</span>
         </div>
 
-        <button type="submit" [disabled]="isLoading" class="auth-submit">
-          @if (!isLoading) {
-            <span>Accedi</span>
-            <i class="fa-solid fa-arrow-right"></i>
-          }
-          @if (isLoading) {
-            <div class="spinner-border spinner-border-sm" role="status"></div>
-          }
+        <button class="auth-google w-100" (click)="togglePasskeyLogin()">
+          <i class="fa-solid fa-fingerprint me-2"></i>
+          <span>{{ showPasskeyLogin ? 'Accedi con password' : 'Accedi con passkey' }}</span>
         </button>
-      </form>
+      }
 
       <div class="auth-divider">
         <span>o</span>

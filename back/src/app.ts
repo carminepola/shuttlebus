@@ -1,35 +1,35 @@
-import express from "express";
-import helmet from "helmet";
-import cors from "cors";
-import api from "./api";
-import routeNotFoundMiddleware from "./middlewares/routeNotFoundMiddleware";
-import requestMiddleware from "./middlewares/requestMiddleware";
-import errorMiddleware from "./middlewares/errorMiddleware";
-import tokenRequestMiddleware from "./middlewares/tokenRequestMiddleware";
-import versionMiddleware from "./middlewares/versionMiddleware";
-import responseMiddleware from "./middlewares/responseMiddleware";
-import cookieParser from "cookie-parser";
-import { logSendStatusMiddleware } from "./middlewares/sendStatusMiddleware";
-import noSqlInjectionMiddleware from "./middlewares/noSqlInjectionMiddleware";
-import session from "express-session";
-import passport from "passport";
-import "./passportConfig";
+import express from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+import api from './api';
+import routeNotFoundMiddleware from './middlewares/routeNotFoundMiddleware';
+import requestMiddleware from './middlewares/requestMiddleware';
+import errorMiddleware from './middlewares/errorMiddleware';
+import tokenRequestMiddleware from './middlewares/tokenRequestMiddleware';
+import versionMiddleware from './middlewares/versionMiddleware';
+import responseMiddleware from './middlewares/responseMiddleware';
+import cookieParser from 'cookie-parser';
+import { logSendStatusMiddleware } from './middlewares/sendStatusMiddleware';
+import noSqlInjectionMiddleware from './middlewares/noSqlInjectionMiddleware';
+import session from 'express-session';
+import passport from 'passport';
+import './passportConfig';
 //variabili d'ambiente
-require("dotenv").config();
+require('dotenv').config();
 const app = express();
 //Abilita cors per tutte le origini
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(",") || true, credentials: true }));
+app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || true, credentials: true }));
 //Abilita helmet per la sicurezza
 app.use(helmet());
 
 app.use(
   session({
-    secret: process.env.JWT_SECRET || "supersegreto",
+    secret: process.env.JWT_SECRET || 'supersegreto',
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: process.env.NODE_ENV == "PROD" || process.env.NODE_ENV == "TEST" ? true : false,
-      sameSite: process.env.SAME_SITE === "strict" || process.env.SAME_SITE == "lax" ? process.env.SAME_SITE : "none",
+      secure: process.env.NODE_ENV == 'PROD' || process.env.NODE_ENV == 'TEST' ? true : false,
+      sameSite: process.env.SAME_SITE === 'strict' || process.env.SAME_SITE == 'lax' ? process.env.SAME_SITE : 'none',
     }, // Se usi HTTPS, metti true
   }),
 );

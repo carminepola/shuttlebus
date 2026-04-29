@@ -1,16 +1,16 @@
-import { NextFunction, Request, Response } from "express";
-import CallRequestModel from "../model/callRequestModel";
-import { logger, env } from "..";
-import jwt from "jsonwebtoken";
+import { NextFunction, Request, Response } from 'express';
+import CallRequestModel from '../model/callRequestModel';
+import { logger, env } from '..';
+import jwt from 'jsonwebtoken';
 export default function requestMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
-    let secretKey = env.SECRET_KEY || "";
-    let ipAddress = req.socket.remoteAddress || "";
-    let xforwardedfor = req.headers["x-forwarded-for"] || undefined;
-    let xrealip = req.headers["x-real-ip"] || "";
+    let secretKey = env.SECRET_KEY || '';
+    let ipAddress = req.socket.remoteAddress || '';
+    let xforwardedfor = req.headers['x-forwarded-for'] || undefined;
+    let xrealip = req.headers['x-real-ip'] || '';
 
     if (xforwardedfor) {
-      let listIp = xforwardedfor.toString().split(",");
+      let listIp = xforwardedfor.toString().split(',');
       ipAddress = listIp[listIp.length - 1];
     }
     if (xrealip) {
@@ -20,10 +20,10 @@ export default function requestMiddleware(req: Request, res: Response, next: Nex
     const method = req.method;
     const url = req.url;
     const headers = req.headers;
-    const token = req.cookies ? req.cookies["jwt"] : undefined;
+    const token = req.cookies ? req.cookies.jwt : undefined;
 
-    const clientSid = req.cookies ? req.cookies["connect.sid"] : undefined;
-    let session = "";
+    const clientSid = req.cookies ? req.cookies['connect.sid'] : undefined;
+    let session = '';
     jwt.verify(token, secretKey, (err: any, user: any) => {
       if (!err) {
         session = user.session;
@@ -38,10 +38,10 @@ export default function requestMiddleware(req: Request, res: Response, next: Nex
       log.body = req.body;
     }
 
-    logger.info(`Nuova richiesta`, log);
+    logger.info('Nuova richiesta', log);
     next();
   } catch (error) {
-    logger.info("Errrore in requestMiddleware:", error);
+    logger.info('Errrore in requestMiddleware:', error);
     next(error);
   }
 }

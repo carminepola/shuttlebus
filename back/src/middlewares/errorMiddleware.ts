@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response } from "express";
-import MessageModel from "../model/messageModel";
-import ErrorModel from "../model/errorModel";
-import { logger } from "..";
-import { env } from "process";
+import { NextFunction, Request, Response } from 'express';
+import MessageModel from '../model/messageModel';
+import ErrorModel from '../model/errorModel';
+import { logger } from '..';
+import { env } from 'process';
 export default function errorMiddleware(err: any, req: Request, res: Response<MessageModel>, next: NextFunction) {
   try {
     if (!res.locals.response) {
@@ -20,7 +20,7 @@ export default function errorMiddleware(err: any, req: Request, res: Response<Me
     if (error.code) {
       delete error.code;
     }
-    if (error.stack && env.NODE_ENV != "DEV" && env.NODE_ENV != "TEST") {
+    if (error.stack && env.NODE_ENV != 'DEV' && env.NODE_ENV != 'TEST') {
       delete error.stack;
     }
 

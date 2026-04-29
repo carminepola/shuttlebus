@@ -1,34 +1,34 @@
-import { Router, Request, Response, NextFunction } from "express";
-import { check, validationResult } from "express-validator";
-import StopServices from "../components/services/stopServices";
-import validateDataMiddleware from "../middlewares/validateDataMiddleware";
+import { Router, Request, Response, NextFunction } from 'express';
+import { check, validationResult } from 'express-validator';
+import StopServices from '../components/services/stopServices';
+import validateDataMiddleware from '../middlewares/validateDataMiddleware';
 
-import { db } from "../index"; // Assuming db is exported from index.ts
-import StopModel from "../model/stopsModel";
-import authMiddleware from "../middlewares/authMiddleware";
-import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
-import { role } from "../enum/role";
-import ErrorModel from "../model/errorModel";
-import uploadImagesMiddleware from "../middlewares/uploadImage";
+import { db } from '../index'; // Assuming db is exported from index.ts
+import StopModel from '../model/stopsModel';
+import authMiddleware from '../middlewares/authMiddleware';
+import checkPermissionMiddleware from '../middlewares/checkPermissionMiddleware';
+import { role } from '../enum/role';
+import ErrorModel from '../model/errorModel';
+import uploadImagesMiddleware from '../middlewares/uploadImage';
 const router = Router();
 
 router.post(
-  "/",
+  '/',
   authMiddleware,
   uploadImagesMiddleware,
   [
-    check("id").isEmpty().withMessage("Id not required"),
-    check("name").notEmpty().withMessage("Name is required"),
-    check("address").notEmpty().withMessage("address is required"),
-    check("description.it").optional().isString().withMessage("Description in Italian must be a string"),
-    check("description.en").optional().isString().withMessage("Description in English must be a string"),
-    check("image").optional().isString().withMessage("Image must be a string"),
-    check("location.latitude").notEmpty().withMessage("Latitude is required"),
-    check("location.longitude").notEmpty().withMessage("Longitude is required"),
-    check("isActive").optional().isBoolean().withMessage("isActive must be a boolean"),
+    check('id').isEmpty().withMessage('Id not required'),
+    check('name').notEmpty().withMessage('Name is required'),
+    check('address').notEmpty().withMessage('address is required'),
+    check('description.it').optional().isString().withMessage('Description in Italian must be a string'),
+    check('description.en').optional().isString().withMessage('Description in English must be a string'),
+    check('image').optional().isString().withMessage('Image must be a string'),
+    check('location.latitude').notEmpty().withMessage('Latitude is required'),
+    check('location.longitude').notEmpty().withMessage('Longitude is required'),
+    check('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
   ],
 
-  checkPermissionMiddleware(role.ADMIN, ["MANAGE_STOPS"]),
+  checkPermissionMiddleware(role.ADMIN, ['MANAGE_STOPS']),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -37,14 +37,14 @@ router.post(
       }
       let stopsServices = new StopServices(db);
       const stopId = await stopsServices.createStop(req.body);
-      res.status(201).json({ message: "Stop created", id: stopId });
+      res.status(201).json({ message: 'Stop created', id: stopId });
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let stopsServices = new StopServices(db);
     const stops = await stopsServices.getAllActiveStops();
@@ -53,18 +53,18 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 });
-router.get("/id/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get('/id/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.params.id) {
-      throw new ErrorModel(400, "Id is required");
-    } else if (req.params.id === "0") {
+      throw new ErrorModel(400, 'Id is required');
+    } else if (req.params.id === '0') {
       res.json({ stop: new StopModel() });
     } else {
       let stopsServices = new StopServices(db);
       const stop = await stopsServices.getStop(req.params.id);
       res.json({ stop: stop });
       if (!stop) {
-        throw new ErrorModel(404, "Stop not found");
+        throw new ErrorModel(404, 'Stop not found');
       }
     }
   } catch (error) {
@@ -72,7 +72,7 @@ router.get("/id/:id", async (req: Request, res: Response, next: NextFunction) =>
   }
 });
 
-router.get("/all", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAGE_STOPS"]), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/all', authMiddleware, checkPermissionMiddleware(role.ADMIN, ['MANAGE_STOPS']), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let stopsServices = new StopServices(db);
     const stops = await stopsServices.getAllStops();
@@ -82,21 +82,21 @@ router.get("/all", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAG
   }
 });
 router.patch(
-  "/",
+  '/',
   [
-    check("id").notEmpty().withMessage("Id is required").isString().withMessage("id must be a string"),
-    check("name").notEmpty().withMessage("Name is required"),
-    check("address").notEmpty().withMessage("address is required"),
-    check("description.it").optional().isString().withMessage("Description in Italian must be a string"),
-    check("description.en").optional().isString().withMessage("Description in English must be a string"),
-    check("image").optional().isString().withMessage("Image must be a string"),
-    check("location.latitude").notEmpty().withMessage("Latitude is required"),
-    check("location.longitude").notEmpty().withMessage("Longitude is required"),
-    check("isActive").isBoolean().withMessage("isActive must be a boolean"),
+    check('id').notEmpty().withMessage('Id is required').isString().withMessage('id must be a string'),
+    check('name').notEmpty().withMessage('Name is required'),
+    check('address').notEmpty().withMessage('address is required'),
+    check('description.it').optional().isString().withMessage('Description in Italian must be a string'),
+    check('description.en').optional().isString().withMessage('Description in English must be a string'),
+    check('image').optional().isString().withMessage('Image must be a string'),
+    check('location.latitude').notEmpty().withMessage('Latitude is required'),
+    check('location.longitude').notEmpty().withMessage('Longitude is required'),
+    check('isActive').isBoolean().withMessage('isActive must be a boolean'),
   ],
 
   authMiddleware,
-  checkPermissionMiddleware(role.ADMIN, ["MANAGE_STOPS"]),
+  checkPermissionMiddleware(role.ADMIN, ['MANAGE_STOPS']),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -105,19 +105,19 @@ router.patch(
       }
       let stopsServices = new StopServices(db);
       await stopsServices.updateStop(req.body);
-      res.json({ message: "Stop updated" });
+      res.json({ message: 'Stop updated' });
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
-router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let stopsServices = new StopServices(db);
     const stopId = req.params.id;
     await stopsServices.deleteStop(stopId);
-    res.json({ message: "Stop deleted" });
+    res.json({ message: 'Stop deleted' });
   } catch (error) {
     next(error);
   }

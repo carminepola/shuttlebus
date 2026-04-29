@@ -1,19 +1,23 @@
-import { Db } from "mongodb";
-import MomapDao from "../dao/momapDao";
-import RoutesServices from "./routesServices";
-import LicensePlateServices from "./licensePlateServices";
-import DepotSettingsServices from "./depotSettingsServices";
-import dotenv from "dotenv";
-import { logger } from "../..";
-import { log } from "console";
+import { Db } from 'mongodb';
+import MomapDao from '../dao/momapDao';
+import RoutesServices from './routesServices';
+import LicensePlateServices from './licensePlateServices';
+import DepotSettingsServices from './depotSettingsServices';
+import dotenv from 'dotenv';
+import { logger } from '../..';
+import { log } from 'console';
 
 dotenv.config();
 
 class momapServices {
   private momapDao: MomapDao;
+
   private routeServices: RoutesServices;
+
   private licensePlateServices: LicensePlateServices;
+
   private depotSettingsServices: DepotSettingsServices;
+
   private db: Db;
 
   constructor(db: Db) {
@@ -27,7 +31,7 @@ class momapServices {
   async created() {
     try {
       const schedules: any[] = await this.routeServices.getListScheduleForBusId();
-      const day = new Date().toISOString().split("T")[0];
+      const day = new Date().toISOString().split('T')[0];
 
       for (const schedule of schedules) {
         schedule.day = day;
@@ -42,7 +46,7 @@ class momapServices {
         await this.momapDao.create(schedules);
       }
     } catch (error) {
-      logger.error("Errore in created momapServices:", error);
+      logger.error('Errore in created momapServices:', error);
     }
   }
 
@@ -60,13 +64,13 @@ class momapServices {
       // Recupera le impostazioni del deposito
       const depotSettings = await this.depotSettingsServices.get();
       if (!depotSettings || !depotSettings.depotLatitude || !depotSettings.depotLongitude) {
-        logger.warn("Invalid depot settings retrieved, returning unfiltered bus list");
+        logger.warn('Invalid depot settings retrieved, returning unfiltered bus list');
         return momap; // Return unfiltered list as fallback
       }
 
       // Filtra i bus che hanno completato le loro corse del giorno
       const now = new Date();
-      const today = now.toISOString().split("T")[0];
+      const today = now.toISOString().split('T')[0];
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
       const currentTime = now;
 
@@ -96,7 +100,7 @@ class momapServices {
 
         // Verifica se il bus ha completato tutte le sue corse
         const lastAssignment = busAssignments[busAssignments.length - 1];
-        const lastArrivalMinutes = this.timeToMinutes(lastAssignment.arrivalTime || depotSettings.defaultLastArrivalTime || "23:59");
+        const lastArrivalMinutes = this.timeToMinutes(lastAssignment.arrivalTime || depotSettings.defaultLastArrivalTime || '23:59');
 
         // Se l'orario attuale è dopo l'ultima corsa del bus + tolleranza configurabile, escludilo
         const tolerance = depotSettings.completedRouteTolerance || 30;
@@ -140,27 +144,27 @@ class momapServices {
       logger.info(`getCurrent: ${momap.length} bus totali, ${filteredMomap.length} bus attivi dopo il filtro`);
       return filteredMomap;
     } catch (error) {
-      logger.error("Errore in getCurrent momapServices:", error);
+      logger.error('Errore in getCurrent momapServices:', error);
     }
   }
 
   async getUserDevices() {
     try {
       const headers = new Headers();
-      headers.append("Content-Type", "application/json");
-      headers.append("Authorization", `Bearer ${process.env.MOMAP_JWT}`);
+      headers.append('Content-Type', 'application/json');
+      headers.append('Authorization', `Bearer ${process.env.MOMAP_JWT}`);
 
-      const url = `https://auth-api.momap.it/v1/Customers/Devices/userDevices`;
-      const response = await fetch(url, { method: "GET", headers, redirect: "follow" as RequestRedirect });
+      const url = 'https://auth-api.momap.it/v1/Customers/Devices/userDevices';
+      const response = await fetch(url, { method: 'GET', headers, redirect: 'follow' as RequestRedirect });
 
       const result = await response.json();
       if (result?.success && result?.data) {
         return result.data;
       }
 
-      throw new Error("Dati dispositivi non validi da Momap");
+      throw new Error('Dati dispositivi non validi da Momap');
     } catch (error) {
-      logger.error("Errore nel recupero dispositivi da Momap:", error);
+      logger.error('Errore nel recupero dispositivi da Momap:', error);
       throw error;
     }
   }
@@ -169,7 +173,7 @@ class momapServices {
     const { minTime, maxTime } = checkHours;
     // funzione per convertire "HH:mm" → minuti
     const toMinutes = (time: string) => {
-      const [h, m] = time.split(":").map(Number);
+      const [h, m] = time.split(':').map(Number);
       return h * 60 + m;
     };
 
@@ -196,6 +200,7 @@ class momapServices {
 
     return { minTime, maxTime };
   }
+
   async cron() {
     try {
       let route = await this.routeServices.getEnabledRoutes();
@@ -234,7 +239,7 @@ class momapServices {
             lng: parseFloat(position.lng),
             angle: parseFloat(position.angle),
             doors: position.doors,
-            date: new Date().toISOString().split("T")[0],
+            date: new Date().toISOString().split('T')[0],
             updatedFromMomap: position.updatedAt,
           };
 
@@ -244,17 +249,17 @@ class momapServices {
         }
       }
     } catch (error) {
-      logger.error("Errore in cron momapServices:", error);
+      logger.error('Errore in cron momapServices:', error);
     }
   }
 
   private async getPositionFromMomap(imei: string): Promise<{ lat: string; lng: string; angle: string; doors: any; updatedAt: string }> {
     const headers = new Headers();
-    headers.append("Content-Type", "application/json");
-    headers.append("Authorization", `Bearer ${process.env.MOMAP_JWT}`);
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', `Bearer ${process.env.MOMAP_JWT}`);
 
     const url = `https://auth-api.momap.it/v1/Customers/Devices/deviceData?imei=${imei}`;
-    const response = await fetch(url, { method: "GET", headers, redirect: "follow" as RequestRedirect });
+    const response = await fetch(url, { method: 'GET', headers, redirect: 'follow' as RequestRedirect });
 
     const result = await response.json();
     if (result?.data) {
@@ -275,7 +280,7 @@ class momapServices {
       };
     }
 
-    throw new Error("Dati GPS non validi da Momap");
+    throw new Error('Dati GPS non validi da Momap');
   }
 
   /**
@@ -303,7 +308,7 @@ class momapServices {
     busLat: number,
     busLng: number,
     stops: any[],
-    stopsMap: Map<string, { name: string; lat: number; lng: number }>
+    stopsMap: Map<string, { name: string; lat: number; lng: number }>,
   ): { prevIndex: number; nextIndex: number; progress: number } | null {
     if (stops.length < 2) return null;
 
@@ -359,12 +364,12 @@ class momapServices {
    * Converte un orario in formato "HH:mm" in minuti dalla mezzanotte
    */
   private timeToMinutes(time: string): number {
-    if (!time || typeof time !== "string") {
+    if (!time || typeof time !== 'string') {
       const errorMsg = `Invalid time format: ${time}`;
       logger.error(errorMsg);
       throw new Error(errorMsg);
     }
-    const parts = time.split(":");
+    const parts = time.split(':');
     if (parts.length !== 2) {
       const errorMsg = `Invalid time format: ${time}`;
       logger.error(errorMsg);
@@ -395,7 +400,7 @@ class momapServices {
 
   private calculateRouteMetrics(
     stops: any[],
-    stopsMap: Map<string, { name: string; lat: number; lng: number }>
+    stopsMap: Map<string, { name: string; lat: number; lng: number }>,
   ): { totalDistance: number; scheduledTravelMinutes: number; avgSpeedMetersPerMin: number } {
     let totalDistance = 0;
     let prevCoords = stops.length > 0 ? stopsMap.get(stops[0].id) : null;
@@ -408,8 +413,8 @@ class momapServices {
       prevCoords = coords;
     }
 
-    const firstStopTime = this.timeToMinutes(stops[0].stopTime || "00:00");
-    const lastStopTime = this.timeToMinutes(stops[stops.length - 1].stopTime || "00:00");
+    const firstStopTime = this.timeToMinutes(stops[0].stopTime || '00:00');
+    const lastStopTime = this.timeToMinutes(stops[stops.length - 1].stopTime || '00:00');
     const scheduledTravelMinutes = lastStopTime - firstStopTime;
 
     const avgSpeedMetersPerMin = scheduledTravelMinutes > 0 ? totalDistance / scheduledTravelMinutes : 0;
@@ -418,13 +423,14 @@ class momapServices {
   }
 
   private dateToNumber(date: string): number {
-    return parseInt(date.replace(/-/g, ""));
+    return parseInt(date.replace(/-/g, ''));
   }
+
   /**
    * Ottiene tutte le schedule attive per oggi (senza dipendenza da busId)
    */
   private async getTodaySchedules(routes: any[]): Promise<any[]> {
-    const todayDate = new Date().toISOString().split("T")[0];
+    const todayDate = new Date().toISOString().split('T')[0];
     const todayDayOfWeek = (new Date().getDay() + 6) % 7; // Lunedì = 0, Domenica = 6
 
     logger.info(`Ricerca schedule per oggi: ${todayDate}, giorno della settimana: ${todayDayOfWeek}`);
@@ -435,11 +441,11 @@ class momapServices {
 
     for (const route of routes) {
       if (!route.schedules) {
-        logger.debug(`Route ${route.id} (${route.name?.it || "N/A"}) non ha schedules`);
+        logger.debug(`Route ${route.id} (${route.name?.it || 'N/A'}) non ha schedules`);
         continue;
       }
 
-      logger.debug(`Route ${route.id} (${route.name?.it || "N/A"}) ha ${route.schedules.length} schedules`);
+      logger.debug(`Route ${route.id} (${route.name?.it || 'N/A'}) ha ${route.schedules.length} schedules`);
 
       for (const schedule of route.schedules) {
         totalSchedules++;
@@ -453,7 +459,7 @@ class momapServices {
         logger.debug(`  - DepartureTime: ${schedule.departureTime}`);
 
         // Verifica se la schedule è attiva per oggi
-        if (schedule.status !== "active") {
+        if (schedule.status !== 'active') {
           logger.debug(`  ❌ Schedule ${schedule.id} non è attiva (stato: ${schedule.status})`);
           continue;
         }
@@ -490,7 +496,7 @@ class momapServices {
         }
 
         // Aggiungi la schedule alla lista
-        logger.info(`  ✅ Schedule ${schedule.id} valida per oggi - Route: ${route.id} (${route.name?.it || "N/A"}), Partenza: ${schedule.departureTime}`);
+        logger.info(`  ✅ Schedule ${schedule.id} valida per oggi - Route: ${route.id} (${route.name?.it || 'N/A'}), Partenza: ${schedule.departureTime}`);
         todaySchedules.push({
           ...schedule,
           routeId: route.id,
@@ -510,7 +516,7 @@ class momapServices {
    * La funzione è idempotente: se esistono già assegnazioni per oggi, le riutilizza
    */
   private async generateBusScheduleTable(routes: any[], currentPositions: any[]) {
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split('T')[0];
 
     logger.info(`Generazione tabella assegnazioni per ${today}`);
     logger.info(`Bus disponibili: ${currentPositions.length}`);
@@ -556,8 +562,8 @@ class momapServices {
 
     // Ordina le schedule per orario di partenza
     todaySchedules.sort((a, b) => {
-      const timeA = this.timeToMinutes(a.departureTime || "00:00");
-      const timeB = this.timeToMinutes(b.departureTime || "00:00");
+      const timeA = this.timeToMinutes(a.departureTime || '00:00');
+      const timeB = this.timeToMinutes(b.departureTime || '00:00');
       return timeA - timeB;
     });
 
@@ -574,16 +580,16 @@ class momapServices {
 
     // Crea un tracker della disponibilità dei bus
     const busAvailability = new Map<
-      string,
-      {
-        busId: string;
-        plate: string;
-        name: string;
-        currentLat: number;
-        currentLng: number;
-        lastAssignedScheduleId: string | null;
-        lastAssignmentTime: number;
-      }
+    string,
+    {
+      busId: string;
+      plate: string;
+      name: string;
+      currentLat: number;
+      currentLng: number;
+      lastAssignedScheduleId: string | null;
+      lastAssignmentTime: number;
+    }
     >();
 
     for (const bus of currentPositions) {
@@ -634,7 +640,7 @@ class momapServices {
         // Aggiorna il tracking dell'assegnazione del bus
         const busInfo = busAvailability.get(assignedBus.busId)!;
         busInfo.lastAssignedScheduleId = schedule.id;
-        busInfo.lastAssignmentTime = this.timeToMinutes(schedule.departureTime || "00:00");
+        busInfo.lastAssignmentTime = this.timeToMinutes(schedule.departureTime || '00:00');
 
         busIndex++;
       }
@@ -654,12 +660,12 @@ class momapServices {
    */
   async getBusStatus() {
     try {
-      logger.info("Inizio getBusStatus");
+      logger.info('Inizio getBusStatus');
 
       // Recupera le impostazioni del deposito
       const depotSettings = await this.depotSettingsServices.get();
       if (!depotSettings || !depotSettings.depotLatitude || !depotSettings.depotLongitude) {
-        logger.warn("Invalid depot settings retrieved in getBusStatus, returning empty list");
+        logger.warn('Invalid depot settings retrieved in getBusStatus, returning empty list');
         return []; // Return empty list as fallback to avoid errors
       }
 
@@ -677,7 +683,7 @@ class momapServices {
         busScheduleAssignments = await this.generateBusScheduleTable(routes, currentPositions);
         logger.info(`Generate assegnazioni per ${busScheduleAssignments.size} routes`);
       } catch (error) {
-        logger.error("Errore durante la generazione delle assegnazioni bus-schedule:", error);
+        logger.error('Errore durante la generazione delle assegnazioni bus-schedule:', error);
         throw error;
       }
 
@@ -687,7 +693,7 @@ class momapServices {
       for (const route of routes) {
         for (const stop of route.stops) {
           // Recupera i dettagli della fermata dalla collection stops
-          const stopDetails = await this.db.collection("stops").findOne({ id: stop.id });
+          const stopDetails = await this.db.collection('stops').findOne({ id: stop.id });
           if (stopDetails) {
             stopsMap.set(stop.id, {
               name: stopDetails.name || stop.id,
@@ -732,7 +738,7 @@ class momapServices {
 
         // Trova le schedule assegnate a questo bus, ordinate per orario di partenza
         const busAssignments = (busToScheduleMap.get(busId) || []).sort((a, b) => {
-          return this.timeToMinutes(a.departureTime || "00:00") - this.timeToMinutes(b.departureTime || "00:00");
+          return this.timeToMinutes(a.departureTime || '00:00') - this.timeToMinutes(b.departureTime || '00:00');
         });
 
         if (!busAssignments || busAssignments.length === 0) {
@@ -743,7 +749,7 @@ class momapServices {
             name: name,
             line: null,
             nextStop: null,
-            status: "no_schedule",
+            status: 'no_schedule',
             currentLat: busLat,
             currentLng: busLng,
           });
@@ -754,7 +760,7 @@ class momapServices {
 
         // Verifica se il bus ha completato tutte le sue corse per oggi
         const lastAssignment = busAssignments[busAssignments.length - 1];
-        const lastArrivalMinutes = lastAssignment ? this.timeToMinutes(lastAssignment.arrivalTime || depotSettings.defaultLastArrivalTime || "23:59") : 0;
+        const lastArrivalMinutes = lastAssignment ? this.timeToMinutes(lastAssignment.arrivalTime || depotSettings.defaultLastArrivalTime || '23:59') : 0;
 
         logger.debug(
           `Verifica completamento corse bus ${busId}: orario attuale=${currentMinutes}, ultima corsa=${lastArrivalMinutes}, soglia=${lastArrivalMinutes + (depotSettings.completedRouteTolerance || 30)}`,
@@ -813,8 +819,8 @@ class momapServices {
         }
 
         for (const assignment of busAssignments) {
-          const departureMinutes = this.timeToMinutes(assignment.departureTime || "00:00");
-          const arrivalMinutes = this.timeToMinutes(assignment.arrivalTime || depotSettings.defaultLastArrivalTime || "23:59");
+          const departureMinutes = this.timeToMinutes(assignment.departureTime || '00:00');
+          const arrivalMinutes = this.timeToMinutes(assignment.arrivalTime || depotSettings.defaultLastArrivalTime || '23:59');
 
           logger.debug(`Verifica schedule ${assignment.scheduleId}: ${assignment.departureTime} - ${assignment.arrivalTime} (attuale: ${currentMinutes})`);
 
@@ -865,7 +871,7 @@ class momapServices {
           let closestFutureDistance = Infinity;
 
           for (const assignment of busAssignments) {
-            const departureMinutes = this.timeToMinutes(assignment.departureTime || "00:00");
+            const departureMinutes = this.timeToMinutes(assignment.departureTime || '00:00');
             if (departureMinutes > currentMinutes) {
               let assignmentDistance = Infinity;
               if (assignment.stops && assignment.stops.length > 0) {
@@ -909,7 +915,7 @@ class momapServices {
             name: name,
             line: null,
             nextStop: null,
-            status: "no_schedule",
+            status: 'no_schedule',
             currentLat: busLat,
             currentLng: busLng,
           });
@@ -962,7 +968,7 @@ class momapServices {
             name: name,
             line: activeAssignment.routeName || null,
             nextStop: null,
-            status: "no_stop",
+            status: 'no_stop',
             currentLat: busLat,
             currentLng: busLng,
           });
@@ -996,12 +1002,12 @@ class momapServices {
           continue;
         }
 
-        const today = new Date().toISOString().split("T")[0];
+        const today = new Date().toISOString().split('T')[0];
         const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
         const routeMetrics = this.calculateRouteMetrics(activeAssignment.stops, stopsMap);
 
-        let status = "on_time";
+        let status = 'on_time';
         let estimatedArrival: string | null = null;
         let currentStopArrivalTime: string | null = null;
         let currentStopDepartureTime: string | null = null;
@@ -1009,7 +1015,7 @@ class momapServices {
         const isAtStop = currentStopDistance < 120;
 
         if (isAtStop) {
-          status = "on_spot";
+          status = 'on_spot';
           const existingEvent = await this.momapDao.getBusStopEvent(today, busId, activeAssignment.scheduleId, currentStop.id);
           if (existingEvent) {
             currentStopArrivalTime = existingEvent.arrivalTime || null;
@@ -1023,7 +1029,7 @@ class momapServices {
             await this.momapDao.upsertBusStopEvent({ day: today, busId, scheduleId: activeAssignment.scheduleId, stopId: currentStop.id, arrivalTime: currentTimeStr });
           }
         } else {
-          status = "en_route";
+          status = 'en_route';
 
           for (let i = 0; i <= currentStopIndex && i < activeAssignment.stops.length; i++) {
             const stopData = activeAssignment.stops[i];
@@ -1042,7 +1048,7 @@ class momapServices {
           }
         }
 
-        if (status === "en_route" && nextStop) {
+        if (status === 'en_route' && nextStop) {
           const nextCoords = stopsMap.get(nextStop.id);
           const distanceToNextStop = nextCoords ? this.calculateDistance(busLat, busLng, nextCoords.lat, nextCoords.lng) : 0;
           const timeToNextStop = routeMetrics.avgSpeedMetersPerMin > 0
@@ -1071,10 +1077,10 @@ class momapServices {
           },
           nextStop: nextStopDetails
             ? {
-                id: nextStop.id,
-                name: nextStopDetails.name || nextStop.id,
-                scheduledTime: nextStop.stopTime,
-              }
+              id: nextStop.id,
+              name: nextStopDetails.name || nextStop.id,
+              scheduledTime: nextStop.stopTime,
+            }
             : null,
           status: status,
           estimatedArrival: estimatedArrival,
@@ -1086,7 +1092,7 @@ class momapServices {
       logger.info(`Generati ${busStatusList.length} stati bus`);
       return busStatusList;
     } catch (error) {
-      logger.error("Errore in getBusStatus momapServices:", error);
+      logger.error('Errore in getBusStatus momapServices:', error);
       throw error;
     }
   }

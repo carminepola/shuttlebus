@@ -1,9 +1,12 @@
-import { Guid } from "guid-typescript";
+import { Guid } from 'guid-typescript';
 
 export default class ticketTypeModel {
   public id?: string;
+
   public createdAt?: number;
+
   public updatedAt?: number;
+
   public name?: {
     it?: string;
     en?: string;
@@ -12,6 +15,7 @@ export default class ticketTypeModel {
     es?: string;
     jp?: string;
   };
+
   public description?: {
     it?: string;
     en?: string;
@@ -20,17 +24,21 @@ export default class ticketTypeModel {
     es?: string;
     jp?: string;
   };
+
   public cost: number;
+
   public isActive: boolean;
+
   public isDeleted: boolean;
+
   constructor(ticketType?: any) {
     this.id = ticketType?.id || Guid.create().toString();
     if (!this.name) {
-      this.name = { it: "", en: "" };
+      this.name = { it: '', en: '' };
     }
-    this.name.it = ticketType?.name?.it || "";
-    this.name.en = ticketType?.name?.en || "";
-    this.description = ticketType?.description || { it: "", en: "" };
+    this.name.it = ticketType?.name?.it || '';
+    this.name.en = ticketType?.name?.en || '';
+    this.description = ticketType?.description || { it: '', en: '' };
     this.cost = ticketType?.cost || 0;
 
     this.isActive = ticketType?.isActive == false ? false : true;

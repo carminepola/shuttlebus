@@ -1,12 +1,13 @@
-import { Db, ObjectId } from "mongodb";
-import { logger } from "../../index";
+import { Db, ObjectId } from 'mongodb';
+import { logger } from '../../index';
 
 export class TemplateMailDao {
   private collectionName: string;
+
   private db: Db;
 
   constructor(db: Db) {
-    this.collectionName = "templateMail";
+    this.collectionName = 'templateMail';
     this.db = db;
   }
 

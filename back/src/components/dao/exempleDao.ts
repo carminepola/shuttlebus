@@ -1,10 +1,11 @@
-import { Db, ObjectId } from "mongodb";
-import { Guid } from "guid-typescript";
-import { logger } from "../..";
+import { Db, ObjectId } from 'mongodb';
+import { Guid } from 'guid-typescript';
+import { logger } from '../..';
 
 export default class ExempleDao {
   db: Db;
-  schema: string = "exemple";
+
+  schema: string = 'exemple';
 
   constructor(db: Db) {
     this.db = db;
@@ -20,9 +21,9 @@ export default class ExempleDao {
         };
       }
 
-      logger.debug("Leggo dal db");
+      logger.debug('Leggo dal db');
 
-      return this.db.collection(this.schema).find(json).toArray();
+      return await this.db.collection(this.schema).find(json).toArray();
     } catch (error) {
       throw error;
     }

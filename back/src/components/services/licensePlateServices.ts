@@ -1,6 +1,6 @@
-import { Db } from "mongodb";
-import LicensePlateDao from "../dao/licensePlateDao";
-import licensePlateModel from "../../model/licensePlateModel";
+import { Db } from 'mongodb';
+import LicensePlateDao from '../dao/licensePlateDao';
+import licensePlateModel from '../../model/licensePlateModel';
 
 class LicensePlateServices {
   private licensePlateDao: LicensePlateDao;
@@ -11,23 +11,23 @@ class LicensePlateServices {
 
   async create(obj: Partial<licensePlateModel>) {
     let model = new licensePlateModel(obj);
-    return await this.licensePlateDao.create(model);
+    return this.licensePlateDao.create(model);
   }
 
   async getAll() {
-    return await this.licensePlateDao.getAll();
+    return this.licensePlateDao.getAll();
   }
 
   async getById(id: string) {
-    return await this.licensePlateDao.getById(id);
+    return this.licensePlateDao.getById(id);
   }
 
   async getByLicensePlate(licensePlate: string) {
-    return await this.licensePlateDao.getByLicensePlate(licensePlate);
+    return this.licensePlateDao.getByLicensePlate(licensePlate);
   }
 
   async getEnabled() {
-    return await this.licensePlateDao.getEnabled();
+    return this.licensePlateDao.getEnabled();
   }
 
   async getImeiByLicensePlate(licensePlate: string): Promise<string | null> {
@@ -40,11 +40,11 @@ class LicensePlateServices {
 
   async update(obj: Partial<licensePlateModel>) {
     let model = new licensePlateModel(obj);
-    return await this.licensePlateDao.update(model);
+    return this.licensePlateDao.update(model);
   }
 
   async delete(id: string) {
-    return await this.licensePlateDao.delete(id);
+    return this.licensePlateDao.delete(id);
   }
 }
 

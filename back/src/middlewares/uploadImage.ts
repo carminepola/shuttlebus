@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from "express";
-import multer from "multer";
-import fs from "fs";
-import path from "path";
+import { Request, Response, NextFunction } from 'express';
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
 
 // Definisci la cartella di destinazione per i file caricati
-const uploadDir = "./uploads/";
+const uploadDir = './uploads/';
 
 // Verifica se la cartella esiste, altrimenti creala
 if (!fs.existsSync(uploadDir)) {
@@ -31,7 +31,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: Function) => {
   if (mimetype && extname) {
     return cb(null, true);
   }
-  cb(new Error("Only image files are allowed."));
+  cb(new Error('Only image files are allowed.'));
 };
 
 // Configura Multer con limiti di dimensione e tipo di file
@@ -44,21 +44,21 @@ const upload = multer({
 // Middleware per il caricamento di una o più immagini
 const uploadImagesMiddleware = (req: Request, res: Response, next: NextFunction) => {
   // Usa Multer per caricare una o più immagini (campo 'images' nel form)
-  req.body.imagePaths = "";
+  req.body.imagePaths = '';
 
-  upload.array("images", 5)(req, res, (err: any) => {
+  upload.array('images', 5)(req, res, (err: any) => {
     // Limite massimo di 5 immagini
     if (err) {
       // Gestione errori di caricamento file
       if (err instanceof multer.MulterError) {
         // Errore di Multer (ad esempio, file troppo grande)
         return res.status(400).json({ message: err.message });
-      } else if (err.message === "Only image files are allowed.") {
+      } else if (err.message === 'Only image files are allowed.') {
         // Se il tipo di file non è un'immagine
-        return res.status(400).json({ message: "Only image files are allowed." });
+        return res.status(400).json({ message: 'Only image files are allowed.' });
       }
       // Altri errori generici
-      return res.status(500).json({ message: "Server error while uploading images." });
+      return res.status(500).json({ message: 'Server error while uploading images.' });
     }
 
     // Salva i nomi dei file caricati (se ci sono file)

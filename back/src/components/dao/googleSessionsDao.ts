@@ -1,13 +1,15 @@
-import { Guid } from "guid-typescript";
-import { Db } from "mongodb";
+import { Guid } from 'guid-typescript';
+import { Db } from 'mongodb';
 
 export default class googleSessionsDao {
   private db: Db;
-  private schema: string = "googleSessions";
+
+  private schema: string = 'googleSessions';
 
   constructor(db: Db) {
     this.db = db;
   }
+
   async insertGoogleSession(email: string): Promise<string> {
     try {
       let result = undefined;
@@ -24,6 +26,7 @@ export default class googleSessionsDao {
       throw error;
     }
   }
+
   async deleteGoogleSessionByEmail(email: string) {
     try {
       await this.db.collection(this.schema).deleteMany({ email: email });
@@ -49,7 +52,7 @@ export default class googleSessionsDao {
       if (result && result.email) {
         return result.email;
       } else {
-        throw new Error("Nessuna sessione trovata");
+        throw new Error('Nessuna sessione trovata');
       }
     } catch (error) {
       throw error;

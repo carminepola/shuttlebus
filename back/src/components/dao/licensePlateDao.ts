@@ -1,10 +1,11 @@
-import { Db } from "mongodb";
-import { logger } from "../..";
-import licensePlateModel from "../../model/licensePlateModel";
+import { Db } from 'mongodb';
+import { logger } from '../..';
+import licensePlateModel from '../../model/licensePlateModel';
 
 export default class LicensePlateDao {
   db: Db;
-  schema: string = "licensePlates";
+
+  schema: string = 'licensePlates';
 
   constructor(db: Db) {
     this.db = db;
@@ -15,7 +16,7 @@ export default class LicensePlateDao {
       const result = await this.db.collection(this.schema).insertOne(obj);
       return result.insertedId;
     } catch (error) {
-      logger.error("Error creating license plate:", error);
+      logger.error('Error creating license plate:', error);
       throw error;
     }
   }
@@ -24,7 +25,7 @@ export default class LicensePlateDao {
     try {
       return await this.db.collection(this.schema).find().toArray();
     } catch (error) {
-      logger.error("Error retrieving all license plates:", error);
+      logger.error('Error retrieving all license plates:', error);
       throw error;
     }
   }
@@ -33,7 +34,7 @@ export default class LicensePlateDao {
     try {
       return await this.db.collection(this.schema).findOne({ id: id });
     } catch (error) {
-      logger.error("Error retrieving license plate by id:", error);
+      logger.error('Error retrieving license plate by id:', error);
       throw error;
     }
   }
@@ -42,7 +43,7 @@ export default class LicensePlateDao {
     try {
       return await this.db.collection(this.schema).findOne({ licensePlate: licensePlate });
     } catch (error) {
-      logger.error("Error retrieving license plate by license plate:", error);
+      logger.error('Error retrieving license plate by license plate:', error);
       throw error;
     }
   }
@@ -51,7 +52,7 @@ export default class LicensePlateDao {
     try {
       return await this.db.collection(this.schema).find({ enabled: true }).toArray();
     } catch (error) {
-      logger.error("Error retrieving enabled license plates:", error);
+      logger.error('Error retrieving enabled license plates:', error);
       throw error;
     }
   }
@@ -61,7 +62,7 @@ export default class LicensePlateDao {
       const result = await this.db.collection(this.schema).updateOne({ id: obj.id }, { $set: obj });
       return result.modifiedCount > 0;
     } catch (error) {
-      logger.error("Error updating license plate:", error);
+      logger.error('Error updating license plate:', error);
       throw error;
     }
   }
@@ -71,7 +72,7 @@ export default class LicensePlateDao {
       const result = await this.db.collection(this.schema).deleteOne({ id: id });
       return result.deletedCount > 0;
     } catch (error) {
-      logger.error("Error deleting license plate:", error);
+      logger.error('Error deleting license plate:', error);
       throw error;
     }
   }

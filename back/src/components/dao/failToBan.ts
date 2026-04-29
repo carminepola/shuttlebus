@@ -1,8 +1,9 @@
-import { Db } from "mongodb";
+import { Db } from 'mongodb';
 
 export default class FailToBanDao {
   db: Db;
-  schema: string = "failToBan";
+
+  schema: string = 'failToBan';
 
   constructor(db: Db) {
     this.db = db;
@@ -45,6 +46,7 @@ export default class FailToBanDao {
       throw error;
     }
   }
+
   /**
    * Insert a document with the given ip into the collection
    * @param ip the ip to insert

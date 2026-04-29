@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from "express";
-import { logger } from "..";
-import ErrorModel from "../model/errorModel";
+import { NextFunction, Request, Response } from 'express';
+import { logger } from '..';
+import ErrorModel from '../model/errorModel';
 
 // Middleware per loggare ogni volta che viene inviato un status
 export function logSendStatusMiddleware(req: Request, res: Response, next: NextFunction) {

@@ -1,16 +1,16 @@
-import express from "express";
-import { db } from "../index";
-import { Request, Response, NextFunction } from "express";
-import permissionDao from "../components/dao/permissionDao";
-import { check } from "express-validator";
-import validateDataMiddleware from "../middlewares/validateDataMiddleware";
-import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
-import { role } from "../enum/role";
-import authMiddleware from "../middlewares/authMiddleware";
+import express from 'express';
+import { db } from '../index';
+import { Request, Response, NextFunction } from 'express';
+import permissionDao from '../components/dao/permissionDao';
+import { check } from 'express-validator';
+import validateDataMiddleware from '../middlewares/validateDataMiddleware';
+import checkPermissionMiddleware from '../middlewares/checkPermissionMiddleware';
+import { role } from '../enum/role';
+import authMiddleware from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-router.get("/", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["PERMISSION_MANAGEMENT"]), async (req, res, next) => {
+router.get('/', authMiddleware, checkPermissionMiddleware(role.ADMIN, ['PERMISSION_MANAGEMENT']), async (req, res, next) => {
   try {
     let permissionDaoInstance = new permissionDao(db);
     const result = await permissionDaoInstance.readAll();
@@ -21,11 +21,11 @@ router.get("/", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["PERMISSI
 });
 
 router.post(
-  "/",
-  [check("id").notEmpty().withMessage("id is required"), check("description").notEmpty().withMessage("description is required")],
+  '/',
+  [check('id').notEmpty().withMessage('id is required'), check('description').notEmpty().withMessage('description is required')],
   validateDataMiddleware,
   authMiddleware,
-  checkPermissionMiddleware(role.ADMIN, ["PERMISSION_MANAGEMENT"]),
+  checkPermissionMiddleware(role.ADMIN, ['PERMISSION_MANAGEMENT']),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let permissionDaoInstance = new permissionDao(db);
@@ -37,10 +37,10 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
-router.delete("/:id", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["PERMISSION_MANAGEMENT"]), async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id', authMiddleware, checkPermissionMiddleware(role.ADMIN, ['PERMISSION_MANAGEMENT']), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let permissionDaoInstance = new permissionDao(db);
     let id = req.params.id.toUpperCase();
