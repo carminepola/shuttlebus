@@ -41,7 +41,7 @@ export default class SessionServices {
         delete userFind.sessions;
       }
 
-      let userSession = {
+      let userSession: any = {
         ...userFind,
         rememberMe: rememberMe,
         session: sessionToken.newSession,
@@ -77,7 +77,7 @@ export default class SessionServices {
       delete userFind.sessions;
     }
     let sessionToken = await this.userServices.createSession(email);
-    let userSession = {
+    let userSession: any = {
       ...userFind,
       rememberMe: true,
       session: sessionToken.newSession,

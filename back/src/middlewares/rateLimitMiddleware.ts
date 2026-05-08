@@ -1,4 +1,5 @@
-import rateLimit, { type Request } from "express-rate-limit";
+import rateLimit from "express-rate-limit";
+import type { Request } from "express";
 
 // Rate limiter globale: max 100 richieste ogni 15 minuti per IP
 const globalLimiter = rateLimit({
