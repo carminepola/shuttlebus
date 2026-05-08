@@ -51,6 +51,8 @@ export default class SessionServices {
         permissions: userFind?.permissions ? userFind.permissions : [],
       };
 
+      delete userSession.options?.pin;
+
       this.userServices.deleteOldSessions(email);
 
       return { userSession, sessionToken };
@@ -84,6 +86,8 @@ export default class SessionServices {
       role: userFind?.role >= 0 && userFind?.role != undefined && userFind?.role != null ? userFind.role : 100,
       permissions: userFind?.permissions ? userFind.permissions : [],
     };
+
+    delete userSession.options?.pin;
 
     this.userServices.deleteOldSessions(email);
 

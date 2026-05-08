@@ -112,6 +112,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
     }
     delete user.exp;
     delete user.iat;
+    delete user.options?.pin;
 
     let newToken = jwt.sign(user, secretKey, {
       expiresIn: "72h",
