@@ -29,6 +29,7 @@ import { UserProfileComponent } from './pages/user-profile/user-profile.componen
 import { MyTicketsComponent } from './pages/my-tickets/my-tickets.component';
 import { PaymentComponent } from './pages/payment/payment.component';
 import { NotAuthorizedComponent } from './pages/not-authorized/not-authorized.component';
+import { TooManyRequestsComponent } from './pages/too-many-requests/too-many-requests.component';
 import { BusLineComponent } from './pages/bus-line/bus-line.component';
 import { InfoPageComponent } from './pages/info-page/info-page.component';
 import { DriverRoutesComponent } from './pages/driver-routes/driver-routes.component';
@@ -327,6 +328,11 @@ export const routes: Routes = [
   {
     path: 'not-authorized',
     component: NotAuthorizedComponent,
+    data: {},
+  },
+  {
+    path: 'too-many-requests',
+    component: TooManyRequestsComponent,
     data: {},
   },
 

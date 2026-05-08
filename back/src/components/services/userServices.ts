@@ -4,6 +4,7 @@ import userModel from "../../model/userModel";
 import { role } from "../../enum/role";
 import ErrorModel from "../../model/errorModel";
 import MailSenderServices from "./mailSender";
+import { logger } from "../..";
 
 import * as CryptoJS from "crypto-js";
 
@@ -171,9 +172,18 @@ export default class UserServices {
           await this.deleteUser(user.email);
         }
         user.options.pin = this.generatePin();
-        await this.mailSenderServices.sendWelcomeMail(user.email, user.details.name || "Utente", user.options.pin, user.email, lng);
 
+        // Crea prima l'utente nel database
         let result = await this.createUser(user);
+
+        // Poi invia l'email (se fallisce, l'utente esiste comunque e può richiedere un nuovo PIN)
+        try {
+          await this.mailSenderServices.sendWelcomeMail(user.email, user.details.name || "Utente", user.options.pin, user.email, lng);
+        } catch (mailError) {
+          logger.error(`Errore invio email di benvenuto a ${user.email}:`, mailError);
+          // Non blocchiamo la registrazione se l'email fallisce
+        }
+
         return result;
       }
     } catch (error) {

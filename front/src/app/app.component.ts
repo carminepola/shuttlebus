@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private cookieService: CookieWatcherServiceService,
-    private lngService: LngService
+    private lngService: LngService,
   ) {}
 
   ngOnInit() {
@@ -97,11 +97,24 @@ export class AppComponent implements OnInit {
       this.lngService.setLng(lng);
     }
 
-    this.lngService.get().subscribe((res) => {
-      if (res && res.lng) {
+    this.lngService.get().subscribe({
+      next: (res) => {
+        if (res && res.lng) {
+          this.loading = false;
+          sessionStorage['lng'] = JSON.stringify(res.lng);
+        }
+      },
+      error: (err) => {
         this.loading = false;
-        sessionStorage['lng'] = JSON.stringify(res.lng);
-      }
+        if (err.status === 429) {
+          this.router.navigate(['/too-many-requests']);
+        } else {
+          console.warn(
+            'Errore caricamento traduzioni, uso valori di default:',
+            err.message || err,
+          );
+        }
+      },
     });
   }
 
@@ -109,7 +122,7 @@ export class AppComponent implements OnInit {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
     document.body.setAttribute(
       'data-bs-theme',
-      prefersDark.matches ? 'dark' : 'light'
+      prefersDark.matches ? 'dark' : 'light',
     );
   }
   getVersion() {

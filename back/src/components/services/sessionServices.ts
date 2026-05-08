@@ -34,6 +34,11 @@ export default class SessionServices {
         throw new ErrorModel(400, "Credenziali non valide. Riprova.");
       }
 
+      if (userFind?.disabled) {
+        this.userServices.deleteOldSessions(email);
+        throw new ErrorModel(400, "Account disattivato. Contatta l'amministratore.");
+      }
+
       let sessionToken = await this.userServices.createSession(email);
 
       if (userFind?.sessions) {
@@ -71,6 +76,15 @@ export default class SessionServices {
   }> {
     this.failToBan.deleteIp(email);
     let userFind = await this.userServices.getUserByEmailAll(email);
+
+    if (!userFind) {
+      throw new ErrorModel(400, "Account non trovato.");
+    }
+
+    if (userFind?.disabled) {
+      this.userServices.deleteOldSessions(email);
+      throw new ErrorModel(400, "Account disattivato. Contatta l'amministratore.");
+    }
 
     if (userFind?.sessions) {
       //va oltre le possibilità del cookie

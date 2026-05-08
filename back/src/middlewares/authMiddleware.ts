@@ -6,6 +6,7 @@ import { CookieOptions } from "express";
 import jwt from "jsonwebtoken";
 import FailToBanDao from "../components/dao/failToBan";
 import UsersDao from "../components/dao/usersDao";
+import { role } from "../enum/role";
 
 function sleep(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
@@ -104,6 +105,21 @@ export default async function authMiddleware(req: Request, res: Response<Message
     delete user.exp;
     delete user.iat;
     delete user.options?.pin;
+
+    // Se l'utente ha role NO_PERMISSION, sloggalo
+    // Se i permessi non sono stati appena aggiornati (sessionCheck != 2),
+    // verifica il ruolo attuale dal DB per sicurezza
+    let effectiveRole = user.role;
+    if (sessionCheck !== 2) {
+      const currentPermission = await usersDao.getUserPermissionsFormEmail(user.email);
+      effectiveRole = currentPermission?.role >= 0 && currentPermission?.role != undefined && currentPermission?.role != null ? currentPermission.role : 9999;
+    }
+    if (effectiveRole === role.NO_PERMISSION) {
+      await usersDao.deleteSession(user.email, user.session);
+      res.clearCookie("jwt");
+      res.clearCookie("refreshToken");
+      return res.sendStatus(401);
+    }
 
     let newToken = jwt.sign(user, secretKey, {
       expiresIn: "72h",

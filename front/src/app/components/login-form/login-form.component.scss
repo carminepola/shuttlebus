@@ -25,7 +25,11 @@
   width: 56px;
   height: 56px;
   border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(var(--bs-secondary-rgb), 1), rgba(var(--bs-primary-rgb), 1));
+  background: linear-gradient(
+    135deg,
+    rgba(var(--bs-secondary-rgb), 1),
+    rgba(var(--bs-primary-rgb), 1)
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,7 +53,9 @@
   background: #fff;
   border: 1.5px solid rgba(0, 0, 0, 0.1);
   border-radius: 0.75rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 
   &:focus-within {
@@ -142,6 +148,36 @@
   }
 }
 
+.auth-success {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(25, 135, 84, 0.06);
+  border: 1px solid rgba(25, 135, 84, 0.15);
+  border-radius: 0.625rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #198754;
+  animation: authSuccessFadeIn 0.3s ease-out;
+
+  i {
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes authSuccessFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .auth-options {
   display: flex;
   justify-content: space-between;
@@ -211,7 +247,11 @@
   padding: 0.8rem;
   border: none;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, rgba(var(--bs-secondary-rgb), 1), rgba(var(--bs-primary-rgb), 1));
+  background: linear-gradient(
+    135deg,
+    rgba(var(--bs-secondary-rgb), 1),
+    rgba(var(--bs-primary-rgb), 1)
+  );
   color: #fff;
   font-size: 0.9rem;
   font-weight: 700;
@@ -244,7 +284,7 @@
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     flex: 1;
     height: 1px;
     background: rgba(0, 0, 0, 0.06);

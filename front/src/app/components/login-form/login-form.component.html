@@ -11,6 +11,13 @@
       </div>
     }
 
+    @if (loginSuccessMsg) {
+      <div class="auth-success">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ loginSuccessMsg }}</span>
+      </div>
+    }
+
     <div class="auth-field">
       <div class="auth-field-icon">
         <i class="fa-solid fa-envelope"></i>

@@ -25,6 +25,7 @@ export class LoginFormComponent implements OnInit {
   loginForm!: FormGroup;
   isSubmitted = false;
   loginError = '';
+  loginSuccessMsg = '';
   isLoading = false;
   showPassword = false;
   constructor(
@@ -32,7 +33,7 @@ export class LoginFormComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private googleAuthService: GoogleAuthService,
-    private lngService: LngService
+    private lngService: LngService,
   ) {}
   @Output() loginSuccess = new EventEmitter<void>();
 
@@ -76,6 +77,11 @@ export class LoginFormComponent implements OnInit {
 
           this.loginSuccess.emit();
           this.loginError = '';
+          this.loginSuccessMsg =
+            this.lngService.traslate('str_login_success') || 'Login riuscito!';
+          setTimeout(() => {
+            this.loginSuccessMsg = '';
+          }, 3000);
           // this.router.navigate(['/user/account']);
         },
         error: (e: any) => {
