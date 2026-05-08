@@ -20,7 +20,7 @@ export default function tokenRequestMiddleware(req: Request, res: Response, next
     next();
   } catch (error) {
     // se va in errore logga l'errore e chiama la funzione successiva
-    logger.error("Errore in tokenRequestMiddleware: " + JSON.stringify(error), res.locals.log);
+    logger.error("Errore in tokenRequestMiddleware: " + JSON.stringify(error));
     next(error);
   }
 }

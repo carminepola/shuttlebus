@@ -18,7 +18,7 @@ export default async function versionMiddleware(req: Request, res: Response, nex
     next();
   } catch (error) {
     // Logga l'errore e passa al middleware successivo
-    logger.error("Errore in versionMiddleware: " + JSON.stringify(error), res.locals.log);
+    logger.error("Errore in versionMiddleware: " + JSON.stringify(error));
     next(error);
   }
 }

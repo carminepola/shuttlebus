@@ -35,8 +35,11 @@ export default async function responseMiddleware(req: Request, res: Response<Mes
 
     next();
   } catch (error) {
+    if (!res.locals.log) {
+      res.locals.log = {} as any;
+    }
     res.locals.log.error = error;
-    logger.error(`Errore non gestito ${res.locals.response.uniqueCallKey}`, res.locals.log);
+    logger.error(`Errore non gestito ${res.locals.response?.uniqueCallKey || "unknown"}`, res.locals.log);
     next(error);
   }
 }

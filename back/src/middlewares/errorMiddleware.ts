@@ -8,6 +8,9 @@ export default function errorMiddleware(err: any, req: Request, res: Response<Me
     if (!res.locals.response) {
       res.locals.response = {};
     }
+    if (!res.locals.log) {
+      res.locals.log = {} as any;
+    }
     let error = undefined;
     if (err instanceof ErrorModel) {
       error = err;
@@ -28,8 +31,11 @@ export default function errorMiddleware(err: any, req: Request, res: Response<Me
 
     res.json(error);
   } catch (error) {
+    if (!res.locals.log) {
+      res.locals.log = {} as any;
+    }
     res.locals.log.error = error;
-    logger.error(`Errore ${res.locals.response.uniqueCallKey}`, res.locals.log);
+    logger.error(`Errore ${res.locals.response?.uniqueCallKey || "unknown"}`, res.locals.log);
     next(error);
   }
 }
