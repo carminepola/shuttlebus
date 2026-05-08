@@ -18,6 +18,8 @@ import "./passportConfig";
 //variabili d'ambiente
 require("dotenv").config();
 const app = express();
+// Fidati del reverse proxy (nginx) per ottenere l'IP reale del client
+app.set("trust proxy", 1);
 //CORS: usa solo le origini configurate in ALLOWED_ORIGINS
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",")
   .map((o) => o.trim())
@@ -28,7 +30,7 @@ if (!allowedOrigins || allowedOrigins.length === 0) {
 app.use(cors({ origin: allowedOrigins && allowedOrigins.length > 0 ? allowedOrigins : false, credentials: true }));
 //Abilita helmet per la sicurezza
 app.use(helmet());
-//Rate limiting globale: 100 richieste ogni 15 minuti per IP
+//Rate limiting globale: 1000 richieste al minuto per IP (configurabile)
 app.use(rateLimitMiddleware);
 
 app.use(
