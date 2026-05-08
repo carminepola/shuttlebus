@@ -9,14 +9,12 @@ import authMiddleware from "../middlewares/authMiddleware";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
 import { role } from "../enum/role";
 import ErrorModel from "../model/errorModel";
-import uploadImagesMiddleware from "../middlewares/uploadImage";
 import ticketTypeModel from "../model/ticketTypeModel";
 const router = Router();
 
 router.post(
   "/",
   authMiddleware,
-  uploadImagesMiddleware,
   [
     check("id").isEmpty().withMessage("Id not required"),
     check("txt").isString().withMessage("txt must be a string"),
@@ -32,19 +30,17 @@ router.post(
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-    
       let lngServices = new LngServices(db);
       const id = await lngServices.create(req.body);
       res.status(201).json({ message: "lng Created", id: id });
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 router.patch(
   "/",
   authMiddleware,
-  uploadImagesMiddleware,
   [
     check("id").notEmpty().withMessage("Id is required"),
     check("it").isString().withMessage("name in Italian must be a string"),
@@ -59,14 +55,13 @@ router.patch(
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-    
       let lngServices = new LngServices(db);
       const id = await lngServices.update(req.body);
       res.status(201).json({ message: "lng Created", id: id });
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {

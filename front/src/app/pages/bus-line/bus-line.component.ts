@@ -10,7 +10,6 @@ import { StopsService } from '../../services/stops/stops.service';
 import { RoutesService } from '../../services/routes/routes.service';
 import { lastValueFrom } from 'rxjs';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
-import { ImagesService } from '../../services/images/images.service';
 import { LngService } from '../../services/lng/lng.service';
 import { Title, Meta, MetaDefinition } from '@angular/platform-browser';
 @Component({
@@ -50,16 +49,21 @@ export class BusLineComponent implements OnInit {
     for (let j = 0; j < this.routes.length; j++) {
       this.routes[j];
       this.routes[j].schedules = this.routes[j].schedules.filter(
-        (x: any) => x.status === 'active'
+        (x: any) => x.status === 'active',
       );
       for (let i = 0; i < this.routes[j].stops.length; i++) {
         let stop = this.stops.find(
-          (t: any) => t.id === this.routes[j].stops[i].id
+          (t: any) => t.id === this.routes[j].stops[i].id,
         );
         if (stop) {
           this.routes[j].stops[i] = stop;
         } else {
-          this.routes[j].stops[i] = { ...this.routes[j].stops[i], name: '', description: { it: '', en: '' }, location: { latitude: 0, longitude: 0 } };
+          this.routes[j].stops[i] = {
+            ...this.routes[j].stops[i],
+            name: '',
+            description: { it: '', en: '' },
+            location: { latitude: 0, longitude: 0 },
+          };
         }
       }
     }
@@ -81,18 +85,14 @@ export class BusLineComponent implements OnInit {
     this.setMeta(this.title, this.description);
   }
 
-  public getUrl(name: string) {
-    return this.imageService.get(name || '');
-  }
   constructor(
     private location: Location,
     private stopsService: StopsService,
     private routesService: RoutesService,
     private route: ActivatedRoute,
-    public imageService: ImagesService,
     private lng: LngService,
     private titleService: Title,
-    private metaService: Meta
+    private metaService: Meta,
   ) {}
 
   setMeta(title: string, description: string) {
@@ -110,7 +110,7 @@ export class BusLineComponent implements OnInit {
     for (let i = 0; i < this.routes[this.lineSelected].stops.length; i++) {
       keywords.push(this.routes[i].stops[this.lng.getLng()].name);
       keywords.push(
-        this.routes[i].stops[this.lng.getLng()].description[this.lng.getLng()]
+        this.routes[i].stops[this.lng.getLng()].description[this.lng.getLng()],
       );
     }
     this.metaService.updateTag({
@@ -120,7 +120,7 @@ export class BusLineComponent implements OnInit {
   }
   openMaps(lat: string, lng: string) {
     window.open(
-      `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+      `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
     );
   }
   changePage(index: number) {

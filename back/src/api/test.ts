@@ -1,6 +1,5 @@
 import express from "express";
 const router = express.Router();
-import uploadImagesMiddleware from "../middlewares/uploadImage";
 import authMiddleware from "../middlewares/authMiddleware";
 router.get("/", async (req, res, next) => {
   try {

@@ -11,26 +11,36 @@ import responseMiddleware from "./middlewares/responseMiddleware";
 import cookieParser from "cookie-parser";
 import { logSendStatusMiddleware } from "./middlewares/sendStatusMiddleware";
 import noSqlInjectionMiddleware from "./middlewares/noSqlInjectionMiddleware";
+import rateLimitMiddleware from "./middlewares/rateLimitMiddleware";
 import session from "express-session";
 import passport from "passport";
 import "./passportConfig";
 //variabili d'ambiente
 require("dotenv").config();
 const app = express();
-//Abilita cors per tutte le origini
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(",") || true, credentials: true }));
+//CORS: usa solo le origini configurate in ALLOWED_ORIGINS
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+if (!allowedOrigins || allowedOrigins.length === 0) {
+  console.warn("⚠️ ALLOWED_ORIGINS non configurato. CORS bloccato per tutte le origini.");
+}
+app.use(cors({ origin: allowedOrigins && allowedOrigins.length > 0 ? allowedOrigins : false, credentials: true }));
 //Abilita helmet per la sicurezza
 app.use(helmet());
+//Rate limiting globale: 100 richieste ogni 15 minuti per IP
+app.use(rateLimitMiddleware);
 
 app.use(
   session({
-    secret: process.env.JWT_SECRET || "supersegreto",
+    secret: process.env.JWT_SECRET!,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 24 ore
       secure: process.env.NODE_ENV == "PROD" || process.env.NODE_ENV == "TEST" ? true : false,
       sameSite: process.env.SAME_SITE === "strict" || process.env.SAME_SITE == "lax" ? process.env.SAME_SITE : "none",
-    }, // Se usi HTTPS, metti true
+    },
   }),
 );
 
@@ -50,7 +60,7 @@ app.use(tokenRequestMiddleware);
 app.use(versionMiddleware);
 //Logga la richiesta
 app.use(requestMiddleware);
-//app.use(noSqlInjectionMiddleware);
+app.use(noSqlInjectionMiddleware);
 //Logga la risposta
 app.use(responseMiddleware);
 

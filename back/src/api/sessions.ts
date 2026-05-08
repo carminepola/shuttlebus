@@ -22,9 +22,9 @@ router.post(
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let secretKey = env.SECRET_KEY || "";
-      let result = {};
+      let secretKey = env.SECRET_KEY!;
 
+      // Verifica se l'utente è già autenticato
       const token = req.cookies ? req.cookies["jwt"] : undefined;
       if (token) {
         let valid = true;
@@ -39,59 +39,55 @@ router.post(
       }
 
       let sessionServices = new SessionServices(db);
-      let userServices = new UserServices(db);
       let failToBanServices = new FailToBanServices(db);
 
+      // Controllo fail-to-ban basato su IP
       if (await failToBanServices.isFail(res.locals.log.ip)) {
         throw new ErrorModel(429, "Troppi tentativi. Riprova più tardi.");
       }
 
+      // Login: verifica password + crea sessione + fail-to-ban basato su email
+      // Se le credenziali sono errate, sessionServices.login() lancia ErrorModel(400)
       let loginResponse = await sessionServices.login(req.body.email, req.body.password, req.body.rememberMe);
 
-      if (await userServices.checkPassword(req.body.email, req.body.password)) {
-        failToBanServices.deleteIp(res.locals.log.ip);
+      // Login riuscito: rimuovi IP dal fail-to-ban
+      failToBanServices.deleteIp(res.locals.log.ip);
 
-        let sessionToken = loginResponse.sessionToken;
+      let sessionToken = loginResponse.sessionToken;
+      let userSession = loginResponse.userSession;
 
-        let userSession = loginResponse.userSession;
+      let jwtToken: any = jwt.sign(userSession, secretKey, {
+        expiresIn: "72h",
+      });
 
-        let token: any = jwt.sign(userSession, secretKey, {
-          expiresIn: "74h",
-        });
-
-        let refreshToken: any = jwt.sign(
-          {
-            refreshToken: sessionToken.refreshToken,
-          },
-          secretKey,
-          {
-            expiresIn: "30d",
-          },
-        );
-        let settingsJwt: CookieOptions = {
-          maxAge: undefined,
-          httpOnly: false,
+      let refreshToken: any = jwt.sign(
+        {
+          refreshToken: sessionToken.refreshToken,
+        },
+        secretKey,
+        {
+          expiresIn: "30d",
+        },
+      );
+      let settingsJwt: CookieOptions = {
+        maxAge: undefined,
+        httpOnly: false,
+        sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
+        secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
+      };
+      if (req.body.rememberMe) {
+        settingsJwt.maxAge = 2592000000;
+        res.cookie("refreshToken", refreshToken, {
+          maxAge: 2592000000,
+          httpOnly: true,
           sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
           secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
-        };
-        if (req.body.rememberMe) {
-          settingsJwt.maxAge = 2592000000;
-          res.cookie("refreshToken", refreshToken, {
-            maxAge: 2592000000,
-            httpOnly: true,
-            sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
-            secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
-          });
-        }
-
-        res.cookie("jwt", token, settingsJwt);
-
-        result = { message: "Accesso autorizzato" };
-      } else {
-        failToBanServices.insertIp(res.locals.log.ip);
-        throw new ErrorModel(400, "Credenziali non valide. Riprova.");
+        });
       }
-      res.json(result);
+
+      res.cookie("jwt", jwtToken, settingsJwt);
+
+      res.json({ message: "Accesso autorizzato" });
     } catch (error: ErrorModel | any) {
       next(error);
     }

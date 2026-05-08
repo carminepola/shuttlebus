@@ -22,18 +22,9 @@ function verifyJwt(token: string, secret: string, options?: jwt.VerifyOptions): 
 
 export default async function authMiddleware(req: Request, res: Response<MessageModel>, next: NextFunction) {
   try {
-    const secretKey = env.SECRET_KEY || "";
-    const superPass = env.SUPERPASS || undefined;
-    const reqSuperPass = req.headers["superpass"] || undefined;
+    const secretKey = env.SECRET_KEY!;
     const token = req.cookies?.jwt;
     const refreshToken = req.cookies?.refreshToken;
-
-    if (superPass && reqSuperPass && reqSuperPass === superPass && !token) {
-      res.locals.userLogged = {
-        email: "root",
-      };
-      return next();
-    }
 
     if (!token) {
       const failToBanDao = new FailToBanDao(db);

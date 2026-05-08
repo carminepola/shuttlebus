@@ -6,9 +6,7 @@
   ></app-title-page>
 
   @if (loading) {
-    <div
-      class="w-100 d-flex align-items-center justify-content-center"
-      >
+    <div class="w-100 d-flex align-items-center justify-content-center">
       <app-loading></app-loading>
     </div>
   }
@@ -27,7 +25,7 @@
                 class="form-control"
                 id="name"
                 required
-                />
+              />
             </div>
             <div class="col-12 col-md-6">
               <label class="form-label">Indirizzo</label>
@@ -39,10 +37,12 @@
                 class="form-control"
                 id="address"
                 required
-                />
+              />
             </div>
             <div class="col-12 col-md-6">
-              <label for="desc_it" class="form-label">Descrizione Italiana</label>
+              <label for="desc_it" class="form-label"
+                >Descrizione Italiana</label
+              >
               <textarea
                 [(ngModel)]="stopForm.description.it"
                 name="desc_it"
@@ -52,7 +52,9 @@
               ></textarea>
             </div>
             <div class="col-12 col-md-6">
-              <label for="desc_en" class="form-label">Descrizione Inglese</label>
+              <label for="desc_en" class="form-label"
+                >Descrizione Inglese</label
+              >
               <textarea
                 [(ngModel)]="stopForm.description.en"
                 name="desc_en"
@@ -72,7 +74,7 @@
                 class="form-control"
                 id="latitude"
                 required
-                />
+              />
             </div>
             <div class="col-12 col-md-6">
               <label for="longitude" class="form-label">Longitudine</label>
@@ -85,34 +87,7 @@
                 class="form-control"
                 id="longitude"
                 required
-                />
-            </div>
-            <div class="col-12 col-md-6">
-              <label for="img" class="form-label">Foto</label>
-              <input
-                [(ngModel)]="stopForm.imageFile"
-                name="img"
-                type="file"
-                class="form-control"
-                id="img"
-                (change)="onImageChange($event)"
-                />
-              @if (stopForm.image) {
-                <div class="mt-2">
-                  <img
-                    [src]="getImage(stopForm.image)"
-                    alt="Caricata"
-                    class="img-fluid rounded-4"
-                    />
-                  <button
-                    class="btn btn-danger w-100 float-end mt-2 btn-delete-image"
-                    type="button"
-                    (click)="deleteImage()"
-                    >
-                    <i class="fa fa-trash me-2"></i> Elimina
-                  </button>
-                </div>
-              }
+              />
             </div>
             <div class="col-12">
               <div class="form-check form-switch">
@@ -123,25 +98,27 @@
                   type="checkbox"
                   role="switch"
                   id="flexSwitchCheckDefault"
-                  />
+                />
                 <label class="form-check-label" for="flexSwitchCheckDefault"
                   >Attiva</label
-                  >
+                >
+              </div>
+            </div>
+            @if (errorMessage != "") {
+              <div class="col-12">
+                <div class="alert alert-danger border-0">
+                  {{ errorMessage }}
                 </div>
               </div>
-              @if (errorMessage != '') {
-                <div class="col-12">
-                  <div class="alert alert-danger border-0">{{ errorMessage }}</div>
-                </div>
-              }
-            </div>
-            <div class="mt-3">
-              <button type="submit" class="float-end btn btn-secondary">
-                Salva
-              </button>
-            </div>
-          </form>
-        </div>
+            }
+          </div>
+          <div class="mt-3">
+            <button type="submit" class="float-end btn btn-secondary">
+              Salva
+            </button>
+          </div>
+        </form>
       </div>
-    }
-  </div>
+    </div>
+  }
+</div>

@@ -9,13 +9,11 @@ import authMiddleware from "../middlewares/authMiddleware";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
 import { role } from "../enum/role";
 import ErrorModel from "../model/errorModel";
-import uploadImagesMiddleware from "../middlewares/uploadImage";
 const router = Router();
 
 router.post(
   "/",
   authMiddleware,
-  uploadImagesMiddleware,
   [
     check("id").isEmpty().withMessage("Id not required"),
     check("name").notEmpty().withMessage("Name is required"),
@@ -41,7 +39,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
@@ -109,7 +107,7 @@ router.patch(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {

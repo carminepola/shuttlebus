@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StopsService } from '../../services/stops/stops.service';
-import { ImagesService } from '../../services/images/images.service';
 import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-stop-details',
@@ -13,8 +12,8 @@ import { fadeAnimation } from '../../animations/fade.animation';
     TitlePageComponent,
     FormsModule,
     LoadingComponent,
-    ReactiveFormsModule
-],
+    ReactiveFormsModule,
+  ],
   animations: [fadeAnimation],
   templateUrl: './stop-details.component.html',
   styleUrl: './stop-details.component.scss',
@@ -25,12 +24,10 @@ export class StopDetailsComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private stopService: StopsService,
-    private imageService: ImagesService
   ) {}
   id: string = '';
   form: any;
   loading: boolean = true;
-  imageLoading: boolean = true;
   stopForm: any = {
     name: '',
     address: '',
@@ -49,9 +46,6 @@ export class StopDetailsComponent implements OnInit {
         this.loading = false;
       }
     });
-  }
-  deleteImage() {
-    this.stopForm.image = '';
   }
   onSubmit(form: NgForm) {
     if (form.valid) {
@@ -95,22 +89,6 @@ export class StopDetailsComponent implements OnInit {
         });
       }
     }
-  }
-  onImageChange(event: any) {
-    this.imageLoading = true;
-    const file = event.target.files[0];
-    this.imageService.upload(file).subscribe((res) => {
-      if (res) {
-        this.stopForm.image = res.image[0];
-      }
-      this.imageLoading = false;
-    });
-  }
-  getImage(name: string) {
-    if (name) {
-      return this.imageService.get(name);
-    }
-    return '';
   }
   load(id: string) {
     this.stopService.getStop(id).subscribe((res) => {

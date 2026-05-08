@@ -98,6 +98,14 @@ const restServer = new RestServer(parseInt(env.PORT || "1800"));
 
 const startServer = async () => {
   try {
+    // Validazione variabili d'ambiente critiche per la sicurezza
+    const requiredEnvVars = ["SECRET_KEY", "JWT_SECRET", "ALLOWED_ORIGINS"];
+    const missingVars = requiredEnvVars.filter((key) => !env[key]);
+    if (missingVars.length > 0) {
+      logger.error(`Variabili d'ambiente mancanti o vuote: ${missingVars.join(", ")}. Impossibile avviare l'app.`);
+      process.exit(1);
+    }
+
     switch (env.DB_TYPE) {
       case "MONGODB":
         if (env.CONNECTION_STRING) {

@@ -17,6 +17,13 @@ export default class UsersDao {
   }
 
   /**
+   * Escape dei caratteri speciali regex per prevenire ReDoS injection.
+   */
+  private escapeRegex(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  /**
    * Retrieves all users from the database.
    *
    * @returns {Promise<any[]>} - A promise that resolves to an array of user objects.
@@ -59,7 +66,7 @@ export default class UsersDao {
   async searchUsers(searchTerm: string, page: number = 1, limit: number = 10) {
     try {
       const skip = (page - 1) * limit;
-      const searchRegex = new RegExp(searchTerm, "i");
+      const searchRegex = new RegExp(this.escapeRegex(searchTerm), "i");
 
       let json = {
         role: { $eq: role.USER },
@@ -133,7 +140,7 @@ export default class UsersDao {
   async searchStaff(searchTerm: string, page: number = 1, limit: number = 10) {
     try {
       const skip = (page - 1) * limit;
-      const searchRegex = new RegExp(searchTerm, "i");
+      const searchRegex = new RegExp(this.escapeRegex(searchTerm), "i");
 
       let json = {
         role: { $lt: role.USER },
@@ -180,7 +187,7 @@ export default class UsersDao {
         role: { $eq: role.NO_PERMISSION },
       };
       if (searchTerm) {
-        const searchRegex = new RegExp(searchTerm, "i");
+        const searchRegex = new RegExp(this.escapeRegex(searchTerm), "i");
         json.$or = [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }];
         json.role = { $eq: role.NO_PERMISSION };
       }
