@@ -54,6 +54,132 @@
     </div>
   </div>
 
+  <div class="row mb-4 g-3">
+    <div class="col-12 col-md-3">
+      <div class="stat-card h-100">
+        <div class="stat-card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <span class="stat-label">Incasso Anno Corrente</span>
+              @if (loadYearlyStats) {
+                <div class="stat-value">
+                  <div
+                    class="spinner-border spinner-border-sm text-primary"
+                    role="status"
+                  ></div>
+                </div>
+              }
+              @if (!loadYearlyStats && yearlyStats) {
+                <div class="stat-value text-success">
+                  {{ yearlyStats.currentYear.revenue.toFixed(2) }} €
+                </div>
+                <div class="text-muted small mt-1">
+                  {{ yearlyStats.currentYear.year }}
+                </div>
+              }
+            </div>
+            <div class="stat-icon bg-success-subtle text-success">
+              <i class="fas fa-euro-sign"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <div class="stat-card h-100">
+        <div class="stat-card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <span class="stat-label">Biglietti Venduti Anno Corrente</span>
+              @if (loadYearlyStats) {
+                <div class="stat-value">
+                  <div
+                    class="spinner-border spinner-border-sm text-primary"
+                    role="status"
+                  ></div>
+                </div>
+              }
+              @if (!loadYearlyStats && yearlyStats) {
+                <div class="stat-value text-primary">
+                  {{ yearlyStats.currentYear.tickets }}
+                </div>
+                <div class="text-muted small mt-1">
+                  {{ yearlyStats.currentYear.year }}
+                </div>
+              }
+            </div>
+            <div class="stat-icon bg-primary-subtle text-primary">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <div class="stat-card h-100">
+        <div class="stat-card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <span class="stat-label">Incasso Anno Precedente</span>
+              @if (loadYearlyStats) {
+                <div class="stat-value">
+                  <div
+                    class="spinner-border spinner-border-sm text-primary"
+                    role="status"
+                  ></div>
+                </div>
+              }
+              @if (!loadYearlyStats && yearlyStats) {
+                <div class="stat-value text-warning">
+                  {{ yearlyStats.previousYear.revenue.toFixed(2) }} €
+                </div>
+                <div class="text-muted small mt-1">
+                  {{ yearlyStats.previousYear.year }}
+                </div>
+              }
+            </div>
+            <div class="stat-icon bg-warning-subtle text-warning">
+              <i class="fas fa-euro-sign"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <div class="stat-card h-100">
+        <div class="stat-card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <span class="stat-label">Biglietti Venduti Anno Precedente</span>
+              @if (loadYearlyStats) {
+                <div class="stat-value">
+                  <div
+                    class="spinner-border spinner-border-sm text-primary"
+                    role="status"
+                  ></div>
+                </div>
+              }
+              @if (!loadYearlyStats && yearlyStats) {
+                <div class="stat-value text-secondary">
+                  {{ yearlyStats.previousYear.tickets }}
+                </div>
+                <div class="text-muted small mt-1">
+                  {{ yearlyStats.previousYear.year }}
+                </div>
+              }
+            </div>
+            <div class="stat-icon bg-secondary-subtle text-secondary">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row g-3 mb-4">
     @for (card of dashboardCards; track card) {
       <div class="col-12 col-sm-6 col-lg-3">
@@ -267,7 +393,9 @@
             }
           </div>
         </div>
-        <div class="content-card-body p-0 flex-grow-1 d-flex flex-column overflow-hidden">
+        <div
+          class="content-card-body p-0 flex-grow-1 d-flex flex-column overflow-hidden"
+        >
           @if (loadRecentPurchases) {
             <div class="d-flex justify-content-center py-5">
               <div class="spinner-border text-primary" role="status">
@@ -909,6 +1037,21 @@
                 <span class="summary-label">Netto corrente</span>
                 <span class="summary-value fw-bold"
                   >{{ monthlyRevenue.currentMonth.net.toFixed(2) }} €</span
+                >
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Anno scorso</span>
+                <span class="summary-value text-muted"
+                  >{{
+                    monthlyRevenue.lastYearSameMonth.revenue.toFixed(2)
+                  }}
+                  €</span
+                >
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Netto anno scorso</span>
+                <span class="summary-value text-muted"
+                  >{{ monthlyRevenue.lastYearSameMonth.net.toFixed(2) }} €</span
                 >
               </div>
             </div>

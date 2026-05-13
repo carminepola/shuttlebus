@@ -14,7 +14,7 @@ export class BookingsService {
     arrivo: string,
     persone: number,
     data: string,
-    bagagli: number
+    bagagli: number,
   ): Observable<any> {
     return this.http.post(this.apiUrl + '/findAvailableRoutes', {
       fromStopId: partenza,
@@ -31,7 +31,7 @@ export class BookingsService {
     date: string,
     routeId: string,
     scheduleId: string,
-    status: string
+    status: string,
   ) {
     return this.http.post(this.apiUrl + '/readBookingConfirmed', {
       date,
@@ -90,18 +90,31 @@ export class BookingsService {
   getDashboardStats() {
     return this.http.get<any>(`${this.apiUrl}/dashboardStats`);
   }
+  getYearlyStats() {
+    return this.http.get<any>(`${this.apiUrl}/yearlyStats`);
+  }
 
-  hasTicketForRoute(routeId: string, date: string, fromStopId: string, toStopId: string): Observable<boolean> {
+  hasTicketForRoute(
+    routeId: string,
+    date: string,
+    fromStopId: string,
+    toStopId: string,
+  ): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiUrl}/hasTicketForRoute`, {
       params: { routeId, date, fromStopId, toStopId },
     });
   }
 
-  getRevenueByPaymentMethod(startDate?: string, endDate?: string): Observable<any> {
+  getRevenueByPaymentMethod(
+    startDate?: string,
+    endDate?: string,
+  ): Observable<any> {
     let params: any = {};
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
-    return this.http.get<any>(`${this.apiUrl}/revenueByPaymentMethod`, { params });
+    return this.http.get<any>(`${this.apiUrl}/revenueByPaymentMethod`, {
+      params,
+    });
   }
 
   getDailyRevenueByRoute(date: string): Observable<any> {

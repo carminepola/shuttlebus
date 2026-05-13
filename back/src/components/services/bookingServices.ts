@@ -11,6 +11,7 @@ import RoutesServices from "./routesServices";
 import MailSenderServices from "./mailSender";
 import TelegramServices from "./telegramServices";
 import { role } from "../../enum/role";
+import { LUGGAGE_PRICE } from "../../constants";
 
 class BookingsServices {
   private bookingDao: BookingDao;
@@ -191,7 +192,7 @@ class BookingsServices {
         }
       }
     }
-    newTotale += ticket.luggage * 2;
+    newTotale += ticket.luggage * LUGGAGE_PRICE;
     if (count == ticket.seats && newTotale == totale && totale > 0 && ticket.seats > 0) {
       return true;
     }
@@ -333,6 +334,9 @@ class BookingsServices {
   }
   async andamentoVendite() {
     return await this.bookingDao.andamentoVendite();
+  }
+  async yearlyStats() {
+    return await this.bookingDao.yearlyStats();
   }
   async topClients() {
     return await this.bookingDao.topClients();

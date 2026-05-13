@@ -40,7 +40,7 @@ router.post(
       logger.error(error);
       next(error);
     }
-  }
+  },
 );
 router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -78,7 +78,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.get("/getBookingFromUser", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
@@ -251,6 +251,16 @@ router.get("/dashboardStats", authMiddleware, checkPermissionMiddleware(role.ADM
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.dashboardStats();
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/yearlyStats", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.yearlyStats();
     res.json(result);
   } catch (error) {
     next(error);

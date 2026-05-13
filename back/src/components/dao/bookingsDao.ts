@@ -3,6 +3,7 @@ import { Schedule, ScheduleStop, Stop } from "../../model/routesModel";
 import booking, { TicketType } from "../../model/bookFromSiteModel";
 import { session } from "passport";
 import { create } from "domain";
+import { LUGGAGE_PRICE } from "../../constants";
 export default class BookingsDAO {
   private db: Db;
 
@@ -709,10 +710,6 @@ export default class BookingsDAO {
               $switch: {
                 branches: [
                   {
-                    case: { $lt: ["$date", formatDate(startDateCurrent)] },
-                    then: "past",
-                  },
-                  {
                     case: {
                       $and: [{ $gte: ["$date", formatDate(startDateCurrent)] }, { $lte: ["$date", formatDate(endDateCurrent)] }],
                     },
@@ -723,6 +720,12 @@ export default class BookingsDAO {
                       $and: [{ $gte: ["$date", formatDate(startDateYearAgo)] }, { $lte: ["$date", formatDate(endDateYearAgo)] }],
                     },
                     then: "yearAgo",
+                  },
+                  {
+                    case: {
+                      $and: [{ $gte: ["$date", formatDate(startDatePast)] }, { $lte: ["$date", formatDate(endDatePast)] }],
+                    },
+                    then: "past",
                   },
                 ],
                 default: "next",
@@ -771,7 +774,7 @@ export default class BookingsDAO {
         {
           $addFields: {
             bookingValue: {
-              $add: ["$total", { $multiply: ["$luggage", 2] }],
+              $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }],
             },
           },
         },
@@ -923,10 +926,6 @@ export default class BookingsDAO {
               $switch: {
                 branches: [
                   {
-                    case: { $lt: ["$date", formatDate(startDateCurrent)] },
-                    then: "past",
-                  },
-                  {
                     case: {
                       $and: [{ $gte: ["$date", formatDate(startDateCurrent)] }, { $lte: ["$date", formatDate(endDateCurrent)] }],
                     },
@@ -938,12 +937,18 @@ export default class BookingsDAO {
                     },
                     then: "yearAgo",
                   },
+                  {
+                    case: {
+                      $and: [{ $gte: ["$date", formatDate(startDatePast)] }, { $lte: ["$date", formatDate(endDatePast)] }],
+                    },
+                    then: "past",
+                  },
                 ],
                 default: "next",
               },
             },
             bookingValue: {
-              $add: ["$total", { $multiply: ["$luggage", 2] }],
+              $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }],
             },
           },
         },
@@ -968,6 +973,69 @@ export default class BookingsDAO {
     let completeData = allDates.map((entry) => (resultMap.has(entry.date) ? resultMap.get(entry.date) : entry));
 
     return { completeData, startDateYearAgo: formatDate(startDateYearAgoCurrent), endDateYearAgo: formatDate(endDateYearAgoCurrent) };
+  }
+
+  async yearlyStats() {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const previousYear = currentYear - 1;
+
+    const startCurrentYear = `${currentYear}-01-01`;
+    const endCurrentYear = `${currentYear}-12-31`;
+    const startPreviousYear = `${previousYear}-01-01`;
+    const endPreviousYear = `${previousYear}-12-31`;
+
+    const [currentYearStats, previousYearStats] = await Promise.all([
+      this.db
+        .collection("bookings")
+        .aggregate([
+          {
+            $match: {
+              date: { $gte: startCurrentYear, $lte: endCurrentYear },
+              status: "confirmed",
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalRevenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              totalTickets: { $sum: 1 },
+            },
+          },
+        ])
+        .toArray(),
+      this.db
+        .collection("bookings")
+        .aggregate([
+          {
+            $match: {
+              date: { $gte: startPreviousYear, $lte: endPreviousYear },
+              status: "confirmed",
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalRevenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              totalTickets: { $sum: 1 },
+            },
+          },
+        ])
+        .toArray(),
+    ]);
+
+    return {
+      currentYear: {
+        year: currentYear,
+        revenue: currentYearStats.length > 0 ? currentYearStats[0].totalRevenue : 0,
+        tickets: currentYearStats.length > 0 ? currentYearStats[0].totalTickets : 0,
+      },
+      previousYear: {
+        year: previousYear,
+        revenue: previousYearStats.length > 0 ? previousYearStats[0].totalRevenue : 0,
+        tickets: previousYearStats.length > 0 ? previousYearStats[0].totalTickets : 0,
+      },
+    };
   }
 
   async hasTicketForRoute(userId: string, routeId: string, date: string, fromStopId: string, toStopId: string): Promise<boolean> {
@@ -996,7 +1064,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: "$paymentMethod",
-            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
             count: { $sum: 1 },
           },
         },
@@ -1048,7 +1116,7 @@ export default class BookingsDAO {
               scheduleId: "$scheduleId",
               paymentMethod: "$paymentMethod",
             },
-            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
             seats: { $sum: "$seats" },
             count: { $sum: 1 },
           },
@@ -1136,7 +1204,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: { $substr: ["$date", 0, 7] },
-            revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+            revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
             count: { $sum: 1 },
           },
         },
@@ -1150,7 +1218,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: { $substr: ["$date", 0, 7] },
-            refunds: { $sum: { $add: ["$total", { $multiply: ["$luggage", 2] }] } },
+            refunds: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
             count: { $sum: 1 },
           },
         },
@@ -1163,10 +1231,15 @@ export default class BookingsDAO {
     const getRevenue = (prefix: string) => revenueMap.get(prefix) || 0;
     const getRefunds = (prefix: string) => refundMap.get(prefix) || 0;
 
+    const lastYearSameMonthDate = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+    const lastYearSameMonth = `${lastYearSameMonthDate.getFullYear()}-${String(lastYearSameMonthDate.getMonth() + 1).padStart(2, "0")}`;
+
     const currentRevenue = getRevenue(currentMonth);
     const currentRefundTotal = getRefunds(currentMonth);
     const lastMonthRevenue = getRevenue(lastMonth);
     const lastMonthRefundTotal = getRefunds(lastMonth);
+    const lastYearSameMonthRevenue = getRevenue(lastYearSameMonth);
+    const lastYearSameMonthRefundTotal = getRefunds(lastYearSameMonth);
 
     const revenueChange = lastMonthRevenue > 0 ? ((currentRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
     const refundChange = lastMonthRefundTotal > 0 ? ((currentRefundTotal - lastMonthRefundTotal) / lastMonthRefundTotal) * 100 : 0;
@@ -1187,6 +1260,11 @@ export default class BookingsDAO {
         revenue: lastMonthRevenue,
         refunds: lastMonthRefundTotal,
         net: lastMonthRevenue - lastMonthRefundTotal,
+      },
+      lastYearSameMonth: {
+        revenue: lastYearSameMonthRevenue,
+        refunds: lastYearSameMonthRefundTotal,
+        net: lastYearSameMonthRevenue - lastYearSameMonthRefundTotal,
       },
       revenueChange: +revenueChange.toFixed(1),
       refundChange: +refundChange.toFixed(1),
