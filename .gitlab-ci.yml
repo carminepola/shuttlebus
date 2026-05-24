@@ -1,15 +1,15 @@
 stages:
-  - compilazione_back
-  - compilazione_front
-  - compila_dockerfile_back
-  - compila_dockerfile_front
+  - compilazione
+  - compilazione
+  - compila_dockerfile
+  - compila_dockerfile
   - aggiorna_portainer
 
 ########################
 # BUILD BACK
 ########################
 compilazione_back:
-  stage: compilazione_back
+  stage: compilazione
   image: node:24.13
   script:
     - cd back
@@ -27,7 +27,7 @@ compilazione_back:
 # BUILD FRONT
 ########################
 compilazione_front:
-  stage: compilazione_front
+  stage: compilazione
   image: node:24.13
   script:
     - cd front
@@ -46,7 +46,7 @@ compilazione_front:
 # DOCKER BACK
 ########################
 compila_dockerfile_back:
-  stage: compila_dockerfile_back
+  stage: compila_dockerfile
   image: docker:latest
   services:
     - docker:dind
@@ -81,7 +81,7 @@ compila_dockerfile_back:
 # DOCKER FRONT
 ########################
 compila_dockerfile_front:
-  stage: compila_dockerfile_front
+  stage: compila_dockerfile
   image: docker:latest
   services:
     - docker:dind
