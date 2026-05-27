@@ -66,12 +66,15 @@ export default class UsersDao {
   async searchUsers(searchTerm: string, page: number = 1, limit: number = 10) {
     try {
       const skip = (page - 1) * limit;
-      const searchRegex = new RegExp(this.escapeRegex(searchTerm), "i");
 
-      let json = {
+      let json: any = {
         role: { $eq: role.USER },
-        $or: [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }],
       };
+
+      if (searchTerm) {
+        const searchRegex = new RegExp(this.escapeRegex(searchTerm), "i");
+        json.$or = [{ "details.name": { $regex: searchRegex } }, { email: { $regex: searchRegex } }];
+      }
 
       let list = await this.db.collection(this.schema).find(json).sort({ _id: -1 }).skip(skip).limit(limit).toArray();
       list = list.map((user) => {
