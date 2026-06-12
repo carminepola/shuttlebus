@@ -556,6 +556,9 @@ export default class BookingsDAO {
           seats: newSeats,
           luggage: newLuggage,
         },
+        $inc: {
+          refundedAmount: refundAmount,
+        },
       })
       .then((result) => result.matchedCount > 0);
   }

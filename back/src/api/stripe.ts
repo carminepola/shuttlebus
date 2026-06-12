@@ -75,13 +75,15 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         const charge = event.data.object as Stripe.Charge;
         const bookingId = charge.metadata?.booking_id;
 
-        if (bookingId) {
-          let success = await bookingServices.refundBooking(bookingId);
+        if (bookingId && charge.refunded) {
+          let success = await bookingServices.refundBookingAdmin(bookingId);
           if (success) {
             logger.info(`Rimborso effettuato per la prenotazione ${bookingId}`);
           } else {
             logger.info("Rimborso arrivato ma il ticket in uno stato non rimborsabile");
           }
+        } else if (bookingId) {
+          logger.info(`Rimborso parziale ricevuto per la prenotazione ${bookingId}, DB già aggiornato dalla API`);
         }
 
         break;
@@ -115,7 +117,7 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         const bookingId = book?.numberOfTickets;
 
         if (bookingId && dispute.status === "lost") {
-          await bookingServices.refundBooking(bookingId);
+          await bookingServices.refundBookingAdmin(bookingId);
           logger.warn(`Contestazione persa per la prenotazione ${bookingId}, biglietto rimborsato`);
         } else if (bookingId) {
           logger.info(`Contestazione chiusa per la prenotazione ${bookingId}, stato: ${dispute.status}`);
@@ -128,7 +130,7 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         const bookingId = book?.numberOfTickets;
 
         if (bookingId) {
-          await bookingServices.refundBooking(bookingId);
+          await bookingServices.refundBookingAdmin(bookingId);
           logger.warn(`Fondi prelevati per contestazione sulla prenotazione ${bookingId}`);
         }
         break;
@@ -227,7 +229,7 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
             if (!ticketType) {
               throw new ErrorModel(400, "str_refund_invalid_ticket");
             }
-            if (item.count > ticketType.count) {
+            if (!item.count || item.count <= 0 || item.count > ticketType.count) {
               throw new ErrorModel(400, "str_refund_exceeds_count");
             }
             requestedAmount += item.count * ticketType.cost;
@@ -235,7 +237,7 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
           }
 
           const LUGGAGE_PRICE = 2;
-          if (refundLuggageCount > book.luggage) {
+          if (refundLuggageCount < 0 || refundLuggageCount > book.luggage) {
             throw new ErrorModel(400, "str_refund_exceeds_luggage");
           }
           requestedAmount += refundLuggageCount * LUGGAGE_PRICE;
@@ -245,30 +247,32 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
           }
 
           logger.info("Rimborso parziale iniziato per la prenotazione " + req.body.id + " importo: " + requestedAmount);
-          try {
-            await stripe.refunds.create({
-              payment_intent: book.paymentIntentId,
-              amount: Math.round(requestedAmount * 100),
-            });
-          } catch (error) {
-            logger.debug("already refunded " + req.body.id);
-          }
+          const refund = await stripe.refunds.create({
+            payment_intent: book.paymentIntentId,
+            amount: Math.round(requestedAmount * 100),
+          });
 
-          risposta = await bookingServices.partialRefundBookingAdmin(req.body.id, requestedAmount, refundItems, refundedSeats, refundLuggageCount);
+          if (refund.status === "succeeded" || refund.status === "pending") {
+            risposta = await bookingServices.partialRefundBookingAdmin(req.body.id, requestedAmount, refundItems, refundedSeats, refundLuggageCount);
+          } else {
+            logger.error("Rimborso Stripe fallito per la prenotazione " + req.body.id + " status: " + refund.status);
+            throw new ErrorModel(400, "str_refund_error");
+          }
         } else {
           logger.info("Rimborso totale iniziato per la prenotazione " + req.body.id);
-          try {
-            await stripe.refunds.create({
-              payment_intent: book.paymentIntentId,
-            });
-          } catch (error) {
-            logger.debug("already refunded " + req.body.id);
-          }
+          const refund = await stripe.refunds.create({
+            payment_intent: book.paymentIntentId,
+          });
 
-          if (isAdmin) {
-            risposta = await bookingServices.refundBookingAdmin(req.body.id);
+          if (refund.status === "succeeded" || refund.status === "pending") {
+            if (isAdmin) {
+              risposta = await bookingServices.refundBookingAdmin(req.body.id);
+            } else {
+              risposta = await bookingServices.refundBooking(req.body.id);
+            }
           } else {
-            risposta = await bookingServices.refundBooking(req.body.id);
+            logger.error("Rimborso Stripe fallito per la prenotazione " + req.body.id + " status: " + refund.status);
+            throw new ErrorModel(400, "str_refund_error");
           }
         }
       }

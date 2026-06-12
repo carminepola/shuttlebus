@@ -265,6 +265,7 @@ export class ReservationComponent implements OnInit {
         mail: t.user.mail,
         phone: t.user.phone,
         bagagli: t.luggage,
+        refundedAmount: t.refundedAmount || 0,
       };
     });
 

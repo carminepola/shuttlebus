@@ -350,7 +350,12 @@
                 </span>
               }
             </div>
-            <div class="ci-ticket-total">{{ booking.total }} &euro;</div>
+            <div class="ci-ticket-total">
+              {{ booking.total }} &euro;
+              @if (booking.refundedAmount > 0) {
+                <div class="ci-ticket-refunded-badge">Rimb. {{ booking.refundedAmount }}€</div>
+              }
+            </div>
           </div>
           @if (bookingActionLoading === booking.numberOfTickets) {
             <div class="ci-ticket-actions">

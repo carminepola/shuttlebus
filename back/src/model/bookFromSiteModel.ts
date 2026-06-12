@@ -22,6 +22,7 @@ export default class booking {
   user: any;
   paymentIntentId?: string;
   cancelMotivation?: string;
+  refundedAmount?: number;
   scannedBy?: { driverId: string; driverName: string; scannedAt: number };
   constructor(book: any) {
     try {
@@ -58,6 +59,7 @@ export default class booking {
       this.user = book.user;
       this.paymentIntentId = book.paymentIntentId || "";
       this.cancelMotivation = book.cancelMotivation || "";
+      this.refundedAmount = book.refundedAmount || 0;
       this.other = book.other;
     } catch (error) {
       throw error;
