@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { lastValueFrom } from 'rxjs';
 import { ConfirmModalService } from '../../services/confirm-modal/confirm-modal.service';
+import Swal from 'sweetalert2';
 
 const ROLES = [
   { value: 50, label: 'ADMIN' },
@@ -327,17 +328,109 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   }
 
   async refundBooking(booking: any): Promise<void> {
-    const confirmed = await this.confirmModalService.open({
-      title: 'Rimborso biglietto',
-      message: `Rimborsare il biglietto #${booking.numberOfTickets}?`,
-      confirmText: 'Rimborsa',
-      cancelText: 'Annulla',
-      confirmClass: 'btn-warning',
+    const LUGGAGE_PRICE = 2;
+
+    let ticketRows = '';
+    for (const t of booking.ticketTypes) {
+      if (t.count > 0) {
+        const ticketName = t.name?.it || t.name?.en || 'Biglietto';
+        ticketRows += `
+          <div class="d-flex align-items-center justify-content-between mb-2 px-2">
+            <div class="text-start">
+              <div class="fw-bold" style="font-size:0.85rem">${ticketName}</div>
+              <div class="text-secondary" style="font-size:0.75rem">${t.cost}€ x ${t.count}</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="document.getElementById('swal-t-${t.id}').stepDown(); window.swalUpdateTotal()">−</button>
+              <input id="swal-t-${t.id}" type="number" class="form-control form-control-sm text-center" 
+                style="width:55px" min="0" max="${t.count}" step="1" value="0" 
+                data-cost="${t.cost}" data-ticket-id="${t.id}" 
+                onchange="window.swalUpdateTotal()" />
+              <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="document.getElementById('swal-t-${t.id}').stepUp(); window.swalUpdateTotal()">+</button>
+            </div>
+          </div>`;
+      }
+    }
+
+    if (booking.luggage > 0) {
+      ticketRows += `
+        <div class="d-flex align-items-center justify-content-between mb-2 px-2 border-top pt-2">
+          <div class="text-start">
+            <div class="fw-bold" style="font-size:0.85rem">Bagagli extra</div>
+            <div class="text-secondary" style="font-size:0.75rem">${LUGGAGE_PRICE}€ x ${booking.luggage}</div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="document.getElementById('swal-luggage').stepDown(); window.swalUpdateTotal()">−</button>
+            <input id="swal-luggage" type="number" class="form-control form-control-sm text-center" 
+              style="width:55px" min="0" max="${booking.luggage}" step="1" value="0" 
+              data-cost="${LUGGAGE_PRICE}" data-ticket-id="__luggage__"
+              onchange="window.swalUpdateTotal()" />
+            <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="document.getElementById('swal-luggage').stepUp(); window.swalUpdateTotal()">+</button>
+          </div>
+        </div>`;
+    }
+
+    const { value: refundChoice } = await Swal.fire({
+      title: `Rimborso #${booking.numberOfTickets}`,
+      html: `
+        <div class="text-start">
+          ${ticketRows}
+          <hr class="my-2">
+          <div class="d-flex justify-content-between px-2 mb-2">
+            <span class="fw-bold">Totale rimborso:</span>
+            <span id="swal-refund-total" class="fw-bold text-primary">0.00€</span>
+          </div>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Rimborsa',
+      cancelButtonText: 'Annulla',
+      customClass: {
+        confirmButton: 'btn btn-warning btn-lg me-2',
+        cancelButton: 'btn btn-secondary btn-lg',
+        popup: 'rounded-4 glass',
+      },
+      didOpen: () => {
+        (window as any).swalUpdateTotal = () => {
+          let sum = 0;
+          document.querySelectorAll<HTMLInputElement>('input[data-cost]').forEach((el) => {
+            const c = parseFloat(el.dataset['cost'] || '0');
+            const v = parseInt(el.value) || 0;
+            sum += c * v;
+          });
+          const totalEl = document.getElementById('swal-refund-total');
+          if (totalEl) totalEl.textContent = sum.toFixed(2) + '€';
+        };
+      },
+      preConfirm: () => {
+        const items: { ticketTypeId: string; count: number }[] = [];
+        let luggageCount = 0;
+        let hasSelection = false;
+        document.querySelectorAll<HTMLInputElement>('input[data-cost]').forEach((el) => {
+          const v = parseInt(el.value) || 0;
+          if (v > 0) {
+            hasSelection = true;
+            if (el.dataset['ticketId'] === '__luggage__') {
+              luggageCount = v;
+            } else if (el.dataset['ticketId']) {
+              items.push({ ticketTypeId: el.dataset['ticketId']!, count: v });
+            }
+          }
+        });
+        if (!hasSelection) {
+          Swal.showValidationMessage('Seleziona almeno un biglietto da rimborsare');
+          return;
+        }
+        return { items, luggage: luggageCount };
+      },
     });
-    if (!confirmed) return;
+
+    if (!refundChoice) return;
+
     this.bookingActionLoading = booking.numberOfTickets;
     try {
-      await lastValueFrom(this.stripeService.refund(booking.numberOfTickets));
+      await lastValueFrom(this.stripeService.refund(booking.numberOfTickets, refundChoice.items, refundChoice.luggage));
       this.addActivity('Rimborso', `#${booking.numberOfTickets}`, 'success');
       await this.refreshClientBookings();
     } catch (e: any) {

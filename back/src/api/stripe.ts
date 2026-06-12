@@ -200,35 +200,77 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
 
     logger.info("preso il book ", book);
     logger.info("ruolo" + res.locals.userLogged["role"]);
-    if (book.status === "confirmed" && (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] <= role.ADMIN)) {
-      logger.info("check permessi rimborso 1 " + req.body.id);
-      if (res.locals.userLogged["role"] > role.ADMIN) {
-        logger.info("check permessi rimborso  2" + req.body.id);
-        if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
-          throw new ErrorModel(400, "str_not_before_3_days");
-        }
-        const today = new Date().setHours(0, 0, 0, 0);
+    if (book.status === "confirmed") {
+      if (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] <= role.ADMIN) {
+        logger.info("check permessi rimborso 1 " + req.body.id);
+        if (res.locals.userLogged["role"] > role.ADMIN) {
+          logger.info("check permessi rimborso  2" + req.body.id);
+          if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
+            throw new ErrorModel(400, "str_not_before_3_days");
+          }
+          const today = new Date().setHours(0, 0, 0, 0);
 
-        if (new Date(book.date).setHours(0, 0, 0, 0) <= today) {
-          throw new ErrorModel(400, "str_not_ticket_expired");
+          if (new Date(book.date).setHours(0, 0, 0, 0) <= today) {
+            throw new ErrorModel(400, "str_not_ticket_expired");
+          }
         }
-      }
 
-      logger.info("Rimborso tentativo iniziato per la prenotazione " + req.body.id);
-      try {
-        const refund = await stripe.refunds.create({
-          payment_intent: book.paymentIntentId,
-        });
-      } catch (error) {
-        logger.debug("already refunded " + req.body.id);
-      }
-      logger.info("Rimborso in corso iniziato per la prenotazione " + req.body.id);
-      if (res.locals.userLogged["role"] > role.ADMIN) {
-        logger.info("Rimborso effettuato per la prenotazione " + req.body.id);
-        risposta = await bookingServices.refundBooking(req.body.id);
-      } else {
-        logger.info("Rimborso amministratore effettuato per la prenotazione " + req.body.id);
-        risposta = await bookingServices.refundBookingAdmin(req.body.id);
+        const isAdmin = res.locals.userLogged["role"] <= role.ADMIN;
+        const refundItems: { ticketTypeId: string; count: number }[] = req.body.items || [];
+        const refundLuggageCount: number = req.body.luggage || 0;
+
+        if (refundItems.length > 0 || refundLuggageCount > 0) {
+          let requestedAmount = 0;
+          let refundedSeats = 0;
+          for (const item of refundItems) {
+            const ticketType = book.ticketTypes.find((tt: any) => tt.id === item.ticketTypeId);
+            if (!ticketType) {
+              throw new ErrorModel(400, "str_refund_invalid_ticket");
+            }
+            if (item.count > ticketType.count) {
+              throw new ErrorModel(400, "str_refund_exceeds_count");
+            }
+            requestedAmount += item.count * ticketType.cost;
+            refundedSeats += item.count;
+          }
+
+          const LUGGAGE_PRICE = 2;
+          if (refundLuggageCount > book.luggage) {
+            throw new ErrorModel(400, "str_refund_exceeds_luggage");
+          }
+          requestedAmount += refundLuggageCount * LUGGAGE_PRICE;
+
+          if (requestedAmount <= 0) {
+            throw new ErrorModel(400, "str_refund_no_items");
+          }
+
+          logger.info("Rimborso parziale iniziato per la prenotazione " + req.body.id + " importo: " + requestedAmount);
+          try {
+            await stripe.refunds.create({
+              payment_intent: book.paymentIntentId,
+              amount: Math.round(requestedAmount * 100),
+            });
+          } catch (error) {
+            logger.debug("already refunded " + req.body.id);
+          }
+
+          risposta = await bookingServices.partialRefundBookingAdmin(req.body.id, requestedAmount, refundItems, refundedSeats, refundLuggageCount);
+        } else {
+          logger.info("Rimborso totale iniziato per la prenotazione " + req.body.id);
+          try {
+            await stripe.refunds.create({
+              payment_intent: book.paymentIntentId,
+            });
+          } catch (error) {
+            logger.debug("already refunded " + req.body.id);
+          }
+
+          if (isAdmin) {
+            risposta = await bookingServices.refundBookingAdmin(req.body.id);
+          } else {
+            risposta = await bookingServices.refundBooking(req.body.id);
+          }
+        }
       }
     }
 

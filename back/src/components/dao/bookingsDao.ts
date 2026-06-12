@@ -404,7 +404,7 @@ export default class BookingsDAO {
     if (!status || status === "all") {
       search.status = { $not: { $in: ["deleted", "expired"] } };
     } else {
-      search.status = "confirmed";
+      search.status = status;
     }
 
     if (routeId) {
@@ -514,6 +514,47 @@ export default class BookingsDAO {
         $set: {
           updatedAt: new Date().getTime(),
           status: "refunded",
+        },
+      })
+      .then((result) => result.matchedCount > 0);
+  }
+
+  async partialRefundBooking(bookingId: string, items: { ticketTypeId: string; count: number }[], refundAmount: number, refundedSeats: number, refundedLuggage: number, userId?: string) {
+    let q: any = {
+      numberOfTickets: bookingId,
+      status: { $in: ["confirmed", "cancelled"] },
+    };
+    if (userId) {
+      q.userId = userId;
+    }
+
+    const existing = await this.db.collection("bookings").findOne({ numberOfTickets: bookingId });
+    if (!existing) return false;
+
+    const updatedTicketTypes = existing.ticketTypes.map((tt: any) => {
+      const refundItem = items.find((i: any) => i.ticketTypeId === tt.id);
+      if (refundItem) {
+        return { ...tt, count: tt.count - refundItem.count };
+      }
+      return tt;
+    }).filter((tt: any) => tt.count > 0);
+
+    const newTotal = existing.total - refundAmount;
+    const newSeats = existing.seats - refundedSeats;
+    const newLuggage = existing.luggage - refundedLuggage;
+
+    const allRefunded = updatedTicketTypes.length === 0 && newLuggage === 0;
+
+    return this.db
+      .collection("bookings")
+      .updateOne(q, {
+        $set: {
+          updatedAt: new Date().getTime(),
+          status: allRefunded ? "refunded" : existing.status,
+          ticketTypes: updatedTicketTypes,
+          total: newTotal,
+          seats: newSeats,
+          luggage: newLuggage,
         },
       })
       .then((result) => result.matchedCount > 0);

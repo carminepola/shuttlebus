@@ -23,8 +23,15 @@ export class StripeService {
       })
     );
   }
-  refund(id: string): Observable<any> {
-    return this.http.post(this.apiUrl + '/refund', { id }).pipe(
+  refund(id: string, items?: { ticketTypeId: string; count: number }[], luggage?: number): Observable<any> {
+    const body: any = { id };
+    if (items && items.length > 0) {
+      body.items = items;
+    }
+    if (luggage && luggage > 0) {
+      body.luggage = luggage;
+    }
+    return this.http.post(this.apiUrl + '/refund', body).pipe(
       catchError((error) => {
         return throwError(() => error);
       })

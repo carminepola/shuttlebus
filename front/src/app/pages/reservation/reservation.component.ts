@@ -67,45 +67,118 @@ export class ReservationComponent implements OnInit {
 
     this.filterButton();
   }
-  rimborsa(numberOfTickets: number) {
+  rimborsa(numberOfTickets: number, ticket: any[], bagagli: number) {
+    const LUGGAGE_PRICE = 2;
+
+    let ticketRows = '';
+    for (const t of ticket) {
+      if (t.count > 0) {
+        ticketRows += `
+          <div class="d-flex align-items-center justify-content-between mb-2 px-2">
+            <div class="text-start">
+              <div class="fw-bold" style="font-size:0.85rem">${t.name.it || t.name?.en || 'Biglietto'}</div>
+              <div class="text-secondary" style="font-size:0.75rem">${t.cost}€ x ${t.count}</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="document.getElementById('swal-t-${t.id}').stepDown(); window.swalUpdateTotal()">−</button>
+              <input id="swal-t-${t.id}" type="number" class="form-control form-control-sm text-center" 
+                style="width:55px" min="0" max="${t.count}" step="1" value="0" 
+                data-cost="${t.cost}" data-ticket-id="${t.id}" 
+                onchange="window.swalUpdateTotal()" />
+              <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="document.getElementById('swal-t-${t.id}').stepUp(); window.swalUpdateTotal()">+</button>
+            </div>
+          </div>`;
+      }
+    }
+
+    if (bagagli > 0) {
+      ticketRows += `
+        <div class="d-flex align-items-center justify-content-between mb-2 px-2 border-top pt-2">
+          <div class="text-start">
+            <div class="fw-bold" style="font-size:0.85rem">Bagagli extra</div>
+            <div class="text-secondary" style="font-size:0.75rem">${LUGGAGE_PRICE}€ x ${bagagli}</div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="document.getElementById('swal-luggage').stepDown(); window.swalUpdateTotal()">−</button>
+            <input id="swal-luggage" type="number" class="form-control form-control-sm text-center" 
+              style="width:55px" min="0" max="${bagagli}" step="1" value="0" 
+              data-cost="${LUGGAGE_PRICE}" data-ticket-id="__luggage__"
+              onchange="window.swalUpdateTotal()" />
+            <button type="button" class="btn btn-outline-secondary btn-sm px-2" onclick="document.getElementById('swal-luggage').stepUp(); window.swalUpdateTotal()">+</button>
+          </div>
+        </div>`;
+    }
+
     Swal.fire({
-      title: 'Vuoi rimborsare questo biglietto?',
-      showDenyButton: true,
+      title: 'Rimborsa biglietto',
+      html: `
+        <div class="text-start">
+          ${ticketRows}
+          <hr class="my-2">
+          <div class="d-flex justify-content-between px-2 mb-2">
+            <span class="fw-bold">Totale rimborso:</span>
+            <span id="swal-refund-total" class="fw-bold text-primary">0.00€</span>
+          </div>
+        </div>
+      `,
       position: 'top',
       icon: 'warning',
+      showDenyButton: true,
+      showCancelButton: false,
       showClass: {
-        popup: `
-                animate__animated
-                animate__slideInDown   
-                animate__faster
-              `,
+        popup: `animate__animated animate__slideInDown animate__faster`,
       },
       hideClass: {
-        popup: `
-                animate__animated
-                animate__slideOutUp
-                animate__faster
-              `,
+        popup: `animate__animated animate__slideOutUp animate__faster`,
       },
       customClass: {
         confirmButton: 'btn btn-primary btn-lg mr-2',
         denyButton: 'btn btn-danger btn-lg',
         popup: 'rounded-4 glass',
       },
-
-      showCancelButton: false,
       confirmButtonText: 'Confermo',
       denyButtonText: `Annulla`,
-    }).then((result: any) => {
-      /* Read more about isConfirmed, isDenied below */
-      if (result.isConfirmed) {
-        this.stripeService.refund(numberOfTickets.toString()).subscribe(() => {
-          let bookIndex = this.booking.findIndex(
-            (b: any) => b.ticketId === numberOfTickets,
-          );
-          this.booking[bookIndex].status = 'refunded';
+      didOpen: () => {
+        (window as any).swalUpdateTotal = () => {
+          let sum = 0;
+          document.querySelectorAll<HTMLInputElement>('input[data-cost]').forEach((el) => {
+            const c = parseFloat(el.dataset['cost'] || '0');
+            const v = parseInt(el.value) || 0;
+            sum += c * v;
+          });
+          const totalEl = document.getElementById('swal-refund-total');
+          if (totalEl) totalEl.textContent = sum.toFixed(2) + '€';
+        };
+      },
+      preConfirm: () => {
+        const items: { ticketTypeId: string; count: number }[] = [];
+        let luggageCount = 0;
+        let hasSelection = false;
+        document.querySelectorAll<HTMLInputElement>('input[data-cost]').forEach((el) => {
+          const v = parseInt(el.value) || 0;
+          if (v > 0) {
+            hasSelection = true;
+            if (el.dataset['ticketId'] === '__luggage__') {
+              luggageCount = v;
+            } else if (el.dataset['ticketId']) {
+              items.push({ ticketTypeId: el.dataset['ticketId']!, count: v });
+            }
+          }
         });
-      } else if (result.isDenied) {
+        if (!hasSelection) {
+          Swal.showValidationMessage('Seleziona almeno un biglietto da rimborsare');
+          return;
+        }
+        return { items, luggage: luggageCount };
+      },
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        const refundData = result.value;
+        this.stripeService.refund(numberOfTickets.toString(), refundData.items, refundData.luggage).subscribe({
+          next: () => {
+            this.filterButton();
+          },
+        });
       }
     });
   }

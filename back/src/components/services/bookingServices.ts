@@ -279,10 +279,19 @@ class BookingsServices {
 
     let success = await this.bookingDao.refundBooking(numberOfTickets, userId);
     if (success) {
-      //manda mail rimborsato biglietto
       await this.mailSenderServices.sendRefoundBook(book.user.mail, book.user.name, book.total.toString(), numberOfTickets, book.lng);
       await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Rimborso", this.mailSenderServices.transformBookGeneric(book));
       await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Prenotazione* 💸"));
+    }
+    return success;
+  }
+  async partialRefundBookingAdmin(numberOfTickets: string, amount: number, items: { ticketTypeId: string; count: number }[], refundedSeats: number, refundedLuggage: number, userId?: string) {
+    let book = await this.getBooking(numberOfTickets);
+    let success = await this.bookingDao.partialRefundBooking(numberOfTickets, items, amount, refundedSeats, refundedLuggage, userId);
+    if (success) {
+      await this.mailSenderServices.sendRefoundBook(book.user.mail, book.user.name, amount.toString(), numberOfTickets, book.lng);
+      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Rimborso Parziale", this.mailSenderServices.transformBookGeneric(book));
+      await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Parziale Prenotazione* 💸"));
     }
     return success;
   }
