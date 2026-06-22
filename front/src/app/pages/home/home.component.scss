@@ -1,3 +1,29 @@
+.yoy-header {
+  padding: 0.5rem 0;
+}
+
+.yoy-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.yoy-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.yoy-change {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
 .stat-card {
   background: white;
   border-radius: 1rem;

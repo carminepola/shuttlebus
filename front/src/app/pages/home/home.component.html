@@ -55,26 +55,47 @@
   </div>
 
   <div class="row mb-4 g-3">
-    <div class="col-12 col-md-3">
+    <div class="col-12">
+      <div class="yoy-header d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
+        <h6 class="mb-0 fw-bold text-muted">
+          <i class="fas fa-chart-column me-2"></i>Confronto Annuale
+        </h6>
+        @if (!loadYearlyComparison && yearlyComparison) {
+          <div class="d-flex align-items-center gap-3">
+            <span class="yoy-legend">
+              <span class="yoy-legend-dot" style="background: #3b82f6;"></span>
+              {{ yearlyComparison.currentYear }}
+            </span>
+            <span class="yoy-legend">
+              <span class="yoy-legend-dot" style="background: #94a3b8;"></span>
+              {{ yearlyComparison.previousYear }}
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4 g-3">
+    <div class="col-12 col-md-6 col-lg-3">
       <div class="stat-card h-100">
         <div class="stat-card-body">
           <div class="d-flex align-items-start justify-content-between">
             <div>
-              <span class="stat-label">Incasso Anno Corrente</span>
-              @if (loadYearlyStats) {
+              <span class="stat-label">Fatturato Anno Corrente</span>
+              @if (loadYearlyComparison) {
                 <div class="stat-value">
-                  <div
-                    class="spinner-border spinner-border-sm text-primary"
-                    role="status"
-                  ></div>
+                  <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                 </div>
               }
-              @if (!loadYearlyStats && yearlyStats) {
+              @if (!loadYearlyComparison && yearlyComparison) {
                 <div class="stat-value text-success">
-                  {{ yearlyStats.currentYear.revenue.toFixed(2) }} €
+                  {{ formatEuro(yearlyComparison.currentTotal.revenue) }}
                 </div>
-                <div class="text-muted small mt-1">
-                  {{ yearlyStats.currentYear.year }}
+                <div class="yoy-change" [class.text-success]="yearlyComparison.revenueChange >= 0" [class.text-danger]="yearlyComparison.revenueChange < 0">
+                  <i class="fas {{ yearlyComparison.revenueChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                  {{ yearlyComparison.revenueChange > 0 ? '+' : '' }}{{ yearlyComparison.revenueChange }}%
+                  <span class="text-muted fw-normal">vs {{ yearlyComparison.previousYear }}</span>
                 </div>
               }
             </div>
@@ -86,26 +107,25 @@
       </div>
     </div>
 
-    <div class="col-12 col-md-3">
+    <div class="col-12 col-md-6 col-lg-3">
       <div class="stat-card h-100">
         <div class="stat-card-body">
           <div class="d-flex align-items-start justify-content-between">
             <div>
-              <span class="stat-label">Biglietti Venduti Anno Corrente</span>
-              @if (loadYearlyStats) {
+              <span class="stat-label">Biglietti Venduti</span>
+              @if (loadYearlyComparison) {
                 <div class="stat-value">
-                  <div
-                    class="spinner-border spinner-border-sm text-primary"
-                    role="status"
-                  ></div>
+                  <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                 </div>
               }
-              @if (!loadYearlyStats && yearlyStats) {
+              @if (!loadYearlyComparison && yearlyComparison) {
                 <div class="stat-value text-primary">
-                  {{ yearlyStats.currentYear.tickets }}
+                  {{ yearlyComparison.currentTotal.tickets | number:'1.0-0':'it' }}
                 </div>
-                <div class="text-muted small mt-1">
-                  {{ yearlyStats.currentYear.year }}
+                <div class="yoy-change" [class.text-success]="yearlyComparison.ticketsChange >= 0" [class.text-danger]="yearlyComparison.ticketsChange < 0">
+                  <i class="fas {{ yearlyComparison.ticketsChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                  {{ yearlyComparison.ticketsChange > 0 ? '+' : '' }}{{ yearlyComparison.ticketsChange }}%
+                  <span class="text-muted fw-normal">vs {{ yearlyComparison.previousYear }}</span>
                 </div>
               }
             </div>
@@ -117,64 +137,112 @@
       </div>
     </div>
 
-    <div class="col-12 col-md-3">
+    <div class="col-12 col-md-6 col-lg-3">
       <div class="stat-card h-100">
         <div class="stat-card-body">
           <div class="d-flex align-items-start justify-content-between">
             <div>
-              <span class="stat-label">Incasso Anno Precedente</span>
-              @if (loadYearlyStats) {
+              <span class="stat-label">Posti Venduti</span>
+              @if (loadYearlyComparison) {
                 <div class="stat-value">
-                  <div
-                    class="spinner-border spinner-border-sm text-primary"
-                    role="status"
-                  ></div>
+                  <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                 </div>
               }
-              @if (!loadYearlyStats && yearlyStats) {
-                <div class="stat-value text-warning">
-                  {{ yearlyStats.previousYear.revenue.toFixed(2) }} €
+              @if (!loadYearlyComparison && yearlyComparison) {
+                <div class="stat-value" style="color: #8b5cf6;">
+                  {{ yearlyComparison.currentTotal.seats | number:'1.0-0':'it' }}
                 </div>
-                <div class="text-muted small mt-1">
-                  {{ yearlyStats.previousYear.year }}
+                <div class="yoy-change" [class.text-success]="yearlyComparison.seatsChange >= 0" [class.text-danger]="yearlyComparison.seatsChange < 0">
+                  <i class="fas {{ yearlyComparison.seatsChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                  {{ yearlyComparison.seatsChange > 0 ? '+' : '' }}{{ yearlyComparison.seatsChange }}%
+                  <span class="text-muted fw-normal">vs {{ yearlyComparison.previousYear }}</span>
                 </div>
               }
             </div>
-            <div class="stat-icon bg-warning-subtle text-warning">
-              <i class="fas fa-euro-sign"></i>
+            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+              <i class="fas fa-users"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-md-3">
+    <div class="col-12 col-md-6 col-lg-3">
       <div class="stat-card h-100">
         <div class="stat-card-body">
           <div class="d-flex align-items-start justify-content-between">
             <div>
-              <span class="stat-label">Biglietti Venduti Anno Precedente</span>
-              @if (loadYearlyStats) {
+              <span class="stat-label">Scontrino Medio</span>
+              @if (loadYearlyComparison) {
                 <div class="stat-value">
-                  <div
-                    class="spinner-border spinner-border-sm text-primary"
-                    role="status"
-                  ></div>
+                  <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                 </div>
               }
-              @if (!loadYearlyStats && yearlyStats) {
-                <div class="stat-value text-secondary">
-                  {{ yearlyStats.previousYear.tickets }}
+              @if (!loadYearlyComparison && yearlyComparison) {
+                <div class="stat-value text-warning">
+                  {{ yearlyComparison.avgTicketCurrent }} €
                 </div>
-                <div class="text-muted small mt-1">
-                  {{ yearlyStats.previousYear.year }}
+                <div class="yoy-change" [class.text-success]="yearlyComparison.avgTicketChange >= 0" [class.text-danger]="yearlyComparison.avgTicketChange < 0">
+                  <i class="fas {{ yearlyComparison.avgTicketChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                  {{ yearlyComparison.avgTicketChange > 0 ? '+' : '' }}{{ yearlyComparison.avgTicketChange }}%
+                  <span class="text-muted fw-normal">vs {{ yearlyComparison.previousYear }}</span>
                 </div>
               }
             </div>
-            <div class="stat-icon bg-secondary-subtle text-secondary">
-              <i class="fas fa-ticket-alt"></i>
+            <div class="stat-icon bg-warning-subtle text-warning">
+              <i class="fas fa-receipt"></i>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4 g-3">
+    <div class="col-12 col-lg-6">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-success-subtle text-success">
+              <i class="fas fa-chart-bar"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Fatturato Mensile</h5>
+            <span class="text-muted small ms-auto">Confronto anno per anno</span>
+          </div>
+        </div>
+        <div class="content-card-body" style="height: 280px;">
+          @if (loadYearlyComparison) {
+            <div class="d-flex justify-content-center h-100">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+          }
+          @if (!loadYearlyComparison) {
+            <canvas #yearlyRevenueChart></canvas>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="content-card h-100">
+        <div class="content-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="content-card-icon bg-primary-subtle text-primary">
+              <i class="fas fa-chart-column"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Biglietti Venduti Mensili</h5>
+            <span class="text-muted small ms-auto">Confronto anno per anno</span>
+          </div>
+        </div>
+        <div class="content-card-body" style="height: 280px;">
+          @if (loadYearlyComparison) {
+            <div class="d-flex justify-content-center h-100">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+          }
+          @if (!loadYearlyComparison) {
+            <canvas #yearlyTicketsChart></canvas>
+          }
         </div>
       </div>
     </div>

@@ -453,6 +453,10 @@ class BookingsServices {
   async getMonthlyRevenue() {
     return await this.bookingDao.getMonthlyRevenue();
   }
+
+  async yearlyComparison() {
+    return await this.bookingDao.yearlyComparison();
+  }
 }
 
 export default BookingsServices;

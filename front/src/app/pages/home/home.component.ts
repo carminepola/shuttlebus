@@ -57,6 +57,28 @@ interface RecentPurchase {
   user: { name: string; mail: string };
 }
 
+interface YoYMonth {
+  month: number;
+  label: string;
+  key: string;
+  current: { revenue: number; tickets: number; seats: number };
+  previous: { revenue: number; tickets: number; seats: number };
+}
+
+interface YearlyComparison {
+  currentYear: number;
+  previousYear: number;
+  currentTotal: { revenue: number; tickets: number; seats: number };
+  previousTotal: { revenue: number; tickets: number; seats: number };
+  revenueChange: number;
+  ticketsChange: number;
+  seatsChange: number;
+  avgTicketCurrent: number;
+  avgTicketPrevious: number;
+  avgTicketChange: number;
+  months: YoYMonth[];
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -71,6 +93,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('salesChartVendite') salesChartVendite!: ElementRef;
   @ViewChild('purchasesScroll') purchasesScroll!: ElementRef;
   @ViewChild('revenueChart') revenueChart!: ElementRef;
+  @ViewChild('yearlyRevenueChart') yearlyRevenueChart!: ElementRef;
+  @ViewChild('yearlyTicketsChart') yearlyTicketsChart!: ElementRef;
   loadCorse = true;
   loadPrenotazioni = true;
   loadBiglietti = true;
@@ -87,11 +111,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   loadDashboardStats = true;
   loadRevenueByPayment = true;
   loadDailyRouteRevenue = true;
-  loadYearlyStats = true;
+  loadYearlyComparison = true;
 
   public dashboardStats: any = null;
   public revenueByPayment: any = null;
-  public yearlyStats: any = null;
+  public yearlyComparison: YearlyComparison | null = null;
   public dailyRouteRevenue: any[] = [];
   public dailyRouteDate: string = new Date().toISOString().split('T')[0];
 
@@ -176,7 +200,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getDashboardStats();
     this.getRevenueByPaymentMethod();
     this.getDailyRevenueByRoute();
-    this.getYearlyStats();
+    this.getYearlyComparison();
     setTimeout(() => {
       this.routeToday();
       this.biglietti();
@@ -261,7 +285,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   animateNumberRoutes(max: number, duration: number) {
     if (max != this.countRoutes) {
       let start = 0;
-      let stepTime = Math.abs(Math.floor(duration / max)); // Tempo per ogni incremento
+      let stepTime = Math.abs(Math.floor(duration / max));
 
       let interval = setInterval(() => {
         start++;
@@ -274,7 +298,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   animateNumberPrenotazioni(max: number, duration: number) {
     if (max != this.countPrenotazioni) {
       let start = 0;
-      let stepTime = Math.abs(Math.floor(duration / max)); // Tempo per ogni incremento
+      let stepTime = Math.abs(Math.floor(duration / max));
 
       let interval = setInterval(() => {
         start++;
@@ -286,7 +310,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   animateNumberBiglietti(max: number, duration: number) {
     if (max != this.countBiglietti) {
       let start = 0;
-      let stepTime = Math.abs(Math.floor(duration / max)); // Tempo per ogni incremento
+      let stepTime = Math.abs(Math.floor(duration / max));
 
       let interval = setInterval(() => {
         start++;
@@ -652,6 +676,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  formatEuro(value: number): string {
+    return value.toLocaleString('it-IT', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }) + ' €';
+  }
+
   onPurchasesScroll() {
     const el = this.purchasesScroll?.nativeElement;
     if (!el) return;
@@ -745,10 +776,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  getYearlyStats() {
-    this.bookingsService.getYearlyStats().subscribe((res: any) => {
-      this.yearlyStats = res;
-      this.loadYearlyStats = false;
+  getYearlyComparison() {
+    this.bookingsService.getYearlyComparison().subscribe((res: any) => {
+      this.yearlyComparison = res;
+      this.loadYearlyComparison = false;
+      if (res?.months) {
+        setTimeout(() => {
+          this.createYearlyRevenueChart(res);
+          this.createYearlyTicketsChart(res);
+        }, 100);
+      }
     });
   }
 
@@ -861,6 +898,109 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           y: {
             beginAtZero: true,
             ticks: { callback: (value: any) => value + ' €' },
+          },
+        },
+      },
+    });
+  }
+
+  private createYearlyRevenueChart(data: YearlyComparison) {
+    const ctx = this.yearlyRevenueChart?.nativeElement?.getContext('2d');
+    if (!ctx) return;
+
+    const labels = data.months.map((m) => m.label);
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: `${data.currentYear}`,
+            data: data.months.map((m) => m.current.revenue),
+            backgroundColor: 'rgba(59, 130, 246, 0.75)',
+            borderColor: '#3b82f6',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+          {
+            label: `${data.previousYear}`,
+            data: data.months.map((m) => m.previous.revenue),
+            backgroundColor: 'rgba(148, 163, 184, 0.5)',
+            borderColor: '#94a3b8',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: (context: any) =>
+                context.dataset.label +
+                ': ' +
+                context.parsed.y.toLocaleString('it-IT') +
+                ' €',
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value: any) => {
+                if (value >= 1000) return (value / 1000).toFixed(0) + 'k €';
+                return value + ' €';
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  private createYearlyTicketsChart(data: YearlyComparison) {
+    const ctx = this.yearlyTicketsChart?.nativeElement?.getContext('2d');
+    if (!ctx) return;
+
+    const labels = data.months.map((m) => m.label);
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: `${data.currentYear}`,
+            data: data.months.map((m) => m.current.tickets),
+            backgroundColor: 'rgba(59, 130, 246, 0.75)',
+            borderColor: '#3b82f6',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+          {
+            label: `${data.previousYear}`,
+            data: data.months.map((m) => m.previous.tickets),
+            backgroundColor: 'rgba(148, 163, 184, 0.5)',
+            borderColor: '#94a3b8',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
           },
         },
       },

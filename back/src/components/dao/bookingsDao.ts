@@ -1082,6 +1082,104 @@ export default class BookingsDAO {
     };
   }
 
+  async yearlyComparison() {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const previousYear = currentYear - 1;
+
+    const [currentYearMonthly, previousYearMonthly] = await Promise.all([
+      this.db
+        .collection("bookings")
+        .aggregate([
+          {
+            $match: {
+              date: { $gte: `${currentYear}-01-01`, $lte: `${currentYear}-12-31` },
+              status: "confirmed",
+            },
+          },
+          {
+            $group: {
+              _id: { $substr: ["$date", 5, 2] },
+              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              tickets: { $sum: 1 },
+              seats: { $sum: "$seats" },
+            },
+          },
+        ])
+        .toArray(),
+      this.db
+        .collection("bookings")
+        .aggregate([
+          {
+            $match: {
+              date: { $gte: `${previousYear}-01-01`, $lte: `${previousYear}-12-31` },
+              status: "confirmed",
+            },
+          },
+          {
+            $group: {
+              _id: { $substr: ["$date", 5, 2] },
+              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              tickets: { $sum: 1 },
+              seats: { $sum: "$seats" },
+            },
+          },
+        ])
+        .toArray(),
+    ]);
+
+    const monthNames = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+
+    const currentMap = new Map(currentYearMonthly.map((r: any) => [r._id, r]));
+    const previousMap = new Map(previousYearMonthly.map((r: any) => [r._id, r]));
+
+    const months = Array.from({ length: 12 }, (_, i) => {
+      const key = String(i + 1).padStart(2, "0");
+      const c = currentMap.get(key);
+      const p = previousMap.get(key);
+      return {
+        month: i,
+        label: monthNames[i],
+        key,
+        current: { revenue: c?.revenue || 0, tickets: c?.tickets || 0, seats: c?.seats || 0 },
+        previous: { revenue: p?.revenue || 0, tickets: p?.tickets || 0, seats: p?.seats || 0 },
+      };
+    });
+
+    const currentTotal = months.reduce((acc, m) => {
+      acc.revenue += m.current.revenue;
+      acc.tickets += m.current.tickets;
+      acc.seats += m.current.seats;
+      return acc;
+    }, { revenue: 0, tickets: 0, seats: 0 });
+
+    const previousTotal = months.reduce((acc, m) => {
+      acc.revenue += m.previous.revenue;
+      acc.tickets += m.previous.tickets;
+      acc.seats += m.previous.seats;
+      return acc;
+    }, { revenue: 0, tickets: 0, seats: 0 });
+
+    const pctChange = (curr: number, prev: number) =>
+      prev > 0 ? +((curr - prev) / prev * 100).toFixed(1) : 0;
+
+    return {
+      currentYear,
+      previousYear,
+      currentTotal,
+      previousTotal,
+      revenueChange: pctChange(currentTotal.revenue, previousTotal.revenue),
+      ticketsChange: pctChange(currentTotal.tickets, previousTotal.tickets),
+      seatsChange: pctChange(currentTotal.seats, previousTotal.seats),
+      avgTicketCurrent: currentTotal.tickets > 0 ? +(currentTotal.revenue / currentTotal.tickets).toFixed(2) : 0,
+      avgTicketPrevious: previousTotal.tickets > 0 ? +(previousTotal.revenue / previousTotal.tickets).toFixed(2) : 0,
+      avgTicketChange: previousTotal.tickets > 0
+        ? +(((currentTotal.revenue / currentTotal.tickets) - (previousTotal.revenue / previousTotal.tickets)) / (previousTotal.revenue / previousTotal.tickets) * 100).toFixed(1)
+        : 0,
+      months,
+    };
+  }
+
   async hasTicketForRoute(userId: string, routeId: string, date: string, fromStopId: string, toStopId: string): Promise<boolean> {
     const result = await this.db.collection("bookings").findOne({
       userId,

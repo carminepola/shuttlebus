@@ -1,0 +1,29 @@
+FROM alpine:3.20
+
+# Installa Node.js, npm, git, bash e shadow (necessario per usermod/groupmod se serve)
+RUN apk update && apk add --no-cache \
+    nodejs \
+    npm \
+    git \
+    bash \
+    sudo \
+    shadow
+
+# Crea un utente non-root 'vscode' con UID/GID 1000
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m -s /bin/bash $USERNAME \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
+# Installa Angular CLI globalmente
+RUN npm install -g @angular/cli
+
+# Imposta l'utente di default
+USER $USERNAME
+
+# Imposta la directory di lavoro predefinita
+WORKDIR /workspace

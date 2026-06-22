@@ -126,4 +126,8 @@ export class BookingsService {
   getMonthlyRevenue(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/getMonthlyRevenue`);
   }
+
+  getYearlyComparison(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/yearlyComparison`);
+  }
 }
