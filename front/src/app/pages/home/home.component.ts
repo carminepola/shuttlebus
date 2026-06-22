@@ -93,8 +93,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('salesChartVendite') salesChartVendite!: ElementRef;
   @ViewChild('purchasesScroll') purchasesScroll!: ElementRef;
   @ViewChild('revenueChart') revenueChart!: ElementRef;
-  @ViewChild('yearlyRevenueChart') yearlyRevenueChart!: ElementRef;
-  @ViewChild('yearlyTicketsChart') yearlyTicketsChart!: ElementRef;
   loadCorse = true;
   loadPrenotazioni = true;
   loadBiglietti = true;
@@ -683,6 +681,18 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }) + ' €';
   }
 
+  getMonthPct(current: number, previous: number): number {
+    if (previous <= 0) return 0;
+    return +((current - previous) / previous * 100).toFixed(1);
+  }
+
+  getMonthPctClass(current: number, previous: number): string {
+    if (previous <= 0) return 'bg-secondary-subtle text-secondary';
+    return current >= previous
+      ? 'bg-success-subtle text-success'
+      : 'bg-danger-subtle text-danger';
+  }
+
   onPurchasesScroll() {
     const el = this.purchasesScroll?.nativeElement;
     if (!el) return;
@@ -780,12 +790,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.bookingsService.getYearlyComparison().subscribe((res: any) => {
       this.yearlyComparison = res;
       this.loadYearlyComparison = false;
-      if (res?.months) {
-        setTimeout(() => {
-          this.createYearlyRevenueChart(res);
-          this.createYearlyTicketsChart(res);
-        }, 100);
-      }
     });
   }
 
@@ -898,109 +902,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           y: {
             beginAtZero: true,
             ticks: { callback: (value: any) => value + ' €' },
-          },
-        },
-      },
-    });
-  }
-
-  private createYearlyRevenueChart(data: YearlyComparison) {
-    const ctx = this.yearlyRevenueChart?.nativeElement?.getContext('2d');
-    if (!ctx) return;
-
-    const labels = data.months.map((m) => m.label);
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: `${data.currentYear}`,
-            data: data.months.map((m) => m.current.revenue),
-            backgroundColor: 'rgba(59, 130, 246, 0.75)',
-            borderColor: '#3b82f6',
-            borderWidth: 1,
-            borderRadius: 4,
-          },
-          {
-            label: `${data.previousYear}`,
-            data: data.months.map((m) => m.previous.revenue),
-            backgroundColor: 'rgba(148, 163, 184, 0.5)',
-            borderColor: '#94a3b8',
-            borderWidth: 1,
-            borderRadius: 4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top' },
-          tooltip: {
-            callbacks: {
-              label: (context: any) =>
-                context.dataset.label +
-                ': ' +
-                context.parsed.y.toLocaleString('it-IT') +
-                ' €',
-            },
-          },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: (value: any) => {
-                if (value >= 1000) return (value / 1000).toFixed(0) + 'k €';
-                return value + ' €';
-              },
-            },
-          },
-        },
-      },
-    });
-  }
-
-  private createYearlyTicketsChart(data: YearlyComparison) {
-    const ctx = this.yearlyTicketsChart?.nativeElement?.getContext('2d');
-    if (!ctx) return;
-
-    const labels = data.months.map((m) => m.label);
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: `${data.currentYear}`,
-            data: data.months.map((m) => m.current.tickets),
-            backgroundColor: 'rgba(59, 130, 246, 0.75)',
-            borderColor: '#3b82f6',
-            borderWidth: 1,
-            borderRadius: 4,
-          },
-          {
-            label: `${data.previousYear}`,
-            data: data.months.map((m) => m.previous.tickets),
-            backgroundColor: 'rgba(148, 163, 184, 0.5)',
-            borderColor: '#94a3b8',
-            borderWidth: 1,
-            borderRadius: 4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top' },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
           },
         },
       },

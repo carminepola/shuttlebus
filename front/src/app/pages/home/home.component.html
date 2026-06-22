@@ -199,49 +199,113 @@
   </div>
 
   <div class="row mb-4 g-3">
-    <div class="col-12 col-lg-6">
-      <div class="content-card h-100">
+    <div class="col-12">
+      <div class="content-card">
         <div class="content-card-header">
           <div class="d-flex align-items-center gap-2">
             <div class="content-card-icon bg-success-subtle text-success">
-              <i class="fas fa-chart-bar"></i>
+              <i class="fas fa-table-columns"></i>
             </div>
-            <h5 class="mb-0 fw-bold">Fatturato Mensile</h5>
-            <span class="text-muted small ms-auto">Confronto anno per anno</span>
+            <h5 class="mb-0 fw-bold">Confronto Mese per Mese</h5>
           </div>
         </div>
-        <div class="content-card-body" style="height: 280px;">
+        <div class="content-card-body p-0">
           @if (loadYearlyComparison) {
-            <div class="d-flex justify-content-center h-100">
+            <div class="d-flex justify-content-center py-5">
               <div class="spinner-border text-primary" role="status"></div>
             </div>
           }
-          @if (!loadYearlyComparison) {
-            <canvas #yearlyRevenueChart></canvas>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-lg-6">
-      <div class="content-card h-100">
-        <div class="content-card-header">
-          <div class="d-flex align-items-center gap-2">
-            <div class="content-card-icon bg-primary-subtle text-primary">
-              <i class="fas fa-chart-column"></i>
+          @if (!loadYearlyComparison && yearlyComparison) {
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Mese</th>
+                    <th class="text-end">{{ yearlyComparison.currentYear }} Fatturato</th>
+                    <th class="text-end">{{ yearlyComparison.previousYear }} Fatturato</th>
+                    <th class="text-center">Var. Fatturato</th>
+                    <th class="text-end">{{ yearlyComparison.currentYear }} Pren.</th>
+                    <th class="text-end">{{ yearlyComparison.previousYear }} Pren.</th>
+                    <th class="text-center">Var. Prenotazioni</th>
+                    <th class="text-end">{{ yearlyComparison.currentYear }} Posti</th>
+                    <th class="text-end">{{ yearlyComparison.previousYear }} Posti</th>
+                    <th class="text-center">Var. Posti</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (m of yearlyComparison.months; track m.month) {
+                    <tr>
+                      <td class="fw-semibold">{{ m.label }}</td>
+                      <td class="text-end">{{ m.current.revenue | number:'1.0-0':'it' }} €</td>
+                      <td class="text-end text-muted">{{ m.previous.revenue | number:'1.0-0':'it' }} €</td>
+                      <td class="text-center">
+                        @if (m.previous.revenue > 0) {
+                          <span class="badge yoy-pct {{ getMonthPctClass(m.current.revenue, m.previous.revenue) }}">
+                            <i class="fas {{ getMonthPct(m.current.revenue, m.previous.revenue) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i>
+                            {{ getMonthPct(m.current.revenue, m.previous.revenue) > 0 ? '+' : '' }}{{ getMonthPct(m.current.revenue, m.previous.revenue) }}%
+                          </span>
+                        } @else {
+                          <span class="text-muted small">-</span>
+                        }
+                      </td>
+                      <td class="text-end">{{ m.current.tickets }}</td>
+                      <td class="text-end text-muted">{{ m.previous.tickets }}</td>
+                      <td class="text-center">
+                        @if (m.previous.tickets > 0) {
+                          <span class="badge yoy-pct {{ getMonthPctClass(m.current.tickets, m.previous.tickets) }}">
+                            <i class="fas {{ getMonthPct(m.current.tickets, m.previous.tickets) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i>
+                            {{ getMonthPct(m.current.tickets, m.previous.tickets) > 0 ? '+' : '' }}{{ getMonthPct(m.current.tickets, m.previous.tickets) }}%
+                          </span>
+                        } @else {
+                          <span class="text-muted small">-</span>
+                        }
+                      </td>
+                      <td class="text-end">{{ m.current.seats }}</td>
+                      <td class="text-end text-muted">{{ m.previous.seats }}</td>
+                      <td class="text-center">
+                        @if (m.previous.seats > 0) {
+                          <span class="badge yoy-pct {{ getMonthPctClass(m.current.seats, m.previous.seats) }}">
+                            <i class="fas {{ getMonthPct(m.current.seats, m.previous.seats) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i>
+                            {{ getMonthPct(m.current.seats, m.previous.seats) > 0 ? '+' : '' }}{{ getMonthPct(m.current.seats, m.previous.seats) }}%
+                          </span>
+                        } @else {
+                          <span class="text-muted small">-</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+                <tfoot>
+                  <tr class="table-active fw-bold">
+                    <td>TOTALE</td>
+                    <td class="text-end">{{ yearlyComparison.currentTotal.revenue | number:'1.0-0':'it' }} €</td>
+                    <td class="text-end">{{ yearlyComparison.previousTotal.revenue | number:'1.0-0':'it' }} €</td>
+                    <td class="text-center">
+                      <span class="badge yoy-pct {{ getMonthPctClass(yearlyComparison.currentTotal.revenue, yearlyComparison.previousTotal.revenue) }}">
+                        <i class="fas {{ yearlyComparison.revenueChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i>
+                        {{ yearlyComparison.revenueChange > 0 ? '+' : '' }}{{ yearlyComparison.revenueChange }}%
+                      </span>
+                    </td>
+                    <td class="text-end">{{ yearlyComparison.currentTotal.tickets }}</td>
+                    <td class="text-end">{{ yearlyComparison.previousTotal.tickets }}</td>
+                    <td class="text-center">
+                      <span class="badge yoy-pct {{ getMonthPctClass(yearlyComparison.currentTotal.tickets, yearlyComparison.previousTotal.tickets) }}">
+                        <i class="fas {{ yearlyComparison.ticketsChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i>
+                        {{ yearlyComparison.ticketsChange > 0 ? '+' : '' }}{{ yearlyComparison.ticketsChange }}%
+                      </span>
+                    </td>
+                    <td class="text-end">{{ yearlyComparison.currentTotal.seats }}</td>
+                    <td class="text-end">{{ yearlyComparison.previousTotal.seats }}</td>
+                    <td class="text-center">
+                      <span class="badge yoy-pct {{ getMonthPctClass(yearlyComparison.currentTotal.seats, yearlyComparison.previousTotal.seats) }}">
+                        <i class="fas {{ yearlyComparison.seatsChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} me-1"></i>
+                        {{ yearlyComparison.seatsChange > 0 ? '+' : '' }}{{ yearlyComparison.seatsChange }}%
+                      </span>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
-            <h5 class="mb-0 fw-bold">Biglietti Venduti Mensili</h5>
-            <span class="text-muted small ms-auto">Confronto anno per anno</span>
-          </div>
-        </div>
-        <div class="content-card-body" style="height: 280px;">
-          @if (loadYearlyComparison) {
-            <div class="d-flex justify-content-center h-100">
-              <div class="spinner-border text-primary" role="status"></div>
-            </div>
-          }
-          @if (!loadYearlyComparison) {
-            <canvas #yearlyTicketsChart></canvas>
           }
         </div>
       </div>
