@@ -787,9 +787,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getYearlyComparison() {
-    this.bookingsService.getYearlyComparison().subscribe((res: any) => {
-      this.yearlyComparison = res;
-      this.loadYearlyComparison = false;
+    this.bookingsService.getYearlyComparison().subscribe({
+      next: (res: any) => {
+        this.yearlyComparison = res;
+        this.loadYearlyComparison = false;
+      },
+      error: () => {
+        this.loadYearlyComparison = false;
+      },
     });
   }
 
