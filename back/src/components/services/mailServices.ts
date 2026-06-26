@@ -21,16 +21,14 @@ class MailService {
    * @returns Oggetto Mail con le variabili sostituite
    */
   private async templateParser(mail: Mail): Promise<any> {
-    let newMail = {
+    let appName = process.env.APP_NAME || "Pintour";
+    let newMail: any = {
       id: mail.id,
-      from: mailConfig.auth.user,
+      from: `${appName} <${mailConfig.auth.user}>`,
       to: mail.to,
-      headers: {
-        "Content-Type": "text/html; charset=UTF-8",
-        "Content-Transfer-Encoding": "base64",
-      },
-      encoding: "base64",
+      replyTo: mailConfig.auth.user,
       subject: "",
+      text: "",
       html: "",
     };
 
@@ -47,13 +45,36 @@ class MailService {
         }
         newMail.subject = templateMail.title;
         newMail.html = templateMail.body;
+        newMail.text = this.htmlToText(templateMail.body);
       }
     } else {
       newMail.subject = mail.title || "Nessun titolo";
       newMail.html = mail.message || "Nessun messaggio";
+      newMail.text = this.htmlToText(mail.message || "");
     }
 
     return newMail;
+  }
+
+  private htmlToText(html: string): string {
+    if (!html) return "";
+    return html
+      .replace(/<head[\s\S]*?<\/head>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<\/(p|div|h[1-6]|li|tr)>/gi, "\n")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\n{3,}/g, "\n\n")
+      .replace(/[ \t]+/g, " ")
+      .replace(/ ?\n ?/g, "\n")
+      .trim();
   }
 
   private async send(newMail: Mail): Promise<{ mailSent: boolean; errorMessage: string }> {
