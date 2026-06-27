@@ -30,7 +30,6 @@ class MailService {
       subject: "",
       text: "",
       html: "",
-      textEncoding: "base64",
     };
 
     if (mail.type && mail.type != "default") {
