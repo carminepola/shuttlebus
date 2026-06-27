@@ -29,8 +29,8 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.
         } catch (error) {
           logger.error(error);
         }
-      }
-    )
+      },
+    ),
   );
 }
 
@@ -41,6 +41,7 @@ if (process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET && pr
         clientID: process.env.MICROSOFT_CLIENT_ID || "",
         clientSecret: process.env.MICROSOFT_CLIENT_SECRET || "",
         callbackURL: process.env.MICROSOFT_CALLBACK_URL || "",
+
         scope: ["user.read"],
       },
       async (accessToken: string, refreshToken: string, profile: any, done: any) => {
@@ -49,8 +50,8 @@ if (process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET && pr
         } catch (error) {
           logger.error(error);
         }
-      }
-    )
+      },
+    ),
   );
 }
 
@@ -88,7 +89,7 @@ async function getGooglePhoneNumber(accessToken: string) {
               reject(error);
             }
           });
-        }
+        },
       )
       .on("error", (error) => reject(error));
   });

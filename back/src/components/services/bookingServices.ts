@@ -392,7 +392,13 @@ class BookingsServices {
         {
           $group: {
             _id: {
-              $cond: [{ $ifNull: ["$options.google", false] }, "google", "email"],
+              $switch: {
+                branches: [
+                  { case: { $ifNull: ["$options.google", false] }, then: "google" },
+                  { case: { $ifNull: ["$options.microsoft", false] }, then: "microsoft" },
+                ],
+                default: "email",
+              },
             },
             count: { $sum: 1 },
           },
@@ -402,9 +408,11 @@ class BookingsServices {
 
     let googleCount = 0;
     let emailCount = 0;
+    let microsoftCount = 0;
     for (const stat of registrationStats) {
       if (stat._id === "google") googleCount = stat.count;
       if (stat._id === "email") emailCount = stat.count;
+      if (stat._id === "microsoft") microsoftCount = stat.count;
     }
 
     return {
@@ -417,8 +425,9 @@ class BookingsServices {
       },
       registrations: {
         google: googleCount,
+        microsoft: microsoftCount,
         email: emailCount,
-        total: googleCount + emailCount,
+        total: googleCount + microsoftCount + emailCount,
       },
     };
   }
