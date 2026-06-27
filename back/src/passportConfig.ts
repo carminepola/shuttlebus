@@ -1,5 +1,6 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as MicrosoftStrategy } from "passport-microsoft";
 import dotenv from "dotenv";
 import { logger } from "./index";
 import https from "https";
@@ -24,6 +25,26 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.
           // const phoneNumber = await getGooglePhoneNumber(accessToken);
           // profile.phoneNumber = phoneNumber;
 
+          return done(null, profile);
+        } catch (error) {
+          logger.error(error);
+        }
+      }
+    )
+  );
+}
+
+if (process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET && process.env.MICROSOFT_CALLBACK_URL) {
+  passport.use(
+    new MicrosoftStrategy(
+      {
+        clientID: process.env.MICROSOFT_CLIENT_ID || "",
+        clientSecret: process.env.MICROSOFT_CLIENT_SECRET || "",
+        callbackURL: process.env.MICROSOFT_CALLBACK_URL || "",
+        scope: ["user.read"],
+      },
+      async (accessToken: string, refreshToken: string, profile: any, done: any) => {
+        try {
           return done(null, profile);
         } catch (error) {
           logger.error(error);

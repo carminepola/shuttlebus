@@ -247,6 +247,19 @@ export default class UserServices {
       throw error;
     }
   }
+  async updateMicrosoftInfo(email: string, microsoftInfo: any) {
+    try {
+      let microsoft = {
+        photos: microsoftInfo.photos,
+        email: microsoftInfo.email,
+        displayName: microsoftInfo.displayName,
+        id: microsoftInfo.id,
+      };
+      return await this.userDao.updateMicrosoftInfo(email, microsoft);
+    } catch (error) {
+      throw error;
+    }
+  }
   async deleteUser(email: string): Promise<boolean> {
     try {
       return await this.userDao.deleteUser(email);

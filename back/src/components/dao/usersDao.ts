@@ -769,6 +769,30 @@ export default class UsersDao {
       throw error; // Rilancia l'errore
     }
   }
+  async updateMicrosoftInfo(email: string, microsoftInfo: any) {
+    try {
+      email = email.toLowerCase();
+      const result = await this.db.collection<userModel>(this.schema).updateOne(
+        {
+          email: email,
+        },
+        {
+          $set: {
+            "options.microsoft": microsoftInfo,
+          },
+        },
+      );
+
+      if (!result) {
+        throw new Error("Utente non trovato");
+      }
+
+      return result.modifiedCount;
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento della sessione microsoft:", error);
+      throw error;
+    }
+  }
   async getUsersByRole(role: role): Promise<userModel[]> {
     try {
       // Trova tutti gli utenti con il ruolo selezionato

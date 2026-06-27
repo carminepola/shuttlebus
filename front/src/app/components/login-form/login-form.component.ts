@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import * as CryptoJS from 'crypto-js';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
+import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-auth.service';
 import { LngService } from '../../services/lng/lng.service';
 declare var bootstrap: any;
 
@@ -33,6 +34,7 @@ export class LoginFormComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private googleAuthService: GoogleAuthService,
+    private microsoftAuthService: MicrosoftAuthService,
     private lngService: LngService,
   ) {}
   @Output() loginSuccess = new EventEmitter<void>();
@@ -50,6 +52,10 @@ export class LoginFormComponent implements OnInit {
   loginWithGoogle() {
     localStorage.setItem('authUrl', window.location.pathname);
     this.googleAuthService.loginWithGoogle();
+  }
+  loginWithMicrosoft() {
+    localStorage.setItem('authUrl', window.location.pathname);
+    this.microsoftAuthService.loginWithMicrosoft();
   }
   get formControls() {
     return this.loginForm.controls;

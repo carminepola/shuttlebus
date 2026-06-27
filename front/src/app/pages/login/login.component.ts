@@ -10,6 +10,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import CryptoJS from 'crypto-js';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
+import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-auth.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -29,7 +30,8 @@ export class LoginComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private googleAuthService: GoogleAuthService
+    private googleAuthService: GoogleAuthService,
+    private microsoftAuthService: MicrosoftAuthService
   ) {}
 
   ngOnInit(): void {
@@ -49,6 +51,10 @@ export class LoginComponent implements OnInit {
   loginWithGoogle() {
     localStorage.setItem('authUrl', '/admin/home');
     this.googleAuthService.loginWithGoogle();
+  }
+  loginWithMicrosoft() {
+    localStorage.setItem('authUrl', '/admin/home');
+    this.microsoftAuthService.loginWithMicrosoft();
   }
   onSubmit(event: Event): void {
     try {
