@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -17,6 +17,7 @@ import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-au
   styleUrls: ['./login.component.scss'],
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [],
 })
 export class LoginComponent implements OnInit {

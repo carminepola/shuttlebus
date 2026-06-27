@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LngService } from '../../services/lng/lng.service';
 
@@ -7,6 +7,7 @@ import { LngService } from '../../services/lng/lng.service';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './too-many-requests.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './too-many-requests.component.scss',
 })
 export class TooManyRequestsComponent implements OnInit {

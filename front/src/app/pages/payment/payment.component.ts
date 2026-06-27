@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { TranslatePipe } from '../../pipe/translate.pipe';
@@ -9,6 +9,7 @@ import { StripeService } from '../../services/stripe/stripe.service';
   selector: 'app-payment',
   imports: [TranslatePipe, RouterModule],
   templateUrl: './payment.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './payment.component.scss',
 })
 export class PaymentComponent implements OnInit {

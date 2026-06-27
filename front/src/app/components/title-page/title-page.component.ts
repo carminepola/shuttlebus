@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Title, Meta, MetaDefinition } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -7,6 +7,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
   imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
   selector: 'app-title-page',
   templateUrl: './title-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./title-page.component.scss'],
 })
 export class TitlePageComponent {

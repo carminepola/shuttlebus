@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 
@@ -18,6 +18,7 @@ import { StopsService } from '../../services/stops/stops.service';
 ],
   animations: [fadeAnimation],
   templateUrl: './route-details.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './route-details.component.scss',
 })
 export class RouteDetailsComponent implements OnInit {

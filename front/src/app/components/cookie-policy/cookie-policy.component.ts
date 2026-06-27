@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslatePipe } from '../../pipe/translate.pipe';
@@ -6,6 +6,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
   selector: 'app-cookie-policy',
   imports: [TranslatePipe],
   templateUrl: './cookie-policy.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cookie-policy.component.scss',
 })
 export class CookiePolicyComponent implements OnInit {

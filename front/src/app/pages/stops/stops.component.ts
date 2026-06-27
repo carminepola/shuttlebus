@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { RouterModule, Router } from '@angular/router';
@@ -19,6 +19,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
   ],
   animations: [fadeAnimation],
   templateUrl: './stops.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './stops.component.scss',
 })
 export class StopsComponent implements OnInit {

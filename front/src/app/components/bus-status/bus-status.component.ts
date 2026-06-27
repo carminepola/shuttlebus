@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MomapService } from '../../services/momap.service';
 import { lastValueFrom } from 'rxjs';
@@ -35,6 +35,7 @@ interface BusStatus {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './bus-status.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bus-status.component.scss',
 })
 export class BusStatusComponent implements OnInit, OnDestroy {

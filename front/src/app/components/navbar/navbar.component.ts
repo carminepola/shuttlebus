@@ -6,6 +6,7 @@ import {
   ElementRef,
   OnDestroy,
   NgZone,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
@@ -21,6 +22,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
   imports: [CommonModule, LoginFormComponent, RegistrazioneComponent, TranslatePipe],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class NavbarComponent implements AfterViewInit, OnDestroy {

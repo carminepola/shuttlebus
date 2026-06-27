@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
@@ -24,6 +24,7 @@ import * as CryptoJS from 'crypto-js';
   templateUrl: './user-settings.component.html',
   styleUrls: ['./user-settings.component.scss'],
   animations: [fadeAnimation],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class UserSettingsComponent implements OnInit {

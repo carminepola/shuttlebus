@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { CommonModule } from '@angular/common';
@@ -26,6 +26,7 @@ interface DriverSchedule {
   imports: [TitlePageComponent, LoadingComponent, CommonModule, FilterStatusPipe],
   templateUrl: './driver-routes.component.html',
   styleUrl: './driver-routes.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [fadeAnimation],
 })
 export class DriverRoutesComponent {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
@@ -27,6 +27,7 @@ const PENDING_EXPIRY_MS = 30 * 60 * 1000;
   ],
   animations: [fadeAnimation],
   templateUrl: './my-tickets.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './my-tickets.component.scss',
 })
 export class MyTicketsComponent implements OnInit, OnDestroy {

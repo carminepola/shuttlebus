@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { CommonModule } from '@angular/common';
 import { lastValueFrom } from 'rxjs';
@@ -16,6 +16,7 @@ import { TitlePageComponent } from '../../components/title-page/title-page.compo
   ],
   templateUrl: './ticket-for-routes.component.html',
   styleUrl: './ticket-for-routes.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [fadeAnimation],
 })
 export class TicketForRoutesComponent {

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 import { StopsService } from '../../services/stops/stops.service';
@@ -38,6 +38,7 @@ declare var bootstrap: any;
     FooterComponent,
   ],
   templateUrl: './riepilogo.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './riepilogo.component.scss',
 })
 export class RiepilogoComponent implements OnInit {

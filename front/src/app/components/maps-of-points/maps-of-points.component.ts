@@ -5,6 +5,7 @@ import {
   Input,
   Output,
   EventEmitter,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import * as L from 'leaflet';
@@ -18,6 +19,7 @@ import { lastValueFrom } from 'rxjs';
   standalone: true,
   templateUrl: './maps-of-points.component.html',
   styleUrl: './maps-of-points.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [DatePipe, TranslatePipe],
 })
 export class MapsOfPointsComponent implements OnInit, OnDestroy {

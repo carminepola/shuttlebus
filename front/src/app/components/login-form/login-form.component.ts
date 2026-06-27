@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -20,6 +20,7 @@ declare var bootstrap: any;
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe],
   templateUrl: './login-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login-form.component.scss',
 })
 export class LoginFormComponent implements OnInit {

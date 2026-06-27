@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { CommonModule } from '@angular/common';
 import { BookingsService } from '../../services/bookings/bookings.service';
@@ -15,6 +15,7 @@ import { TitlePageComponent } from '../../components/title-page/title-page.compo
   imports: [CommonModule, LoadingComponent, TranslatePipe, RouterLink, FormsModule, TitlePageComponent],
   templateUrl: './ticket-check.component.html',
   styleUrl: './ticket-check.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [fadeAnimation],
 })
 export class TicketCheckComponent implements OnInit {

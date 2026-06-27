@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 
@@ -16,6 +16,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
   ],
   animations: [fadeAnimation],
   templateUrl: './stop-details.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './stop-details.component.scss',
 })
 export class StopDetailsComponent implements OnInit {

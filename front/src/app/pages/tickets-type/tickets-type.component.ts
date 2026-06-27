@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { Router, RouterModule } from '@angular/router';
@@ -20,6 +20,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
   ],
   animations: [fadeAnimation],
   templateUrl: './tickets-type.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './tickets-type.component.scss',
 })
 export class TicketsTypeComponent implements OnInit {

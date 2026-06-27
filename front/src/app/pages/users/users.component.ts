@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
@@ -23,6 +23,7 @@ import { ConfirmModalService } from '../../services/confirm-modal/confirm-modal.
     FilterPipe,
   ],
   templateUrl: './users.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './users.component.scss',
 })
 export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {

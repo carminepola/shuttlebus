@@ -10,7 +10,7 @@ stages:
 ########################
 compilazione_back:
   stage: compilazione
-  image: node:24.13
+  image: node:24.15
   script:
     - cd back
     - npm ci
@@ -28,10 +28,10 @@ compilazione_back:
 ########################
 compilazione_front:
   stage: compilazione
-  image: node:24.13
+  image: node:24.15
   script:
     - cd front
-    - npm install -g @angular/cli@21.2.3
+    - npm install -g @angular/cli@22.0.4
     - npm ci
     - npm run build-prod
   artifacts:

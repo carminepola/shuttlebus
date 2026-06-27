@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { LngService } from '../../services/lng/lng.service';
@@ -24,6 +24,7 @@ import { CommonModule } from '@angular/common';
   ],
   animations: [fadeAnimation],
   templateUrl: './homepage.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './homepage.component.scss',
 })
 export class HomepageComponent implements OnInit {

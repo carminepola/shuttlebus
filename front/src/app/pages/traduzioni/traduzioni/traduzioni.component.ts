@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule, Router } from '@angular/router';
 import { TitlePageComponent } from '../../../components/title-page/title-page.component';
@@ -9,6 +9,7 @@ import { LngService } from '../../../services/lng/lng.service';
   selector: 'app-traduzioni',
   imports: [TitlePageComponent, RouterModule, LoadingComponent, FormsModule, ReactiveFormsModule],
   templateUrl: './traduzioni.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './traduzioni.component.scss',
 })
 export class TraduzioniComponent implements OnInit {

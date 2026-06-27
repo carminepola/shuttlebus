@@ -1,5 +1,5 @@
 import { ReactiveFormsModule } from '@angular/forms';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -11,6 +11,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe],
   templateUrl: './lost-password.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./lost-password.component.scss'],
 })
 export class LostPasswordComponent implements OnInit {

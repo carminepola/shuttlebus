@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { UserService } from '../../services/user/user.service';
@@ -17,6 +17,7 @@ import { CommonModule } from '@angular/common';
   ],
   templateUrl: './pending-users.component.html',
   styleUrl: './pending-users.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [fadeAnimation],
 })
 export class PendingUsersComponent implements OnInit, AfterViewInit, OnDestroy {

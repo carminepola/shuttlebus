@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
@@ -14,6 +14,7 @@ import { DepotSettingsService } from '../../services/depotSettings/depot-setting
     ReactiveFormsModule,
   ],
   templateUrl: './deposito.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './deposito.component.scss',
 })
 export class DepositoComponent implements OnInit {

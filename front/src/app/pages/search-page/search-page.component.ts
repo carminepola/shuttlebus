@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 import { StopsService } from '../../services/stops/stops.service';
@@ -36,6 +36,7 @@ import { StepIndicatorComponent } from '../../components/step-indicator/step-ind
   ],
   animations: [fadeAnimation],
   templateUrl: './search-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './search-page.component.scss',
 })
 export class SearchPageComponent implements OnInit {

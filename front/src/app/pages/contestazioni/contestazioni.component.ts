@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
@@ -36,6 +36,7 @@ interface DisputeItem {
   ],
   animations: [fadeAnimation],
   templateUrl: './contestazioni.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './contestazioni.component.scss',
 })
 export class ContestazioniComponent implements OnInit {

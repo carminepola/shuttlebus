@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 
@@ -17,6 +17,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
 ],
   animations: [fadeAnimation],
   templateUrl: './schedule-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './schedule-list.component.scss',
 })
 export class ScheduleListComponent implements OnInit {

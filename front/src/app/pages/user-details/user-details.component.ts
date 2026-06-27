@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { FormsModule, NgForm } from '@angular/forms';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
@@ -24,6 +24,7 @@ const ROLES = [
   ],
   animations: [fadeAnimation],
   templateUrl: './user-details.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './user-details.component.scss',
 })
 export class UserDetailsComponent implements OnInit {

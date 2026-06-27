@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 
 import { ActivatedRoute } from '@angular/router';
@@ -24,6 +24,7 @@ import { Title, Meta, MetaDefinition } from '@angular/platform-browser';
     TranslateNamePipe,
   ],
   templateUrl: './bus-line.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bus-line.component.scss',
 })
 export class BusLineComponent implements OnInit {

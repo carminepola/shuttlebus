@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { Route } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -29,6 +29,7 @@ import Swal from 'sweetalert2';
   ],
   animations: [fadeAnimation],
   templateUrl: './reservation.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './reservation.component.scss',
 })
 export class ReservationComponent implements OnInit {

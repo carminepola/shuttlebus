@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth/auth.service';
   selector: 'app-auth-page',
   imports: [LoadingComponent],
   templateUrl: './auth-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './auth-page.component.scss',
 })
 export class AuthPageComponent implements OnInit {

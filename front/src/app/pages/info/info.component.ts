@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 
 import { TranslatePipe } from '../../pipe/translate.pipe';
@@ -10,6 +10,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
   imports: [TitlePageComponent, TranslatePipe],
   templateUrl: './info.component.html',
   styleUrl: './info.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [fadeAnimation],
 })
 export class InfoComponent {

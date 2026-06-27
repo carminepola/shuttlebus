@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ElementRef, HostListener, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -90,6 +90,7 @@ const COUNTRIES = [
   selector: 'app-registrazione',
   imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe, FormsModule],
   templateUrl: './registrazione.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './registrazione.component.scss',
 })
 export class RegistrazioneComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { lastValueFrom } from 'rxjs';
@@ -16,6 +16,7 @@ declare var bootstrap: any;
   imports: [TranslatePipe, TranslateNamePipe, ReactiveFormsModule, FormsModule],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [fadeAnimation],
 })
 export class SearchComponent implements OnInit, AfterViewInit {

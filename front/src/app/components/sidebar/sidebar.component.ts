@@ -5,6 +5,7 @@ import {
   Input,
   Output,
   OnInit,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -20,6 +21,7 @@ import { CookieWatcherServiceService } from '../../services/cookieWatcher/cookie
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent implements OnInit {

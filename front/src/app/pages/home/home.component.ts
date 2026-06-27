@@ -5,6 +5,7 @@ import {
   ElementRef,
   ViewChild,
   OnDestroy,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -85,6 +86,7 @@ interface YearlyComparison {
   animations: [fadeAnimation],
   imports: [CommonModule, RouterModule, TitlePageComponent, FormsModule],
   templateUrl: './home.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {

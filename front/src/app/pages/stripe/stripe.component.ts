@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StripeService } from '../../services/stripe/stripe.service';
@@ -12,6 +12,7 @@ import { lastValueFrom } from 'rxjs';
   standalone: true,
   imports: [CommonModule, FormsModule, TitlePageComponent, LoadingComponent],
   templateUrl: './stripe.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './stripe.component.scss',
 })
 export class StripeComponent implements OnInit {

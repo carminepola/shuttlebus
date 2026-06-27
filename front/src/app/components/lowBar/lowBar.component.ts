@@ -6,6 +6,7 @@ import {
   ElementRef,
   OnDestroy,
   NgZone,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
@@ -28,6 +29,7 @@ import { Subscription } from 'rxjs';
   ],
   templateUrl: './lowBar.component.html',
   styleUrl: './lowBar.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class LowBarComponent implements AfterViewInit, OnDestroy {

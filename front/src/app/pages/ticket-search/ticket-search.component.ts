@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,6 +13,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
   imports: [CommonModule, FormsModule, TitlePageComponent],
   templateUrl: './ticket-search.component.html',
   styleUrl: './ticket-search.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [fadeAnimation],
 })
 export class TicketSearchComponent implements OnInit, OnDestroy {

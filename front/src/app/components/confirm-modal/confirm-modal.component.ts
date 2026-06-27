@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ConfirmModalService, ConfirmModalConfig } from '../../services/confirm-modal/confirm-modal.service';
@@ -7,6 +7,7 @@ import { ConfirmModalService, ConfirmModalConfig } from '../../services/confirm-
   selector: 'app-confirm-modal',
   imports: [CommonModule],
   templateUrl: './confirm-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './confirm-modal.component.scss',
 })
 export class ConfirmModalComponent implements OnInit, OnDestroy {

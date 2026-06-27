@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 
@@ -6,6 +6,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
   selector: 'app-not-found',
   templateUrl: './not-found.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RouterLink, TranslatePipe],
 })
 export class NotFoundComponent {}

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router, RouterModule } from '@angular/router';
 import { LngService } from '../../services/lng/lng.service';
@@ -8,6 +8,7 @@ import { version } from '../../../../package.json';
   selector: 'app-footer',
   imports: [RouterModule, TranslatePipe],
   templateUrl: './footer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './footer.component.scss',
 })
 export class FooterComponent {

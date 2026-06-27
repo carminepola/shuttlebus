@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 
@@ -7,6 +7,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
   standalone: true,
   imports: [CommonModule, TranslatePipe],
   templateUrl: './step-indicator.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './step-indicator.component.scss',
 })
 export class StepIndicatorComponent {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RoutesService } from '../../services/routes/routes.service';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { Router, RouterModule } from '@angular/router';
@@ -18,6 +18,7 @@ import { lastValueFrom } from 'rxjs';
     FormsModule
 ],
   templateUrl: './route.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./route.component.scss'],
 })
 export class RouteComponent implements OnInit {

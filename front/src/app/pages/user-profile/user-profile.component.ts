@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import Swal from 'sweetalert2';
 
@@ -13,6 +13,7 @@ import { fadeAnimation } from '../../animations/fade.animation';
   animations: [fadeAnimation],
   imports: [TitlePageComponent, TranslatePipe, LoadingComponent],
   templateUrl: './user-profile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './user-profile.component.scss',
 })
 export class UserProfileComponent implements OnInit {

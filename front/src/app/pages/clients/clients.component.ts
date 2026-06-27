@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
@@ -33,6 +33,7 @@ const ROLES = [
   ],
   templateUrl: './clients.component.html',
   styleUrl: './clients.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [fadeAnimation, slideAnimation],
 })
 export class ClientsComponent implements OnInit, AfterViewInit {
