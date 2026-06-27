@@ -234,6 +234,13 @@ export default class UserServices {
       throw error;
     }
   }
+  async updateRoleByEmail(email: string, newRole: role): Promise<boolean> {
+    try {
+      return await this.userDao.updateRoleByEmail(email, newRole);
+    } catch (error) {
+      throw error;
+    }
+  }
   async updateGoogleInfo(email: string, googleInfo: any) {
     try {
       let google = {

@@ -96,9 +96,12 @@ router.get("/auth/callback", passport.authenticate("google", { failureRedirect: 
   let userExists = await userServices.getUserByEmailAll(user.email);
 
   if (!userExists) {
-    userServices.createUser(user);
+    await userServices.createUser(user);
   } else {
-    userServices.updateGoogleInfo(user.email, user.options.google);
+    await userServices.updateGoogleInfo(user.email, user.options.google);
+    if (userExists.role === role.NO_PERMISSION) {
+      await userServices.updateRoleByEmail(user.email, role.USER);
+    }
   }
 
   let googleSession = await googleSessionServices.insertGoogleSession(user.email);

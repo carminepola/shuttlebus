@@ -110,9 +110,12 @@ router.get("/auth/callback", passport.authenticate("microsoft", { failureRedirec
   let userExists = await userServices.getUserByEmailAll(user.email);
 
   if (!userExists) {
-    userServices.createUser(user);
+    await userServices.createUser(user);
   } else {
-    userServices.updateMicrosoftInfo(user.email, user.options.microsoft);
+    await userServices.updateMicrosoftInfo(user.email, user.options.microsoft);
+    if (userExists.role === role.NO_PERMISSION) {
+      await userServices.updateRoleByEmail(user.email, role.USER);
+    }
   }
 
   let microsoftSession = await sessionServices.insertGoogleSession(user.email);

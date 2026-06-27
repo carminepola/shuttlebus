@@ -793,6 +793,22 @@ export default class UsersDao {
       throw error;
     }
   }
+  async updateRoleByEmail(email: string, newRole: role): Promise<boolean> {
+    try {
+      email = email.toLowerCase();
+      const result = await this.db.collection<userModel>(this.schema).updateOne(
+        { email: email },
+        { $set: { role: newRole } },
+      );
+      if (!result) {
+        throw new Error("Utente non trovato");
+      }
+      return true;
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento del ruolo:", error);
+      throw error;
+    }
+  }
   async getUsersByRole(role: role): Promise<userModel[]> {
     try {
       // Trova tutti gli utenti con il ruolo selezionato
