@@ -24,7 +24,7 @@ class MailService {
     let appName = process.env.APP_NAME || "Pintour";
     let newMail: any = {
       id: mail.id,
-      from: `${appName} <${mailConfig.auth.user}>`,
+      from: `Pintour <${mailConfig.auth.user}>`,
       to: mail.to,
       replyTo: mailConfig.auth.user,
       subject: "",
@@ -171,6 +171,7 @@ class MailService {
         if (!emailSended.mailSent) {
           throw new Error(emailSended.errorMessage);
         }
+        return true;
       }
     } catch (error: any) {
       logger.error(`Email non inviata: ${error?.message || error}`);
