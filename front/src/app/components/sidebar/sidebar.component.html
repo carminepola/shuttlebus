@@ -196,21 +196,23 @@
   <nav>
     <ul class="nav nav-pills flex-column mb-auto mx-2">
       @for (item of menuItems; track item) {
-        <li class="nav-item my-2">
-          <a
-            [routerLink]="item.route"
-            routerLinkActive="active"
-            class="nav-link py-2-5"
-            (click)="onMenuItemClick()"
-          >
-            <i
-              class="fas me-3"
-              style="min-width: 25px; color: #ffa1d2"
-              [ngClass]="item.icon"
-            ></i>
-            <span class="text-white" [innerHTML]="item.title"></span>
-          </a>
-        </li>
+        @if (!item.roles || item.roles.includes(userRole)) {
+          <li class="nav-item my-2">
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              class="nav-link py-2-5"
+              (click)="onMenuItemClick()"
+            >
+              <i
+                class="fas me-3"
+                style="min-width: 25px; color: #ffa1d2"
+                [ngClass]="item.icon"
+              ></i>
+              <span class="text-white" [innerHTML]="item.title"></span>
+            </a>
+          </li>
+        }
       }
     </ul>
   </nav>

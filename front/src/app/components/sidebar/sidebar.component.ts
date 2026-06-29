@@ -14,6 +14,7 @@ interface MenuItem {
   icon: string;
   title: string;
   route: string;
+  roles?: number[];
 }
 import { CookieWatcherServiceService } from '../../services/cookieWatcher/cookie-watcher-service.service';
 @Component({
@@ -38,6 +39,7 @@ export class SidebarComponent implements OnInit {
   notification: any = [];
 
   image = '';
+  userRole = 9999;
 
   ngOnInit(): void {
     this.user = this.authService.getDecodedToken();
@@ -51,6 +53,7 @@ export class SidebarComponent implements OnInit {
 
   private setUserData(user: any) {
     this.username = user?.details?.name?.split(' ')[0]?.toUpperCase() || '';
+    this.userRole = user?.role ?? 9999;
     if (user?.options?.google?.photos?.length > 0) {
       this.image = user.options.google.photos[0].value;
     }
@@ -104,5 +107,11 @@ export class SidebarComponent implements OnInit {
     },
     { icon: 'fa-user', title: 'Utenti', route: '/admin/utenti' },
     { icon: 'fa-cog', title: 'Impostazioni', route: '/admin/settings' },
+    {
+      icon: 'fa-envelope',
+      title: 'Test Email',
+      route: '/admin/test-email',
+      roles: [1],
+    },
   ];
 }

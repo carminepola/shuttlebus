@@ -38,6 +38,7 @@ import { TicketCheckComponent } from './pages/ticket-check/ticket-check.componen
 import { TicketSearchComponent } from './pages/ticket-search/ticket-search.component';
 import { TargheComponent } from './pages/targhe/targhe.component';
 import { DepositoComponent } from './pages/deposito/deposito.component';
+import { TestEmailComponent } from './pages/test-email/test-email.component';
 import { UserDetailsComponent } from './pages/user-details/user-details.component';
 import { ContestazioniComponent } from './pages/contestazioni/contestazioni.component';
 import { PendingUsersComponent } from './pages/pending-users/pending-users.component';
@@ -291,6 +292,12 @@ export const routes: Routes = [
         component: DepositoComponent,
         canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'test-email',
+        component: TestEmailComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 1 },
       },
       {
         path: 'contestazioni',

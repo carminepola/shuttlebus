@@ -1,0 +1,130 @@
+<div class="container-fluid container-lg" @fadeInOut>
+  <app-title-page
+    title="Test email"
+    subtitle="Invia email di test per verificare i template"
+    back="true"
+  ></app-title-page>
+
+  @if (mostraMessaggio) {
+    <div
+      class="alert {{
+        tipoMessaggio === 'success' ? 'alert-success' : 'alert-danger'
+      }} alert-dismissible fade show mb-4"
+      role="alert"
+    >
+      {{ messaggio }}
+      <button
+        type="button"
+        class="btn-close"
+        (click)="mostraMessaggio = false"
+        aria-label="Close"
+      ></button>
+    </div>
+  }
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">
+        <i class="fa fa-envelope me-2"></i>Email con template
+      </h5>
+      <p class="text-muted small">
+        Invia un template email a un indirizzo a tua scelta. I placeholder
+        vengono riempiti con dati di esempio.
+      </p>
+
+      <form (ngSubmit)="inviaTemplate()">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="to" class="form-label">Destinatario</label>
+            <input
+              type="email"
+              class="form-control"
+              id="to"
+              [(ngModel)]="to"
+              name="to"
+              required
+              placeholder="es. prova@example.com"
+            />
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="type" class="form-label">Template</label>
+            <select
+              class="form-select"
+              id="type"
+              [(ngModel)]="selectedType"
+              name="type"
+              required
+            >
+              @for (t of types; track t.value) {
+                <option [value]="t.value">{{ t.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="lng" class="form-label">Lingua</label>
+            <select
+              class="form-select"
+              id="lng"
+              [(ngModel)]="selectedLng"
+              name="lng"
+              required
+            >
+              @for (l of languages; track l) {
+                <option [value]="l">{{ l | uppercase }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary" [disabled]="inviando">
+            @if (inviando) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            {{ inviando ? "Invio..." : "Invia template" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-4">
+    <div class="card-body">
+      <h5 class="card-title">
+        <i class="fa fa-paper-plane me-2"></i>Email di solo testo ("hello")
+      </h5>
+      <p class="text-muted small">
+        Invia una email semplice con corpo di solo testo "hello", senza
+        template.
+      </p>
+
+      <form (ngSubmit)="inviaHello()">
+        <div class="mb-3">
+          <label for="helloTo" class="form-label">Destinatario</label>
+          <input
+            type="email"
+            class="form-control"
+            id="helloTo"
+            [(ngModel)]="helloTo"
+            name="helloTo"
+            required
+            placeholder="es. prova@example.com"
+          />
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="inviandoHello"
+          >
+            @if (inviandoHello) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            {{ inviandoHello ? "Invio..." : "Invia hello" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
