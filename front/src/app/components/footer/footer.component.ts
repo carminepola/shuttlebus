@@ -4,17 +4,26 @@ import { Router, RouterModule } from '@angular/router';
 import { LngService } from '../../services/lng/lng.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { version } from '../../../../package.json';
+import { CommonModule } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
+import { inject, PLATFORM_ID } from '@angular/core';
 @Component({
   selector: 'app-footer',
-  imports: [RouterModule, TranslatePipe],
+  imports: [RouterModule, TranslatePipe, CommonModule],
   templateUrl: './footer.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './footer.component.scss',
 })
 export class FooterComponent {
   currentYear = new Date().getFullYear();
+  private platformId = inject(PLATFORM_ID);
 
   constructor(private router: Router, private lngService: LngService) {}
+
+  langPath(path: string): string {
+    return this.lngService.langPath(path);
+  }
+
   public lng = [
     { lng: 'it', name: '🇮🇹 Italiano' },
     { lng: 'en', name: '🇬🇧 English' },
@@ -24,10 +33,7 @@ export class FooterComponent {
     { lng: 'jp', name: '🇯🇵 日本語' },
   ];
   public setLng(lng: string) {
-    this.lngService.setLng(lng);
-    this.router.navigate([this.router.url]).then(() => {
-      window.location.reload();
-    });
+    this.lngService.switchLang(lng);
   }
   public getSelectedLng() {
     let selected = this.lngService.getLng();

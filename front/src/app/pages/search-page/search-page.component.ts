@@ -107,7 +107,7 @@ export class SearchPageComponent implements OnInit {
       const shouldContinue =
         await this.pendingBookingService.showPendingModal();
       if (shouldContinue) {
-        this.router.navigate(['/user/mytickets']);
+        this.router.navigate(this.lngService.langPathArray('/user/mytickets'));
         return;
       } else {
         await this.pendingBookingService.cancelPendingBooking(pendingBooking);
@@ -245,6 +245,6 @@ export class SearchPageComponent implements OnInit {
     delete param['availableSeats'];
     delete param['availableLuggage'];
 
-    this.router.navigate(['/riepilogo'], { state: { value: param } });
+    this.router.navigate(this.lngService.langPathArray('/riepilogo'), { state: { value: param } });
   }
 }

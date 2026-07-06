@@ -3,6 +3,7 @@ import { LoadingComponent } from '../../components/loading/loading/loading.compo
 import { Router, ActivatedRoute } from '@angular/router';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
 import { AuthService } from '../../services/auth/auth.service';
+import { LngService } from '../../services/lng/lng.service';
 
 @Component({
   selector: 'app-auth-page',
@@ -17,7 +18,8 @@ export class AuthPageComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private googleAuth: GoogleAuthService,
-    private authService: AuthService
+    private authService: AuthService,
+    private lngService: LngService
   ) {}
   async ngOnInit(): Promise<void> {
     this.route.params.subscribe((params: any) => {
@@ -36,12 +38,12 @@ export class AuthPageComponent implements OnInit {
           if (session.role <= 50) {
             this.router.navigateByUrl('/admin/home');
           } else {
-            this.router.navigateByUrl('/user/account');
+            this.router.navigateByUrl(this.lngService.langPath('/user/account'));
           }
         }
       },
       error: (e: any) => {
-        this.router.navigateByUrl('/');
+        this.router.navigateByUrl(this.lngService.langPath('/'));
       },
     });
   }

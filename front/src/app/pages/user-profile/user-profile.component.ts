@@ -31,7 +31,7 @@ export class UserProfileComponent implements OnInit {
     }, 10);
   }
   goTo(path: string) {
-    this.router.navigate([path]);
+    this.router.navigate(this.lng.langPathArray(path));
   }
   getUser() {
     let user = this.authService.getDecodedToken();
@@ -83,10 +83,10 @@ export class UserProfileComponent implements OnInit {
           next: (response) => {
             this.authService.deleteCookie('jwt');
 
-            this.router.navigate(['/']);
+            this.router.navigate(this.lng.langPathArray('/'));
           },
           error: (error) => {
-            this.router.navigate(['/']);
+            this.router.navigate(this.lng.langPathArray('/'));
 
             console.error('Errore durante il logout', error);
           },

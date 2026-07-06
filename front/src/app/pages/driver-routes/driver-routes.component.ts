@@ -7,6 +7,7 @@ import { lastValueFrom } from 'rxjs';
 import { RoutesService } from '../../services/routes/routes.service';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { Router, ActivatedRoute } from '@angular/router';
+import { LngService } from '../../services/lng/lng.service';
 import { FilterStatusPipe } from '../../pipe/filter-status.pipe';
 
 interface DriverSchedule {
@@ -30,7 +31,7 @@ interface DriverSchedule {
   animations: [fadeAnimation],
 })
 export class DriverRoutesComponent {
-  constructor(private routesService: RoutesService, private router: Router) {}
+  constructor(private routesService: RoutesService, private router: Router, private lngService: LngService) {}
 
   public routes: DriverSchedule[] = [];
   public todayStr: string = '';
@@ -39,7 +40,7 @@ export class DriverRoutesComponent {
   loading = true;
 
   goTo(path: string) {
-    this.router.navigate([path]);
+    this.router.navigate(this.lngService.langPathArray(path));
   }
 
   getScheduleIcon(status: string): string {

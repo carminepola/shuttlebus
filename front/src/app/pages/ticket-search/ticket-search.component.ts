@@ -7,6 +7,7 @@ import { BookingsService } from '../../services/bookings/bookings.service';
 import { lastValueFrom } from 'rxjs';
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { LngService } from '../../services/lng/lng.service';
 
 @Component({
   selector: 'app-ticket-search',
@@ -26,6 +27,7 @@ export class TicketSearchComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private bookingsService: BookingsService,
+    private lngService: LngService,
   ) {}
 
   async ngOnInit() {}
@@ -38,12 +40,12 @@ export class TicketSearchComponent implements OnInit, OnDestroy {
         this.bookingsService.readBookingById(this.ticketId.trim())
       );
       if (result.bookings) {
-        this.router.navigate(['/ticket/check', this.ticketId.trim()]);
+        this.router.navigate(this.lngService.langPathArray('/ticket/check'), { queryParams: { id: this.ticketId.trim() } });
       } else {
-        this.router.navigate(['/ticket/check', this.ticketId.trim()]);
+        this.router.navigate(this.lngService.langPathArray('/ticket/check'), { queryParams: { id: this.ticketId.trim() } });
       }
     } catch {
-      this.router.navigate(['/ticket/check', this.ticketId.trim()]);
+      this.router.navigate(this.lngService.langPathArray('/ticket/check'), { queryParams: { id: this.ticketId.trim() } });
     }
   }
 
@@ -86,7 +88,7 @@ export class TicketSearchComponent implements OnInit, OnDestroy {
     this.html5QrCode = null;
     this.showScannerModal = false;
     document.body.style.overflow = '';
-    this.router.navigate(['/ticket/check', decodedText.trim()]);
+    this.router.navigate(this.lngService.langPathArray('/ticket/check'), { queryParams: { id: decodedText.trim() } });
   }
 
   async closeScanner() {

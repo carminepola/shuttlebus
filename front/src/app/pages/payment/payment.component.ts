@@ -5,6 +5,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 import { RouterModule } from '@angular/router';
 import { BookingsService } from '../../services/bookings/bookings.service';
 import { StripeService } from '../../services/stripe/stripe.service';
+import { LngService } from '../../services/lng/lng.service';
 @Component({
   selector: 'app-payment',
   imports: [TranslatePipe, RouterModule],
@@ -17,7 +18,8 @@ export class PaymentComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private bookingService: BookingsService,
-    private stripeService: StripeService
+    private stripeService: StripeService,
+    public lngService: LngService,
   ) {}
 
   public methods: string = '';

@@ -10,6 +10,7 @@ import { PendingBookingService } from '../../services/pending-booking/pending-bo
 import { Router } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { LngService } from '../../services/lng/lng.service';
 declare var bootstrap: any;
 @Component({
   selector: 'app-search',
@@ -49,6 +50,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     private ticketTypeService: TicketTypeService,
     private router: Router,
     private pendingBookingService: PendingBookingService,
+    private lngService: LngService,
   ) {}
 
   ngAfterViewInit() {
@@ -280,7 +282,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       const shouldContinue =
         await this.pendingBookingService.showPendingModal();
       if (shouldContinue) {
-        this.router.navigate(['/user/mytickets']);
+        this.router.navigate(this.lngService.langPathArray('/user/mytickets'));
         return;
       } else {
         await this.pendingBookingService.cancelPendingBooking(pendingBooking);
@@ -305,7 +307,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       }
     }
 
-    this.router.navigate(['/search'], {
+    this.router.navigate(this.lngService.langPathArray('/search'), {
       queryParams: {
         partenza: this.ricerca?.partenza,
         arrivo: this.ricerca?.arrivo,

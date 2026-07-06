@@ -41,7 +41,7 @@ export class HomepageComponent implements OnInit {
     public router: Router,
     private titleService: Title,
     private metaService: Meta,
-    private lngService: LngService,
+    public lngService: LngService,
   ) {}
   ngOnInit(): void {
     if (localStorage.getItem('authUrl')) {
@@ -120,10 +120,7 @@ export class HomepageComponent implements OnInit {
   }
 
   setLng(lng: string) {
-    this.lngService.setLng(lng);
-    this.router.navigate([this.router.url]).then(() => {
-      window.location.reload();
-    });
+    this.lngService.switchLang(lng);
   }
 
   getSelectedLng() {

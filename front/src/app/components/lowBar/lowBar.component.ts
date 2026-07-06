@@ -17,6 +17,7 @@ import { ModalService } from '../../services/modal/modal.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { TourGuideService } from '../../services/tour-guide/tour-guide.service';
 import { Subscription } from 'rxjs';
+import { LngService } from '../../services/lng/lng.service';
 
 @Component({
   selector: 'app-lowBar',
@@ -46,6 +47,7 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
     private modalService: ModalService,
     private ngZone: NgZone,
     private tourGuideService: TourGuideService,
+    private lngService: LngService,
   ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -61,7 +63,12 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
   public login: boolean = true;
 
   getPath(): string {
-    return this.router.url;
+    const url = this.router.url;
+    const segments = url.split('/').filter(Boolean);
+    if (segments.length > 0 && this.lngService.isSupported(segments[0])) {
+      segments.shift();
+    }
+    return '/' + segments.join('/');
   }
 
   ngAfterViewInit(): void {
@@ -138,7 +145,7 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
   }
 
   goPath(path: string) {
-    this.router.navigate([path]);
+    this.router.navigate(this.lngService.langPathArray(path));
   }
   isLoggedIn() {
     return this.authService.isLoggedIn();
@@ -146,7 +153,7 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
 
   onTicket() {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/user/account']);
+      this.router.navigate(this.lngService.langPathArray('/user/account'));
     } else {
       this.modalService.openModal('modalLogin2');
     }

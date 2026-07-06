@@ -52,13 +52,13 @@
       <div class="col-6 col-lg-2">
         <h3 class="footer-heading">Link</h3>
         <ul class="footer-links">
-          <li><a [routerLink]="['/']" class="footer-link">{{ "str_home" | translate }}</a></li>
+          <li><a [routerLink]="[langPath('/')]" class="footer-link">{{ "str_home" | translate }}</a></li>
           <li>
-            <a [routerLink]="['/busLine/0']" class="footer-link">{{
+            <a [routerLink]="[langPath('/busLine/0')]" class="footer-link">{{
               "str_bus_line" | translate
             }}</a>
           </li>
-          <li><a [routerLink]="['/info']" class="footer-link">{{ "str_info" | translate }}</a></li>
+          <li><a [routerLink]="[langPath('/info')]" class="footer-link">{{ "str_info" | translate }}</a></li>
         </ul>
       </div>
 

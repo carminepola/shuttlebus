@@ -17,6 +17,7 @@ interface MenuItem {
   roles?: number[];
 }
 import { CookieWatcherServiceService } from '../../services/cookieWatcher/cookie-watcher-service.service';
+import { LngService } from '../../services/lng/lng.service';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -30,6 +31,7 @@ export class SidebarComponent implements OnInit {
     private cookieService: CookieWatcherServiceService,
     private authService: AuthService,
     private router: Router,
+    private lngService: LngService,
   ) {}
 
   username = '';
@@ -69,11 +71,11 @@ export class SidebarComponent implements OnInit {
         this.isLoadingLogout = false;
         this.authService.deleteCookie('jwt');
 
-        this.router.navigate(['/']);
+        this.router.navigate(this.lngService.langPathArray('/'));
       },
       error: (error) => {
         this.isLoadingLogout = false;
-        this.router.navigate(['/']);
+        this.router.navigate(this.lngService.langPathArray('/'));
 
         console.error('Errore durante il logout', error);
       },

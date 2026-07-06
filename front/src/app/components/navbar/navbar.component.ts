@@ -61,7 +61,20 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
   public login: boolean = true;
 
   getPath(): string {
-    return this.router.url;
+    const url = this.router.url;
+    const segments = url.split('/').filter(Boolean);
+    if (segments.length > 0 && this.lngService.isSupported(segments[0])) {
+      segments.shift();
+    }
+    return '/' + segments.join('/');
+  }
+
+  stripLang(url: string): string {
+    const segments = url.split('/').filter(Boolean);
+    if (segments.length > 0 && this.lngService.isSupported(segments[0])) {
+      segments.shift();
+    }
+    return '/' + segments.join('/');
   }
 
   ngAfterViewInit(): void {
@@ -130,7 +143,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
   }
 
   goPath(path: string) {
-    this.router.navigate([path]);
+    this.router.navigate(this.lngService.langPathArray(path));
   }
   isLoggedIn() {
     return this.authService.isLoggedIn();
@@ -138,17 +151,14 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
 
   onTicket() {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/user/account']);
+      this.router.navigate(this.lngService.langPathArray('/user/account'));
     } else {
       this.modalService.openModal('modalLogin');
     }
   }
 
   setLng(lng: string) {
-    this.lngService.setLng(lng);
-    this.router.navigate([this.router.url]).then(() => {
-      window.location.reload();
-    });
+    this.lngService.switchLang(lng);
   }
 
   getSelectedLng() {

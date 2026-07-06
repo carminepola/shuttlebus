@@ -43,7 +43,9 @@ import { UserDetailsComponent } from './pages/user-details/user-details.componen
 import { ContestazioniComponent } from './pages/contestazioni/contestazioni.component';
 import { PendingUsersComponent } from './pages/pending-users/pending-users.component';
 import { StripeComponent } from './pages/stripe/stripe.component';
-export const routes: Routes = [
+import { langMatcher } from './matcher/lang.matcher';
+
+const publicRoutes: Routes = [
   {
     path: '',
     component: HomepageComponent,
@@ -120,7 +122,6 @@ export const routes: Routes = [
       },
     ],
   },
-
   {
     path: 'ticket',
     children: [
@@ -155,10 +156,15 @@ export const routes: Routes = [
       },
     ],
   },
+];
 
+export const routes: Routes = [
+  {
+    matcher: langMatcher,
+    children: publicRoutes,
+  },
   {
     path: 'admin',
-
     children: [
       {
         path: 'fermate',
@@ -173,9 +179,7 @@ export const routes: Routes = [
       },
       {
         path: 'home',
-
         component: HomeComponent,
-
         canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
@@ -311,7 +315,6 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
-
       {
         path: 'schedules/:idRoute',
         component: ScheduleListComponent,
@@ -333,6 +336,16 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'payment/:type/:action/:id',
+    component: PaymentComponent,
+    data: { lowBar: true },
+  },
+  {
+    path: 'auth/:id',
+    component: AuthPageComponent,
+    pathMatch: 'full',
+  },
+  {
     path: 'not-authorized',
     component: NotAuthorizedComponent,
     data: {},
@@ -342,7 +355,6 @@ export const routes: Routes = [
     component: TooManyRequestsComponent,
     data: {},
   },
-
-  { path: '', redirectTo: '/', pathMatch: 'full' },
+  { path: '', redirectTo: '/it', pathMatch: 'full' },
   { path: '**', component: NotFoundComponent },
 ];

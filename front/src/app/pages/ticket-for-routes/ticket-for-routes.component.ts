@@ -7,6 +7,8 @@ import { BookingsService } from '../../services/bookings/bookings.service';
 import { Route, ActivatedRoute, Router } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 
+import { LngService } from '../../services/lng/lng.service';
+
 @Component({
   selector: 'app-ticket-for-routes',
   imports: [
@@ -24,6 +26,7 @@ export class TicketForRoutesComponent {
     private bookingsService: BookingsService,
     private route: ActivatedRoute,
     private router: Router,
+    private lngService: LngService,
   ) {}
   loading = true;
   bookings: any = [];
@@ -43,6 +46,6 @@ export class TicketForRoutesComponent {
   }
 
   goTo(path: string) {
-    this.router.navigate([path]);
+    this.router.navigate(this.lngService.langPathArray(path));
   }
 }

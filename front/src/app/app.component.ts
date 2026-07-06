@@ -18,6 +18,7 @@ import { LoadingComponent } from './components/loading/loading/loading.component
 import { CookiePolicyComponent } from './components/cookie-policy/cookie-policy.component';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { version } from '../../package.json';
+import { getLangFromRoute } from './matcher/lang.matcher';
 @Component({
   selector: 'app-root',
   imports: [
@@ -58,7 +59,13 @@ export class AppComponent implements OnInit {
 
         let currentRoute = this.activatedRoute;
         while (currentRoute.firstChild) {
-          currentRoute = currentRoute.firstChild; // Scorri fino alla route figlia attiva
+          currentRoute = currentRoute.firstChild;
+        }
+
+        const lang = getLangFromRoute(currentRoute.snapshot);
+        if (lang) {
+          this.lngService.setCurrentUrlLang(lang);
+          this.lngService.setLng(lang);
         }
 
         currentRoute.data.subscribe((routeData) => {
@@ -71,7 +78,6 @@ export class AppComponent implements OnInit {
     });
     this.cookieService.startWatchingJwtChanges();
     document.body.setAttribute('data-bs-theme', 'light');
-    // Sottoscriviti al comportamento del JWT per ottenere gli aggiornamenti
     this.cookieService.watchCookie().subscribe((newJwtToken: any) => {
       try {
         let mode = 'light';
@@ -91,7 +97,7 @@ export class AppComponent implements OnInit {
 
   loadLng() {
     const browserLanguage = navigator.language.split('-')[0];
-    const supportedLngs = ['it', 'en', 'fr', 'de', 'es', 'jp'];
+    const supportedLngs = this.lngService.getSupportedLngs();
     let lng = supportedLngs.includes(browserLanguage) ? browserLanguage : 'en';
 
     if (!localStorage['currentLng']) {

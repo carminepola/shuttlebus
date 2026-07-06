@@ -82,7 +82,7 @@ export class RiepilogoComponent implements OnInit {
         this.modalService.closeModal();
       }
     });
-    localStorage.setItem('authUrl', '/riepilogo');
+    localStorage.setItem('authUrl', window.location.pathname);
 
     this.checkCashEligibility();
 
@@ -90,7 +90,7 @@ export class RiepilogoComponent implements OnInit {
     if (pendingBooking) {
       const shouldContinue = await this.pendingBookingService.showPendingModal();
       if (shouldContinue) {
-        this.router.navigate(['/user/mytickets']);
+        this.router.navigate(this.lngService.langPathArray('/user/mytickets'));
         return;
       } else {
         await this.pendingBookingService.cancelPendingBooking(pendingBooking);
@@ -110,7 +110,7 @@ export class RiepilogoComponent implements OnInit {
         this.loading = false;
         this.checkDuplicateTicket();
       } else {
-        this.router.navigate(['/']);
+        this.router.navigate(this.lngService.langPathArray('/'));
       }
     }
   }
@@ -142,7 +142,7 @@ export class RiepilogoComponent implements OnInit {
     if (pendingBooking) {
       const shouldContinue = await this.pendingBookingService.showPendingModal();
       if (shouldContinue) {
-        this.router.navigate(['/user/mytickets']);
+        this.router.navigate(this.lngService.langPathArray('/user/mytickets'));
         return;
       } else {
         await this.pendingBookingService.cancelPendingBooking(pendingBooking);
@@ -211,11 +211,11 @@ export class RiepilogoComponent implements OnInit {
   }
 
   loginWithGoogle() {
-    localStorage.setItem('authUrl', '/riepilogo');
+    localStorage.setItem('authUrl', window.location.pathname);
     this.googleAuthService.loginWithGoogle();
   }
   loginWithMicrosoft() {
-    localStorage.setItem('authUrl', '/riepilogo');
+    localStorage.setItem('authUrl', window.location.pathname);
     this.microsoftAuthService.loginWithMicrosoft();
   }
 
