@@ -31,7 +31,11 @@ export class UserProfileComponent implements OnInit {
     }, 10);
   }
   goTo(path: string) {
-    this.router.navigate(this.lng.langPathArray(path));
+    if (path.startsWith('/admin') || path.startsWith('/driver')) {
+      this.router.navigate([path]);
+    } else {
+      this.router.navigate(this.lng.langPathArray(path));
+    }
   }
   getUser() {
     let user = this.authService.getDecodedToken();

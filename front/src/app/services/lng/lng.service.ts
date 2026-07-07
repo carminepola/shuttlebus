@@ -55,13 +55,17 @@ export class LngService {
 
   langPath(path: string): string {
     const lng = this.getLng();
-    const clean = path.startsWith('/') ? path.substring(1) : path;
+    let clean = path.startsWith('/') ? path.substring(1) : path;
+    clean = clean.replace(/\/+$/, '');
+    if (!clean) return `/${lng}`;
     return `/${lng}/${clean}`;
   }
 
   langPathArray(path: string): string[] {
     const lng = this.getLng();
-    const clean = path.startsWith('/') ? path.substring(1) : path;
+    let clean = path.startsWith('/') ? path.substring(1) : path;
+    clean = clean.replace(/\/+$/, '');
+    if (!clean) return [lng];
     return [lng, ...clean.split('/')];
   }
 

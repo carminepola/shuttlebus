@@ -346,6 +346,50 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'info',
+    component: InfoComponent,
+    data: { lowBar: true },
+  },
+  {
+    path: 'info/:id',
+    component: InfoPageComponent,
+    data: { lowBar: true },
+  },
+  {
+    path: 'driver',
+    children: [
+      {
+        path: 'routes',
+        component: DriverRoutesComponent,
+        canActivate: [AuthGuard],
+        data: { lowBar: true, requiredRole: 75 },
+      },
+      {
+        path: 'routes/:id',
+        component: TicketForRoutesComponent,
+        canActivate: [AuthGuard],
+        data: { lowBar: true, requiredRole: 75 },
+      },
+      {
+        path: 'ticket-search',
+        component: TicketSearchComponent,
+        canActivate: [AuthGuard],
+        data: { lowBar: true, requiredRole: 75 },
+      },
+    ],
+  },
+  {
+    path: 'ticket',
+    children: [
+      {
+        path: 'check/:id',
+        component: TicketCheckComponent,
+        canActivate: [AuthGuard],
+        data: { requiredRole: 75 },
+      },
+    ],
+  },
+  {
     path: 'not-authorized',
     component: NotAuthorizedComponent,
     data: {},

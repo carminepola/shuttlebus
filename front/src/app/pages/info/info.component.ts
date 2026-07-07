@@ -2,9 +2,10 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 
 import { TranslatePipe } from '../../pipe/translate.pipe';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { LngService } from '../../services/lng/lng.service';
 @Component({
   selector: 'app-info',
   imports: [TitlePageComponent, TranslatePipe],
@@ -14,7 +15,8 @@ import { fadeAnimation } from '../../animations/fade.animation';
   animations: [fadeAnimation],
 })
 export class InfoComponent {
+  constructor(private router: Router, private lngService: LngService) {}
   goTo(path: string) {
-    window.location.href = path;
+    this.router.navigate(this.lngService.langPathArray(path));
   }
 }
