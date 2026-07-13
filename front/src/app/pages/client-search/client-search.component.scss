@@ -333,15 +333,8 @@
 }
 
 .booking-card-highlighted {
-  border-left-color: #f59e0b;
-  background-color: rgba(245, 158, 11, 0.04);
-  box-shadow: 0 2px 12px rgba(245, 158, 11, 0.15) !important;
-  animation: pulseHighlight 2s ease-in-out;
-}
-
-@keyframes pulseHighlight {
-  0%, 100% { box-shadow: 0 2px 12px rgba(245, 158, 11, 0.15); }
-  50% { box-shadow: 0 2px 20px rgba(245, 158, 11, 0.3); }
+  border: 2px solid #ec2a7a;
+  box-shadow: 0 4px 20px rgba(236, 42, 122, 0.35) !important;
 }
 
 .booking-number-small {

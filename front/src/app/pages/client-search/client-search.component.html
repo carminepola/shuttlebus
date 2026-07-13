@@ -100,7 +100,7 @@
                 <div class="d-flex align-items-center gap-2">
                   <span class="booking-number-small">{{ booking.numberOfTickets }}</span>
                   @if (booking.numberOfTickets === searchedTicketId) {
-                    <span class="badge bg-warning text-dark">
+                    <span class="badge bg-secondary">
                       <i class="fas fa-search me-1"></i>Ticket cercato
                     </span>
                   }
@@ -168,11 +168,6 @@
         }
       </div>
 
-      <div class="text-center mt-4">
-        <button class="btn btn-outline-secondary rounded-3 px-4" (click)="resetSearch()">
-          <i class="fas fa-redo me-2"></i>
-          Nuova Ricerca
-        </button>
       </div>
     </div>
   }
