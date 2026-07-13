@@ -100,6 +100,7 @@ export class SidebarComponent implements OnInit {
     },
     { icon: 'fa-brands fa-stripe-s', title: 'Stripe', route: '/admin/stripe' },
     { icon: 'fa-users', title: 'Clienti', route: '/admin/clienti' },
+    { icon: 'fa-ticket-alt', title: 'Cliente per Ticket', route: '/admin/cliente-per-ticket' },
     {
       icon: 'fa-user-clock',
       title: 'In attesa',
