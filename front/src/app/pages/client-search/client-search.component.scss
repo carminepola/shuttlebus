@@ -315,3 +315,92 @@
     margin: 0 0 0 5px;
   }
 }
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.booking-card {
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+    border-left-color: #1a1064;
+  }
+}
+
+.booking-card-highlighted {
+  border-left-color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.04);
+  box-shadow: 0 2px 12px rgba(245, 158, 11, 0.15) !important;
+  animation: pulseHighlight 2s ease-in-out;
+}
+
+@keyframes pulseHighlight {
+  0%, 100% { box-shadow: 0 2px 12px rgba(245, 158, 11, 0.15); }
+  50% { box-shadow: 0 2px 20px rgba(245, 158, 11, 0.3); }
+}
+
+.booking-number-small {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a1064;
+  font-family: 'Courier New', monospace;
+}
+
+.booking-route-compact {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.route-stop-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stop-dot-small {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stop-info-compact {
+  display: flex;
+  flex-direction: column;
+}
+
+.stop-name-small {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1064;
+}
+
+.stop-time-small {
+  font-size: 0.72rem;
+  color: #999;
+}
+
+.booking-meta {
+  span {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+.ticket-badge-small {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(26, 16, 100, 0.06);
+  color: #1a1064;
+  margin-right: 4px;
+}

@@ -25,7 +25,8 @@ export class ClientSearchComponent {
   loading: boolean = false;
   error: string = '';
   clientData: any = null;
-  bookingData: any = null;
+  searchedTicketId: string = '';
+  allBookings: any[] = [];
 
   constructor(
     private bookingsService: BookingsService,
@@ -40,7 +41,8 @@ export class ClientSearchComponent {
     this.loading = true;
     this.error = '';
     this.clientData = null;
-    this.bookingData = null;
+    this.searchedTicketId = '';
+    this.allBookings = [];
 
     try {
       const result: any = await lastValueFrom(
@@ -50,10 +52,22 @@ export class ClientSearchComponent {
       const booking = result?.bookings;
 
       if (booking && booking.user) {
-        this.bookingData = booking;
         this.clientData = booking.user;
+        this.searchedTicketId = booking.numberOfTickets;
+
+        if (booking.userId) {
+          const userBookings: any = await lastValueFrom(
+            this.bookingsService.getBookingsByUserId(booking.userId)
+          );
+          this.allBookings = (userBookings?.booking || []).slice().sort(
+            (a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0)
+          );
+        } else {
+          this.allBookings = [booking];
+        }
       } else if (booking) {
-        this.bookingData = booking;
+        this.searchedTicketId = booking.numberOfTickets;
+        this.allBookings = [booking];
         this.error = 'Prenotazione trovata ma non associata a nessun cliente';
       } else {
         this.error = 'Nessuna prenotazione trovata con questo numero';
@@ -75,7 +89,8 @@ export class ClientSearchComponent {
   resetSearch(): void {
     this.ticketNumber = '';
     this.clientData = null;
-    this.bookingData = null;
+    this.searchedTicketId = '';
+    this.allBookings = [];
     this.error = '';
   }
 
