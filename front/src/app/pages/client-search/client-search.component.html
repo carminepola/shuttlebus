@@ -71,21 +71,15 @@
               </div>
               <div class="client-detail-row">
                 <span class="detail-label">Email</span>
-                <span class="detail-value">{{ clientData.email || '-' }}</span>
+                <span class="detail-value">{{ clientData.mail || '-' }}</span>
               </div>
               <div class="client-detail-row">
                 <span class="detail-label">Telefono</span>
                 <span class="detail-value">{{ clientData.phone || '-' }}</span>
               </div>
-              @if (clientData.pin) {
-                <div class="client-detail-row">
-                  <span class="detail-label">PIN</span>
-                  <span class="detail-value">{{ clientData.pin }}</span>
-                </div>
-              }
               <div class="client-detail-row">
                 <span class="detail-label">ID Utente</span>
-                <span class="detail-value small">{{ clientData._id }}</span>
+                <span class="detail-value small">{{ bookingData.userId || '-' }}</span>
               </div>
             </div>
           </div>

@@ -1,13 +1,11 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { BookingsService } from '../../services/bookings/bookings.service';
-import { UserService } from '../../services/user/user.service';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { lastValueFrom } from 'rxjs';
-import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-client-search',
@@ -22,7 +20,7 @@ import { finalize } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.Eager,
   animations: [fadeAnimation],
 })
-export class ClientSearchComponent implements OnInit {
+export class ClientSearchComponent {
   ticketNumber: string = '';
   loading: boolean = false;
   error: string = '';
@@ -31,10 +29,7 @@ export class ClientSearchComponent implements OnInit {
 
   constructor(
     private bookingsService: BookingsService,
-    private userService: UserService,
   ) {}
-
-  ngOnInit(): void {}
 
   async searchClient(): Promise<void> {
     if (!this.ticketNumber.trim()) {
@@ -48,26 +43,18 @@ export class ClientSearchComponent implements OnInit {
     this.bookingData = null;
 
     try {
-      const bookingResult: any = await lastValueFrom(
+      const result: any = await lastValueFrom(
         this.bookingsService.readBookingById(this.ticketNumber.trim())
       );
 
-      if (bookingResult.booking) {
-        this.bookingData = bookingResult.booking;
-        
-        if (bookingResult.booking.userId) {
-          try {
-            const userResult: any = await lastValueFrom(
-              this.userService.getUserById(bookingResult.booking.userId)
-            );
-            this.clientData = userResult.user || userResult;
-          } catch (userError) {
-            console.error('Error loading user details:', userError);
-            this.error = 'Prenotazione trovata ma non è stato possibile caricare i dettagli del cliente';
-          }
-        } else {
-          this.error = 'Prenotazione trovata ma non associata a nessun cliente';
-        }
+      const booking = result?.bookings;
+
+      if (booking && booking.user) {
+        this.bookingData = booking;
+        this.clientData = booking.user;
+      } else if (booking) {
+        this.bookingData = booking;
+        this.error = 'Prenotazione trovata ma non associata a nessun cliente';
       } else {
         this.error = 'Nessuna prenotazione trovata con questo numero';
       }
