@@ -43,6 +43,7 @@ import { UserDetailsComponent } from './pages/user-details/user-details.componen
 import { ContestazioniComponent } from './pages/contestazioni/contestazioni.component';
 import { PendingUsersComponent } from './pages/pending-users/pending-users.component';
 import { StripeComponent } from './pages/stripe/stripe.component';
+import { ClientSearchComponent } from './pages/client-search/client-search.component';
 export const routes: Routes = [
   {
     path: '',
@@ -311,7 +312,12 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
-
+      {
+        path: 'cliente-per-ticket',
+        component: ClientSearchComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
       {
         path: 'schedules/:idRoute',
         component: ScheduleListComponent,

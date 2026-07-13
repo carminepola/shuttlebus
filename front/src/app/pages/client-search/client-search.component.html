@@ -1,0 +1,180 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    title="Ricerca Cliente"
+    subtitle="Cerca cliente per numero di ticket/prenotazione"
+    back="true"
+  ></app-title-page>
+
+  <div class="search-section" @fadeInOut>
+    <div class="card shadow border-0 rounded-4">
+      <div class="card-body p-4">
+        <div class="search-input-group">
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-light border-0 icon-container">
+              <i class="fas fa-ticket"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control bg-light border-0"
+              placeholder="Inserisci numero ticket/prenotazione..."
+              [(ngModel)]="ticketNumber"
+              (keyup.enter)="onEnterKey($event)"
+              [disabled]="loading"
+            />
+            <button
+              class="btn btn-primary rounded-end-3"
+              (click)="searchClient()"
+              [disabled]="loading || !ticketNumber.trim()"
+            >
+              @if (loading) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Cerca...
+              } @else {
+                <i class="fas fa-search me-2"></i>
+                Cerca
+              }
+            </button>
+          </div>
+        </div>
+
+        @if (error) {
+          <div class="alert alert-danger mt-3 mb-0">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            {{ error }}
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (loading && !error) {
+    <div class="loading-section">
+      <app-loading></app-loading>
+    </div>
+  }
+
+  @if (!loading && clientData && bookingData) {
+    <div class="results-section" @fadeInOut>
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="card shadow border-0 rounded-4">
+            <div class="card-header bg-white border-bottom py-3">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-user me-2 text-primary"></i>
+                Dettagli Cliente
+              </h5>
+            </div>
+            <div class="card-body p-4">
+              <div class="client-detail-row">
+                <span class="detail-label">Nome</span>
+                <span class="detail-value">{{ clientData.name || '-' }}</span>
+              </div>
+              <div class="client-detail-row">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ clientData.email || '-' }}</span>
+              </div>
+              <div class="client-detail-row">
+                <span class="detail-label">Telefono</span>
+                <span class="detail-value">{{ clientData.phone || '-' }}</span>
+              </div>
+              @if (clientData.pin) {
+                <div class="client-detail-row">
+                  <span class="detail-label">PIN</span>
+                  <span class="detail-value">{{ clientData.pin }}</span>
+                </div>
+              }
+              <div class="client-detail-row">
+                <span class="detail-label">ID Utente</span>
+                <span class="detail-value small">{{ clientData._id }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card shadow border-0 rounded-4">
+            <div class="card-header bg-white border-bottom py-3">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-receipt me-2 text-primary"></i>
+                Dettagli Prenotazione
+              </h5>
+            </div>
+            <div class="card-body p-4">
+              <div class="booking-header">
+                <div class="booking-id">
+                  <span class="booking-label">Numero</span>
+                  <span class="booking-number">#{{ bookingData.numberOfTickets }}</span>
+                </div>
+                <span class="badge" [ngClass]="getBookingStatusClass(bookingData.status)">
+                  {{ getBookingStatusLabel(bookingData.status) }}
+                </span>
+              </div>
+
+              <div class="booking-route mt-3">
+                <div class="route-stop">
+                  <div class="stop-dot stop-departure"></div>
+                  <div class="stop-info">
+                    <span class="stop-time">{{ bookingData.from?.stopTime || '-' }}</span>
+                    <span class="stop-name">{{ bookingData.from?.name || '-' }}</span>
+                  </div>
+                </div>
+                <div class="route-line"></div>
+                <div class="route-stop">
+                  <div class="stop-dot stop-arrival"></div>
+                  <div class="stop-info">
+                    <span class="stop-time">{{ bookingData.to?.stopTime || '-' }}</span>
+                    <span class="stop-name">{{ bookingData.to?.name || '-' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="my-3">
+
+              <div class="booking-details-grid">
+                <div class="detail-item">
+                  <span class="detail-item-label">Data</span>
+                  <span class="detail-item-value">
+                    {{ bookingData.date | date:'dd/MM/yyyy' }}
+                  </span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-item-label">Totale</span>
+                  <span class="detail-item-value fw-bold">{{ bookingData.total }}€</span>
+                </div>
+              </div>
+
+              @if (bookingData.ticketTypes && bookingData.ticketTypes.length > 0) {
+                <div class="mt-3">
+                  <span class="detail-label">Biglietti</span>
+                  <div class="tickets-list">
+                    @for (ticket of bookingData.ticketTypes; track ticket) {
+                      @if (ticket.count > 0) {
+                        <span class="ticket-badge">
+                          {{ ticket.name?.it || ticket.name?.en || 'Biglietto' }} x{{ ticket.count }}
+                        </span>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (bookingData.luggage > 0) {
+                <div class="mt-2">
+                  <span class="detail-label">Bagagli</span>
+                  <span class="ticket-badge">{{ bookingData.luggage }} x</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button class="btn btn-outline-secondary rounded-3 px-4" (click)="resetSearch()">
+          <i class="fas fa-redo me-2"></i>
+          Nuova Ricerca
+        </button>
+      </div>
+    </div>
+  }
+</div>
