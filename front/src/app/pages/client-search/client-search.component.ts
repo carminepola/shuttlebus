@@ -79,8 +79,8 @@ export class ClientSearchComponent implements OnInit {
     }
   }
 
-  onEnterKey(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
+  onEnterKey(event: Event): void {
+    if (event instanceof KeyboardEvent && event.key === 'Enter') {
       this.searchClient();
     }
   }
