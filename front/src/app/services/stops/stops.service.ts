@@ -36,7 +36,7 @@ export class StopsService {
   }
 
   getAllStops(): Observable<any> {
-    return this.http.get<any[]>(`${this.apiUrl}/all`).pipe(
+    return this.http.get<any[]>(`${this.apiUrl}/all-stops`).pipe(
       catchError((error) => {
         return throwError(() => error);
       })

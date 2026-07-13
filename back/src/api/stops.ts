@@ -79,6 +79,16 @@ router.get("/all", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAG
     next(error);
   }
 });
+
+router.get("/all-stops", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let stopsServices = new StopServices(db);
+    const stops = await stopsServices.getAllStops();
+    res.json({ stops: stops });
+  } catch (error) {
+    next(error);
+  }
+});
 router.patch(
   "/",
   [

@@ -33,7 +33,7 @@ export class RouteComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    let risStops = await lastValueFrom(this.stopsService.getAllActiveStops());
+    let risStops = await lastValueFrom(this.stopsService.getAllStops());
 
     this.stops = risStops.stops;
     let r = await lastValueFrom(this.routeService.getRoutes());
@@ -46,8 +46,8 @@ export class RouteComponent implements OnInit {
       return {
         nome: route.name.it,
         id: route.id,
-        partenza: firstStop.name,
-        arrivo: lastStop.name,
+        partenza: firstStop ? `${firstStop.name}${firstStop.isActive ? '' : ' (disattivata)'}` : 'Fermata non trovata',
+        arrivo: lastStop ? `${lastStop.name}${lastStop.isActive ? '' : ' (disattivata)'}` : 'Fermata non trovata',
         schedulazioni: route.schedules?.length || 0,
       };
     });
