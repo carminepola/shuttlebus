@@ -1,0 +1,150 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - back/**/*
+      - front/**/*
+
+env:
+  REGISTRY_PRIVATE: ${{ secrets.REGISTRY_PRIVATE }}
+
+jobs:
+  ########################
+  # BUILD BACK
+  ########################
+  compilazione_back:
+    runs-on: docker
+    container: node:24.15
+    if: |
+      (github.ref_name == 'main' || github.ref_name == 'dev') &&
+      !startsWith(github.event.head_commit.message, 'skip-ci')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build back
+        working-directory: back
+        run: |
+          npm ci
+          npm run build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: back-dist
+          path: back/dist/
+
+  ########################
+  # BUILD FRONT
+  ########################
+  compilazione_front:
+    runs-on: docker
+    container: node:24.15
+    if: |
+      (github.ref_name == 'main' || github.ref_name == 'dev')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build front
+        working-directory: front
+        run: |
+          npm install -g @angular/cli@22.0.4
+          npm ci
+          npm run build-prod
+      - uses: actions/upload-artifact@v3
+        with:
+          name: front-dist
+          path: front/dist/
+
+  ########################
+  # DOCKER BACK
+  ########################
+  compila_dockerfile_back:
+    runs-on: docker
+    container: docker:dind
+    needs: compilazione_back
+    if: |
+      (github.ref_name == 'main' || github.ref_name == 'dev') &&
+      !startsWith(github.event.head_commit.message, 'skip-ci')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & push back
+        working-directory: back
+        env:
+          DOCKER_USERNAME_PRIVATE: ${{ secrets.DOCKER_USERNAME_PRIVATE }}
+          DOCKER_PASSWORD_PRIVATE: ${{ secrets.DOCKER_PASSWORD_PRIVATE }}
+        run: |
+          docker login $REGISTRY_PRIVATE -u $DOCKER_USERNAME_PRIVATE -p $DOCKER_PASSWORD_PRIVATE
+          export GUID_TAG=$(uuidgen || echo "${{ github.run_id }}")
+
+          docker build -t $REGISTRY_PRIVATE/pintour2/back:$GUID_TAG .
+          docker push $REGISTRY_PRIVATE/pintour2/back:$GUID_TAG
+
+          if [ "${{ github.ref_name }}" == "dev" ]; then
+            docker tag $REGISTRY_PRIVATE/pintour2/back:$GUID_TAG $REGISTRY_PRIVATE/pintour2/back:dev
+            docker push $REGISTRY_PRIVATE/pintour2/back:dev
+          fi
+
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            docker tag $REGISTRY_PRIVATE/pintour2/back:$GUID_TAG $REGISTRY_PRIVATE/pintour2/back:latest
+            docker push $REGISTRY_PRIVATE/pintour2/back:latest
+          fi
+
+  ########################
+  # DOCKER FRONT
+  ########################
+  compila_dockerfile_front:
+    runs-on: docker
+    container: docker:dind
+    needs: compilazione_front
+    if: |
+      (github.ref_name == 'main' || github.ref_name == 'dev') &&
+      !startsWith(github.event.head_commit.message, 'skip-ci')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & push front
+        working-directory: front
+        env:
+          DOCKER_USERNAME_PRIVATE: ${{ secrets.DOCKER_USERNAME_PRIVATE }}
+          DOCKER_PASSWORD_PRIVATE: ${{ secrets.DOCKER_PASSWORD_PRIVATE }}
+        run: |
+          docker login $REGISTRY_PRIVATE -u $DOCKER_USERNAME_PRIVATE -p $DOCKER_PASSWORD_PRIVATE
+          export GUID_TAG=$(uuidgen || echo "${{ github.run_id }}")
+
+          docker build -t $REGISTRY_PRIVATE/pintour2/front:$GUID_TAG .
+          docker push $REGISTRY_PRIVATE/pintour2/front:$GUID_TAG
+
+          if [ "${{ github.ref_name }}" == "dev" ]; then
+            docker tag $REGISTRY_PRIVATE/pintour2/front:$GUID_TAG $REGISTRY_PRIVATE/pintour2/front:dev
+            docker push $REGISTRY_PRIVATE/pintour2/front:dev
+          fi
+
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            docker tag $REGISTRY_PRIVATE/pintour2/front:$GUID_TAG $REGISTRY_PRIVATE/pintour2/front:latest
+            docker push $REGISTRY_PRIVATE/pintour2/front:latest
+          fi
+
+  ########################
+  # PORTAINER (WEBHOOK)
+  ########################
+  aggiorna_portainer:
+    runs-on: docker
+    container: curlimages/curl
+    needs:
+      - compila_dockerfile_back
+      - compila_dockerfile_front
+    if: |
+      always() &&
+      (github.ref_name == 'main' || github.ref_name == 'dev') &&
+      !startsWith(github.event.head_commit.message, 'skip-ci')
+    steps:
+      - name: Trigger Portainer webhook
+        env:
+          WEBHOOK_DEV_PRIVATE: ${{ secrets.WEBHOOK_DEV_PRIVATE }}
+          WEBHOOK_PRIVATE: ${{ secrets.WEBHOOK_PRIVATE }}
+        run: |
+          if [ "${{ github.ref_name }}" == "dev" ]; then
+            curl --location --request POST "$WEBHOOK_DEV_PRIVATE"
+          fi
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            curl --location --request POST "$WEBHOOK_PRIVATE"
+          fi
