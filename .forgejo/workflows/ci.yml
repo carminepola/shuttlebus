@@ -59,8 +59,11 @@ jobs:
   # DOCKER BACK
   ########################
   compila_dockerfile_back:
-    runs-on: docker
-    container: docker:dind
+    runs-on: ubuntu-latest
+    services:
+      dind:
+        image: docker:dind
+        options: --privileged
     needs: compilazione_back
     if: |
       (github.ref_name == 'main' || github.ref_name == 'dev') &&
@@ -93,8 +96,11 @@ jobs:
   # DOCKER FRONT
   ########################
   compila_dockerfile_front:
-    runs-on: docker
-    container: docker:dind
+    runs-on: ubuntu-latest
+    services:
+      dind:
+        image: docker:dind
+        options: --privileged
     needs: compilazione_front
     if: |
       (github.ref_name == 'main' || github.ref_name == 'dev') &&
