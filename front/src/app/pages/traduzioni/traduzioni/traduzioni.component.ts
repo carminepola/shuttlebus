@@ -38,30 +38,42 @@ export class TraduzioniComponent implements OnInit {
       if (res && res.lng) {
         this.loading = false;
         this.traduzioni = res.lng;
+        sessionStorage['lng'] = JSON.stringify(res.lng);
       }
     });
   }
 
   modificaTraduzione(id: string, it: string, en: string, fr: string, de: string, es: string, jp: string) {
-    let obj = { id, it, en, fr, de, es, jp }
-    this.lngService.patch(obj).subscribe((res) => {
-      this.loading = true;
-      if (res) {
+    let obj = { id, it, en, fr, de, es, jp };
+    this.loading = true;
+    this.lngService.patch(obj).subscribe({
+      next: () => this.caricaTraduzioni(),
+      error: () => {
         this.loading = false;
-      }
+      },
     });
   }
 
   aggiungiTraduzione(txt: string, it: string, en: string, fr: string, de: string, es: string, jp: string) {
+    this.loading = true;
     this.lngService.post({
       txt, it, en, fr, de, es, jp,
-    }).subscribe((res) => {
-      this.loading = true;
-      if (res && res) {
-        this.traduzioni.push({ txt, it, en, fr, de, es, jp });
-        sessionStorage['lng'] = JSON.stringify(this.traduzioni);
+    }).subscribe({
+      next: () => {
+        this.nuovaTraduzione = {
+          txt: "",
+          it: "",
+          en: "",
+          fr: "",
+          de: "",
+          es: "",
+          jp: "",
+        };
+        this.caricaTraduzioni();
+      },
+      error: () => {
         this.loading = false;
-      }
+      },
     });
   }
 }

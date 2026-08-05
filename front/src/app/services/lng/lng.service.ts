@@ -37,23 +37,38 @@ export class LngService {
 
   setLng(data: string) {
     localStorage.setItem('currentLng', data);
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = data;
+    }
   }
   getLng(): string {
     return localStorage.getItem('currentLng') || 'it';
   }
   traslate(id: string) {
-    let obj = JSON.parse(sessionStorage['lng']);
-    if (obj.length > 0) {
-      let find = obj.find((x: any) => x.txt === id);
-
-      if (find) {
-        if (find[this.getLng()] == '') {
-          return id;
-        }
-
-        return find[this.getLng()];
-      }
+    if (!id) {
       return id;
     }
+    let obj: any[];
+    try {
+      const raw = sessionStorage.getItem('lng');
+      if (!raw) {
+        return id;
+      }
+      obj = JSON.parse(raw);
+    } catch (e) {
+      return id;
+    }
+    if (!Array.isArray(obj) || obj.length === 0) {
+      return id;
+    }
+    const find = obj.find((x: any) => x && x.txt === id);
+    if (!find) {
+      return id;
+    }
+    const value = find[this.getLng()];
+    if (value === undefined || value === null || value === '') {
+      return id;
+    }
+    return value;
   }
 }

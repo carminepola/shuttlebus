@@ -124,13 +124,13 @@
                     </button>
                   </td>
                 </tr>
-                @for (item of traduzioni; track item; let i = $index) {
+                @for (item of traduzioni; track item.id; let i = $index) {
                   <tr>
                     <th scope="row">{{ i + 1 }}</th>
                     <td>{{ item.txt }}</td>
                     <td>
                       <input
-                        [(ngModel)]="item.it"
+                        [(ngModel)]="item.it" [ngModelOptions]="{ standalone: true }"
                         name="name_it_{{ i }}"
                         type="text"
                         placeholder="IT"
@@ -141,7 +141,7 @@
                     </td>
                     <td>
                       <input
-                        [(ngModel)]="item.en"
+                        [(ngModel)]="item.en" [ngModelOptions]="{ standalone: true }"
                         name="name_en_{{ i }}"
                         type="text"
                         placeholder="EN"
@@ -152,7 +152,7 @@
                     </td>
                     <td>
                       <input
-                        [(ngModel)]="item.fr"
+                        [(ngModel)]="item.fr" [ngModelOptions]="{ standalone: true }"
                         name="name_fr_{{ i }}"
                         type="text"
                         placeholder="FR"
@@ -162,7 +162,7 @@
                     </td>
                     <td>
                       <input
-                        [(ngModel)]="item.de"
+                        [(ngModel)]="item.de" [ngModelOptions]="{ standalone: true }"
                         name="name_de_{{ i }}"
                         type="text"
                         placeholder="DE"
@@ -172,7 +172,7 @@
                     </td>
                     <td>
                       <input
-                        [(ngModel)]="item.es"
+                        [(ngModel)]="item.es" [ngModelOptions]="{ standalone: true }"
                         name="name_es_{{ i }}"
                         type="text"
                         placeholder="ES"
@@ -182,7 +182,7 @@
                     </td>
                     <td>
                       <input
-                        [(ngModel)]="item.jp"
+                        [(ngModel)]="item.jp" [ngModelOptions]="{ standalone: true }"
                         name="name_jp_{{ i }}"
                         type="text"
                         placeholder="JP"
@@ -315,7 +315,7 @@
           </div>
 
           <!-- Existing Translations Cards -->
-          @for (item of traduzioni; track item; let i = $index) {
+          @for (item of traduzioni; track item.id; let i = $index) {
             <div class="card rounded-4 shadow mb-3">
               <div class="card-header bg-light">
                 <h6 class="mb-0">#{{ i + 1 }} - {{ item.txt }}</h6>
@@ -324,7 +324,7 @@
                 <div class="mb-3">
                   <label class="form-label fw-bold">IT</label>
                   <input
-                    [(ngModel)]="item.it"
+                    [(ngModel)]="item.it" [ngModelOptions]="{ standalone: true }"
                     name="name_it_mobile_{{ i }}"
                     type="text"
                     placeholder="IT"
@@ -336,7 +336,7 @@
                 <div class="mb-3">
                   <label class="form-label fw-bold">EN</label>
                   <input
-                    [(ngModel)]="item.en"
+                    [(ngModel)]="item.en" [ngModelOptions]="{ standalone: true }"
                     name="name_en_mobile_{{ i }}"
                     type="text"
                     placeholder="EN"
@@ -348,7 +348,7 @@
                 <div class="mb-3">
                   <label class="form-label fw-bold">FR</label>
                   <input
-                    [(ngModel)]="item.fr"
+                    [(ngModel)]="item.fr" [ngModelOptions]="{ standalone: true }"
                     name="name_fr_mobile_{{ i }}"
                     type="text"
                     placeholder="FR"
@@ -359,7 +359,7 @@
                 <div class="mb-3">
                   <label class="form-label fw-bold">DE</label>
                   <input
-                    [(ngModel)]="item.de"
+                    [(ngModel)]="item.de" [ngModelOptions]="{ standalone: true }"
                     name="name_de_mobile_{{ i }}"
                     type="text"
                     placeholder="DE"
@@ -370,7 +370,7 @@
                 <div class="mb-3">
                   <label class="form-label fw-bold">ES</label>
                   <input
-                    [(ngModel)]="item.es"
+                    [(ngModel)]="item.es" [ngModelOptions]="{ standalone: true }"
                     name="name_es_mobile_{{ i }}"
                     type="text"
                     placeholder="ES"
@@ -381,7 +381,7 @@
                 <div class="mb-3">
                   <label class="form-label fw-bold">JP</label>
                   <input
-                    [(ngModel)]="item.jp"
+                    [(ngModel)]="item.jp" [ngModelOptions]="{ standalone: true }"
                     name="name_jp_mobile_{{ i }}"
                     type="text"
                     placeholder="JP"
