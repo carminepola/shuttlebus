@@ -138,8 +138,8 @@ class BookingsServices {
   async readBookingConfirmed(date: string, routeId: string, scheduleId: string, status: string) {
     return await this.bookingDao.readBookingConfirmed(date, routeId, scheduleId, status);
   }
-  async getBookingFromUser(userId: string) {
-    return await this.bookingDao.getBookingFromUser(userId);
+  async getBookingFromUser(userId: string, includeAllStatus: boolean = false) {
+    return await this.bookingDao.getBookingFromUser(userId, includeAllStatus);
   }
   async checkPriceAndTime(ticket: any) {
     let totale = ticket.total;

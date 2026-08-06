@@ -359,17 +359,34 @@ class StripeServices {
     }
   }
 
-  public async getAllPaymentIntents(options: { limit?: number; starting_after?: string; status?: string } = {}) {
+  public async getAllPaymentIntents(options: { limit?: number; starting_after?: string; status?: string; search?: string } = {}) {
     try {
-      const params: any = { limit: options.limit || 20, expand: ["data.latest_charge"] };
-      if (options.starting_after) params.starting_after = options.starting_after;
-      if (options.status) params.status = options.status;
+      const limit = options.limit || 20;
+      const status = options.status;
 
-      const paymentIntents = await this.stripe.paymentIntents.list(params);
+      let paymentIntents: any;
+
+      if (options.search && options.search.trim().length >= 3) {
+        const term = options.search.trim();
+        let query: string;
+        if (status) {
+          query = `status:'${status}' AND '${term}'`;
+        } else {
+          query = `'${term}'`;
+        }
+        const searchParams: any = { query, limit };
+        if (options.starting_after) searchParams.page = { starting_after: options.starting_after };
+        paymentIntents = await this.stripe.paymentIntents.search(searchParams);
+      } else {
+        const params: any = { limit, expand: ["data.latest_charge"] };
+        if (options.starting_after) params.starting_after = options.starting_after;
+        if (status) params.status = status;
+        paymentIntents = await this.stripe.paymentIntents.list(params);
+      }
 
       return {
         data: paymentIntents.data.map((pi: any) => {
-          const charge = pi.latest_charge;
+          const charge = typeof pi.latest_charge === "object" ? pi.latest_charge : null;
           return {
             id: pi.id,
             amount: +(pi.amount / 100).toFixed(2),

@@ -1,11 +1,12 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StripeService } from '../../services/stripe/stripe.service';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { finalize } from 'rxjs/operators';
-import { lastValueFrom } from 'rxjs';
+import { Subject, takeUntil, lastValueFrom } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-stripe',
@@ -15,7 +16,7 @@ import { lastValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './stripe.component.scss',
 })
-export class StripeComponent implements OnInit {
+export class StripeComponent implements OnInit, OnDestroy {
   loading = true;
   loadingMore = false;
   paymentIntents: any[] = [];
@@ -27,6 +28,9 @@ export class StripeComponent implements OnInit {
 
   selectedPi: any = null;
   detailLoading = false;
+
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   statusOptions = [
     { value: '', label: 'Tutti' },
@@ -41,15 +45,30 @@ export class StripeComponent implements OnInit {
   constructor(private stripeService: StripeService) {}
 
   ngOnInit(): void {
+    this.searchSubject
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadPaymentIntents();
+      });
     this.loadPaymentIntents();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onSearchChange(term: string): void {
+    this.searchSubject.next(term);
   }
 
   loadPaymentIntents(): void {
     this.loading = true;
     this.paymentIntents = [];
     this.lastId = null;
+    const search = this.searchTerm.trim();
     this.stripeService
-      .getPaymentIntents({ limit: 20, status: this.filterStatus || undefined })
+      .getPaymentIntents({ limit: 20, status: this.filterStatus || undefined, search: search.length >= 3 ? search : undefined })
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (res: any) => {
@@ -64,8 +83,9 @@ export class StripeComponent implements OnInit {
   loadMore(): void {
     if (this.loadingMore || !this.hasMore || !this.lastId) return;
     this.loadingMore = true;
+    const search = this.searchTerm.trim();
     this.stripeService
-      .getPaymentIntents({ limit: 20, starting_after: this.lastId, status: this.filterStatus || undefined })
+      .getPaymentIntents({ limit: 20, starting_after: this.lastId, status: this.filterStatus || undefined, search: search.length >= 3 ? search : undefined })
       .pipe(finalize(() => (this.loadingMore = false)))
       .subscribe({
         next: (res: any) => {
@@ -80,20 +100,6 @@ export class StripeComponent implements OnInit {
 
   onFilterChange(): void {
     this.loadPaymentIntents();
-  }
-
-  get filteredIntents(): any[] {
-    if (!this.searchTerm.trim()) return this.paymentIntents;
-    const term = this.searchTerm.toLowerCase();
-    return this.paymentIntents.filter(
-      (pi) =>
-        pi.id.toLowerCase().includes(term) ||
-        (pi.customerEmail || '').toLowerCase().includes(term) ||
-        (pi.customerName || '').toLowerCase().includes(term) ||
-        (pi.description || '').toLowerCase().includes(term) ||
-        (pi.metadata?.booking_id || '').toLowerCase().includes(term) ||
-        (pi.metadata?.route || '').toLowerCase().includes(term)
-    );
   }
 
   getStatusBadgeClass(status: string): string {

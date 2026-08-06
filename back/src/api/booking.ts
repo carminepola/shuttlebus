@@ -114,7 +114,7 @@ router.get("/hasTicketForRoute", authMiddleware, checkPermissionMiddleware(role.
 router.get("/getBookingByUserId/:userId", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
-    let result = await bookingServices.getBookingFromUser(req.params.userId);
+    let result = await bookingServices.getBookingFromUser(req.params.userId, true);
     res.json({ booking: result });
   } catch (error) {
     next(error);

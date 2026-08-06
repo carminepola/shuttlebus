@@ -104,6 +104,10 @@ export class ClientSearchComponent {
         return 'status-cancelled';
       case 'refunded':
         return 'status-refunded';
+      case 'deleted':
+        return 'status-deleted';
+      case 'expired':
+        return 'status-expired';
       default:
         return 'status-default';
     }
@@ -119,6 +123,10 @@ export class ClientSearchComponent {
         return 'Cancellata';
       case 'refunded':
         return 'Rimborsata';
+      case 'deleted':
+        return 'Eliminata';
+      case 'expired':
+        return 'Scaduta';
       default:
         return status;
     }

@@ -154,6 +154,16 @@
   color: #2563eb;
 }
 
+.status-deleted {
+  background: rgba(107, 114, 128, 0.1);
+  color: #4b5563;
+}
+
+.status-expired {
+  background: rgba(168, 85, 247, 0.1);
+  color: #9333ea;
+}
+
 .status-default {
   background: rgba(107, 114, 128, 0.1);
   color: #6b7280;

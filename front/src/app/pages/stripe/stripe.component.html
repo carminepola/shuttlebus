@@ -17,13 +17,14 @@
             <input
               type="text"
               class="form-control bg-light border-0"
-              placeholder="Cerca per ID, email, nome, booking..."
+              placeholder="Cerca per ID, email, nome, booking... (min 3 caratteri)"
               [(ngModel)]="searchTerm"
+              (ngModelChange)="onSearchChange($event)"
             />
           </div>
         </div>
         <div class="col-auto">
-          <span class="text-muted fw-medium">{{ filteredIntents.length }} risultati</span>
+          <span class="text-muted fw-medium">{{ paymentIntents.length }} risultati</span>
         </div>
       </div>
     </div>
@@ -50,7 +51,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (pi of filteredIntents; track pi.id) {
+            @for (pi of paymentIntents; track pi.id) {
               <tr class="sd-row" (click)="openDetail(pi)" style="cursor: pointer;">
                 <td>
                   <span class="sd-id text-muted">{{ pi.id.substring(0, 12) }}...</span>
@@ -101,7 +102,7 @@
           </tbody>
         </table>
 
-        @if (!loading && filteredIntents.length === 0) {
+        @if (!loading && paymentIntents.length === 0) {
           <div class="text-center py-5 text-muted">
             <i class="fa-solid fa-inbox fa-2x mb-2"></i>
             <div>Nessun payment intent trovato</div>
@@ -109,7 +110,7 @@
         }
       </div>
 
-      @if (hasMore && !searchTerm) {
+      @if (hasMore) {
         <div class="text-center pb-3">
           <button class="btn btn-outline-secondary rounded-3" [disabled]="loadingMore" (click)="loadMore()">
             @if (loadingMore) {

@@ -591,15 +591,16 @@ export default class BookingsDAO {
     return this.db.collection("bookings").find({ userId, status: "pending" }).toArray();
   }
 
-  async getBookingFromUser(userId: string) {
+  async getBookingFromUser(userId: string, includeAllStatus: boolean = false) {
+    const query: any = { userId };
+    if (!includeAllStatus) {
+      query.status = {
+        $in: ["pending", "confirmed", "cancelled", "refunded"],
+      };
+    }
     return this.db
       .collection("bookings")
-      .find({
-        userId,
-        status: {
-          $in: ["pending", "confirmed", "cancelled", "refunded"],
-        },
-      })
+      .find(query)
       .project({ date: 1, createdAt: 1, numberOfTickets: 1, status: 1, from: 1, to: 1, travelDate: 1, total: 1, luggage: 1, seats: 1, name: 1, ticketTypes: 1, other: 1, routeId: 1 })
       .sort({ createdAt: -1 })
       .toArray();

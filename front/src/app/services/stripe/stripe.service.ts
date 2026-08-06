@@ -86,12 +86,13 @@ export class StripeService {
       })
     );
   }
-  getPaymentIntents(params?: { limit?: number; starting_after?: string; status?: string }): Observable<any> {
+  getPaymentIntents(params?: { limit?: number; starting_after?: string; status?: string; search?: string }): Observable<any> {
     let url = this.apiUrl + '/paymentIntents';
     const queryParams: string[] = [];
     if (params?.limit) queryParams.push('limit=' + params.limit);
     if (params?.starting_after) queryParams.push('starting_after=' + params.starting_after);
     if (params?.status) queryParams.push('status=' + params.status);
+    if (params?.search) queryParams.push('search=' + encodeURIComponent(params.search));
     if (queryParams.length > 0) url += '?' + queryParams.join('&');
     return this.http.get(url).pipe(
       catchError((error) => {

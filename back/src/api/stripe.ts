@@ -362,6 +362,7 @@ router.get("/paymentIntents", authMiddleware, checkPermissionMiddleware(role.ADM
       limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
       starting_after: req.query.starting_after as string,
       status: req.query.status as string,
+      search: req.query.search as string,
     });
     res.json(result);
   } catch (error) {
