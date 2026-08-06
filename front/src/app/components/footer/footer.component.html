@@ -52,13 +52,21 @@
       <div class="col-6 col-lg-2">
         <h3 class="footer-heading">Link</h3>
         <ul class="footer-links">
-          <li><a [routerLink]="['/']" class="footer-link">{{ "str_home" | translate }}</a></li>
+          <li>
+            <a [routerLink]="['/']" class="footer-link">{{
+              "str_home" | translate
+            }}</a>
+          </li>
           <li>
             <a [routerLink]="['/busLine/0']" class="footer-link">{{
               "str_bus_line" | translate
             }}</a>
           </li>
-          <li><a [routerLink]="['/info']" class="footer-link">{{ "str_info" | translate }}</a></li>
+          <li>
+            <a [routerLink]="['/info']" class="footer-link">{{
+              "str_info" | translate
+            }}</a>
+          </li>
         </ul>
       </div>
 
@@ -92,11 +100,12 @@
         <div class="footer-company-info">
           <p>Pintour S.C.A.R.L.</p>
           <p>
-            Via Castellammare 18<br />
-            80050, Pimonte (Na)
+            Via 1° Maggio, 1,<br />
+            06039 Trevi (PG)
           </p>
           <p>
             Sede operativa:<br />
+            Roma<br />
             Via Mariconda 39, 80045, Pompei (Na)
           </p>
           <p>P.IVA 06565461214</p>
