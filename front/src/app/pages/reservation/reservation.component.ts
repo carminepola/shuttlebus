@@ -68,7 +68,7 @@ export class ReservationComponent implements OnInit {
 
     this.filterButton();
   }
-  rimborsa(numberOfTickets: number, ticket: any[], bagagli: number) {
+  rimborsa(numberOfTickets: number, ticket: any[], bagagli: number, total: number) {
     const LUGGAGE_PRICE = 2;
 
     let ticketRows = '';
@@ -114,7 +114,13 @@ export class ReservationComponent implements OnInit {
       title: 'Rimborsa biglietto',
       html: `
         <div class="text-start">
-          ${ticketRows}
+          <div class="form-check mb-3 px-2">
+            <input class="form-check-input" type="checkbox" id="swal-refund-all" onchange="window.swalToggleAll(this.checked)" />
+            <label class="form-check-label fw-bold" for="swal-refund-all">Rimborsa l'intera prenotazione</label>
+          </div>
+          <div id="swal-refund-items">
+            ${ticketRows}
+          </div>
           <hr class="my-2">
           <div class="d-flex justify-content-between px-2 mb-2">
             <span class="fw-bold">Totale rimborso:</span>
@@ -150,8 +156,28 @@ export class ReservationComponent implements OnInit {
           const totalEl = document.getElementById('swal-refund-total');
           if (totalEl) totalEl.textContent = sum.toFixed(2) + '€';
         };
+        (window as any).swalToggleAll = (checked: boolean) => {
+          const itemsEl = document.getElementById('swal-refund-items');
+          if (itemsEl) {
+            itemsEl
+              .querySelectorAll<HTMLInputElement>('input[data-cost], button')
+              .forEach((el) => {
+                (el as HTMLInputElement).disabled = checked;
+              });
+          }
+          const totalEl = document.getElementById('swal-refund-total');
+          if (totalEl && checked) {
+            totalEl.textContent = (total || 0).toFixed(2) + '€';
+          } else {
+            (window as any).swalUpdateTotal();
+          }
+        };
       },
       preConfirm: () => {
+        const refundAll = (document.getElementById('swal-refund-all') as HTMLInputElement)?.checked;
+        if (refundAll) {
+          return { refundAll: true };
+        }
         const items: { ticketTypeId: string; count: number }[] = [];
         let luggageCount = 0;
         let hasSelection = false;
@@ -175,11 +201,19 @@ export class ReservationComponent implements OnInit {
     }).then((result: any) => {
       if (result.isConfirmed) {
         const refundData = result.value;
-        this.stripeService.refund(numberOfTickets.toString(), refundData.items, refundData.luggage).subscribe({
-          next: () => {
-            this.filterButton();
-          },
-        });
+        if (refundData.refundAll) {
+          this.stripeService.refund(numberOfTickets.toString()).subscribe({
+            next: () => {
+              this.filterButton();
+            },
+          });
+        } else {
+          this.stripeService.refund(numberOfTickets.toString(), refundData.items, refundData.luggage).subscribe({
+            next: () => {
+              this.filterButton();
+            },
+          });
+        }
       }
     });
   }

@@ -375,7 +375,13 @@ export class ClientsComponent implements OnInit, AfterViewInit {
       title: `Rimborso #${booking.numberOfTickets}`,
       html: `
         <div class="text-start">
-          ${ticketRows}
+          <div class="form-check mb-3 px-2">
+            <input class="form-check-input" type="checkbox" id="swal-refund-all" onchange="window.swalToggleAll(this.checked)" />
+            <label class="form-check-label fw-bold" for="swal-refund-all">Rimborsa l'intera prenotazione</label>
+          </div>
+          <div id="swal-refund-items">
+            ${ticketRows}
+          </div>
           <hr class="my-2">
           <div class="d-flex justify-content-between px-2 mb-2">
             <span class="fw-bold">Totale rimborso:</span>
@@ -403,8 +409,29 @@ export class ClientsComponent implements OnInit, AfterViewInit {
           const totalEl = document.getElementById('swal-refund-total');
           if (totalEl) totalEl.textContent = sum.toFixed(2) + '€';
         };
+        (window as any).swalToggleAll = (checked: boolean) => {
+          const itemsEl = document.getElementById('swal-refund-items');
+          if (itemsEl) {
+            itemsEl
+              .querySelectorAll<HTMLInputElement>('input[data-cost], button')
+              .forEach((el) => {
+                (el as HTMLInputElement).disabled = checked;
+              });
+          }
+          const totalEl = document.getElementById('swal-refund-total');
+          if (totalEl && checked) {
+            const fullTotal = booking.total;
+            totalEl.textContent = fullTotal.toFixed(2) + '€';
+          } else {
+            (window as any).swalUpdateTotal();
+          }
+        };
       },
       preConfirm: () => {
+        const refundAll = (document.getElementById('swal-refund-all') as HTMLInputElement)?.checked;
+        if (refundAll) {
+          return { refundAll: true };
+        }
         const items: { ticketTypeId: string; count: number }[] = [];
         let luggageCount = 0;
         let hasSelection = false;
@@ -431,7 +458,11 @@ export class ClientsComponent implements OnInit, AfterViewInit {
 
     this.bookingActionLoading = booking.numberOfTickets;
     try {
-      await lastValueFrom(this.stripeService.refund(booking.numberOfTickets, refundChoice.items, refundChoice.luggage));
+      if (refundChoice.refundAll) {
+        await lastValueFrom(this.stripeService.refund(booking.numberOfTickets));
+      } else {
+        await lastValueFrom(this.stripeService.refund(booking.numberOfTickets, refundChoice.items, refundChoice.luggage));
+      }
       this.addActivity('Rimborso', `#${booking.numberOfTickets}`, 'success');
       await this.refreshClientBookings();
     } catch (e: any) {
