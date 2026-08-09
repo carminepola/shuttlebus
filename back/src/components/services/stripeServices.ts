@@ -359,23 +359,30 @@ class StripeServices {
     }
   }
 
-  public async getAllPaymentIntents(options: { limit?: number; starting_after?: string; status?: string; search?: string } = {}) {
+  private static readonly VALID_PI_STATUSES: readonly string[] = [
+    "requires_payment_method",
+    "requires_confirmation",
+    "requires_action",
+    "processing",
+    "requires_capture",
+    "canceled",
+    "succeeded",
+  ];
+
+  public async getAllPaymentIntents(options: { limit?: number; starting_after?: string; status?: string; search?: string; next_page?: string } = {}) {
     try {
-      const limit = options.limit || 20;
-      const status = options.status;
+      const limit = Math.min(Math.max(Number(options.limit) || 20, 1), 100);
+      const rawStatus = (options.status || "").trim();
+      const status = rawStatus && StripeServices.VALID_PI_STATUSES.includes(rawStatus) ? rawStatus : undefined;
+      const term = (options.search || "").trim();
+      const safeTerm = term.replace(/'/g, "");
 
       let paymentIntents: any;
 
-      if (options.search && options.search.trim().length >= 3) {
-        const term = options.search.trim();
-        let query: string;
-        if (status) {
-          query = `status:'${status}' AND '${term}'`;
-        } else {
-          query = `'${term}'`;
-        }
+      if (safeTerm.length >= 3) {
+        const query = status ? `status:'${status}' AND '${safeTerm}'` : `'${safeTerm}'`;
         const searchParams: any = { query, limit };
-        if (options.starting_after) searchParams.page = { starting_after: options.starting_after };
+        if (options.next_page) searchParams.page = options.next_page;
         paymentIntents = await this.stripe.paymentIntents.search(searchParams);
       } else {
         const params: any = { limit, expand: ["data.latest_charge"] };
@@ -404,6 +411,7 @@ class StripeServices {
           };
         }),
         hasMore: paymentIntents.has_more,
+        nextPage: paymentIntents.next_page ?? null,
       };
     } catch (err) {
       logger.error("Errore nel recupero payment intents", err);

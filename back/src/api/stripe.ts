@@ -361,6 +361,7 @@ router.get("/paymentIntents", authMiddleware, checkPermissionMiddleware(role.ADM
     let result = await stripeServices.getAllPaymentIntents({
       limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
       starting_after: req.query.starting_after as string,
+      next_page: req.query.next_page as string,
       status: req.query.status as string,
       search: req.query.search as string,
     });
