@@ -1,5 +1,6 @@
 import { Guid } from "guid-typescript";
 import { Db } from "mongodb";
+import ErrorModel from "../../model/errorModel";
 
 export default class googleSessionsDao {
   private db: Db;
@@ -49,7 +50,7 @@ export default class googleSessionsDao {
       if (result && result.email) {
         return result.email;
       } else {
-        throw new Error("Nessuna sessione trovata");
+        throw new ErrorModel(401, "Token non valido o scaduto");
       }
     } catch (error) {
       throw error;
