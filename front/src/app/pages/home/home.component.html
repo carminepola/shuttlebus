@@ -366,7 +366,7 @@
                   </thead>
                   <tbody>
                     @for (line of tratteComparison.lines; track line.routeId; let i = $index) {
-                      <tr class="table-active">
+                      <tr class="table-active line-toggle-row" (click)="toggleLine(line.routeId)">
                         <td>
                           <div class="d-flex align-items-center gap-2">
                             <div
@@ -380,6 +380,13 @@
                               }
                             </div>
                             <span class="fw-bold">{{ getRouteName(line) }}</span>
+                            <i
+                              class="fas text-muted small ms-1 {{
+                                isLineExpanded(line.routeId)
+                                  ? 'fa-chevron-up'
+                                  : 'fa-chevron-down'
+                              }}"
+                            ></i>
                           </div>
                         </td>
                         <td class="text-center fw-bold text-primary">
@@ -435,7 +442,8 @@
                           {{ formatEuro(line.current.revenue) }}
                         </td>
                       </tr>
-                      @for (tratta of line.tratte; track tratta.fromId + '-' + tratta.toId) {
+                      @if (isLineExpanded(line.routeId)) {
+                        @for (tratta of line.tratte; track tratta.fromId + '-' + tratta.toId) {
                         <tr>
                           <td class="ps-4">
                             <div class="d-flex align-items-center gap-2">
@@ -500,6 +508,7 @@
                             {{ formatEuro(tratta.current.revenue) }}
                           </td>
                         </tr>
+                        }
                       }
                     }
                   </tbody>

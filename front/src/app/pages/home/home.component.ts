@@ -840,6 +840,20 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  public expandedLines: Set<string> = new Set();
+
+  isLineExpanded(routeId: string): boolean {
+    return this.expandedLines.has(routeId);
+  }
+
+  toggleLine(routeId: string) {
+    if (this.expandedLines.has(routeId)) {
+      this.expandedLines.delete(routeId);
+    } else {
+      this.expandedLines.add(routeId);
+    }
+  }
+
   getRouteName(line: TratteLine): string {
     return (
       line.routeName?.it || line.routeName?.en || 'Linea #' + line.routeId
