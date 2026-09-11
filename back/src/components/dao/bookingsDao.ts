@@ -1434,7 +1434,7 @@ export default class BookingsDAO {
     };
   }
 
-  async hasTicketForRoute(userId: string, routeId: string, date: string, fromStopId: string, toStopId: string): Promise<boolean> {
+k  async hasTicketForRoute(userId: string, routeId: string, date: string, fromStopId: string, toStopId: string): Promise<boolean> {
     const result = await this.db.collection("bookings").findOne({
       userId,
       routeId,
