@@ -1288,24 +1288,18 @@ export default class BookingsDAO {
         (a: any, b: any) =>
           b.current.bookings - a.current.bookings || b.previous.bookings - a.previous.bookings,
       );
-      const current = tratte.reduce(
-        (acc: any, t: any) => {
-          acc.bookings += t.current.bookings;
-          acc.seats += t.current.seats;
-          acc.revenue += t.current.revenue;
-          return acc;
-        },
-        { bookings: 0, seats: 0, revenue: 0 },
-      );
-      const previous = tratte.reduce(
-        (acc: any, t: any) => {
-          acc.bookings += t.previous.bookings;
-          acc.seats += t.previous.seats;
-          acc.revenue += t.previous.revenue;
-          return acc;
-        },
-        { bookings: 0, seats: 0, revenue: 0 },
-      );
+      const sumTotals = (key: "current" | "previous") =>
+        tratte.reduce(
+          (acc: { bookings: number; seats: number; revenue: number }, t: any) => {
+            acc.bookings += t[key].bookings;
+            acc.seats += t[key].seats;
+            acc.revenue += t[key].revenue;
+            return acc;
+          },
+          { bookings: 0, seats: 0, revenue: 0 },
+        );
+      const current = sumTotals("current");
+      const previous = sumTotals("previous");
       return {
         routeId,
         routeName: line.name || null,
