@@ -80,6 +80,20 @@ interface YearlyComparison {
   months: YoYMonth[];
 }
 
+interface TopRoute {
+  routeId: string;
+  routeName: { it: string; en: string } | null;
+  current: { bookings: number; seats: number; revenue: number };
+  previous: { bookings: number; seats: number; revenue: number };
+  bookingsChange: number | null;
+}
+
+interface TopRoutesYearlyComparison {
+  currentYear: number;
+  previousYear: number;
+  ranking: TopRoute[];
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -116,6 +130,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public dashboardStats: any = null;
   public revenueByPayment: any = null;
   public yearlyComparison: YearlyComparison | null = null;
+  public topRoutesComparison: TopRoutesYearlyComparison | null = null;
+  public loadTopRoutes = true;
   public dailyRouteRevenue: any[] = [];
   public dailyRouteDate: string = new Date().toISOString().split('T')[0];
 
@@ -201,6 +217,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getRevenueByPaymentMethod();
     this.getDailyRevenueByRoute();
     this.getYearlyComparison();
+    this.getTopRoutesYearlyComparison();
     setTimeout(() => {
       this.routeToday();
       this.biglietti();
@@ -798,6 +815,24 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadYearlyComparison = false;
       },
     });
+  }
+
+  getTopRoutesYearlyComparison() {
+    this.bookingsService.getTopRoutesYearlyComparison(10).subscribe({
+      next: (res: any) => {
+        this.topRoutesComparison = res;
+        this.loadTopRoutes = false;
+      },
+      error: () => {
+        this.loadTopRoutes = false;
+      },
+    });
+  }
+
+  getRouteName(route: TopRoute): string {
+    return (
+      route.routeName?.it || route.routeName?.en || 'Linea #' + route.routeId
+    );
   }
 
   getMonthlyRevenue() {

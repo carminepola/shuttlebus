@@ -1181,6 +1181,88 @@ export default class BookingsDAO {
     };
   }
 
+  async topRoutesYearlyComparison(limit: number = 10) {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const previousYear = currentYear - 1;
+
+    const [currentYearByRoute, previousYearByRoute] = await Promise.all([
+      this.db
+        .collection("bookings")
+        .aggregate([
+          {
+            $match: {
+              date: { $gte: `${currentYear}-01-01`, $lte: `${currentYear}-12-31` },
+              status: "confirmed",
+            },
+          },
+          {
+            $group: {
+              _id: "$routeId",
+              bookings: { $sum: 1 },
+              seats: { $sum: "$seats" },
+              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+            },
+          },
+        ])
+        .toArray(),
+      this.db
+        .collection("bookings")
+        .aggregate([
+          {
+            $match: {
+              date: { $gte: `${previousYear}-01-01`, $lte: `${previousYear}-12-31` },
+              status: "confirmed",
+            },
+          },
+          {
+            $group: {
+              _id: "$routeId",
+              bookings: { $sum: 1 },
+              seats: { $sum: "$seats" },
+              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+            },
+          },
+        ])
+        .toArray(),
+    ]);
+
+    const routes = await this.db
+      .collection("routes")
+      .find({ id: { $in: [...new Set([...currentYearByRoute, ...previousYearByRoute].map((r: any) => r._id))] } })
+      .project({ id: 1, name: 1 })
+      .toArray();
+
+    const routeNames = new Map(routes.map((r: any) => [r.id, r.name]));
+
+    const currentMap = new Map(currentYearByRoute.map((r: any) => [r._id, r]));
+    const previousMap = new Map(previousYearByRoute.map((r: any) => [r._id, r]));
+
+    const routeIds = new Set([...currentMap.keys(), ...previousMap.keys()]);
+
+    const ranking = Array.from(routeIds).map((routeId: any) => {
+      const c = currentMap.get(routeId);
+      const p = previousMap.get(routeId);
+      const bookingsChange =
+        p && p.bookings > 0 ? +(((c?.bookings || 0) - p.bookings) / p.bookings * 100).toFixed(1) : c && c.bookings > 0 ? null : 0;
+      return {
+        routeId,
+        routeName: routeNames.get(routeId) || null,
+        current: { bookings: c?.bookings || 0, seats: c?.seats || 0, revenue: c?.revenue || 0 },
+        previous: { bookings: p?.bookings || 0, seats: p?.seats || 0, revenue: p?.revenue || 0 },
+        bookingsChange,
+      };
+    });
+
+    ranking.sort((a: any, b: any) => b.current.bookings - a.current.bookings || b.previous.bookings - a.previous.bookings);
+
+    return {
+      currentYear,
+      previousYear,
+      ranking: ranking.slice(0, limit),
+    };
+  }
+
   async hasTicketForRoute(userId: string, routeId: string, date: string, fromStopId: string, toStopId: string): Promise<boolean> {
     const result = await this.db.collection("bookings").findOne({
       userId,

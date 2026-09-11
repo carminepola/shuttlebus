@@ -130,4 +130,12 @@ export class BookingsService {
   getYearlyComparison(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/yearlyComparison`);
   }
+
+  getTopRoutesYearlyComparison(limit?: number): Observable<any> {
+    let params: any = {};
+    if (limit) params.limit = limit;
+    return this.http.get<any>(`${this.apiUrl}/topRoutesYearlyComparison`, {
+      params,
+    });
+  }
 }

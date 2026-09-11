@@ -466,6 +466,10 @@ class BookingsServices {
   async yearlyComparison() {
     return await this.bookingDao.yearlyComparison();
   }
+
+  async topRoutesYearlyComparison(limit?: number) {
+    return await this.bookingDao.topRoutesYearlyComparison(limit);
+  }
 }
 
 export default BookingsServices;
