@@ -314,11 +314,10 @@ router.get("/yearlyComparison", authMiddleware, checkPermissionMiddleware(role.A
   }
 });
 
-router.get("/topRoutesYearlyComparison", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+router.get("/tratteYearlyComparison", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
-    let limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
-    let result = await bookingServices.topRoutesYearlyComparison(limit);
+    let result = await bookingServices.tratteYearlyComparison();
     res.json(result);
   } catch (error) {
     next(error);

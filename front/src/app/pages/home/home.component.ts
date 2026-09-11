@@ -80,18 +80,29 @@ interface YearlyComparison {
   months: YoYMonth[];
 }
 
-interface TopRoute {
-  routeId: string;
-  routeName: { it: string; en: string } | null;
+interface Tratta {
+  fromId: string;
+  toId: string;
+  fromName: string;
+  toName: string;
   current: { bookings: number; seats: number; revenue: number };
   previous: { bookings: number; seats: number; revenue: number };
   bookingsChange: number | null;
 }
 
-interface TopRoutesYearlyComparison {
+interface TratteLine {
+  routeId: string;
+  routeName: { it: string; en: string } | null;
+  current: { bookings: number; seats: number; revenue: number };
+  previous: { bookings: number; seats: number; revenue: number };
+  bookingsChange: number | null;
+  tratte: Tratta[];
+}
+
+interface TratteYearlyComparison {
   currentYear: number;
   previousYear: number;
-  ranking: TopRoute[];
+  lines: TratteLine[];
 }
 
 @Component({
@@ -130,8 +141,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public dashboardStats: any = null;
   public revenueByPayment: any = null;
   public yearlyComparison: YearlyComparison | null = null;
-  public topRoutesComparison: TopRoutesYearlyComparison | null = null;
-  public loadTopRoutes = true;
+  public tratteComparison: TratteYearlyComparison | null = null;
+  public loadTratte = true;
   public dailyRouteRevenue: any[] = [];
   public dailyRouteDate: string = new Date().toISOString().split('T')[0];
 
@@ -217,7 +228,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getRevenueByPaymentMethod();
     this.getDailyRevenueByRoute();
     this.getYearlyComparison();
-    this.getTopRoutesYearlyComparison();
+    this.getTratteYearlyComparison();
     setTimeout(() => {
       this.routeToday();
       this.biglietti();
@@ -817,21 +828,21 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  getTopRoutesYearlyComparison() {
-    this.bookingsService.getTopRoutesYearlyComparison(10).subscribe({
+  getTratteYearlyComparison() {
+    this.bookingsService.getTratteYearlyComparison().subscribe({
       next: (res: any) => {
-        this.topRoutesComparison = res;
-        this.loadTopRoutes = false;
+        this.tratteComparison = res;
+        this.loadTratte = false;
       },
       error: () => {
-        this.loadTopRoutes = false;
+        this.loadTratte = false;
       },
     });
   }
 
-  getRouteName(route: TopRoute): string {
+  getRouteName(line: TratteLine): string {
     return (
-      route.routeName?.it || route.routeName?.en || 'Linea #' + route.routeId
+      line.routeName?.it || line.routeName?.en || 'Linea #' + line.routeId
     );
   }
 

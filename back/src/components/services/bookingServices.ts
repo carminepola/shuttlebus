@@ -467,8 +467,8 @@ class BookingsServices {
     return await this.bookingDao.yearlyComparison();
   }
 
-  async topRoutesYearlyComparison(limit?: number) {
-    return await this.bookingDao.topRoutesYearlyComparison(limit);
+  async tratteYearlyComparison() {
+    return await this.bookingDao.tratteYearlyComparison();
   }
 }
 

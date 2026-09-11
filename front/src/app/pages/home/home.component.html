@@ -322,86 +322,87 @@
             <div class="content-card-icon bg-info-subtle text-info">
               <i class="fas fa-ranking-star"></i>
             </div>
-            <h5 class="mb-0 fw-bold">Linee più Prenotate</h5>
+            <h5 class="mb-0 fw-bold">Classifica Tratte per Linea</h5>
           </div>
-          @if (!loadTopRoutes && topRoutesComparison) {
+          @if (!loadTratte && tratteComparison) {
             <div class="d-flex align-items-center gap-3">
               <span class="yoy-legend">
                 <span class="yoy-legend-dot" style="background: #3b82f6;"></span>
-                {{ topRoutesComparison.currentYear }}
+                {{ tratteComparison.currentYear }}
               </span>
               <span class="yoy-legend">
                 <span class="yoy-legend-dot" style="background: #94a3b8;"></span>
-                {{ topRoutesComparison.previousYear }}
+                {{ tratteComparison.previousYear }}
               </span>
             </div>
           }
         </div>
         <div class="content-card-body p-0">
-          @if (loadTopRoutes) {
+          @if (loadTratte) {
             <div class="d-flex justify-content-center py-5">
               <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div>
             </div>
           }
-          @if (!loadTopRoutes && topRoutesComparison) {
-            @if (topRoutesComparison.ranking.length === 0) {
+          @if (!loadTratte && tratteComparison) {
+            @if (tratteComparison.lines.length === 0) {
               <div class="text-center text-muted py-4">
                 Nessun dato disponibile
               </div>
             }
-            @if (topRoutesComparison.ranking.length > 0) {
+            @if (tratteComparison.lines.length > 0) {
               <div class="table-responsive">
                 <table class="table align-middle mb-0">
                   <thead>
                     <tr>
-                      <th style="width: 60px">#</th>
-                      <th>Linea</th>
-                      <th class="text-center">{{ topRoutesComparison.currentYear }} Prenotazioni</th>
-                      <th class="text-center">{{ topRoutesComparison.previousYear }} Prenotazioni</th>
+                      <th>Tratta</th>
+                      <th class="text-center">{{ tratteComparison.currentYear }} Prenotazioni</th>
+                      <th class="text-center">{{ tratteComparison.previousYear }} Prenotazioni</th>
                       <th class="text-center">Var.</th>
-                      <th class="text-center">{{ topRoutesComparison.currentYear }} Posti</th>
-                      <th class="text-end">{{ topRoutesComparison.currentYear }} Fatturato</th>
+                      <th class="text-center">{{ tratteComparison.currentYear }} Posti</th>
+                      <th class="text-end">{{ tratteComparison.currentYear }} Fatturato</th>
                     </tr>
                   </thead>
                   <tbody>
-                    @for (route of topRoutesComparison.ranking; track route.routeId; let i = $index) {
-                      <tr>
+                    @for (line of tratteComparison.lines; track line.routeId; let i = $index) {
+                      <tr class="table-active">
                         <td>
-                          <div
-                            class="top-client-rank d-flex align-items-center justify-content-center"
-                            [style.background-color]="getRankColor(i)"
-                          >
-                            @if (getRankIcon(i)) {
-                              <i class="fas {{ getRankIcon(i) }} text-white"></i>
-                            } @else {
-                              <span class="text-white fw-bold">{{ i + 1 }}</span>
-                            }
+                          <div class="d-flex align-items-center gap-2">
+                            <div
+                              class="top-client-rank d-flex align-items-center justify-content-center"
+                              [style.background-color]="getRankColor(i)"
+                            >
+                              @if (getRankIcon(i)) {
+                                <i class="fas {{ getRankIcon(i) }} text-white"></i>
+                              } @else {
+                                <span class="text-white fw-bold">{{ i + 1 }}</span>
+                              }
+                            </div>
+                            <span class="fw-bold">{{ getRouteName(line) }}</span>
                           </div>
                         </td>
-                        <td class="fw-semibold">{{ getRouteName(route) }}</td>
                         <td class="text-center fw-bold text-primary">
-                          {{ route.current.bookings | number: '1.0-0' : 'it' }}
+                          {{ line.current.bookings | number: '1.0-0' : 'it' }}
                         </td>
                         <td class="text-center text-muted">
-                          {{ route.previous.bookings | number: '1.0-0' : 'it' }}
+                          {{ line.previous.bookings | number: '1.0-0' : 'it' }}
                         </td>
                         <td class="text-center">
-                          @if (route.previous.bookings > 0) {
+                          @if (line.previous.bookings > 0) {
                             <span
                               class="badge yoy-pct {{
                                 getMonthPctClass(
-                                  route.current.bookings,
-                                  route.previous.bookings
+                                  line.current.bookings,
+                                  line.previous.bookings
                                 )
                               }}"
                             >
                               <i
                                 class="fas {{
                                   getMonthPct(
-                                    route.current.bookings,
-                                    route.previous.bookings
+                                    line.current.bookings,
+                                    line.previous.bookings
                                   ) >= 0
                                     ? 'fa-arrow-up'
                                     : 'fa-arrow-down'
@@ -409,31 +410,97 @@
                               ></i>
                               {{
                                 getMonthPct(
-                                  route.current.bookings,
-                                  route.previous.bookings
+                                  line.current.bookings,
+                                  line.previous.bookings
                                 ) > 0
                                   ? '+'
                                   : ''
                               }}{{
                                 getMonthPct(
-                                  route.current.bookings,
-                                  route.previous.bookings
+                                  line.current.bookings,
+                                  line.previous.bookings
                                 )
                               }}%
                             </span>
-                          } @else if (route.current.bookings > 0) {
+                          } @else if (line.current.bookings > 0) {
                             <span class="badge yoy-pct bg-info-subtle text-info">Nuova</span>
                           } @else {
                             <span class="text-muted small">-</span>
                           }
                         </td>
                         <td class="text-center">
-                          {{ route.current.seats | number: '1.0-0' : 'it' }}
+                          {{ line.current.seats | number: '1.0-0' : 'it' }}
                         </td>
                         <td class="text-end fw-semibold">
-                          {{ formatEuro(route.current.revenue) }}
+                          {{ formatEuro(line.current.revenue) }}
                         </td>
                       </tr>
+                      @for (tratta of line.tratte; track tratta.fromId + '-' + tratta.toId) {
+                        <tr>
+                          <td class="ps-4">
+                            <div class="d-flex align-items-center gap-2">
+                              <i class="fas fa-arrow-right-arrow-left text-muted small"></i>
+                              <span>
+                                {{ tratta.fromName || 'Fermata' }}
+                                <i class="fas fa-arrow-right text-muted small mx-1"></i>
+                                {{ tratta.toName || 'Fermata' }}
+                              </span>
+                            </div>
+                          </td>
+                          <td class="text-center fw-semibold">
+                            {{ tratta.current.bookings | number: '1.0-0' : 'it' }}
+                          </td>
+                          <td class="text-center text-muted">
+                            {{ tratta.previous.bookings | number: '1.0-0' : 'it' }}
+                          </td>
+                          <td class="text-center">
+                            @if (tratta.previous.bookings > 0) {
+                              <span
+                                class="badge yoy-pct {{
+                                  getMonthPctClass(
+                                    tratta.current.bookings,
+                                    tratta.previous.bookings
+                                  )
+                                }}"
+                              >
+                                <i
+                                  class="fas {{
+                                    getMonthPct(
+                                      tratta.current.bookings,
+                                      tratta.previous.bookings
+                                    ) >= 0
+                                      ? 'fa-arrow-up'
+                                      : 'fa-arrow-down'
+                                  }} me-1"
+                                ></i>
+                                {{
+                                  getMonthPct(
+                                    tratta.current.bookings,
+                                    tratta.previous.bookings
+                                  ) > 0
+                                    ? '+'
+                                    : ''
+                                }}{{
+                                  getMonthPct(
+                                    tratta.current.bookings,
+                                    tratta.previous.bookings
+                                  )
+                                }}%
+                              </span>
+                            } @else if (tratta.current.bookings > 0) {
+                              <span class="badge yoy-pct bg-info-subtle text-info">Nuova</span>
+                            } @else {
+                              <span class="text-muted small">-</span>
+                            }
+                          </td>
+                          <td class="text-center">
+                            {{ tratta.current.seats | number: '1.0-0' : 'it' }}
+                          </td>
+                          <td class="text-end">
+                            {{ formatEuro(tratta.current.revenue) }}
+                          </td>
+                        </tr>
+                      }
                     }
                   </tbody>
                 </table>

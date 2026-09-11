@@ -1181,12 +1181,12 @@ export default class BookingsDAO {
     };
   }
 
-  async topRoutesYearlyComparison(limit: number = 10) {
+  async tratteYearlyComparison() {
     const today = new Date();
     const currentYear = today.getFullYear();
     const previousYear = currentYear - 1;
 
-    const [currentYearByRoute, previousYearByRoute] = await Promise.all([
+    const [currentYearByTratta, previousYearByTratta] = await Promise.all([
       this.db
         .collection("bookings")
         .aggregate([
@@ -1198,7 +1198,14 @@ export default class BookingsDAO {
           },
           {
             $group: {
-              _id: "$routeId",
+              _id: {
+                routeId: "$routeId",
+                fromId: "$from.id",
+                toId: "$to.id",
+              },
+              routeName: { $first: "$name" },
+              fromName: { $first: "$from.name" },
+              toName: { $first: "$to.name" },
               bookings: { $sum: 1 },
               seats: { $sum: "$seats" },
               revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
@@ -1217,7 +1224,14 @@ export default class BookingsDAO {
           },
           {
             $group: {
-              _id: "$routeId",
+              _id: {
+                routeId: "$routeId",
+                fromId: "$from.id",
+                toId: "$to.id",
+              },
+              routeName: { $first: "$name" },
+              fromName: { $first: "$from.name" },
+              toName: { $first: "$to.name" },
               bookings: { $sum: 1 },
               seats: { $sum: "$seats" },
               revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
@@ -1227,39 +1241,87 @@ export default class BookingsDAO {
         .toArray(),
     ]);
 
-    const routes = await this.db
-      .collection("routes")
-      .find({ id: { $in: [...new Set([...currentYearByRoute, ...previousYearByRoute].map((r: any) => r._id))] } })
-      .project({ id: 1, name: 1 })
-      .toArray();
+    const key = (r: any) => `${r._id.routeId}|${r._id.fromId}|${r._id.toId}`;
+    const currentMap = new Map(currentYearByTratta.map((r: any) => [key(r), r]));
+    const previousMap = new Map(previousYearByTratta.map((r: any) => [key(r), r]));
 
-    const routeNames = new Map(routes.map((r: any) => [r.id, r.name]));
+    const pct = (curr: number, prev: number) => {
+      if (prev <= 0) return curr > 0 ? null : 0;
+      return +(((curr - prev) / prev) * 100).toFixed(1);
+    };
 
-    const currentMap = new Map(currentYearByRoute.map((r: any) => [r._id, r]));
-    const previousMap = new Map(previousYearByRoute.map((r: any) => [r._id, r]));
+    const linesMap = new Map<string, any>();
 
-    const routeIds = new Set([...currentMap.keys(), ...previousMap.keys()]);
+    for (const [k, c] of currentMap) {
+      const p = previousMap.get(k);
+      linesMap.set(c._id.routeId, linesMap.get(c._id.routeId) || { name: c.routeName, tratte: new Map() });
+      const line = linesMap.get(c._id.routeId);
+      line.tratte.set(k, {
+        fromId: c._id.fromId,
+        toId: c._id.toId,
+        fromName: c.fromName,
+        toName: c.toName,
+        current: { bookings: c.bookings, seats: c.seats, revenue: c.revenue },
+        previous: { bookings: p?.bookings || 0, seats: p?.seats || 0, revenue: p?.revenue || 0 },
+        bookingsChange: pct(c.bookings, p?.bookings || 0),
+      });
+    }
 
-    const ranking = Array.from(routeIds).map((routeId: any) => {
-      const c = currentMap.get(routeId);
-      const p = previousMap.get(routeId);
-      const bookingsChange =
-        p && p.bookings > 0 ? +(((c?.bookings || 0) - p.bookings) / p.bookings * 100).toFixed(1) : c && c.bookings > 0 ? null : 0;
+    for (const [k, p] of previousMap) {
+      if (!currentMap.has(k)) {
+        linesMap.set(p._id.routeId, linesMap.get(p._id.routeId) || { name: p.routeName, tratte: new Map() });
+        const line = linesMap.get(p._id.routeId);
+        line.tratte.set(k, {
+          fromId: p._id.fromId,
+          toId: p._id.toId,
+          fromName: p.fromName,
+          toName: p.toName,
+          current: { bookings: 0, seats: 0, revenue: 0 },
+          previous: { bookings: p.bookings, seats: p.seats, revenue: p.revenue },
+          bookingsChange: pct(0, p.bookings),
+        });
+      }
+    }
+
+    const lines = Array.from(linesMap.entries()).map(([routeId, line]: [string, any]) => {
+      const tratte = Array.from(line.tratte.values()).sort(
+        (a: any, b: any) =>
+          b.current.bookings - a.current.bookings || b.previous.bookings - a.previous.bookings,
+      );
+      const current = tratte.reduce(
+        (acc: any, t: any) => {
+          acc.bookings += t.current.bookings;
+          acc.seats += t.current.seats;
+          acc.revenue += t.current.revenue;
+          return acc;
+        },
+        { bookings: 0, seats: 0, revenue: 0 },
+      );
+      const previous = tratte.reduce(
+        (acc: any, t: any) => {
+          acc.bookings += t.previous.bookings;
+          acc.seats += t.previous.seats;
+          acc.revenue += t.previous.revenue;
+          return acc;
+        },
+        { bookings: 0, seats: 0, revenue: 0 },
+      );
       return {
         routeId,
-        routeName: routeNames.get(routeId) || null,
-        current: { bookings: c?.bookings || 0, seats: c?.seats || 0, revenue: c?.revenue || 0 },
-        previous: { bookings: p?.bookings || 0, seats: p?.seats || 0, revenue: p?.revenue || 0 },
-        bookingsChange,
+        routeName: line.name || null,
+        current,
+        previous,
+        bookingsChange: pct(current.bookings, previous.bookings),
+        tratte,
       };
     });
 
-    ranking.sort((a: any, b: any) => b.current.bookings - a.current.bookings || b.previous.bookings - a.previous.bookings);
+    lines.sort((a: any, b: any) => b.current.bookings - a.current.bookings || b.previous.bookings - a.previous.bookings);
 
     return {
       currentYear,
       previousYear,
-      ranking: ranking.slice(0, limit),
+      lines,
     };
   }
 
