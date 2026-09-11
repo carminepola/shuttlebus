@@ -470,6 +470,10 @@ class BookingsServices {
   async tratteYearlyComparison() {
     return await this.bookingDao.tratteYearlyComparison();
   }
+
+  async fasceOrarieYearlyComparison() {
+    return await this.bookingDao.fasceOrarieYearlyComparison();
+  }
 }
 
 export default BookingsServices;

@@ -105,6 +105,21 @@ interface TratteYearlyComparison {
   lines: TratteLine[];
 }
 
+interface FasciaOraria {
+  routeId: string;
+  routeName: { it: string; en: string } | null;
+  departureTime: string;
+  current: { bookings: number; seats: number; revenue: number };
+  previous: { bookings: number; seats: number; revenue: number };
+  bookingsChange: number | null;
+}
+
+interface FasceOrarieRanking {
+  currentYear: number;
+  previousYear: number;
+  slots: FasciaOraria[];
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -143,6 +158,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public yearlyComparison: YearlyComparison | null = null;
   public tratteComparison: TratteYearlyComparison | null = null;
   public loadTratte = true;
+  public fasceOrarieRanking: FasceOrarieRanking | null = null;
+  public loadFasceOrarie = true;
   public dailyRouteRevenue: any[] = [];
   public dailyRouteDate: string = new Date().toISOString().split('T')[0];
 
@@ -229,6 +246,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getDailyRevenueByRoute();
     this.getYearlyComparison();
     this.getTratteYearlyComparison();
+    this.getFasceOrarieYearlyComparison();
     setTimeout(() => {
       this.routeToday();
       this.biglietti();
@@ -840,6 +858,18 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  getFasceOrarieYearlyComparison() {
+    this.bookingsService.getFasceOrarieYearlyComparison().subscribe({
+      next: (res: any) => {
+        this.fasceOrarieRanking = res;
+        this.loadFasceOrarie = false;
+      },
+      error: () => {
+        this.loadFasceOrarie = false;
+      },
+    });
+  }
+
   public expandedLines: Set<string> = new Set();
 
   isLineExpanded(routeId: string): boolean {
@@ -857,6 +887,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   getRouteName(line: TratteLine): string {
     return (
       line.routeName?.it || line.routeName?.en || 'Linea #' + line.routeId
+    );
+  }
+
+  getFasciaRouteName(slot: FasciaOraria): string {
+    return (
+      slot.routeName?.it || slot.routeName?.en || 'Linea #' + slot.routeId
     );
   }
 

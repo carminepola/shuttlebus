@@ -324,6 +324,16 @@ router.get("/tratteYearlyComparison", authMiddleware, checkPermissionMiddleware(
   }
 });
 
+router.get("/fasceOrarieYearlyComparison", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.fasceOrarieYearlyComparison();
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
 
 /*

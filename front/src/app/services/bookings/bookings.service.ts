@@ -134,4 +134,8 @@ export class BookingsService {
   getTratteYearlyComparison(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/tratteYearlyComparison`);
   }
+
+  getFasceOrarieYearlyComparison(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/fasceOrarieYearlyComparison`);
+  }
 }

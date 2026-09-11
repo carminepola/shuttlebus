@@ -1319,6 +1319,121 @@ export default class BookingsDAO {
     };
   }
 
+  async fasceOrarieYearlyComparison() {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const previousYear = currentYear - 1;
+
+    const yearlyBookings = (year: number) =>
+      this.db
+        .collection("bookings")
+        .aggregate([
+          {
+            $match: {
+              date: { $gte: `${year}-01-01`, $lte: `${year}-12-31` },
+              status: "confirmed",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                routeId: "$routeId",
+                scheduleId: "$scheduleId",
+              },
+              bookings: { $sum: 1 },
+              seats: { $sum: "$seats" },
+              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+            },
+          },
+        ])
+        .toArray();
+
+    const [currentYearBySchedule, previousYearBySchedule, schedules] = await Promise.all([
+      yearlyBookings(currentYear),
+      yearlyBookings(previousYear),
+      this.db
+        .collection("routes")
+        .aggregate([
+          { $unwind: "$schedules" },
+          {
+            $project: {
+              _id: 0,
+              scheduleId: "$schedules.id",
+              routeId: "$id",
+              routeName: "$name",
+              stops: "$schedules.stops",
+            },
+          },
+        ])
+        .toArray(),
+    ]);
+
+    const scheduleMap = new Map<string, { routeId: string; routeName: any; departureTime: string }>();
+    for (const s of schedules) {
+      if (!s.scheduleId || scheduleMap.has(s.scheduleId)) continue;
+      const firstActiveStop = (s.stops || []).find((st: any) => st.status === "active");
+      scheduleMap.set(s.scheduleId, {
+        routeId: s.routeId,
+        routeName: s.routeName,
+        departureTime: firstActiveStop?.stopTime || "",
+      });
+    }
+
+    const slotsMap = new Map<string, any>();
+    const ensureSlot = (routeId: string, departureTime: string, routeName: any) => {
+      const k = `${routeId}|${departureTime}`;
+      if (!slotsMap.has(k)) {
+        slotsMap.set(k, {
+          routeId,
+          routeName: routeName || null,
+          departureTime,
+          current: { bookings: 0, seats: 0, revenue: 0 },
+          previous: { bookings: 0, seats: 0, revenue: 0 },
+        });
+      }
+      return slotsMap.get(k);
+    };
+
+    for (const c of currentYearBySchedule) {
+      const info = scheduleMap.get(c._id.scheduleId);
+      const slot = ensureSlot(c._id.routeId, info?.departureTime || "", info?.routeName);
+      slot.current.bookings += c.bookings;
+      slot.current.seats += c.seats;
+      slot.current.revenue += c.revenue;
+    }
+
+    for (const p of previousYearBySchedule) {
+      const info = scheduleMap.get(p._id.scheduleId);
+      const slot = ensureSlot(p._id.routeId, info?.departureTime || "", info?.routeName);
+      slot.previous.bookings += p.bookings;
+      slot.previous.seats += p.seats;
+      slot.previous.revenue += p.revenue;
+    }
+
+    const pct = (curr: number, prev: number) => {
+      if (prev <= 0) return curr > 0 ? null : 0;
+      return +(((curr - prev) / prev) * 100).toFixed(1);
+    };
+
+    const slots = Array.from(slotsMap.values()).map((s) => ({
+      ...s,
+      bookingsChange: pct(s.current.bookings, s.previous.bookings),
+    }));
+
+    slots.sort(
+      (a: any, b: any) =>
+        b.current.bookings - a.current.bookings ||
+        b.previous.bookings - a.previous.bookings ||
+        a.departureTime.localeCompare(b.departureTime),
+    );
+
+    return {
+      currentYear,
+      previousYear,
+      slots,
+    };
+  }
+
   async hasTicketForRoute(userId: string, routeId: string, date: string, fromStopId: string, toStopId: string): Promise<boolean> {
     const result = await this.db.collection("bookings").findOne({
       userId,
