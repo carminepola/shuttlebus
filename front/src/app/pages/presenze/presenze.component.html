@@ -1,0 +1,188 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    title="Fogli Presenze"
+    subtitle="Gestione presenze mensili con storico"
+    back="true"
+  ></app-title-page>
+
+  <div class="card rounded-4 shadow mb-3">
+    <div class="card-body">
+      <div class="d-flex flex-wrap align-items-end gap-3">
+        <div>
+          <label class="form-label small mb-1">Anno</label>
+          <select
+            class="form-select form-select-sm"
+            [(ngModel)]="year"
+            (change)="onPeriodChange()"
+            name="anno"
+          >
+            @for (y of years; track y) {
+              <option [value]="y">{{ y }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="form-label small mb-1">Mese</label>
+          <select
+            class="form-select form-select-sm"
+            [(ngModel)]="month"
+            (change)="onPeriodChange()"
+            name="mese"
+          >
+            @for (m of months; track $index; let i = $index) {
+              <option [value]="i + 1">{{ m }}</option>
+            }
+          </select>
+        </div>
+        <div class="ms-auto d-flex gap-2">
+          <div class="input-group input-group-sm" style="width: 240px">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Nuova persona..."
+              [(ngModel)]="nuovaPersona"
+              name="nuovaPersona"
+              (keyup.enter)="aggiungiPersona()"
+            />
+            <button
+              class="btn btn-primary"
+              type="button"
+              (click)="aggiungiPersona()"
+              title="Aggiungi persona"
+            >
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <button
+            class="btn btn-success btn-sm"
+            type="button"
+            (click)="esportaExcel()"
+            [disabled]="loading || rows.length === 0"
+          >
+            <i class="fas fa-file-excel me-1"></i> Esporta Excel
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-3 mt-3 presenze-legend">
+        <span><span class="code-chip code-D">D</span> Disco</span>
+        <span><span class="code-chip code-S">S</span> Scheda</span>
+        <span><span class="code-chip code-F">F</span> Festa</span>
+        <span><span class="code-chip code-M">M</span> Malattia</span>
+        <span class="text-muted small ms-auto">
+          ORE LAVORATE = (D + S) × {{ hoursPerShift }}h
+        </span>
+      </div>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="w-100 d-flex align-items-center justify-content-center">
+      <app-loading></app-loading>
+    </div>
+  }
+
+  @if (!loading) {
+    @if (rows.length === 0) {
+      <div class="card rounded-4 shadow">
+        <div class="card-body text-center text-muted py-5">
+          <i class="fas fa-calendar-days fa-2x mb-3"></i>
+          <p class="mb-0">
+            Nessuna persona per {{ months[month - 1] }} {{ year }}. Aggiungine
+            una dall'apposito campo qui sopra.
+          </p>
+        </div>
+      </div>
+    }
+
+    @if (rows.length > 0) {
+      <div class="card rounded-4 shadow">
+        <div class="card-body px-0">
+          <div class="table-responsive presenze-table-wrap">
+            <table class="table table-sm table-hover align-middle mb-0 presenze-table">
+              <thead>
+                <tr>
+                  <th class="sticky-col" style="min-width: 180px">Dipendente</th>
+                  @for (d of dayNumbers; track d) {
+                    <th
+                      class="day-head text-center"
+                      [class.weekend]="isWeekend(d)"
+                    >
+                      <span class="day-letter">{{ weekdayLetter(d) }}</span>
+                      <span class="day-number">{{ d }}</span>
+                    </th>
+                  }
+                  <th class="text-center summary-head">D</th>
+                  <th class="text-center summary-head">S</th>
+                  <th class="text-center summary-head">F</th>
+                  <th class="text-center summary-head">M</th>
+                  <th class="text-center summary-head">ORE</th>
+                  <th class="text-center"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of rows; track row.id) {
+                  <tr>
+                    <td class="sticky-col">
+                      <div class="d-flex align-items-center gap-2">
+                        <input
+                          type="text"
+                          class="form-control form-control-sm border-0 bg-transparent fw-semibold p-1"
+                          [(ngModel)]="row.name"
+                          [name]="'name_' + row.id"
+                          (change)="onNameChange(row)"
+                        />
+                        @if (row.saving) {
+                          <span
+                            class="spinner-border spinner-border-sm text-primary"
+                            role="status"
+                          ></span>
+                        }
+                        @if (row.error) {
+                          <i
+                            class="fas fa-triangle-exclamation text-danger"
+                            title="Errore salvataggio"
+                          ></i>
+                        }
+                      </div>
+                    </td>
+                    @for (d of dayNumbers; track d) {
+                      <td class="day-cell text-center p-0" [class.weekend]="isWeekend(d)">
+                        <select
+                          class="form-select form-select-sm day-select"
+                          [ngClass]="codeClass(row.codes[d - 1])"
+                          [(ngModel)]="row.codes[d - 1]"
+                          [name]="'day_' + row.id + '_' + d"
+                          (change)="onCodeChange(row, d)"
+                        >
+                          <option value=""></option>
+                          @for (c of availableCodes; track c) {
+                            <option [value]="c">{{ c }}</option>
+                          }
+                        </select>
+                      </td>
+                    }
+                    <td class="text-center fw-bold text-success">{{ countCode(row, 'D') }}</td>
+                    <td class="text-center fw-bold text-primary">{{ countCode(row, 'S') }}</td>
+                    <td class="text-center fw-bold text-warning">{{ countCode(row, 'F') }}</td>
+                    <td class="text-center fw-bold text-danger">{{ countCode(row, 'M') }}</td>
+                    <td class="text-center fw-bold">{{ oreLavorate(row) }}</td>
+                    <td class="text-center">
+                      <button
+                        class="btn btn-outline-danger btn-sm"
+                        (click)="rimuoviPersona(row)"
+                        title="Rimuovi persona"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

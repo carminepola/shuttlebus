@@ -1,0 +1,102 @@
+.presenze-table-wrap {
+  max-height: 70vh;
+}
+
+.presenze-table {
+  font-size: 0.85rem;
+
+  .sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #fff;
+    border-right: 1px solid #dee2e6;
+  }
+
+  thead .sticky-col {
+    z-index: 3;
+    background: #f8f9fa;
+  }
+
+  .day-head {
+    min-width: 42px;
+    padding: 0.35rem 0.15rem;
+
+    .day-letter {
+      display: block;
+      font-size: 0.65rem;
+      color: #6c757d;
+      font-weight: 600;
+    }
+
+    .day-number {
+      display: block;
+      font-weight: 700;
+    }
+  }
+
+  .weekend {
+    background-color: #f1f3f5;
+  }
+
+  .day-cell {
+    min-width: 42px;
+    padding: 0.15rem;
+  }
+
+  .day-select {
+    min-width: 42px;
+    text-align: center;
+    font-weight: 700;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    border-radius: 0.375rem;
+  }
+
+  .summary-head {
+    min-width: 44px;
+  }
+}
+
+.code-chip,
+.code-D,
+.code-S,
+.code-F,
+.code-M {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 0.35rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.presenze-legend {
+  font-size: 0.85rem;
+
+  .code-chip {
+    margin-right: 0.35rem;
+  }
+}
+
+select.code-D {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+select.code-S {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+select.code-F {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+select.code-M {
+  background-color: #fee2e2;
+  color: #991b1b;
+}

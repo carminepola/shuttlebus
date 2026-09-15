@@ -16,6 +16,7 @@ import stripe from "./stripe";
 import momap from "./momap";
 import licensePlate from "./licensePlate";
 import depotSettings from "./depotSettings";
+import attendance from "./attendance";
 
 const router = express.Router();
 
@@ -40,5 +41,6 @@ router.use("/microsoft", microsoft);
 router.use("/stripe", stripe);
 router.use("/licensePlate", licensePlate);
 router.use("/depotSettings", depotSettings);
+router.use("/attendance", attendance);
 
 export default router;

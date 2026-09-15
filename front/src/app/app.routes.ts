@@ -44,6 +44,7 @@ import { ContestazioniComponent } from './pages/contestazioni/contestazioni.comp
 import { PendingUsersComponent } from './pages/pending-users/pending-users.component';
 import { StripeComponent } from './pages/stripe/stripe.component';
 import { ClientSearchComponent } from './pages/client-search/client-search.component';
+import { PresenzeComponent } from './pages/presenze/presenze.component';
 export const routes: Routes = [
   {
     path: '',
@@ -315,6 +316,12 @@ export const routes: Routes = [
       {
         path: 'cliente-per-ticket',
         component: ClientSearchComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'presenze',
+        component: PresenzeComponent,
         canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },
