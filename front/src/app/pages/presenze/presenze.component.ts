@@ -98,15 +98,86 @@ export class PresenzeComponent implements OnInit, OnDestroy {
     return idx >= 5;
   }
 
+  private loadToken = 0;
+
   caricaPresenze() {
+    const token = ++this.loadToken;
     this.loading = true;
     this.attendanceService.getByMonth(this.year, this.month).subscribe({
       next: (res) => {
+        if (token !== this.loadToken) return;
         const attendances = res?.attendances || [];
+        if (attendances.length === 0) {
+          this.importaNomiMesePrecedente(token);
+          return;
+        }
         this.rows = attendances.map((a: any) => this.toRow(a));
         this.loading = false;
       },
       error: () => {
+        if (token !== this.loadToken) return;
+        this.loading = false;
+      },
+    });
+  }
+
+  private importaNomiMesePrecedente(token: number) {
+    const year = this.year;
+    const month = this.month;
+    const prevMonth = month === 1 ? 12 : month - 1;
+    const prevYear = month === 1 ? year - 1 : year;
+    this.attendanceService.getByMonth(prevYear, prevMonth).subscribe({
+      next: (res) => {
+        if (token !== this.loadToken) return;
+        const prevAttendances: any[] = res?.attendances || [];
+        if (prevAttendances.length === 0) {
+          this.rows = [];
+          this.loading = false;
+          return;
+        }
+        const names = prevAttendances
+          .map((a) => a.name)
+          .filter((n) => !!n)
+          .sort((a: string, b: string) => a.localeCompare(b));
+        if (names.length === 0) {
+          this.rows = [];
+          this.loading = false;
+          return;
+        }
+        const created: AttendanceRow[] = [];
+        let pending = names.length;
+        for (const name of names) {
+          this.attendanceService.addPerson(year, month, name).subscribe({
+            next: (addRes) => {
+              if (token !== this.loadToken) return;
+              created.push({
+                id: addRes.id,
+                name,
+                days: {},
+                codes: Array.from({ length: this.daysInMonth }, () => ''),
+                saving: false,
+                error: false,
+              });
+              pending--;
+              if (pending === 0) {
+                this.rows = created.sort((a, b) => a.name.localeCompare(b.name));
+                this.loading = false;
+              }
+            },
+            error: () => {
+              if (token !== this.loadToken) return;
+              pending--;
+              if (pending === 0) {
+                this.rows = created.sort((a, b) => a.name.localeCompare(b.name));
+                this.loading = false;
+              }
+            },
+          });
+        }
+      },
+      error: () => {
+        if (token !== this.loadToken) return;
+        this.rows = [];
         this.loading = false;
       },
     });
