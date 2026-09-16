@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
@@ -44,8 +44,15 @@ interface AttendanceRow {
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './presenze.component.scss',
 })
-export class PresenzeComponent implements OnInit {
+export class PresenzeComponent implements OnInit, OnDestroy {
   constructor(private attendanceService: AttendanceService) {}
+
+  private nameTimers = new Map<string, any>();
+
+  ngOnDestroy(): void {
+    for (const timer of this.nameTimers.values()) clearTimeout(timer);
+    this.nameTimers.clear();
+  }
 
   ngOnInit(): void {
     const now = new Date();
@@ -162,11 +169,17 @@ export class PresenzeComponent implements OnInit {
   }
 
   onNameChange(row: AttendanceRow) {
-    if (!row.name.trim()) {
-      this.caricaPresenze();
-      return;
-    }
-    this.salvaRiga(row);
+    const timer = this.nameTimers.get(row.id);
+    if (timer) clearTimeout(timer);
+    this.nameTimers.set(
+      row.id,
+      setTimeout(() => {
+        this.nameTimers.delete(row.id);
+        if (row.name.trim()) {
+          this.salvaRiga(row);
+        }
+      }, 600),
+    );
   }
 
   salvaRiga(row: AttendanceRow) {
