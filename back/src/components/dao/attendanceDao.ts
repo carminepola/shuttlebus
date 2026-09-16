@@ -37,7 +37,10 @@ export default class AttendanceDao {
     try {
       const result = await this.db
         .collection(this.schema)
-        .updateOne({ id: obj.id }, { $set: obj });
+        .updateOne(
+          { id: obj.id },
+          { $set: { name: obj.name, days: obj.days || {}, updatedAt: new Date().getTime() } },
+        );
       return result.modifiedCount > 0;
     } catch (error) {
       logger.error("Error updating attendance:", error);

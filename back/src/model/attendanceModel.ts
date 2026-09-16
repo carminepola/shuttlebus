@@ -11,8 +11,10 @@ export default class AttendanceModel {
 
   constructor(attendance?: any) {
     this.id = attendance?.id || Guid.create().toString();
-    this.year = Number(attendance?.year);
-    this.month = Number(attendance?.month);
+    const year = Number(attendance?.year);
+    const month = Number(attendance?.month);
+    this.year = Number.isFinite(year) ? year : 0;
+    this.month = Number.isFinite(month) ? month : 0;
     this.name = attendance?.name || "";
     this.days = attendance?.days || {};
     this.createdAt = attendance?.createdAt || new Date().getTime();
