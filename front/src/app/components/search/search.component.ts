@@ -42,6 +42,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   public selectedTickets: { [id: string]: number } = {};
   public errors: string[] = [];
   public maxTickets = 12;
+  public maxBagagli = 10;
 
   constructor(
     private routesService: RoutesService,
@@ -151,6 +152,20 @@ export class SearchComponent implements OnInit, AfterViewInit {
         delete this.selectedTickets[id];
       }
     }
+  }
+
+  addBagagli() {
+    if (!this.ricerca) return;
+    const current = this.ricerca.bagagli ?? 0;
+    if (current >= this.maxBagagli) return;
+    this.ricerca.bagagli = current + 1;
+  }
+
+  removeBagagli() {
+    if (!this.ricerca) return;
+    const current = this.ricerca.bagagli ?? 0;
+    if (current <= 0) return;
+    this.ricerca.bagagli = current - 1;
   }
 
   cambioPartenza() {

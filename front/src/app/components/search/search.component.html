@@ -113,7 +113,7 @@
           <i class="fa-solid fa-suitcase-rolling"></i>
         </div>
         <div class="field-content">
-          <label for="bagagli">
+          <label>
             <span [innerHTML]="'str_bagagli' | translate"></span>
             <i
               data-bs-toggle="tooltip"
@@ -122,22 +122,25 @@
               class="fa fa-circle-info field-info-icon"
             ></i>
           </label>
-          <select
-            required
-            [(ngModel)]="ricerca!.bagagli"
-            name="bagagli"
-            id="bagagli"
-            class="form-select"
-          >
-            <option value="" selected>
-              {{ "str_bagagli_placeholder" | translate }}
-            </option>
-            @for (i of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track i) {
-              <option [value]="i">
-                {{ i }}
-              </option>
-            }
-          </select>
+          <div class="field-counter">
+            <button
+              type="button"
+              class="counter-btn counter-btn-minus"
+              [disabled]="!ricerca?.bagagli"
+              (click)="removeBagagli()"
+            >
+              <i class="fa fa-minus"></i>
+            </button>
+            <span class="counter-value">{{ ricerca?.bagagli || 0 }}</span>
+            <button
+              type="button"
+              class="counter-btn counter-btn-plus"
+              [disabled]="(ricerca?.bagagli || 0) >= maxBagagli"
+              (click)="addBagagli()"
+            >
+              <i class="fa fa-plus"></i>
+            </button>
+          </div>
         </div>
       </div>
 
