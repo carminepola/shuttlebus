@@ -1,11 +1,19 @@
 @if (show) {
-  <div class="cp-overlay">
-    <div class="cp-card glass">
-      <div class="cp-card-icon">
-        <i class="fa-solid fa-cookie-bite"></i>
+  <div
+    class="cp-banner glass"
+    role="dialog"
+    aria-live="polite"
+    aria-label="Cookie Policy"
+  >
+    <div class="cp-inner">
+      <div class="cp-header">
+        <span class="cp-icon">
+          <i class="fa-solid fa-cookie-bite"></i>
+        </span>
+        <h3 class="cp-title">Cookie Policy</h3>
       </div>
-      <h3 class="cp-card-title">Cookie Policy</h3>
-      <p class="cp-card-text" [innerHTML]="'str_cookie_policy' | translate"></p>
+      <p class="cp-text" [innerHTML]="'str_cookie_policy' | translate"></p>
+      <a class="cp-link" (click)="goToPolicy()">Privacy Policy</a>
       <div class="cp-actions">
         <button
           class="cp-btn cp-btn-accept"
@@ -19,5 +27,6 @@
         ></button>
       </div>
     </div>
+    <span class="cp-countdown" aria-hidden="true"></span>
   </div>
 }
