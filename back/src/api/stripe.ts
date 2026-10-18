@@ -117,17 +117,25 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
           // pentest TOCTOU: PRIMA si riserva l'importo in modo atomico nel DB
           // (credito cumulativo <= totale), SOLO POI si chiama Stripe. Due richieste
           // concorrenti non possono piu' generare due rimborsi reali.
-          const claimed = await new BookingsDao(db).claimPartialRefund(req.body.id, book.paymentIntentId, requestedAmount);
-          if (!claimed) {
+          const claim = await new BookingsDao(db).claimPartialRefund(req.body.id, book.paymentIntentId, requestedAmount);
+          if (!claim.claimed) {
             throw new ErrorModel(409, "str_refund_error");
           }
 
           logger.info("Rimborso parziale iniziato per la prenotazione " + req.body.id + " importo: " + requestedAmount);
           try {
-            const refund = await stripe.refunds.create({
-              payment_intent: book.paymentIntentId,
-              amount: Math.round(requestedAmount * 100),
-            });
+            const refund = await stripe.refunds.create(
+              {
+                payment_intent: book.paymentIntentId,
+                amount: Math.round(requestedAmount * 100),
+              },
+              // Idempotency-Key deterministica legata al claim: anche in caso di
+              // timeout/ritrasmissione HTTP di questa chiamata Stripe NON crea mai
+              // un secondo rimborso reale (risponde semplicemente col primo esito).
+              {
+                idempotencyKey: `refund-partial-${req.body.id}-${claim.claimAt}`,
+              },
+            );
 
             if (refund.status === "succeeded" || refund.status === "pending") {
               risposta = await bookingServices.partialRefundBookingAdmin(req.body.id, requestedAmount, refundItems, refundedSeats, refundLuggageCount);
@@ -145,16 +153,22 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
         } else {
           // pentest TOCTOU: claim atomico del booking intero (status -> refunding):
           // solo la prima richiesta concorrente arriva a chiamare Stripe.
-          const claimed = await new BookingsDao(db).claimFullRefund(req.body.id, book.paymentIntentId);
-          if (!claimed) {
+          const claim = await new BookingsDao(db).claimFullRefund(req.body.id, book.paymentIntentId);
+          if (!claim.claimed) {
             throw new ErrorModel(409, "str_refund_error");
           }
 
           logger.info("Rimborso totale iniziato per la prenotazione " + req.body.id);
           try {
-            const refund = await stripe.refunds.create({
-              payment_intent: book.paymentIntentId,
-            });
+            const refund = await stripe.refunds.create(
+              {
+                payment_intent: book.paymentIntentId,
+              },
+              // Stesso principio: chiave legata al claim DB (vedi sopra).
+              {
+                idempotencyKey: `refund-full-${req.body.id}-${claim.claimAt}`,
+              },
+            );
 
             if (refund.status === "succeeded" || refund.status === "pending") {
               await new BookingsDao(db).finalizeFullRefund(req.body.id, book.total);

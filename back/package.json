@@ -11,6 +11,7 @@
     "lint": "eslint --fix src test",
     "test": "jest",
     "typecheck": "tsc --noEmit",
+    "ci:permissions": "ts-node src/scripts/check-route-permissions.ts",
     "cleanup:lng": "ts-node src/scripts/cleanup-lng.ts",
     "invalidate:unpaidTickets": "ts-node src/scripts/invalidate-unpaid-tickets.ts",
     "sync:unpaidBookings": "ts-node src/scripts/sync-unpaid-bookings.ts",

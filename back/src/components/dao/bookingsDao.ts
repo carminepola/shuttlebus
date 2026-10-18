@@ -565,20 +565,37 @@ export default class BookingsDAO {
    * pentest TOCTOU doppio-rimborso: prima la rotta Stripe chiamava refunds.create
    * e poi aggiornava il DB: due richieste concorrenti generavano DUE rimborsi reali.
    * Il claim e' ATOMICO (findOneAndUpdate con condizione di stato): solo la prima
-   * richiesta conquista il booking e puo' chiamare Stripe.
+   * richiesta conquista il booking e puo' chiamare Stripe. Ilamespace `refundClaimAt`
+   * scritto dentro il claim serve da base deterministica per l'Idempotency-Key Stripe.
+   * @returns claimed false se il booking non e' piu' rimborsabile (gia' claimato/rimborsato),
+   *          claimAt = timestamp del claim per la chiave idempotente.
    */
-  async claimFullRefund(bookingId: string, paymentIntentId: string): Promise<boolean> {
+  async claimFullRefund(bookingId: string, paymentIntentId: string): Promise<{ claimed: boolean; claimAt?: number }> {
+    const claimAt = new Date().getTime();
     const result = await this.db.collection("bookings").findOneAndUpdate(
       {
         numberOfTickets: bookingId,
         status: { $in: ["confirmed", "cancelled"] },
         paymentIntentId: paymentIntentId,
       },
-      {
-        $set: { status: "refunding", updatedAt: new Date().getTime() },
-      },
+      [
+        // Pipeline update: salviamo lo stato precedente per poter ripristinarlo
+        // esattamente (confirmed o cancelled) se Stripe fallisce.
+        {
+          $set: {
+            status: "refunding",
+            updatedAt: claimAt,
+            refundClaimAt: claimAt,
+            refundPrevStatus: "$status",
+          },
+        },
+      ],
+      { returnDocument: "after" },
     );
-    return !!result;
+    if (!result) {
+      return { claimed: false };
+    }
+    return { claimed: true, claimAt: result?.refundClaimAt };
   }
 
   /** Finalizza il rimborso dopo la conferma di Stripe. */
@@ -597,13 +614,21 @@ export default class BookingsDAO {
     return result.matchedCount > 0;
   }
 
-  /** Rollback del claim se Stripe fallisce. */
+  /** Rollback del claim se Stripe fallisce: riporta lo stato ESATTO precedente. */
   async rollbackFullRefundClaim(bookingId: string): Promise<boolean> {
-    const result = await this.db.collection("bookings").updateOne(
+    const result = await this.db.collection("bookings").findOneAndUpdate(
       { numberOfTickets: bookingId, status: "refunding" },
-      { $set: { status: "confirmed", updatedAt: new Date().getTime() } },
+      [
+        {
+          $set: {
+            status: "$refundPrevStatus",
+            updatedAt: new Date().getTime(),
+          },
+        },
+        { $unset: ["refundPrevStatus"] },
+      ],
     );
-    return result.matchedCount > 0;
+    return !!result;
   }
 
   /**
@@ -611,8 +636,16 @@ export default class BookingsDAO {
    * con condizione cumulative <= total. Impedisce che rimborsi concorrenti
    *(compresi webhook charge.refunded in parallelo) superino il totale pagato.
    */
-  async claimPartialRefund(bookingId: string, paymentIntentId: string, amount: number): Promise<boolean> {
-    const result = await this.db.collection("bookings").updateOne(
+  /**
+   * Claim atomico dell'importo di rimborso parziale: $inc di refundedAmount
+   * con condizione cumulative <= total. Impedisce che rimborsi concorrenti
+   *(compresi webhook charge.refunded in parallelo) superino il totale pagato.
+   * Il timestamp `refundClaimAt` scritto nel claim serve da base deterministica
+   * per l'Idempotency-Key Stripe della chiamata refunds.create.
+   */
+  async claimPartialRefund(bookingId: string, paymentIntentId: string, amount: number): Promise<{ claimed: boolean; claimAt?: number }> {
+    const claimAt = new Date().getTime();
+    const result = await this.db.collection("bookings").findOneAndUpdate(
       {
         numberOfTickets: bookingId,
         status: { $in: ["confirmed", "cancelled"] },
@@ -621,10 +654,14 @@ export default class BookingsDAO {
       },
       {
         $inc: { refundedAmount: amount },
-        $set: { updatedAt: new Date().getTime() },
+        $set: { updatedAt: claimAt, refundClaimAt: claimAt },
       },
+      { returnDocument: "after" },
     );
-    return result.matchedCount > 0;
+    if (!result) {
+      return { claimed: false };
+    }
+    return { claimed: true, claimAt: result?.refundClaimAt };
   }
 
   /** Annulla il claim parziale se Stripe fallisce. */
