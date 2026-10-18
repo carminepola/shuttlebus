@@ -55,7 +55,6 @@ export class TargheComponent implements OnInit {
         this.loadingDevices = false;
         this.dispositiviMomap = res.devices;
         this.dispositiviMomap = this.dispositiviMomap.map((t) => {
-          debugger;
           return {
             ...t,
             registrationNumber: JSON.parse(t.params).registrationNumber || '',

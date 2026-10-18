@@ -29,7 +29,9 @@ export default async function responseMiddleware(req: Request, res: Response<Mes
         delete res.locals.response.stack;
       }
 
-      res.removeHeader("Content-Security-Policy");
+      // pentest: RIMOSSO res.removeHeader("Content-Security-Policy") — la CSP
+      // impostata da helmet a monte restava effettivamente attiva.
+
       return originalJson.call(this, res.locals.response);
     };
 

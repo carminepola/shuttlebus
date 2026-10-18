@@ -15,6 +15,7 @@ import { role } from "../enum/role";
 import MailService from "../components/services/mailServices";
 import { Mail } from "../model/mailModel";
 import { authIpLimiter, authAccountLimiter } from "../middlewares/authRateLimitMiddleware";
+import FailToBanServices from "../components/services/failToBanServices";
 const router = express.Router();
 let requiredRole = "USER_MANAGEMENT";
 
@@ -36,13 +37,18 @@ router.post(
   authAccountLimiter,
   [
     check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
-    check("password").notEmpty().withMessage("password is required"),
+    check("password")
+      .notEmpty()
+      .withMessage("password is required")
+      .isLength({ min: 8 })
+      .withMessage("La password deve avere almeno 8 caratteri")
+      .matches(/^(?=.*[A-Za-z])(?=.*\d)/)
+      .withMessage("La password deve contenere almeno una lettera e un numero"),
     check("name").notEmpty().withMessage("name is required"),
   ],
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let result: any;
       let user: userModel = new userModel();
       let language = req.body.lng;
       user.email = req.body.email;
@@ -56,7 +62,18 @@ router.post(
       user.privacyAndPolicyConfirmDate = new Date().getTime();
 
       let userServices = new UserServices(db);
-      result = await userServices.register(user, language);
+      try {
+        await userServices.register(user, language);
+      } catch (regError: any) {
+        // pentest: veniva restituito 409 "Utente gia' esistente" permettendo a chiunque
+        // di ENUMERARE gli account registrati. Non si rivelera' piu' nulla: la risposta
+        // e' sempre identica, l'email di verifica parte solo se l'account e' davvero nuovo.
+        if (regError?.status === 409 || String(regError?.message || "").includes("esistente")) {
+          logger.warn(`Tentativo di registrazione su account esistente (enumerazione bloccata): ${user.email}`);
+        } else {
+          throw regError;
+        }
+      }
 
       res.json({ message: "Registrazione effettuata con successo" });
     } catch (error) {
@@ -68,19 +85,37 @@ router.post(
 
 router.post(
   "/validateEmail",
-  [
-    check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
-    check("pin").notEmpty().withMessage("pin is required").isNumeric().withMessage("pin must be a number"),
-  ],
+  // pentest: PIN a 6 cifre brute-forceabile: 35 richieste senza mai un 429.
+  // Stesso trattamento degli endpoint di login: limiter per-IP e per-account.
+  authIpLimiter,
+  authAccountLimiter,
+  [check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"), check("pin").notEmpty().withMessage("pin is required").isNumeric().withMessage("pin must be a number")],
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let result: any;
-      let email = req.body.email;
+      let email = String(req.body.email).toLowerCase();
       let pin = req.body.pin;
 
       let userServices = new UserServices(db);
-      await userServices.validateEmail(email, pin);
+      try {
+        await userServices.validateEmail(email, pin);
+      } catch (err: any) {
+        // PIN errato: registra il fallimento per l'account (anti-bruteforce)
+        if (err?.status === 400) {
+          const failToBanServices = new FailToBanServices(db);
+          await failToBanServices.insertIp(`pin:${email}`);
+          const state = await failToBanServices.getFailState(`pin:${email}`);
+          if (state.count >= 10) {
+            // Bruteforce in corso (10 PIN errati in finestra): il PIN va nullato.
+            // L'utente dovra' richiedere una nuova email di verifica.
+            await userServices.clearPendingPin(email);
+            logger.warn(`PIN di ${email} invalidato dopo ${state.count} tentativi errati`);
+          }
+          // messaggio generico: non si rivelano dettagli sullo stato
+          throw new ErrorModel(400, "Pin non valido");
+        }
+        throw err;
+      }
 
       res.json({ message: "Email validata con successo" });
     } catch (error) {
@@ -93,7 +128,13 @@ router.post(
   "/",
   [
     check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
-    check("password").notEmpty().withMessage("password is required"),
+    check("password")
+      .notEmpty()
+      .withMessage("password is required")
+      .isLength({ min: 8 })
+      .withMessage("La password deve avere almeno 8 caratteri")
+      .matches(/^(?=.*[A-Za-z])(?=.*\d)/)
+      .withMessage("La password deve contenere almeno una lettera e un numero"),
     check("name").notEmpty().withMessage("name is required"),
   ],
   authMiddleware,
@@ -132,7 +173,13 @@ router.patch(
   "/changePassword",
   [
     check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
-    check("password").notEmpty().withMessage("password is required"),
+    check("password")
+      .notEmpty()
+      .withMessage("password is required")
+      .isLength({ min: 8 })
+      .withMessage("La password deve avere almeno 8 caratteri")
+      .matches(/^(?=.*[A-Za-z])(?=.*\d)/)
+      .withMessage("La password deve contenere almeno una lettera e un numero"),
     check("oldPassword").notEmpty().withMessage("oldPassword is required"),
   ],
   authMiddleware,
@@ -227,7 +274,18 @@ router.get("/me", authMiddleware, async (req: Request, res: Response, next: Next
     let email = res.locals.userLogged.email;
     let userServices = new UserServices(db);
     const result = await userServices.getUserByEmailAll(email);
-    res.json(result);
+    // pentest: la risposta conteneva `sessions` con i GUID refreshToken (30 giorni!):
+    // qualsiasi leak di questi endpoint = hijack della sessione. Nessun refreshToken
+    // deve mai lasciare il server.
+    const safeUser: any = { ...(result || {}) };
+    delete safeUser.password;
+    delete safeUser.recoverPassword;
+    delete safeUser.recoverPasswordCount;
+    delete safeUser.sessions;
+    delete safeUser.options?.pin;
+    delete safeUser.options?.google?._raw;
+    delete safeUser.options?.google?._json;
+    res.json(safeUser);
   } catch (error) {
     logger.error(error);
     next(error);

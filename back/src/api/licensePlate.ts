@@ -59,15 +59,22 @@ router.get("/", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAGE_S
   }
 });
 
-router.get("/enabled", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    let licensePlateServices = new LicensePlateServices(db);
-    const licensePlates = await licensePlateServices.getEnabled();
-    res.json({ licensePlates });
-  } catch (error) {
-    next(error);
-  }
-});
+router.get(
+  "/enabled",
+  // pentest: esponeva targhe e IMEI reali senza autenticazione (endpoint non usato
+  // dal front pubblico; l'unico uso legittimo e' in area admin)
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let licensePlateServices = new LicensePlateServices(db);
+      const licensePlates = await licensePlateServices.getEnabled();
+      res.json({ licensePlates });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 router.get("/:id", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]), async (req: Request, res: Response, next: NextFunction) => {
   try {

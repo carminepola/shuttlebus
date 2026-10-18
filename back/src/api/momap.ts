@@ -19,28 +19,28 @@ function getAllowedIps(): string[] {
     .filter((ip: string) => ip.length > 0);
 }
 
-function getClientIp(req: Request): string {
-  const xForwardedFor = req.headers["x-forwarded-for"];
-  const xRealIp = req.headers["x-real-ip"];
-
-  if (typeof xRealIp === "string" && xRealIp) {
-    return xRealIp;
-  }
-
-  if (typeof xForwardedFor === "string" && xForwardedFor) {
-    const ips = xForwardedFor.split(",");
-    return ips[ips.length - 1].trim();
-  }
-
-  return req.socket.remoteAddress || "";
+function getCronSecret(): string {
+  return (env.MOMAP_CRON_SECRET || "").trim();
 }
 
+/**
+ * pentest: prima usava X-Real-IP/X-Forwarded-For letti GREZZAMENTE dagli header
+ * (spoofabili da chiunque → whitelist aggirabile apponendo l'header). Ora si usa
+ * req.ip, che con "trust proxy" attivo risolve l'IP del client SOLO se il proxy
+ * e' quello fidato.
+ */
 router.post("/cron", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const clientIp = getClientIp(req);
+    const clientIp = req.ip || "";
     const allowedIps = getAllowedIps();
+    const secret = getCronSecret();
+    const providedSecret = String(req.headers["x-cron-secret"] || "");
 
-    if (allowedIps.length > 0 && !allowedIps.includes(clientIp)) {
+    // Fail-closed (pentest: con MOMAP_ALLOWED_IPS vuoto l'endpoint era APERTO a tutti):
+    // il cron e' invocabile SOLO da un IP nella whitelist OPPURE con il segreto corretto.
+    const ipAllowed = allowedIps.length > 0 && allowedIps.includes(clientIp);
+    const secretAllowed = secret.length > 0 && providedSecret.length > 0 && providedSecret === secret;
+    if (!ipAllowed && !secretAllowed) {
       logger.warn(`Accesso momap/cron negato da IP: ${clientIp}`);
       return res.sendStatus(403);
     }
@@ -53,12 +53,22 @@ router.post("/cron", async (req: Request, res: Response, next: NextFunction) => 
     next(error);
   }
 });
+
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     let momap: momapServices = new momapServices(db);
 
     let position = await momap.getCurrent();
-    res.json({ position: position });
+    // pentest: la posizione e' pubblica (mappa tracking) ma l'IMEI e' un identificativo
+    // del dispositivo wired: non va esposto a chiunque. Viene rimosso dalla risposta.
+    const safePosition = (position || []).map((bus: any) => {
+      if (bus && typeof bus === "object") {
+        const { imei, ...rest } = bus;
+        return rest;
+      }
+      return bus;
+    });
+    res.json({ position: safePosition });
   } catch (error) {
     next(error);
   }

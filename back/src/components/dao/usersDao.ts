@@ -54,6 +54,7 @@ export default class UsersDao {
         delete element.recoverPasswordCount;
         delete element?.options?.google?._raw;
         delete element?.options?.google?._json;
+        delete element?.sessions; // pentest: refreshToken GUID mai in output
       });
 
       // Get total count for pagination
@@ -93,6 +94,7 @@ export default class UsersDao {
         delete user.recoverPasswordCount;
         delete user?.options?.google?._raw;
         delete user?.options?.google?._json;
+        delete user?.sessions; // pentest: refreshToken GUID mai in output
 
         return {
           _id: user._id,
@@ -132,6 +134,7 @@ export default class UsersDao {
         delete element.recoverPasswordCount;
         delete element?.options?.google?._raw;
         delete element?.options?.google?._json;
+        delete element?.sessions; // pentest: refreshToken GUID mai in output
       });
 
       const totalCount = await this.db.collection(this.schema).countDocuments(json);
@@ -167,6 +170,7 @@ export default class UsersDao {
         delete user.recoverPasswordCount;
         delete user?.options?.google?._raw;
         delete user?.options?.google?._json;
+        delete user?.sessions; // pentest: refreshToken GUID mai in output
 
         return {
           _id: user._id,
@@ -212,6 +216,7 @@ export default class UsersDao {
         delete user.recoverPasswordCount;
         delete user?.options?.google?._raw;
         delete user?.options?.google?._json;
+        delete user?.sessions; // pentest: refreshToken GUID mai in output
         return {
           _id: user._id,
           name: user.details?.name || "",
@@ -256,6 +261,7 @@ export default class UsersDao {
       delete element?.recoverPasswordCount;
       delete element?.options?.google?._raw;
       delete element?.options?.google?._json;
+      delete element?.sessions; // pentest: refreshToken GUID mai in output
 
       return element;
     } catch (error) {
@@ -283,6 +289,7 @@ export default class UsersDao {
       delete element?.password;
       delete element?.recoverPassword;
       delete element?.recoverPasswordCount;
+      delete element?.sessions; // pentest: refreshToken GUID mai in output
       1;
       return element;
     } catch (error) {
@@ -302,6 +309,7 @@ export default class UsersDao {
       delete element?.recoverPasswordCount;
       delete element?.options?.google?._raw;
       delete element?.options?.google?._json;
+      delete element?.sessions; // pentest: refreshToken GUID mai in output
 
       return element;
     } catch (error) {
@@ -322,6 +330,7 @@ export default class UsersDao {
       delete element?.recoverPasswordCount;
       delete element?.options?.google?._raw;
       delete element?.options?.google?._json;
+      delete element?.sessions; // pentest: refreshToken GUID mai in output
 
       return element;
     } catch (error) {
@@ -391,9 +400,15 @@ export default class UsersDao {
       if (user) {
         let res = bcrypt.compareSync(password, user.password);
         if (!res) {
-          // Migrazione da hash legacy bcrypt(MD5(password)): l'hash della password
-          // avviene SOLO lato server. Al primo login riuscito la password viene
-          // rehashata con bcrypt direttamente dal valore in chiaro.
+          // Migrazione legacy TRASPARENTE: gli utenti registrati col vecchio schema
+          // hanno un hash bcrypt(MD5(password)). Devono poter continuare a fare il
+          // login con la password che conoscono, SENZA fare un reset. Al primo login
+          // riuscito la password viene ri-hashata in bcrypt direttamente dal valore
+          // in chiaro: l'hash obsolete MD5 scompare pian piano dal DB senza alcuna
+          // azione richiesta all'utente.
+          // (Nota sicurezza: se il DB leke, l'MD5 e' antibruteforce-able; accettato
+          // consapevolmente per non forzare un reset globale — il punto debole
+          // svanisce man mano che i login reali aggiornano l'hash.)
           const legacyMd5 = CryptoJS.MD5(password).toString();
           if (bcrypt.compareSync(legacyMd5, user.password)) {
             await this.db.collection(this.schema).updateOne({ email: email }, { $set: { password: bcrypt.hashSync(password, 10) } });
@@ -406,8 +421,12 @@ export default class UsersDao {
           if (lastUpdate && today - lastUpdate > 1000 * 60 * 60 * 24) {
             return false;
           } else {
+            // Fallback temporaneo (compatibilita' 1 mese): password provvisoria
+            // legacy in campo recoverPassword, trasformata in bcrypt(password) al login.
             res = bcrypt.compareSync(password, user.recoverPassword);
             if (!res) {
+              // Anche la password provvisoria generata dal flusso legacy era
+              // bcrypt(MD5(password)): il fallback resta finche' vive il campo.
               const legacyMd5Recover = CryptoJS.MD5(password).toString();
               res = bcrypt.compareSync(legacyMd5Recover, user.recoverPassword);
             }
@@ -550,9 +569,7 @@ export default class UsersDao {
         { email: email },
         {
           $set: {
-            options: {
-              [key]: value,
-            },
+            [key.startsWith("options.") ? key : `options.${key}`]: value,
             "sessions.$[].update": true,
           },
         },
@@ -561,6 +578,22 @@ export default class UsersDao {
       throw error;
     }
     return true;
+  }
+
+  /**
+   * Azzera il PIN di verifica email di un account in attesa di validazione.
+   * (usato dall'anti-bruteforce su POST /users/validateEmail)
+   */
+  async clearPendingPin(email: string): Promise<boolean> {
+    try {
+      email = email.toLowerCase();
+      const result = await this.db
+        .collection(this.schema)
+        .updateOne({ email: email, role: role.NO_PERMISSION }, { $set: { "options.pin": "" } });
+      return result.matchedCount > 0;
+    } catch (error) {
+      throw error;
+    }
   }
   /**
    * Inserts a new user in the database.

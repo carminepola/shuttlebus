@@ -72,15 +72,21 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 });
-router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    let lngServices = new LngServices(db);
-    const id = req.params.id;
-    await lngServices.delete(id);
-    res.json({ message: "lng deleted" });
-  } catch (error) {
-    next(error);
-  }
-});
+router.delete(
+  "/:id",
+  // pentest: prima senza alcuna autenticazione (DELETE traduzioni aperto a chiunque)
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let lngServices = new LngServices(db);
+      const id = req.params.id;
+      await lngServices.delete(id);
+      res.json({ message: "lng deleted" });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 export default router;

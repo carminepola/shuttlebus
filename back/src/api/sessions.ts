@@ -160,10 +160,10 @@ router.delete("/all", authMiddleware, async (req: Request, res: Response, next: 
   }
 });
 
-router.get("/refreshToken", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
-  let result = {};
-  result = { message: "User upgraded" };
-  res.json(result);
+// pentest: lo stub rispondeva 200 "User upgraded" senza fare nulla.
+// L'endpoint non e' piu' usato dal front (sessione interamente via cookie + /auth/me).
+router.get("/refreshToken", authMiddleware, (req: Request, res: Response) => {
+  res.status(410).json({ message: "Endpoint deprecato: la sessione si rinnova automaticamente via cookie" });
 });
 
 router.patch("/terms", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
@@ -198,7 +198,13 @@ router.post(
   authAccountLimiter,
   [
     check("token").notEmpty().withMessage("token is required"),
-    check("password").notEmpty().withMessage("password is required").isLength({ min: 8 }).withMessage("Password di almeno 8 caratteri"),
+    check("password")
+      .notEmpty()
+      .withMessage("password is required")
+      .isLength({ min: 8 })
+      .withMessage("Password di almeno 8 caratteri")
+      .matches(/^(?=.*[A-Za-z])(?=.*\d)/)
+      .withMessage("La password deve contenere almeno una lettera e un numero"),
   ],
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {

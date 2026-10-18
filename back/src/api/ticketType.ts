@@ -121,15 +121,21 @@ router.patch(
   },
 );
 
-router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    let ticketTypeServices = new TicketTypeServices(db);
-    const id = req.params.id;
-    await ticketTypeServices.deleteTicketType(id);
-    res.json({ message: "Ticket deleted" });
-  } catch (error) {
-    next(error);
-  }
-});
+router.delete(
+  "/:id",
+  // pentest: prima senza alcuna autenticazione (DELETE tipi biglietto aperto a chiunque)
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, ["MANAGE_TICKET"]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let ticketTypeServices = new TicketTypeServices(db);
+      const id = req.params.id;
+      await ticketTypeServices.deleteTicketType(id);
+      res.json({ message: "Ticket deleted" });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 export default router;

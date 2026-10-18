@@ -208,7 +208,24 @@ export default class UserServices {
   }
   async updateOptions(email: string, key: string, value: string): Promise<boolean> {
     try {
+      // pentest: mass-assignment — prima veniva scritto QUALSIASI campo options
+      // (incluso options.pin, che e' un dato sensibile di validazione). Solo chiavi
+      // di presentazione sono modificabili dal cliente.
+      const ALLOWED_KEYS = new Set(["lng", "theme"]);
+      if (!ALLOWED_KEYS.has(key)) {
+        logger.warn(`Tentativo di aggiornare opzione non consentita: "${key}" per ${email}`);
+        return false;
+      }
       return await this.userDao.updateOptions(email, key, value);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /** Invalida il PIN di verifica email in attesa (bruteforce PIN). */
+  async clearPendingPin(email: string): Promise<boolean> {
+    try {
+      return await this.userDao.clearPendingPin(email);
     } catch (error) {
       throw error;
     }
@@ -286,11 +303,13 @@ export default class UserServices {
   async validateEmail(email: string, pin: string): Promise<boolean> {
     try {
       let u = await this.userDao.getUserByEmailNotPermission(email);
+      if (!u) {
+        // pentest: era 404 "Utente non trovato" → enumerazione account.
+        // Stesso errore generico del PIN errato.
+        throw new ErrorModel(400, "Pin non valido");
+      }
       let user = new userModel(u);
 
-      if (!user) {
-        throw new ErrorModel(404, "Utente non trovato");
-      }
       if (user.options.pin == "" || Number(user.options.pin) !== Number(pin)) {
         throw new ErrorModel(400, "Pin non valido");
       } else {
@@ -303,7 +322,6 @@ export default class UserServices {
     } catch (error) {
       throw error;
     }
-    return false;
   }
   async acceptTerms(id: string) {
     try {

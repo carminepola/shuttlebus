@@ -73,6 +73,23 @@ class BookingsServices {
     let book: booking;
     try {
       session.startTransaction();
+      // pentest: MASS-ASSIGNMENT — il body veniva copiato nel booking così com'è:
+      // un cliente poteva auto-dichiarare paymentIntentId, status, payment_status,
+      // refundedAmount o arbitrare il PK numberOfTickets. Tutti i campi di stato
+      // vengono riscritti/azzerati qui sotto.
+      const cleanTicket: any = { ...ticket };
+      delete cleanTicket.paymentIntentId;
+      delete cleanTicket.status;
+      delete cleanTicket.payment_status;
+      delete cleanTicket.paymentMethod;
+      delete cleanTicket.other;
+      delete cleanTicket.refundedAmount;
+      delete cleanTicket.scannedBy;
+      delete cleanTicket.confirmationSentAt;
+      delete cleanTicket.cancelMotivation;
+      delete cleanTicket._id;
+      cleanTicket.numberOfTickets = undefined; // il PK e' generato SOLO dal server
+
       ticket.userId = userId;
       let user = await this.userServices.getUserById(userId);
       if (user) {
@@ -86,7 +103,7 @@ class BookingsServices {
         return;
       }
 
-      book = new booking(ticket);
+      book = new booking({ ...cleanTicket, userId, user: ticket.user });
 
       let numeroPosti: any = await this.availableSeats(book.date, book.routeId, book.scheduleId, book.from.id, book.to.id, session);
 
@@ -374,6 +391,26 @@ class BookingsServices {
 
     return success;
   }
+  /**
+   * Notifica di rimborso effettuato via /api/stripe/refund: mail utente + mail admin + telegram.
+   * Separate dall'aggiornamento del DB perche' il claim/la finalizzazione ora sono atomici.
+   */
+  async sendRefundNotifications(numberOfTickets: string): Promise<boolean> {
+    try {
+      let book: any = await this.bookingDao.getBooking(numberOfTickets);
+      if (!book) {
+        return false;
+      }
+      await this.mailSenderServices.sendRefoundBook(book.user.mail, book.user.name, (book.refundedAmount || book.total).toString(), numberOfTickets, book.lng);
+      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Rimborso", this.mailSenderServices.transformBookGeneric(book));
+      await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Prenotazione* 💸"));
+      return true;
+    } catch (error) {
+      logger.error("Errore invio notifiche rimborso", error);
+      return false;
+    }
+  }
+
   /**
    * Notifica di conferma "Acquisto Confermato": idempotente e soggetta a gate
    * sul pagamento REALE. Parte SOLO se il booking e' confirmed con

@@ -555,9 +555,88 @@ export default class BookingsDAO {
         $set: {
           updatedAt: new Date().getTime(),
           status: "refunded",
+          payment_status: "refunded",
         },
       })
       .then((result) => result.matchedCount > 0);
+  }
+
+  /**
+   * pentest TOCTOU doppio-rimborso: prima la rotta Stripe chiamava refunds.create
+   * e poi aggiornava il DB: due richieste concorrenti generavano DUE rimborsi reali.
+   * Il claim e' ATOMICO (findOneAndUpdate con condizione di stato): solo la prima
+   * richiesta conquista il booking e puo' chiamare Stripe.
+   */
+  async claimFullRefund(bookingId: string, paymentIntentId: string): Promise<boolean> {
+    const result = await this.db.collection("bookings").findOneAndUpdate(
+      {
+        numberOfTickets: bookingId,
+        status: { $in: ["confirmed", "cancelled"] },
+        paymentIntentId: paymentIntentId,
+      },
+      {
+        $set: { status: "refunding", updatedAt: new Date().getTime() },
+      },
+    );
+    return !!result;
+  }
+
+  /** Finalizza il rimborso dopo la conferma di Stripe. */
+  async finalizeFullRefund(bookingId: string, total: number): Promise<boolean> {
+    const result = await this.db.collection("bookings").updateOne(
+      { numberOfTickets: bookingId, status: "refunding" },
+      {
+        $set: {
+          status: "refunded",
+          payment_status: "refunded",
+          refundedAmount: total,
+          updatedAt: new Date().getTime(),
+        },
+      },
+    );
+    return result.matchedCount > 0;
+  }
+
+  /** Rollback del claim se Stripe fallisce. */
+  async rollbackFullRefundClaim(bookingId: string): Promise<boolean> {
+    const result = await this.db.collection("bookings").updateOne(
+      { numberOfTickets: bookingId, status: "refunding" },
+      { $set: { status: "confirmed", updatedAt: new Date().getTime() } },
+    );
+    return result.matchedCount > 0;
+  }
+
+  /**
+   * Claim atomico dell'importo di rimborso parziale: $inc di refundedAmount
+   * con condizione cumulative <= total. Impedisce che rimborsi concorrenti
+   *(compresi webhook charge.refunded in parallelo) superino il totale pagato.
+   */
+  async claimPartialRefund(bookingId: string, paymentIntentId: string, amount: number): Promise<boolean> {
+    const result = await this.db.collection("bookings").updateOne(
+      {
+        numberOfTickets: bookingId,
+        status: { $in: ["confirmed", "cancelled"] },
+        paymentIntentId: paymentIntentId,
+        $expr: { $lte: [{ $add: [{ $ifNull: ["$refundedAmount", 0] }, amount] }, "$total"] },
+      },
+      {
+        $inc: { refundedAmount: amount },
+        $set: { updatedAt: new Date().getTime() },
+      },
+    );
+    return result.matchedCount > 0;
+  }
+
+  /** Annulla il claim parziale se Stripe fallisce. */
+  async rollbackPartialRefundClaim(bookingId: string, amount: number): Promise<boolean> {
+    const result = await this.db.collection("bookings").updateOne(
+      { numberOfTickets: bookingId },
+      {
+        $inc: { refundedAmount: -amount },
+        $set: { updatedAt: new Date().getTime() },
+      },
+    );
+    return result.matchedCount > 0;
   }
 
   async partialRefundBooking(bookingId: string, items: { ticketTypeId: string; count: number }[], refundAmount: number, refundedSeats: number, refundedLuggage: number, userId?: string) {
@@ -592,14 +671,15 @@ export default class BookingsDAO {
         $set: {
           updatedAt: new Date().getTime(),
           status: allRefunded ? "refunded" : existing.status,
+          payment_status: allRefunded ? "refunded" : existing.payment_status,
           ticketTypes: updatedTicketTypes,
           total: newTotal,
           seats: newSeats,
           luggage: newLuggage,
         },
-        $inc: {
-          refundedAmount: refundAmount,
-        },
+        // NOTA: refundedAmount NON e' incrementato qui: e' gia' stato riservato
+        // in modo atomico da claimPartialRefund() PRIMA della chiamata Stripe
+        // (pentest TOCTOU doppio-rimborso).
       })
       .then((result) => result.matchedCount > 0);
   }

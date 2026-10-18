@@ -80,15 +80,22 @@ router.get("/all", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAG
   }
 });
 
-router.get("/all-stops", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    let stopsServices = new StopServices(db);
-    const stops = await stopsServices.getAllStops();
-    res.json({ stops: stops });
-  } catch (error) {
-    next(error);
-  }
-});
+router.get(
+  "/all-stops",
+  // pentest: esponeva anche le fermate disattivate senza autenticazione.
+  // L'unico consumatore e' l'editor corse dell'area admin (route.component).
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, ["MANAGE_STOPS"]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let stopsServices = new StopServices(db);
+      const stops = await stopsServices.getAllStops();
+      res.json({ stops: stops });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 router.patch(
   "/",
   [
@@ -120,15 +127,21 @@ router.patch(
   },
 );
 
-router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    let stopsServices = new StopServices(db);
-    const stopId = req.params.id;
-    await stopsServices.deleteStop(stopId);
-    res.json({ message: "Stop deleted" });
-  } catch (error) {
-    next(error);
-  }
-});
+router.delete(
+  "/:id",
+  // pentest: prima senza alcuna autenticazione (DELETE fermate aperto a chiunque su internet)
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, ["MANAGE_STOPS"]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let stopsServices = new StopServices(db);
+      const stopId = req.params.id;
+      await stopsServices.deleteStop(stopId);
+      res.json({ message: "Stop deleted" });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 export default router;

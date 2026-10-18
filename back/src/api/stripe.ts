@@ -3,6 +3,7 @@ import { logger, db } from "../index";
 import StripeInstance from "../stripe";
 import StripeServices from "../components/services/stripeServices";
 import BookingsServices from "../components/services/bookingServices";
+import BookingsDao from "../components/dao/bookingsDao";
 import authMiddleware from "../middlewares/authMiddleware";
 import ErrorModel from "../model/errorModel";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
@@ -66,6 +67,10 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
 
     logger.info("preso il book ", book);
     logger.info("ruolo" + res.locals.userLogged["role"]);
+    if (!book.paymentIntentId) {
+      // nessun pagamento Stripe collegato (es. booking in contanti): niente da rimborsare
+      throw new ErrorModel(400, "str_refund_error");
+    }
     if (book.status === "confirmed") {
       if (book.userId === res.locals.userLogged["_id"] || res.locals.userLogged["role"] <= role.ADMIN) {
         logger.info("check permessi rimborso 1 " + req.body.id);
@@ -81,7 +86,6 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
           }
         }
 
-        const isAdmin = res.locals.userLogged["role"] <= role.ADMIN;
         const refundItems: { ticketTypeId: string; count: number }[] = req.body.items || [];
         const refundLuggageCount: number = req.body.luggage || 0;
 
@@ -110,33 +114,63 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
             throw new ErrorModel(400, "str_refund_no_items");
           }
 
-          logger.info("Rimborso parziale iniziato per la prenotazione " + req.body.id + " importo: " + requestedAmount);
-          const refund = await stripe.refunds.create({
-            payment_intent: book.paymentIntentId,
-            amount: Math.round(requestedAmount * 100),
-          });
+          // pentest TOCTOU: PRIMA si riserva l'importo in modo atomico nel DB
+          // (credito cumulativo <= totale), SOLO POI si chiama Stripe. Due richieste
+          // concorrenti non possono piu' generare due rimborsi reali.
+          const claimed = await new BookingsDao(db).claimPartialRefund(req.body.id, book.paymentIntentId, requestedAmount);
+          if (!claimed) {
+            throw new ErrorModel(409, "str_refund_error");
+          }
 
-          if (refund.status === "succeeded" || refund.status === "pending") {
-            risposta = await bookingServices.partialRefundBookingAdmin(req.body.id, requestedAmount, refundItems, refundedSeats, refundLuggageCount);
-          } else {
-            logger.error("Rimborso Stripe fallito per la prenotazione " + req.body.id + " status: " + refund.status);
-            throw new ErrorModel(400, "str_refund_error");
+          logger.info("Rimborso parziale iniziato per la prenotazione " + req.body.id + " importo: " + requestedAmount);
+          try {
+            const refund = await stripe.refunds.create({
+              payment_intent: book.paymentIntentId,
+              amount: Math.round(requestedAmount * 100),
+            });
+
+            if (refund.status === "succeeded" || refund.status === "pending") {
+              risposta = await bookingServices.partialRefundBookingAdmin(req.body.id, requestedAmount, refundItems, refundedSeats, refundLuggageCount);
+            } else {
+              await new BookingsDao(db).rollbackPartialRefundClaim(req.body.id, requestedAmount);
+              logger.error("Rimborso Stripe fallito per la prenotazione " + req.body.id + " status: " + refund.status);
+              throw new ErrorModel(400, "str_refund_error");
+            }
+          } catch (sErr: any) {
+            if (sErr instanceof ErrorModel || sErr?.status) throw sErr;
+            // errore Stripe/SAX: rilascia la riserva
+            await new BookingsDao(db).rollbackPartialRefundClaim(req.body.id, requestedAmount);
+            throw sErr;
           }
         } else {
-          logger.info("Rimborso totale iniziato per la prenotazione " + req.body.id);
-          const refund = await stripe.refunds.create({
-            payment_intent: book.paymentIntentId,
-          });
+          // pentest TOCTOU: claim atomico del booking intero (status -> refunding):
+          // solo la prima richiesta concorrente arriva a chiamare Stripe.
+          const claimed = await new BookingsDao(db).claimFullRefund(req.body.id, book.paymentIntentId);
+          if (!claimed) {
+            throw new ErrorModel(409, "str_refund_error");
+          }
 
-          if (refund.status === "succeeded" || refund.status === "pending") {
-            if (isAdmin) {
-              risposta = await bookingServices.refundBookingAdmin(req.body.id);
+          logger.info("Rimborso totale iniziato per la prenotazione " + req.body.id);
+          try {
+            const refund = await stripe.refunds.create({
+              payment_intent: book.paymentIntentId,
+            });
+
+            if (refund.status === "succeeded" || refund.status === "pending") {
+              await new BookingsDao(db).finalizeFullRefund(req.body.id, book.total);
+              // notifiche mail/telegram (prima fatte da refundBookingAdmin/refundBooking)
+              await bookingServices.sendRefundNotifications(req.body.id);
+              risposta = true;
             } else {
-              risposta = await bookingServices.refundBooking(req.body.id);
+              await new BookingsDao(db).rollbackFullRefundClaim(req.body.id);
+              logger.error("Rimborso Stripe fallito per la prenotazione " + req.body.id + " status: " + refund.status);
+              throw new ErrorModel(400, "str_refund_error");
             }
-          } else {
-            logger.error("Rimborso Stripe fallito per la prenotazione " + req.body.id + " status: " + refund.status);
-            throw new ErrorModel(400, "str_refund_error");
+          } catch (sErr: any) {
+            if (sErr instanceof ErrorModel || sErr?.status) throw sErr;
+            // errore Stripe: rilascia il claim
+            await new BookingsDao(db).rollbackFullRefundClaim(req.body.id);
+            throw sErr;
           }
         }
       }

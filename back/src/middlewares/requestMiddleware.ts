@@ -38,17 +38,11 @@ function sanitizeBody(body: any): any {
 export default function requestMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     let secretKey = env.SECRET_KEY!;
-    let ipAddress = req.socket.remoteAddress || "";
-    let xforwardedfor = req.headers["x-forwarded-for"] || undefined;
-    let xrealip = req.headers["x-real-ip"] || "";
-
-    if (xforwardedfor) {
-      let listIp = xforwardedfor.toString().split(",");
-      ipAddress = listIp[listIp.length - 1];
-    }
-    if (xrealip) {
-      ipAddress = xrealip.toString();
-    }
+    // pentest: prima venivano letti X-Forwarded-For/X-Real-IP GREZZI (spoofabili da
+    // chiunque: "stampigliava" l'IP nei log aggirando flag/rate-limit). Ora si usa
+    // req.ip: con trust proxy attivo risolve l'IP client SOLO se l'ultimo hop e'
+    // il reverse proxy fidato (nginx proxy manager).
+    let ipAddress = req.ip || req.socket.remoteAddress || "";
 
     const method = req.method;
     const url = req.url;

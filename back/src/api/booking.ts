@@ -272,14 +272,23 @@ router.post("/currentDayBookingsFromScheduleId", authMiddleware, checkPermission
     next(error);
   }
 });
-router.post("/readBookingById", authMiddleware, checkPermissionMiddleware(role.DRIVER, []), async (req: Request, res: Response, next: NextFunction) => {
+router.post("/readBookingById", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  // pentest: prima era accessibile ai DRIVER, che potevano leggere metadati (e PII)
+  // di QUALSIASI prenotazione senza alcun legame operazionale. La funzione e' usata
+  // dalla ricerca clienti che lato front e' guardata come ADMIN (requiredRole: 50):
+  // l'accesso e' quindi uniformato ad ADMIN anche nel backend.
   try {
     let bookingServices = new BookingServices(db);
+    const userLogged: any = res.locals.userLogged;
 
     let id: string = req.body.id;
+    logger.info(`readBookingById: id=${id} userId=${userLogged._id} role=${userLogged.role}`);
     // Anche la UI admin/driver riceve il flag `paid` calcolato server-side
     const raw = await bookingServices.getBookingRaw(id);
-    const result = raw ? { ...raw, paid: computePaid(raw) } : null;
+    if (!raw) {
+      throw new ErrorModel(404, "Prenotazione non trovata");
+    }
+    const result: any = { ...raw, paid: computePaid(raw) };
     res.json({ bookings: result });
   } catch (error) {
     next(error);

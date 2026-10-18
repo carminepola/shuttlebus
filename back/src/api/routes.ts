@@ -19,15 +19,23 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-router.post("/", [check("route").notEmpty().withMessage("route data is required")], authMiddleware, validateDataMiddleware, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    let routesServices = new RoutesServices(db);
-    const result = await routesServices.insertRoute(req.body.route);
-    res.status(201).json(result);
-  } catch (error) {
-    next(error);
-  }
-});
+router.post(
+  "/",
+  [check("route").notEmpty().withMessage("route data is required")],
+  authMiddleware,
+  // pentest: il CRUD delle corse era accessibile a qualsiasi utente loggato (role USER creava corse finte)
+  checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let routesServices = new RoutesServices(db);
+      const result = await routesServices.insertRoute(req.body.route);
+      res.status(201).json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 router.put(
   "/:id",
@@ -39,6 +47,8 @@ router.put(
     check("enabled").isBoolean().withMessage("enabled must be a boolean"),
   ],
   authMiddleware,
+  // pentest: il CRUD delle corse era accessibile a qualsiasi utente loggato
+  checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -52,7 +62,7 @@ router.put(
   }
 );
 
-router.delete("/:id", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.delete("/:id", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let routesServices = new RoutesServices(db);
     const result = await routesServices.deleteRoute(req.params.id);
@@ -76,6 +86,8 @@ router.post(
   "/schedule/:id",
   [check("schedule").notEmpty().withMessage("schedule data is required")],
   authMiddleware,
+  // pentest: il CRUD delle corse era accessibile a qualsiasi utente loggato
+  checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -92,6 +104,8 @@ router.put(
   "/schedule/:id/:scheduleId",
   [check("schedule").notEmpty().withMessage("schedule data is required")],
   authMiddleware,
+  // pentest: il CRUD delle corse era accessibile a qualsiasi utente loggato
+  checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
