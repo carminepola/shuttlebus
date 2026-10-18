@@ -78,8 +78,9 @@ app.use(noSqlInjectionMiddleware);
 //Logga la risposta
 app.use(responseMiddleware);
 
-//Router dell api
-app.use(api);
+//Router dell api: montato sotto /api per essere servito dal reverse proxy
+//(nginx proxy manager) senza riscrivere il percorso
+app.use("/api", api);
 
 //Se non trova il path
 app.use(routeNotFoundMiddleware);

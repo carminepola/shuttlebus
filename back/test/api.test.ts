@@ -18,10 +18,10 @@ const waitStart = async () => {
 beforeAll(waitStart);
 
 
-describe('GET /api/v1', () => {
+describe('GET /api', () => {
   it('responds with a json message',  (done) => {
     request(app)
-      .get('/api/v1')
+      .get('/api')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect((res) => {
