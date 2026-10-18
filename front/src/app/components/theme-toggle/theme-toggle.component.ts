@@ -51,7 +51,7 @@ export class ThemeToggleComponent implements OnInit {
     let user = this.authService.getDecodedToken();
 
     
-    const theme = user?.options?.theme ? user?.options?.theme : 'auto';
+    const theme = user?.options?.theme ? user?.options?.['theme'] : 'auto';
 
     switch (theme) {
       case 'auto':

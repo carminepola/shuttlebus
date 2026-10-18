@@ -79,15 +79,18 @@ export class LoginFormComponent implements OnInit {
       this.authService.login(email, password, rememberMe).subscribe({
         next: (response: any) => {
           this.isLoading = false;
-
-          this.loginSuccess.emit();
-          this.loginError = '';
-          this.loginSuccessMsg =
-            this.lngService.traslate('str_login_success') || 'Login riuscito!';
-          setTimeout(() => {
-            this.loginSuccessMsg = '';
-          }, 3000);
-          // this.router.navigate(['/user/account']);
+          // Il cookie jwt e' httpOnly: ricarica l'identita' da /auth/me
+          // prima di riprendere la navigazione.
+          this.authService.refreshSession().then(() => {
+            this.loginSuccess.emit();
+            this.loginError = '';
+            this.loginSuccessMsg =
+              this.lngService.traslate('str_login_success') || 'Login riuscito!';
+            setTimeout(() => {
+              this.loginSuccessMsg = '';
+            }, 3000);
+            // this.router.navigate(['/user/account']);
+          });
         },
         error: (e: any) => {
           this.isLoading = false;

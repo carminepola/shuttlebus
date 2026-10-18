@@ -197,9 +197,11 @@ export default class UserServices {
       throw error;
     }
   }
-  async insertRecoverPassword(email: string, password: string, lng: string = "it"): Promise<boolean> {
+  async insertRecoverPassword(email: string, username: string, lng: string = "it"): Promise<string | null> {
     try {
-      return await this.userDao.insertRecoverPassword(email, password, lng);
+      // Flusso TOKEN: ritorna il token plain per la mail, null se rate limit raggiunto.
+      // Nessuna password in chiaro viene generata piu'.
+      return await this.userDao.insertRecoverPassword(email, username, lng);
     } catch (error) {
       throw error;
     }

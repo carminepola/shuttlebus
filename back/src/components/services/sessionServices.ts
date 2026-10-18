@@ -2,18 +2,15 @@ import UserServices from "./userServices";
 import FailToBanServices from "./failToBanServices";
 import { Db } from "mongodb";
 import ErrorModel from "../../model/errorModel";
-import MailService from "./mailServices";
 import { role } from "../../enum/role";
-import { Mail } from "../../model/mailModel";
 import { logger } from "../../index";
+
 export default class SessionServices {
   private userServices: UserServices;
   private failToBan: FailToBanServices;
-  private mailService: MailService;
   constructor(db: Db) {
     this.userServices = new UserServices(db);
     this.failToBan = new FailToBanServices(db);
-    this.mailService = new MailService(db);
   }
 
   public async login(
@@ -118,29 +115,14 @@ export default class SessionServices {
     }
   }
 
-  public async recoverPassword(email: string, lng: string): Promise<void> {
+  public async recoverPassword(email: string, lng: string): Promise<boolean> {
+    // Flusso a token: la mail contiene solo un link /reset-password con token opaco
+    // a scadenza. Nessuna password in chiaro via mail.
     let user = await this.userServices.getUserByEmail(email);
-    if (user) {
-      let newPassword = Array(12)
-        .fill("")
-        .map(() => String.fromCharCode(Math.floor(Math.random() * 26) + 97))
-        .join("");
-      let insert = await this.userServices.insertRecoverPassword(email, newPassword);
-      if (!insert) {
-        throw new ErrorModel(429, "str_limite_raggiunto");
-      }
-
-      this.mailService.sendMail(
-        new Mail({
-          to: user.email,
-          type: "RECOVER_PASSWORD",
-          bodyVariables: {
-            name: user.details.name,
-            mail: email,
-            password: newPassword,
-          },
-        }),
-      );
+    if (!user) {
+      return false;
     }
+    const token = await this.userServices.insertRecoverPassword(email, user.details.name, lng);
+    return token != null;
   }
 }

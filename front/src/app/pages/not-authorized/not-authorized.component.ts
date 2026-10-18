@@ -20,8 +20,8 @@ export class NotAuthorizedComponent implements OnInit {
   getRole() {
     let user = this.authService.getDecodedToken();
     if (user) {
-      if (parseInt(user.role) > 9999) {
-        return parseInt(user.role);
+      if (Number(user.role) > 9999) {
+        return Number(user.role);
       }
 
       this.authService.deleteCookie('jwt');

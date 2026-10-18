@@ -28,14 +28,18 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
     logger.warn("Webhook Stripe rifiutato: header Stripe-Signature assente");
     return res.status(400).send("Firma mancante");
   }
-  if (!Buffer.isBuffer(req.body)) {
+
+  // Se la route è raggiunta DOPO express.json (es. /api/stripe/webhook), il body
+  // è stato già parsed: usiamo la copia RAW conservata da app.ts (verify) per la firma
+  const rawBody = Buffer.isBuffer(req.body) ? req.body : (req as any).rawBody;
+  if (!Buffer.isBuffer(rawBody)) {
     logger.warn("Webhook Stripe rifiutato: body non ricevuto raw (verificare il mount prima di express.json)");
     return res.status(400).send("Body raw richiesto");
   }
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
+    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
   } catch (err) {
     logger.warn("Webhook Stripe rifiutato: firma non valida", { error: err instanceof Error ? err.message : err });
     return res.status(400).send("Firma non valida");
@@ -58,37 +62,63 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         const bookingId = session.metadata?.booking_id;
-        const paymentIntentId = session.payment_intent as string;
-        if (bookingId) {
+        if (!bookingId) {
+          logger.warn(`checkout.session.completed senza metadata.booking_id (event ${event.id})`);
+          break;
+        }
+
+        // Rileggi la sessione dall'API: il payment_status nel payload va confermato a valle
+        let effectiveSession: Stripe.Checkout.Session = session;
+        try {
+          effectiveSession = await stripe.checkout.sessions.retrieve(session.id);
+        } catch (err) {
+          logger.warn(`Impossibile rileggere la sessione ${session.id}, uso il payload dell'evento`, err instanceof Error ? err.message : err);
+        }
+        const paymentIntentId = (effectiveSession.payment_intent as string | undefined) ?? null;
+
+        // Persisti SEMPRE il collegamento booking <-> paymentIntent (anche se il pagamento non e' ancora paid)
+        if (paymentIntentId) {
           await bookingServices.updatePaymentIntentId(bookingId, paymentIntentId);
+        }
 
-          let success = await bookingServices.confirmBooking(bookingId, session.id);
-          if (success && paymentIntentId) {
-            // Recupera il PaymentIntent per verificare lo stato del pagamento (capture manuale)
-            const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+        // NESSUNA conferma/mail se non c'e' un pagamento reale completato
+        if (effectiveSession.payment_status !== "paid") {
+          logger.warn(`checkout.session.completed per ${bookingId} con payment_status=${effectiveSession.payment_status}: nessuna conferma, nessuna mail`);
+          break;
+        }
 
-            if (paymentIntent.status === "requires_capture") {
-              const captured = await stripe.paymentIntents.capture(paymentIntentId);
-              if (captured.status !== "succeeded") {
-                await bookingServices.expireTicketById(bookingId);
-                await bookingServices.updatePaymentStatus(bookingId, "failed");
-                logger.error(`Cattura pagamento fallita per la prenotazione ${bookingId} (event ${event.id})`);
-                throw new Error("str_payment_failed");
-              }
-              await bookingServices.updatePaymentStatus(bookingId, "paid");
-              bookingServices.sendConfirmation(bookingId);
-              logger.info(`Pagamento catturato con successo per la prenotazione ${bookingId}`);
-            } else if (paymentIntent.status === "succeeded") {
-              await bookingServices.updatePaymentStatus(bookingId, "paid");
-              logger.info(`Il pagamento per la prenotazione ${bookingId} e' gia' stato addebitato.`);
-            } else {
-              logger.warn(`Stato payment_intent inatteso ${paymentIntent.status} per la prenotazione ${bookingId}`);
+        if (paymentIntentId) {
+          const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+          if (paymentIntent.status === "requires_capture") {
+            const captured = await stripe.paymentIntents.capture(paymentIntentId);
+            if (captured.status !== "succeeded") {
+              await bookingServices.expireTicketById(bookingId);
+              await bookingServices.updatePaymentStatus(bookingId, "failed");
+              logger.error(`Cattura pagamento fallita per la prenotazione ${bookingId} (event ${event.id})`);
+              throw new Error("str_payment_failed");
             }
-          } else if (!success && paymentIntentId) {
-            // Prenotazione gia' confermata o session ID non corrisponde: annulla il pagamento
-            await stripe.paymentIntents.cancel(paymentIntentId);
-            logger.info(`Pagamento annullato per la prenotazione ${bookingId}, conferma non riuscita (gia' confermata o session non valida).`);
+            await bookingServices.confirmBooking(bookingId, session.id);
+            await bookingServices.updatePaymentStatus(bookingId, "paid");
+            logger.info(`Pagamento catturato con successo per la prenotazione ${bookingId}`);
+          } else if (paymentIntent.status === "succeeded") {
+            // Conferma se ancora pending; se gia' confermata con lo STESSO paymentIntent
+            // non fare nulla (idempotenza), ne' annullare pagamenti gia' riusciti
+            const alreadySynced = await bookingServices.isBookingSyncedWithPayment(bookingId, paymentIntentId);
+            if (!alreadySynced) {
+              await bookingServices.confirmBooking(bookingId, session.id);
+            }
+            await bookingServices.updatePaymentStatus(bookingId, "paid");
+            logger.info(`Il pagamento per la prenotazione ${bookingId} e' gia' stato addebitato.`);
+          } else {
+            logger.warn(`Stato payment_intent inatteso ${paymentIntent.status} per la prenotazione ${bookingId}: nessuna conferma, nessuna mail`);
+            break;
           }
+
+          // Mail SOLO dopo conferma pagamento reale (idempotente)
+          await bookingServices.notifyConfirmation(bookingId);
+        } else {
+          logger.warn(`checkout.session.completed per ${bookingId} senza payment_intent`);
         }
         break;
       }
@@ -98,11 +128,24 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         const bookingId = paymentIntent.metadata?.booking_id;
         let book: any = await bookingServices.readByPaymentIntentId(paymentIntent.id);
         if (!book && bookingId) {
-          book = await bookingServices.getBooking(bookingId);
+          book = await bookingServices.getBookingRaw(bookingId);
         }
         if (book?.numberOfTickets) {
-          await bookingServices.updatePaymentStatus(book.numberOfTickets, "paid");
-          logger.info(`payment_intent.succeeded: payment_status=paid per la prenotazione ${book.numberOfTickets}`);
+          const ticketId = book.numberOfTickets;
+          // Persisti il collegamento + stato pagamento anche se checkout.session.completed non e' mai arrivato
+          if (book.paymentIntentId !== paymentIntent.id) {
+            await bookingServices.updatePaymentIntentId(ticketId, paymentIntent.id);
+          }
+          if (book.status === "pending") {
+            await bookingServices.confirmBooking(ticketId);
+            logger.info(`payment_intent.succeeded: confermata la prenotazione ${ticketId} (checkout.session.completed mancante)`);
+          }
+          await bookingServices.updatePaymentStatus(ticketId, "paid");
+          logger.info(`payment_intent.succeeded: payment_status=paid per la prenotazione ${ticketId}`);
+          // Mail SOLO dopo conferma pagamento reale (idempotente: claim su confirmationSentAt)
+          await bookingServices.notifyConfirmation(ticketId);
+        } else {
+          logger.warn(`payment_intent.succeeded per ${paymentIntent.id} senza booking associato`);
         }
         break;
       }
@@ -147,10 +190,20 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         const bookingId = session.metadata?.booking_id;
 
         if (bookingId) {
-          await bookingServices.expireTicketById(bookingId);
-          await bookingServices.updatePaymentStatus(bookingId, "failed");
+          // Idempotente: expireTicketById fa match SOLO con status 'pending':
+          // se il pagamento e' arrivato nel frattempo (evento ritardato di
+          // checkout.session.completed, booking gia' confirmed), la sessione
+          // scaduta NON invalida la prenotazione pagata.
+          const expired = await bookingServices.expireTicketById(bookingId);
+          if (expired) {
+            await bookingServices.updatePaymentStatus(bookingId, "failed");
+            logger.info(`Pagamento scaduto per la prenotazione ${bookingId}`);
+          } else {
+            logger.warn(`checkout.session.expired per ${bookingId} ma il booking non e' piu' pending: nessun annullamento ${bookingId}`);
+          }
+        } else {
+          logger.info(`checkout.session.expired senza booking_id (event ${event.id})`);
         }
-        logger.info(`Pagamento scaduto per la prenotazione ${bookingId}`);
         break;
       }
 

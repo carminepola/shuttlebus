@@ -6,6 +6,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { ImpostazioniComponent } from './pages/impostazioni/impostazioni.component';
 import { UserSettingsComponent } from './pages/user-settings/user-settings.component';
 import { LostPasswordComponent } from './pages/lost-password/lost-password.component';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { StopsComponent } from './pages/stops/stops.component';
 import { StopDetailsComponent } from './pages/stop-details/stop-details.component';
 import { RouteComponent } from './pages/route/route.component';
@@ -68,6 +69,7 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   { path: 'lostpassword', component: LostPasswordComponent, data: {} },
+  { path: 'reset-password', component: ResetPasswordComponent, data: {} },
   {
     path: 'test',
     component: TestComponent,

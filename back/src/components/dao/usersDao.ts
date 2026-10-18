@@ -1,6 +1,7 @@
 import { Db, ObjectId } from "mongodb";
 import { logger } from "../../index";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { Guid } from "guid-typescript";
 import userModel from "../../model/userModel";
 import sessionModel from "../../model/sessionModel";
@@ -8,6 +9,15 @@ import * as CryptoJS from "crypto-js";
 import ErrorModel from "../../model/errorModel";
 import { role } from "../../enum/role";
 import MailSenderServices from "../services/mailSender";
+
+/**
+ * Durata di validita' di un token di reset password (30 minuti).
+ */
+export const RECOVER_PASSWORD_TOKEN_TTL_MS = 30 * 60 * 1000;
+/**
+ * Massimo numero di richieste di reset per utente nelle 24h.
+ */
+export const RECOVER_PASSWORD_MAX_REQUESTS_24H = 3;
 export default class UsersDao {
   db: Db;
   schema: string = "users";
@@ -436,10 +446,25 @@ export default class UsersDao {
 
     return password;
   }
-  async insertRecoverPassword(email: string, username: string, lng: string): Promise<boolean> {
+
+  /**
+   * Hash del token di reset: nel DB non va MAI il token opaco, solo il digest,
+   * cosi' un eventuale leak della collezione non genera link validi.
+   */
+  private hashRecoverToken(token: string): string {
+    return crypto.createHash("sha256").update(token).digest("hex");
+  }
+
+  /**
+   * Genera un token di reset password a scadenza (30 min, max 3 richieste/24h,
+   * USA-UNA-TANTUM: la prima consumazione invalida il record).
+   * La mail NON contiene password: solo un url /reset-password?token=...
+   *
+   * @returns the plain token (da passare alla mail) o null se rate limit raggiunto
+   */
+  async insertRecoverPassword(email: string, username: string, lng: string): Promise<string | null> {
     try {
       email = email.toLowerCase();
-      const password = this.generateSecurePassword();
 
       const today = new Date().getTime();
       const user = await this.db.collection(this.schema).findOne({ email: email });
@@ -447,29 +472,75 @@ export default class UsersDao {
       const lastUpdate = user?.recoverPasswordLastUpdate ? new Date(user.recoverPasswordLastUpdate).setHours(0, 0, 0, 0) : 0;
       const startToday = new Date().setHours(0, 0, 0, 0);
       const newCount = lastUpdate && lastUpdate == startToday ? count + 1 : 1;
-      if (newCount >= 3) {
-        return false;
+      if (newCount > RECOVER_PASSWORD_MAX_REQUESTS_24H) {
+        return null;
       }
 
-      let crypto = bcrypt.hashSync(password, 10);
-
+      const token = crypto.randomBytes(32).toString("hex");
       await this.db.collection(this.schema).updateOne(
         { email: email },
         {
           $set: {
-            recoverPassword: crypto,
+            recoverPasswordTokenHash: this.hashRecoverToken(token),
+            recoverPasswordTokenExp: today + RECOVER_PASSWORD_TOKEN_TTL_MS,
             recoverPasswordCount: newCount,
             recoverPasswordLastUpdate: today,
           },
-        },
+        }
       );
+
+      const clientUrl = process.env.CLIENT_URL || process.env.WEBSITE_URL || "";
+      const resetUrl = `${clientUrl}/reset-password?token=${token}`;
       const mailSenderServices: MailSenderServices = new MailSenderServices(this.db);
 
-      mailSenderServices.sendRecoverPassword(email, username, password, lng);
+      await mailSenderServices.sendRecoverPassword(email, username, resetUrl, lng);
+      return token;
     } catch (error) {
       throw error;
     }
-    return true;
+  }
+
+  /**
+   * Consuma il TOKEN di reset password: verifica valido, non scaduto, non usato,
+   * applica la nuova password (bcrypt) e invalida token + sessioni (una-tantum).
+   *
+   * @returns l'email dell'utente aggiornato, oppure null se il token non e' valido.
+   */
+  async consumeRecoverPasswordToken(token: string, newPassword: string): Promise<string | null> {
+    try {
+      const hash = this.hashRecoverToken(token);
+      const user = await this.db.collection(this.schema).findOne({
+        recoverPasswordTokenHash: hash,
+        recoverPasswordTokenExp: { $gt: new Date().getTime() },
+      });
+      if (!user) {
+        return null;
+      }
+      // Aggiorna la password, invalida il token e revoca sessioni attive (una-tantum)
+      const result = await this.db.collection(this.schema).updateOne(
+        { email: user.email, recoverPasswordTokenHash: hash },
+        {
+          $set: {
+            password: bcrypt.hashSync(newPassword, 10),
+          },
+          $unset: {
+            recoverPasswordTokenHash: "",
+            recoverPasswordTokenExp: "",
+            // Pulizia del legacy flusso a temporary password (se presente)
+            recoverPassword: "",
+          },
+        }
+      );
+      if (result.matchedCount === 0) {
+        return null;
+      }
+      // Revoca tutte le sessioni attive: la nuova password vale, i cookie refresh muoiono
+      await this.db.collection(this.schema).updateOne({ email: user.email }, { $set: { sessions: [] } });
+      logger.info(`Password reimpostata via token per l'utente ${user.email}`);
+      return user.email;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async updateOptions(email: string, key: string, value: string): Promise<boolean> {

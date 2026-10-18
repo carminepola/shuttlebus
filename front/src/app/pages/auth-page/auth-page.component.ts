@@ -22,10 +22,11 @@ export class AuthPageComponent implements OnInit, OnDestroy {
     private authService: AuthService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     // Se l'utente è già autenticato (es. refresh della pagina dopo il login),
-    // non rifare la chiamata getSession con un token ormai consumato.
-    if (this.authService.getDecodedToken()) {
+    // non rifare la chiamata getGoogleSession con un token ormai consumato.
+    const existing = await this.authService.refreshSession();
+    if (existing) {
       this.redirectAfterLogin();
       return;
     }
@@ -37,7 +38,8 @@ export class AuthPageComponent implements OnInit, OnDestroy {
         switchMap((params) => this.googleAuth.getSession(params.get('id') as string))
       )
       .subscribe({
-        next: () => {
+        next: async () => {
+          await this.authService.refreshSession();
           this.redirectAfterLogin();
         },
         error: () => {
@@ -59,7 +61,7 @@ export class AuthPageComponent implements OnInit, OnDestroy {
       return;
     }
     let session = this.authService.getDecodedToken();
-    if (session?.role <= 50) {
+    if ((session?.role ?? 9999) <= 50) {
       this.router.navigateByUrl('/admin/home');
     } else {
       this.router.navigateByUrl('/user/account');

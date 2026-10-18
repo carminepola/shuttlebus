@@ -436,8 +436,13 @@ export default class BookingsDAO {
     );
   }
 
+  /**
+   * Invalida un biglietto in sola attesa di pagamento (status 'pending').
+   * Ritorna true se il booking e' stato effettivamente marked expired:
+   * se il pagamento e' arrivato nel frattempo (status confirmed), NON tocca nulla.
+   */
   async expireTicketById(ticketId: string) {
-    this.db.collection("bookings").updateMany(
+    const result = await this.db.collection("bookings").updateMany(
       {
         numberOfTickets: ticketId,
         status: "pending",
@@ -449,6 +454,7 @@ export default class BookingsDAO {
         },
       },
     );
+    return result.matchedCount > 0;
   }
 
   async cancelBooking(bookingId: string, cancelMotivation?: string) {
@@ -499,6 +505,40 @@ export default class BookingsDAO {
           return false;
         }
       });
+  }
+
+  /**
+   * Idempotenza lato business: il booking e' GIA' synchronizzato
+   * (confirmed + payment_status paid + stesso paymentIntentId):
+   * nessuna azione va ripetuta ne' annullare pagamenti gia' riusciti.
+   */
+  async isBookingSyncedWithPayment(bookingId: string, paymentIntentId: string): Promise<boolean> {
+    const book = await this.db.collection("bookings").findOne({
+      numberOfTickets: bookingId,
+      paymentIntentId: paymentIntentId,
+      status: "confirmed",
+    });
+    return !!book && book.payment_status === "paid";
+  }
+
+  /**
+   * Claim atomico per l'invio della mail di conferma: imposta confirmationSentAt
+   * solo se non esiste. Se un altro processo l'ha gia' fatto ritorna false.
+   */
+  async markConfirmationSent(bookingId: string): Promise<boolean> {
+    const result = await this.db.collection("bookings").updateOne(
+      {
+        numberOfTickets: bookingId,
+        status: "confirmed",
+        confirmationSentAt: { $exists: false },
+      },
+      {
+        $set: {
+          confirmationSentAt: new Date().getTime(),
+        },
+      }
+    );
+    return result.matchedCount > 0;
   }
 
   async refundBooking(bookingId: string, userId?: string) {

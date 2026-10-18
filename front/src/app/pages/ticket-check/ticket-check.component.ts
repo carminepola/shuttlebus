@@ -42,7 +42,7 @@ export class TicketCheckComponent implements OnInit {
   getRole() {
     let user = this.authService.getDecodedToken();
     if (user) {
-      return parseInt(user.role);
+      return Number(user.role);
     }
     return 9999;
   }

@@ -33,17 +33,17 @@ export class UserProfileComponent implements OnInit {
   goTo(path: string) {
     this.router.navigate([path]);
   }
-  getUser() {
+  getUser(): string {
     let user = this.authService.getDecodedToken();
     if (user) {
-      return user.email;
+      return user.email ?? '';
     }
-    return;
+    return '';
   }
   getRole() {
     let user = this.authService.getDecodedToken();
     if (user) {
-      return parseInt(user.role);
+      return Number(user.role);
     }
     return 999;
   }

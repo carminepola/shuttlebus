@@ -16,11 +16,14 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   return next(modifiedReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 || error.status === 403) {
-        // Only jwt can be deleted via JS (not httpOnly).
-        // refreshToken is httpOnly and will be cleared server-side on next request.
-        authService.deleteCookie('jwt');
+        // Il cookie jwt e' httpOnly: la "cancellazione" via JS non serve piu'.
+        // Invalida lo stato in memoria e lascia la revoca dei cookie al server.
+        authService.clearSession();
+
+        const silent = modifiedReq.headers.has('x-silent-auth');
         const currentUrl = router.url;
         if (
+          !silent &&
           !currentUrl.includes('/not-authorized') &&
           !currentUrl.includes('/too-many-requests')
         ) {

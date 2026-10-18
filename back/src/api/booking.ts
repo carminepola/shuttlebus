@@ -122,11 +122,43 @@ router.get("/getBookingByUserId/:userId", authMiddleware, checkPermissionMiddlew
   }
 });
 router.post("/refundBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+  const userLogged: any = res.locals.userLogged;
+  const bookingId = req.body?.id;
   try {
-    let bookingServices = new BookingServices(db);
-    let result = await bookingServices.refundBooking(req.body.id, res.locals.userLogged["_id"]);
+    if (!bookingId || typeof bookingId !== "string") {
+      logger.warn(`AUDIT refundBooking: id mancante o non valido, userId=${userLogged?._id}, esito=400`);
+      throw new ErrorModel(400, "str_refund_invalid_booking");
+    }
+
+    const bookingServices = new BookingServices(db);
+
+    // Ownership check SEPARATO dall'autenticazione: legge il record e confronta il proprietario
+    const book = await bookingServices.getBookingRaw(bookingId);
+    if (!book) {
+      logger.warn(`AUDIT refundBooking: booking ${bookingId} inesistente, userId=${userLogged?._id}, esito=404`);
+      throw new ErrorModel(404, "Prenotazione non trovata");
+    }
+
+    const isOwner = String(book.userId) === String(userLogged["_id"]);
+    const isAdmin = userLogged?.role <= role.ADMIN;
+    if (!isOwner && !isAdmin) {
+      // 404 generico (non 403): non deve rivelare l'esistenza di prenotazioni di altri
+      logger.warn(`AUDIT refundBooking: booking ${bookingId} non di proprieta' di userId=${userLogged._id}, esito=404`);
+      throw new ErrorModel(404, "Prenotazione non trovata");
+    }
+
+    // Riscatta la prenotazione SOLO se effettivamente rimborsabile:
+    // nessun finto 200 "Rimborso effettuato" se il DB non aggiorna nulla.
+    const result = await bookingServices.refundBooking(bookingId, isOwner ? String(userLogged["_id"]) : undefined, isAdmin);
+    if (!result) {
+      logger.warn(`AUDIT refundBooking: booking ${bookingId} non rimborsabile (stato non valido), userId=${userLogged._id}, esito=400`);
+      throw new ErrorModel(400, "str_refund_error");
+    }
+
+    logger.info(`AUDIT refundBooking: booking ${bookingId}, userId=${userLogged._id}, esito=200, admin=${isAdmin}`);
     res.json({ message: "Rimborso effettuato" });
   } catch (error) {
+    logger.warn(`AUDIT refundBooking: booking ${bookingId}, userId=${userLogged?._id}, esito=errore`, error);
     next(error);
   }
 });
@@ -134,6 +166,9 @@ router.post("/cancelBooking", authMiddleware, checkPermissionMiddleware(role.ADM
   try {
     let bookingServices = new BookingServices(db);
     let result = await bookingServices.cancelBooking(req.body.id);
+    if (!result) {
+      throw new ErrorModel(400, "str_refund_error");
+    }
     res.json({ message: "Rimborso effettuato" });
   } catch (error) {
     next(error);

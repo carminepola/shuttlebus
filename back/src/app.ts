@@ -51,12 +51,21 @@ app.use(passport.initialize());
 app.use(passport.session());
 //Abilita cookie parser per leggere i cookie
 app.use(cookieParser());
-//Webhook Stripe: DEVE stare PRIMA dei body parser globali, la verifica della firma richiede il body RAW
+//Webhook Stripe: montato su /stripe/webhook (prima dei body parser, body RAW)
 app.use("/stripe", stripeWebhookRouter);
 //Abilita urlencoded per leggere i parametri di query
 app.use(express.urlencoded({ extended: true }));
-//Abilita json per leggere i parametri di body
-app.use(express.json());
+//Abilita json per leggere i parametri di body.
+//verify conserva una copia RAW del body: e' necessaria per la verifica della
+//firma Stripe anche quando l'endpoint e' raggiunto via /api/stripe/webhook
+//(montato DOPO i parser globali).
+app.use(
+  express.json({
+    verify: (req: any, _res, buf) => {
+      req.rawBody = Buffer.from(buf);
+    },
+  }),
+);
 app.use(logSendStatusMiddleware);
 
 //Crea il token per la richiesta

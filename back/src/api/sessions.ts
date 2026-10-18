@@ -92,7 +92,9 @@ router.post(
       );
       let settingsJwt: CookieOptions = {
         maxAge: undefined,
-        httpOnly: false,
+        // Il JWT NON e' leggibile dal JavaScript (mitigazione furto via XSS):
+        // l'identita' lato front passa dall'endpoint GET /auth/me, non dal cookie.
+        httpOnly: true,
         sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
         secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
       };
@@ -180,12 +182,67 @@ router.post("/recoverPassword", authIpLimiter, authAccountLimiter, async (req: R
     let lng = req.body.lng ? (req.body.lng == "it" ? "it" : "en") : "en";
     let user = await userDao.getUserByEmail(email);
     if (user) {
+      // Genera un TOKEN OPACO a scadenza (mai password in chiaro via email):
+      // la mail contiene solo un link con il token, usabile una sola volta.
       await userDao.insertRecoverPassword(user.email, user.details.name, lng);
     }
-    res.json({ message: "Una nuova password sarà inviata all'indirizzo email" });
+    res.json({ message: "Un link per reimpostare la password è stato inviato all'indirizzo email" });
   } catch (error) {
     next(error);
   }
+});
+
+router.post(
+  "/resetPassword",
+  authIpLimiter,
+  authAccountLimiter,
+  [
+    check("token").notEmpty().withMessage("token is required"),
+    check("password").notEmpty().withMessage("password is required").isLength({ min: 8 }).withMessage("Password di almeno 8 caratteri"),
+  ],
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let userDao = new UserDao(db);
+      const email = await userDao.consumeRecoverPasswordToken(String(req.body.token || ""), String(req.body.password || ""));
+      if (!email) {
+        // Token mancante, scaduto o gia' utilizzato: stesso messaggio generico
+        throw new ErrorModel(400, "str_reset_token_invalid");
+      }
+      // Le sessioni attive dell'utente vengono revocate dalla rotazione del token
+      logger.info(`Password reimpostata via token per ${email}: sessioni attive revocate`);
+      res.json({ message: "str_reset_password_ok" });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get("/me", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+  // Identita' della sessione corrente: il front NON legge piu' il cookie jwt via JS
+  // (ora httpOnly) ma riceve i claim decodificati da authMiddleware (res.locals).
+  const user = res.locals.userLogged;
+  // options senza PIN (dati sensibili) - serve al front per il tema UI
+  let options = { ...(user?.options || {}) } as any;
+  delete options?.pin;
+  delete options?.google;
+  delete options?.microsoft;
+  res.json({
+    user: {
+      _id: user?._id,
+      email: user?.email,
+      name: user?.details?.name || user?.name || "",
+      role: user?.role,
+      permissions: user?.permissions || [],
+      session: user?.session,
+      rememberMe: !!user?.rememberMe,
+      options,
+      details: {
+        name: user?.details?.name || "",
+        phone: user?.details?.phone || "",
+      },
+    },
+  });
 });
 
 export default router;

@@ -128,7 +128,8 @@ export default async function authMiddleware(req: Request, res: Response<Message
     res.locals.userLogged = user;
     let settingsJwt: CookieOptions = {
       maxAge: 2592000000,
-      httpOnly: false,
+      // Anche il re-issue del JWT deve restare NON leggibile dal JavaScript
+      httpOnly: true,
       secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
       sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
     };

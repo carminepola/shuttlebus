@@ -10,32 +10,8 @@ import MailService from "../components/services/mailServices";
 import { Mail } from "../model/mailModel";
 import { db, logger, env } from "../index";
 
-router.get("/", async (req, res, next) => {
-  try {
-    res.locals.response.message = "OK";
-
-    res.json({
-      headers: req.headers,
-      ip: res.locals.log.ip,
-      req: req.query,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-router.post("/", async (req, res, next) => {
-  try {
-    res.locals.response.message = "OK";
-
-    res.json({
-      headers: req.headers,
-      ip: res.locals.log.ip,
-      body: req.body,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+// NOTE: le rotte echo di debug (GET / e POST /) sono state RIMOSE (pentest):
+// restano solo le rotte mail di test, protette da authMiddleware + role.ADMIN.
 
 const ALLOWED_MAIL_TYPES = ["WELCOME", "RECOVER_PASSWORD", "PURCHASE_COMPLETED", "PURCHASE_CANCELLED", "REFUND_PROCESSED", "GENERIC"];
 const ALLOWED_MAIL_LNG = ["it", "en", "fr", "de", "es", "jp"];

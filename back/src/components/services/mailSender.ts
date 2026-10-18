@@ -202,7 +202,7 @@ class MailSenderServices {
     );
   }
 
-  async sendRecoverPassword(email: string, name: string, newPassword: string, lng: string = "it") {
+  async sendRecoverPassword(email: string, name: string, resetUrl: string, lng: string = "it") {
     let type = this.getMailType("RECOVER_PASSWORD", lng);
 
     this.mailService.sendMail(
@@ -212,7 +212,10 @@ class MailSenderServices {
         bodyVariables: {
           name: name,
           mail: email,
-          password: newPassword,
+          // NESSUNA password in chiaro: solo il link temporizzato di reset.
+          // Il template RECOVER_PASSWORD deve usare la variabile {{url}}
+          // (aggiornare il template in template_mail: vecchia variabile {{password}} rimossa).
+          url: resetUrl,
           img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
         },
       })

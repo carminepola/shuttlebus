@@ -225,6 +225,12 @@ class BookingsServices {
   async updatePaymentStatus(numberOfTickets: string, paymentStatus: string) {
     return await this.bookingDao.updatePaymentStatus(numberOfTickets, paymentStatus);
   }
+  async isBookingSyncedWithPayment(bookingId: string, paymentIntentId: string): Promise<boolean> {
+    return await this.bookingDao.isBookingSyncedWithPayment(bookingId, paymentIntentId);
+  }
+  async markConfirmationSent(bookingId: string): Promise<boolean> {
+    return await this.bookingDao.markConfirmationSent(bookingId);
+  }
   async readByPaymentIntentId(paymentIntentId: string) {
     return await this.bookingDao.readByPaymentIntentId(paymentIntentId);
   }
@@ -313,9 +319,19 @@ class BookingsServices {
     return success;
   }
 
-  async refundBooking(numberOfTickets: string, userId?: string) {
-    let book = await this.getBooking(numberOfTickets);
-    if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
+  /**
+   * Rimborso dal path utente.
+   * - `isAdmin:true` (staff): salta la finestra dei 3 giorni e il check di proprieta'.
+   * - Ritorna true SOLO se il record e' stato effettivamente aggiornato a refunded;
+   *   prenotazioni pending/scadute/gia' rimborsate -> false (il controller risponde 400).
+   * - Trail di audit: userId e bookingId vengono loggati a monte dal controller.
+   */
+  async refundBooking(numberOfTickets: string, userId?: string, isAdmin: boolean = false) {
+    let book: any = await this.bookingDao.getBooking(numberOfTickets);
+    if (!book) {
+      return false;
+    }
+    if (!isAdmin && new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
       throw new ErrorModel(400, "str_error_refund");
     }
     let success = await this.bookingDao.refundBooking(numberOfTickets, userId);
@@ -328,7 +344,10 @@ class BookingsServices {
     return success;
   }
   async refundBookingAdmin(numberOfTickets: string, userId?: string) {
-    let book = await this.getBooking(numberOfTickets);
+    let book: any = await this.bookingDao.getBooking(numberOfTickets);
+    if (!book) {
+      return false;
+    }
 
     let success = await this.bookingDao.refundBooking(numberOfTickets, userId);
     if (success) {
@@ -354,6 +373,38 @@ class BookingsServices {
     //l'invio di questa notifica è demandato altrove
 
     return success;
+  }
+  /**
+   * Notifica di conferma "Acquisto Confermato": idempotente e soggetta a gate
+   * sul pagamento REALE. Parte SOLO se il booking e' confirmed con
+   * payment_status "paid". Il flag server-side `confirmationSentAt` (claim
+   * atomico) impedisce dopioni quando checkout.session.completed e
+   * payment_intent.succeeded arrivano entrambi o vengono riprocessati.
+   */
+  async notifyConfirmation(numberOfTickets: string): Promise<boolean> {
+    let book = await this.bookingDao.getBooking(numberOfTickets);
+    if (!book || book.status !== "confirmed") {
+      return false;
+    }
+    const paid = book.payment_status === "paid" || (computePaid(book) && book.paymentMethod === "cash");
+    if (!paid) {
+      logger.warn(`Conferma NON inviata per ${numberOfTickets}: pagamento non ancora confermato (payment_status=${book.payment_status})`);
+      return false;
+    }
+    if (book.confirmationSentAt) {
+      return true;
+    }
+    // Claim atomico: l'invio parte solo se nessun altro processo lo ha gia' fatto
+    const claimed = await this.bookingDao.markConfirmationSent(numberOfTickets);
+    if (!claimed) {
+      return true;
+    }
+    try {
+      await this.sendConfirmation(numberOfTickets);
+    } catch (error) {
+      logger.error(`Errore invio conferma per la prenotazione ${numberOfTickets}`, error);
+    }
+    return true;
   }
   async sendConfirmation(numberOfTickets: string, typePayment?: string) {
     logger.info(`Invio conferma per la prenotazione ${numberOfTickets}`);
