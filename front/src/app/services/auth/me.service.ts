@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { firstValueFrom, Observable, map } from 'rxjs';
+import { firstValueFrom, Observable, Subject, map } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 /**
@@ -38,6 +38,8 @@ export class MeService {
 
   private userSignal = signal<SessionUser | null>(null);
   private loading: Promise<SessionUser | null> | null = null;
+  /** Emite l'utente (o null) a OGNI cambio di identita' (evento, non polling). */
+  private sessionChangedSubject = new Subject<SessionUser | null>();
 
   constructor(private http: HttpClient) {}
 
@@ -65,17 +67,20 @@ export class MeService {
       return this.loading;
     }
     this.loading = firstValueFrom(
-      this.http.get<{ user: SessionUser | null }>(`${this.apiUrl}/${this.path}/me`, {
-        headers: { 'x-silent-auth': '1' },
-      })
+      this.http.get<{ user: SessionUser | null }>(
+        `${this.apiUrl}/${this.path}/me`,
+        {
+          headers: { 'x-silent-auth': '1' },
+        }
+      )
     )
       .then((res) => {
         const user = res?.user ?? null;
-        this.userSignal.set(user);
+        this.set(user);
         return user;
       })
       .catch(() => {
-        this.userSignal.set(null);
+        this.set(null);
         return null;
       })
       .finally(() => {
@@ -87,15 +92,32 @@ export class MeService {
   /** Variante observable per i flows post-login. */
   refresh$(): Observable<SessionUser | null> {
     return this.http
-      .get<{ user: SessionUser | null }>(`${this.apiUrl}/${this.path}/me`, {
-        headers: { 'x-silent-auth': '1' },
-      })
+      .get<{ user: SessionUser | null }>(
+        `${this.apiUrl}/${this.path}/me`,
+        {
+          headers: { 'x-silent-auth': '1' },
+        }
+      )
       .pipe(map((res) => res?.user ?? null));
   }
 
   /** Invalida lo stato in memoria (nessun cookie toccabile via JS). */
   clear(): void {
-    this.userSignal.set(null);
+    this.set(null);
+  }
+
+  /**
+   * Observable che emette l'utente corrente alla sottoscrizione e poi
+   * ad ogni cambiamento futuro (login, logout, scadenza, 401/403):
+   * niente polling, solo eventi.
+   */
+  sessionChanges(): Observable<SessionUser | null> {
+    return this.sessionChangedSubject.asObservable();
+  }
+
+  private set(user: SessionUser | null): void {
+    this.userSignal.set(user);
+    this.sessionChangedSubject.next(user);
   }
 }
 
