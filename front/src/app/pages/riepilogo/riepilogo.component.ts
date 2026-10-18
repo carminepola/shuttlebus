@@ -21,7 +21,7 @@ import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-au
 import { LngService } from '../../services/lng/lng.service';
 import { LUGGAGE_PRICE } from '../../constants/app.constants';
 import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
-import * as CryptoJS from 'crypto-js';
+
 declare var bootstrap: any;
 
 @Component({
@@ -231,9 +231,8 @@ export class RiepilogoComponent implements OnInit {
 
     this.checkoutLoginLoading = true;
     const { email, password } = this.checkoutLoginForm.value;
-    const md5Password = CryptoJS.MD5(password).toString();
 
-    this.authService.login(email, md5Password, false).subscribe({
+    this.authService.login(email, password, false).subscribe({
       next: () => {
         this.checkoutLoginLoading = false;
         this.checkoutLoginError = '';

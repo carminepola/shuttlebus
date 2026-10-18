@@ -8,7 +8,6 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
-import CryptoJS from 'crypto-js';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
 import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-auth.service';
 @Component({
@@ -71,9 +70,8 @@ export class LoginComponent implements OnInit {
       this.isLoading = true;
 
       const { email, password, rememberMe } = this.loginForm.value;
-      const md5Password = CryptoJS.MD5(password).toString();
 
-      this.authService.login(email, md5Password, rememberMe).subscribe({
+      this.authService.login(email, password, rememberMe).subscribe({
         next: (response: any) => {
           this.isLoading = false;
           this.router

@@ -12,6 +12,7 @@ import cookieParser from "cookie-parser";
 import { logSendStatusMiddleware } from "./middlewares/sendStatusMiddleware";
 import noSqlInjectionMiddleware from "./middlewares/noSqlInjectionMiddleware";
 import rateLimitMiddleware from "./middlewares/rateLimitMiddleware";
+import stripeWebhookRouter from "./api/stripeWebhook";
 import session from "express-session";
 import passport from "passport";
 import "./passportConfig";
@@ -50,6 +51,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 //Abilita cookie parser per leggere i cookie
 app.use(cookieParser());
+//Webhook Stripe: DEVE stare PRIMA dei body parser globali, la verifica della firma richiede il body RAW
+app.use("/stripe", stripeWebhookRouter);
 //Abilita urlencoded per leggere i parametri di query
 app.use(express.urlencoded({ extended: true }));
 //Abilita json per leggere i parametri di body

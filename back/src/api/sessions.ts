@@ -14,10 +14,13 @@ import UserServices from "../components/services/userServices";
 import FailToBanServices from "../components/services/failToBanServices";
 import SessionServices from "../components/services/sessionServices";
 import BookingsServices from "../components/services/bookingServices";
+import { authIpLimiter, authAccountLimiter } from "../middlewares/authRateLimitMiddleware";
 const router = express.Router();
 
 router.post(
   "/",
+  authIpLimiter,
+  authAccountLimiter,
   [check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"), check("password").notEmpty().withMessage("password is required")],
   validateDataMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
@@ -34,24 +37,42 @@ router.post(
           }
         });
         if (!valid) {
-          throw new ErrorModel(409, "Utente già autenticato");
+          throw new ErrorModel(409, "Utente già autenticato");
         }
       }
 
       let sessionServices = new SessionServices(db);
       let failToBanServices = new FailToBanServices(db);
 
-      // Controllo fail-to-ban basato su IP
-      if (await failToBanServices.isFail(res.locals.log.ip)) {
+      const clientIp = res.locals.log?.ip || req.ip;
+      const email = String(req.body.email || "").toLowerCase();
+
+      // Lockout con backoff esponenziale: per-account (email) E per-IP
+      if ((await failToBanServices.isRateLimited(email)) || (await failToBanServices.isRateLimited(clientIp))) {
+        logger.warn(`Login bloccato per rate limiting: email=${email} ip=${clientIp}`);
         throw new ErrorModel(429, "Troppi tentativi. Riprova più tardi.");
       }
 
       // Login: verifica password + crea sessione + fail-to-ban basato su email
       // Se le credenziali sono errate, sessionServices.login() lancia ErrorModel(400)
-      let loginResponse = await sessionServices.login(req.body.email, req.body.password, req.body.rememberMe);
+      let loginResponse;
+      try {
+        loginResponse = await sessionServices.login(email, req.body.password, req.body.rememberMe);
+      } catch (loginError) {
+        // Registra il fallimento anche per IP e logga server-side il contatore
+        try {
+          await failToBanServices.insertIp(clientIp);
+          const state = await failToBanServices.getFailState(email);
+          logger.warn(`Login fallito: email=${email} ip=${clientIp} tentativi_falliti_account=${state.count}`);
+        } catch (logError) {
+          logger.error("Errore registrazione fallimento login", logError);
+        }
+        throw loginError;
+      }
 
-      // Login riuscito: rimuovi IP dal fail-to-ban
-      failToBanServices.deleteIp(res.locals.log.ip);
+      // Login riuscito: azzera i contatori email e IP
+      await failToBanServices.deleteIp(email);
+      await failToBanServices.deleteIp(clientIp);
 
       let sessionToken = loginResponse.sessionToken;
       let userSession = loginResponse.userSession;
@@ -152,7 +173,7 @@ router.patch("/terms", authMiddleware, async (req: Request, res: Response, next:
   result = { message: "User upgraded" };
   res.json(result);
 });
-router.post("/recoverPassword", async (req: Request, res: Response, next: NextFunction) => {
+router.post("/recoverPassword", authIpLimiter, authAccountLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     let userDao = new UserDao(db);
     let email = req.body.email;

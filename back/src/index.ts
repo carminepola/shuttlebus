@@ -105,6 +105,9 @@ const startServer = async () => {
       logger.error(`Variabili d'ambiente mancanti o vuote: ${missingVars.join(", ")}. Impossibile avviare l'app.`);
       process.exit(1);
     }
+    if (!env.STRIPE_WEBHOOK_SECRET && !env.WEBHOOK_SECRET) {
+      logger.warn("STRIPE_WEBHOOK_SECRET non configurato: il webhook Stripe rifiutera' ogni consegna (400). Configurarlo per abilitare i pagamenti.");
+    }
 
     switch (env.DB_TYPE) {
       case "MONGODB":

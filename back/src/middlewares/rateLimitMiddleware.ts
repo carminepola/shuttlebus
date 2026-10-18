@@ -15,14 +15,9 @@ const globalLimiter = rateLimit({
     error: "Troppe richieste. Riprova tra qualche minuto.",
   },
   keyGenerator: (req: Request) => {
-    // Supporta proxy (x-forwarded-for, x-real-ip)
-    const forwarded = req.headers["x-forwarded-for"];
-    if (typeof forwarded === "string") {
-      return forwarded.split(",")[0].trim();
-    }
-    if (req.headers["x-real-ip"]) {
-      return req.headers["x-real-ip"] as string;
-    }
+    // trust proxy e' attivo (app.set("trust proxy", 1)): req.ip risolve
+    // X-Forwarded-For/X-Real-IP SOLO se provengono dal reverse proxy fidato.
+    // Non leggere gli header direttamente: sarebbero spoofabili dal client.
     return req.ip || "unknown";
   },
 });

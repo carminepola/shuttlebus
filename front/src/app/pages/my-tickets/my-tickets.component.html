@@ -116,7 +116,7 @@
               </div>
 
               <div class="details-section details-section-qr">
-                @if (booking.status === "confirmed") {
+                @if (isPaid(booking)) {
                   <div class="qr-wrapper">
                     <img
                       [src]="qrCodes[booking.numberOfTickets]"
@@ -129,6 +129,11 @@
                     <i class="fa-solid fa-download me-1"></i>
                     Download PDF
                   </button>
+                } @else {
+                  <div class="awaiting-payment">
+                    <i class="fa-regular fa-clock me-1"></i>
+                    <span>{{ pendingPaymentLabel() }}</span>
+                  </div>
                 }
               </div>
             </div>
@@ -150,6 +155,9 @@
                   <span>{{
                     pendingCountdowns[booking.numberOfTickets] || "00:00"
                   }}</span>
+                </div>
+                <div class="awaiting-payment">
+                  <span>{{ pendingPaymentLabel() }}</span>
                 </div>
                 <button
                   class="action-btn action-btn-cancel"

@@ -5,6 +5,7 @@ import ErrorModel from "../../model/errorModel";
 import MailService from "./mailServices";
 import { role } from "../../enum/role";
 import { Mail } from "../../model/mailModel";
+import { logger } from "../../index";
 export default class SessionServices {
   private userServices: UserServices;
   private failToBan: FailToBanServices;
@@ -63,6 +64,9 @@ export default class SessionServices {
       return { userSession, sessionToken };
     } else {
       this.failToBan.insertIp(email);
+      const state = await this.failToBan.getFailState(email);
+      // Log server-side del contatore tentativi falliti, senza dettagli al client
+      logger.warn(`Tentativo di login fallito: email=${email} tentativi_falliti_account=${state.count}`);
       //new Error().stack
       throw new ErrorModel(400, "Credenziali non valide. Riprova.");
     }

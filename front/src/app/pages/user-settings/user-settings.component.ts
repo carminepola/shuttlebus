@@ -12,7 +12,6 @@ import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle
 import { AuthService } from '../../services/auth/auth.service';
 import { UserService } from '../../services/user/user.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
-import * as CryptoJS from 'crypto-js';
 @Component({
   selector: 'app-user-settings',
   imports: [
@@ -151,11 +150,8 @@ export class UserSettingsComponent implements OnInit {
       return;
     }
 
-    const md5OldPassword = CryptoJS.MD5(oldPassword).toString();
-    const md5NewPassword = CryptoJS.MD5(newPassword).toString();
-
     this.userService
-      .changePassword(email, md5OldPassword, md5NewPassword)
+      .changePassword(email, oldPassword, newPassword)
       .subscribe(
         (res) => {
           this.loading = false;

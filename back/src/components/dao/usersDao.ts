@@ -380,6 +380,16 @@ export default class UsersDao {
 
       if (user) {
         let res = bcrypt.compareSync(password, user.password);
+        if (!res) {
+          // Migrazione da hash legacy bcrypt(MD5(password)): l'hash della password
+          // avviene SOLO lato server. Al primo login riuscito la password viene
+          // rehashata con bcrypt direttamente dal valore in chiaro.
+          const legacyMd5 = CryptoJS.MD5(password).toString();
+          if (bcrypt.compareSync(legacyMd5, user.password)) {
+            await this.db.collection(this.schema).updateOne({ email: email }, { $set: { password: bcrypt.hashSync(password, 10) } });
+            res = true;
+          }
+        }
         if (user.recoverPassword && !res) {
           let today = new Date().getTime();
           let lastUpdate = user.recoverPasswordLastUpdate ? user.recoverPasswordLastUpdate : undefined;
@@ -387,13 +397,17 @@ export default class UsersDao {
             return false;
           } else {
             res = bcrypt.compareSync(password, user.recoverPassword);
+            if (!res) {
+              const legacyMd5Recover = CryptoJS.MD5(password).toString();
+              res = bcrypt.compareSync(legacyMd5Recover, user.recoverPassword);
+            }
             if (res) {
               await this.db.collection(this.schema).updateOne(
                 { email: email },
                 {
                   $set: {
                     recoverPassword: null,
-                    password: user.recoverPassword,
+                    password: bcrypt.hashSync(password, 10),
                   },
                 },
               );
@@ -437,7 +451,7 @@ export default class UsersDao {
         return false;
       }
 
-      let crypto = bcrypt.hashSync(CryptoJS.MD5(password).toString(), 10);
+      let crypto = bcrypt.hashSync(password, 10);
 
       await this.db.collection(this.schema).updateOne(
         { email: email },

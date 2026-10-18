@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { UserService } from '../../services/user/user.service';
-import * as CryptoJS from 'crypto-js';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { LngService } from '../../services/lng/lng.service';
 
@@ -238,12 +237,8 @@ export class RegistrazioneComponent implements OnInit {
         .validateMail({ email: this.loginForm.email, pin })
         .subscribe({
           next: (response: any) => {
-            const md5Password = CryptoJS.MD5(
-              this.loginForm.password,
-            ).toString();
-
             this.authService
-              .login(this.loginForm.email, md5Password, false)
+              .login(this.loginForm.email, this.loginForm.password, false)
               .subscribe({
                 next: (response: any) => {
                   this.isLoading = false;
@@ -386,12 +381,10 @@ export class RegistrazioneComponent implements OnInit {
 
       this.isLoading = true;
 
-      const md5Password = CryptoJS.MD5(this.loginForm.password).toString();
-
       this.userService
         .register({
           email: this.loginForm.email.trim(),
-          password: md5Password.trim(),
+          password: this.loginForm.password.trim(),
           name: this.loginForm.name.trim(),
           phoneNumber:
             this.loginForm.prefixPhone + this.loginForm.phoneNumber.trim(),

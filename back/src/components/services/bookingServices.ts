@@ -12,6 +12,7 @@ import MailSenderServices from "./mailSender";
 import TelegramServices from "./telegramServices";
 import { role } from "../../enum/role";
 import { LUGGAGE_PRICE } from "../../constants";
+import { signTicketToken, verifyTicketToken } from "../../utils/ticketToken";
 
 class BookingsServices {
   private bookingDao: BookingDao;
@@ -85,12 +86,14 @@ class BookingsServices {
       switch (paymentType) {
         case "stripe":
           book.status = "pending";
+          book.payment_status = "unpaid";
           break;
         case "cash":
           if (user.role > role.DRIVER) {
             throw new Error("str_error_permission");
           }
           book.status = "confirmed";
+          book.payment_status = "paid";
           break;
       }
 
@@ -203,6 +206,9 @@ class BookingsServices {
   async updatePaymentIntentId(numberOfTickets: string, paymentIntentId: string) {
     return await this.bookingDao.updatePaymentIntentId(numberOfTickets, paymentIntentId);
   }
+  async updatePaymentStatus(numberOfTickets: string, paymentStatus: string) {
+    return await this.bookingDao.updatePaymentStatus(numberOfTickets, paymentStatus);
+  }
   async readByPaymentIntentId(paymentIntentId: string) {
     return await this.bookingDao.readByPaymentIntentId(paymentIntentId);
   }
@@ -213,9 +219,48 @@ class BookingsServices {
     return new booking(await this.bookingDao.getBooking(numberOfTickets));
   }
 
-  async scanTicket(numberOfTickets: string, driverId: string, driverName: string) {
+  async getBookingRaw(numberOfTickets: string) {
+    return await this.bookingDao.getBooking(numberOfTickets);
+  }
+
+  /**
+   * Gate server-side per i dati del biglietto (PDF/QR).
+   * Restituisce i dati SOLO se la prenotazione e' confermata e pagata
+   * (payment_status 'paid', incluso l'equivalente contanti) e appartiene
+   * all'utente (o l'utente e' admin). Altrimenti null.
+   */
+  async getTicketForUser(numberOfTickets: string, user: any): Promise<{ booking: any; qrPayload: string } | null> {
+    const raw = await this.bookingDao.getBooking(numberOfTickets);
+    if (!raw) return null;
+
+    const isOwner = raw.userId === user._id.toString();
+    const isAdmin = user.role <= role.ADMIN;
+    if (!isOwner && !isAdmin) return null;
+
+    if (raw.status !== "confirmed" || raw.payment_status !== "paid") {
+      return null;
+    }
+
+    const qrPayload = signTicketToken(raw.numberOfTickets, raw.userId, raw.seats);
+    delete raw.userId;
+    delete raw.user;
+    delete raw.paymentIntentId;
+    return { booking: raw, qrPayload };
+  }
+
+  async scanTicket(ticketPayload: string, driverId: string, driverName: string) {
+    // Il payload puo' essere l'ID semplice (legacy) oppure il token firmato "ID.sig" emesso dal server
+    let numberOfTickets = (ticketPayload || "").trim();
+    if (numberOfTickets.includes(".")) {
+      const raw = await this.bookingDao.getBooking(numberOfTickets.slice(0, numberOfTickets.lastIndexOf(".")));
+      if (!raw) return { found: false };
+      const verified = verifyTicketToken(ticketPayload, raw.userId, raw.seats);
+      if (!verified) return { found: false };
+      numberOfTickets = verified;
+    }
+
     const bookingRaw = await this.bookingDao.getBooking(numberOfTickets);
-    if (!bookingRaw || bookingRaw.status !== "confirmed") {
+    if (!bookingRaw || bookingRaw.status !== "confirmed" || bookingRaw.payment_status !== "paid") {
       return { found: false };
     }
 

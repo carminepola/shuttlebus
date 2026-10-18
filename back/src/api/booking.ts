@@ -7,6 +7,7 @@ import BookingServices from "../components/services/bookingServices";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 import authMiddleware from "../middlewares/authMiddleware";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
+import ErrorModel from "../model/errorModel";
 import { role } from "../enum/role";
 import { url } from "inspector";
 
@@ -139,11 +140,51 @@ router.post("/cancelBooking", authMiddleware, checkPermissionMiddleware(role.ADM
   }
 });
 router.post("/deleteBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
+  const userLogged = res.locals.userLogged;
+  const bookingId = req.body?.id;
+  try {
+    if (!bookingId) {
+      throw new ErrorModel(400, "Richiesta non valida");
+    }
+
+    let bookingServices = new BookingServices(db);
+    // Ownership check SEPARATO dall'autenticazione: legge il record e confronta il proprietario
+    const book = await bookingServices.getBookingRaw(bookingId);
+    if (!book) {
+      logger.warn(`AUDIT deleteBooking: booking ${bookingId} inesistente, userId=${userLogged?._id}, esito=404`);
+      throw new ErrorModel(404, "Prenotazione non trovata");
+    }
+    const isOwner = String(book.userId) === String(userLogged._id);
+    const isAdmin = userLogged.role <= role.ADMIN;
+    if (!isOwner && !isAdmin) {
+      logger.warn(`AUDIT deleteBooking: booking ${bookingId} non di proprieta' di userId=${userLogged._id}, esito=403`);
+      throw new ErrorModel(403, "Non autorizzato");
+    }
+
+    // Cancellazione con conferma reale del DB prima di rispondere
+    const deleted = await bookingServices.deleteBooking(bookingId, String(userLogged._id));
+    if (!deleted) {
+      logger.warn(`AUDIT deleteBooking: booking ${bookingId} non eliminabile (gia' in stato non valido), userId=${userLogged._id}, esito=404`);
+      throw new ErrorModel(404, "Prenotazione non trovata");
+    }
+
+    logger.info(`AUDIT deleteBooking: booking ${bookingId} eliminato da userId=${userLogged._id}, esito=200`);
+    res.json({ message: "Booking deleted" });
+  } catch (error) {
+    logger.warn(`AUDIT deleteBooking: booking ${bookingId}, userId=${userLogged?._id}, esito=errore`, error);
+    next(error);
+  }
+});
+
+router.get("/ticket/:numberOfTickets", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
-    let result = await bookingServices.deleteBooking(req.body.id, res.locals.userLogged["_id"]);
-
-    res.json({ message: "Booking deleted" });
+    // Gate server-side: dati biglietto e QR solo se la prenotazione e' confermata e PAGATA
+    const result = await bookingServices.getTicketForUser(req.params.numberOfTickets, res.locals.userLogged);
+    if (!result) {
+      throw new ErrorModel(403, "str_ticket_not_paid");
+    }
+    res.json(result);
   } catch (error) {
     next(error);
   }

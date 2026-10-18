@@ -44,6 +44,9 @@ export class BookingsService {
   getBookingFromUser(): Observable<any> {
     return this.http.get(this.apiUrl + '/getBookingFromUser');
   }
+  getTicketData(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/ticket/${id}`);
+  }
   deleteBooking(id: string): Observable<any> {
     return this.http.post(this.apiUrl + '/deleteBooking', { id });
   }

@@ -15,6 +15,7 @@ export default class booking {
   ticketTypes: TicketType[];
   lng: string;
   status: "pending" | "confirmed" | "expired" | "cancelled" | "refunded" | "deleted";
+  payment_status: "unpaid" | "paid" | "failed" | "refunded";
   createdAt: number;
   updatedAt: number;
   paymentMethod: { type: string; data: any }[];
@@ -53,6 +54,7 @@ export default class booking {
       this.ticketTypes = book.ticketTypes;
       this.lng = book.lng;
       this.status = book.status ? book.status : "pending";
+      this.payment_status = book.payment_status ? book.payment_status : "unpaid";
       this.createdAt = book.createdAt ? book.createdAt : new Date().getTime();
       this.updatedAt = new Date().getTime();
       this.paymentMethod = book.paymentMethod ? book.paymentMethod : [];

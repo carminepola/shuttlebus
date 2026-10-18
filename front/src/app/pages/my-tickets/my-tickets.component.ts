@@ -65,19 +65,36 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
 
   async generateQRCodes() {
     const confirmed = [...this.activeBookings, ...this.oldBookings].filter(
-      (b: any) => b.status === 'confirmed',
+      (b: any) => this.isPaid(b),
     );
     for (const booking of confirmed) {
       const key = booking.numberOfTickets;
       if (!this.qrCodes[key]) {
         try {
-          this.qrCodes[key] = await QRCode.toDataURL(key, {
+          // Il payload del QR arriva dal server SOLO per prenotazioni pagate
+          const ticketData: any = await lastValueFrom(
+            this.bookingsService.getTicketData(key),
+          );
+          this.qrCodes[key] = await QRCode.toDataURL(ticketData.qrPayload, {
             width: 120,
             margin: 1,
           });
-        } catch {}
+        } catch {
+          // Prenotazione non pagata o non autorizzata: nessun QR
+        }
       }
     }
+  }
+
+  isPaid(booking: any): boolean {
+    return (
+      booking?.status === 'confirmed' && booking?.payment_status === 'paid'
+    );
+  }
+
+  pendingPaymentLabel(): string {
+    const t = this.lng.traslate('str_pending_payment');
+    return t === 'str_pending_payment' ? 'In attesa di pagamento' : t;
   }
   async load() {
     let bookings: any = await lastValueFrom(
@@ -268,6 +285,21 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   }
   async generatePDF(booking: any) {
     try {
+      // Gate server-side: dati del biglietto e QR solo se la prenotazione e' pagata
+      let ticketData: any;
+      try {
+        ticketData = await lastValueFrom(
+          this.bookingsService.getTicketData(booking.numberOfTickets),
+        );
+      } catch (e) {
+        alert(this.pendingPaymentLabel());
+        return;
+      }
+      if (ticketData?.booking) {
+        booking = ticketData.booking;
+      }
+      const qrPayload: string = ticketData?.qrPayload || booking.numberOfTickets;
+
       const savedLng = localStorage.getItem('currentLng') || 'it';
       if (savedLng === 'jp') {
         localStorage.setItem('currentLng', 'en');
@@ -578,10 +610,10 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
 
         // QR code section
         try {
-          const qrCodeDataUrl = await QRCode.toDataURL(
-            booking.numberOfTickets,
-            { margin: 1, width: 300 },
-          );
+          const qrCodeDataUrl = await QRCode.toDataURL(qrPayload, {
+            margin: 1,
+            width: 300,
+          });
 
           const qrSize = 38;
           const qrX = (pageWidth - qrSize) / 2;

@@ -14,6 +14,7 @@ import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware"
 import { role } from "../enum/role";
 import MailService from "../components/services/mailServices";
 import { Mail } from "../model/mailModel";
+import { authIpLimiter, authAccountLimiter } from "../middlewares/authRateLimitMiddleware";
 const router = express.Router();
 let requiredRole = "USER_MANAGEMENT";
 
@@ -31,6 +32,8 @@ router.get("/email/:email", authMiddleware, checkPermissionMiddleware(role.ADMIN
 
 router.post(
   "/register",
+  authIpLimiter,
+  authAccountLimiter,
   [
     check("email").notEmpty().withMessage("email is required").isEmail().withMessage("Invalid email format"),
     check("password").notEmpty().withMessage("password is required"),

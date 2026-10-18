@@ -7,15 +7,23 @@ export default class FailToBanServices {
     this.failToBanDao = new FailToBanDao(db);
   }
 
-  async isFail(ip: string) {
-    return this.failToBanDao.isFail(ip);
+  async isFail(key: string) {
+    return this.failToBanDao.isFail(key);
   }
 
-  async deleteIp(ip: string) {
-    return this.failToBanDao.deleteIp(ip);
+  async isRateLimited(key: string) {
+    return this.failToBanDao.isRateLimited(key);
   }
 
-  async insertIp(ip: string) {
-    return this.failToBanDao.insertIp(ip);
+  async getFailState(key: string) {
+    return this.failToBanDao.getFailState(key);
+  }
+
+  async deleteIp(key: string) {
+    return this.failToBanDao.deleteIp(key);
+  }
+
+  async insertIp(key: string) {
+    return this.failToBanDao.insertIp(key);
   }
 }
