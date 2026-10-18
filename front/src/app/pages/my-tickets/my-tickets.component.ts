@@ -64,18 +64,16 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   }
 
   async generateQRCodes() {
+    // QR generato SOLO per prenotazioni confermate e pagate (flag `paid` garantito dal server)
     const confirmed = [...this.activeBookings, ...this.oldBookings].filter(
-      (b: any) => this.isPaid(b),
+      (b: any) => b.status === 'confirmed' && b.paid === true,
     );
     for (const booking of confirmed) {
       const key = booking.numberOfTickets;
       if (!this.qrCodes[key]) {
         try {
-          // Il payload del QR arriva dal server SOLO per prenotazioni pagate
-          const ticketData: any = await lastValueFrom(
-            this.bookingsService.getTicketData(key),
-          );
-          this.qrCodes[key] = await QRCode.toDataURL(ticketData.qrPayload, {
+          // Il QR resta il plain id della prenotazione (scanTicket consuma il plain id)
+          this.qrCodes[key] = await QRCode.toDataURL(key, {
             width: 120,
             margin: 1,
           });
@@ -87,14 +85,26 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   }
 
   isPaid(booking: any): boolean {
-    return (
-      booking?.status === 'confirmed' && booking?.payment_status === 'paid'
-    );
+    return booking?.status === 'confirmed' && booking?.paid === true;
   }
 
   pendingPaymentLabel(): string {
     const t = this.lng.traslate('str_pending_payment');
     return t === 'str_pending_payment' ? 'In attesa di pagamento' : t;
+  }
+
+  awaitingPaymentConfirmationLabel(): string {
+    const t = this.lng.traslate('str_awaiting_payment_confirmation');
+    return t === 'str_awaiting_payment_confirmation'
+      ? 'In attesa di conferma pagamento'
+      : t;
+  }
+
+  statusBadgeLabel(booking: any): string {
+    if (booking?.status === 'confirmed' && !this.isPaid(booking)) {
+      return this.awaitingPaymentConfirmationLabel();
+    }
+    return this.lng.traslate(booking?.status);
   }
   async load() {
     let bookings: any = await lastValueFrom(
@@ -285,7 +295,12 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   }
   async generatePDF(booking: any) {
     try {
-      // Gate server-side: dati del biglietto e QR solo se la prenotazione e' pagata
+      // Guard iniziale sul flag server-side: mai PDF per prenotazioni non pagate
+      if (booking?.status !== 'confirmed' || booking?.paid !== true) {
+        return;
+      }
+      // Gate server-side definitivo (endpoint /booking/ticket/:id): fonte di verita'
+      // 200 solo se la prenotazione appartiene all'utente ed e' pagata, altrimenti 404
       let ticketData: any;
       try {
         ticketData = await lastValueFrom(
@@ -298,7 +313,6 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       if (ticketData?.booking) {
         booking = ticketData.booking;
       }
-      const qrPayload: string = ticketData?.qrPayload || booking.numberOfTickets;
 
       const savedLng = localStorage.getItem('currentLng') || 'it';
       if (savedLng === 'jp') {
@@ -610,7 +624,8 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
 
         // QR code section
         try {
-          const qrCodeDataUrl = await QRCode.toDataURL(qrPayload, {
+          // Il QR resta il plain id della prenotazione, reso solo dopo il gate server-side
+          const qrCodeDataUrl = await QRCode.toDataURL(booking.numberOfTickets, {
             margin: 1,
             width: 300,
           });

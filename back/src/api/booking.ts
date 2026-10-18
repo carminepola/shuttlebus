@@ -3,7 +3,7 @@ import { db, logger } from "../index";
 import { check, validationResult } from "express-validator";
 
 import { Router, Request, Response, NextFunction } from "express";
-import BookingServices from "../components/services/bookingServices";
+import BookingServices, { computePaid } from "../components/services/bookingServices";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 import authMiddleware from "../middlewares/authMiddleware";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
@@ -179,10 +179,10 @@ router.post("/deleteBooking", authMiddleware, checkPermissionMiddleware(role.USE
 router.get("/ticket/:numberOfTickets", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let bookingServices = new BookingServices(db);
-    // Gate server-side: dati biglietto e QR solo se la prenotazione e' confermata e PAGATA
+    // Gate server-side: 200 SOLO se il booking appartiene all'utente corrente ED e' pagato; altrimenti 404 generico
     const result = await bookingServices.getTicketForUser(req.params.numberOfTickets, res.locals.userLogged);
     if (!result) {
-      throw new ErrorModel(403, "str_ticket_not_paid");
+      throw new ErrorModel(404, "Prenotazione non trovata");
     }
     res.json(result);
   } catch (error) {
@@ -242,7 +242,9 @@ router.post("/readBookingById", authMiddleware, checkPermissionMiddleware(role.D
     let bookingServices = new BookingServices(db);
 
     let id: string = req.body.id;
-    let result = await bookingServices.getBooking(id);
+    // Anche la UI admin/driver riceve il flag `paid` calcolato server-side
+    const raw = await bookingServices.getBookingRaw(id);
+    const result = raw ? { ...raw, paid: computePaid(raw) } : null;
     res.json({ bookings: result });
   } catch (error) {
     next(error);

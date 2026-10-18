@@ -12,7 +12,21 @@ import MailSenderServices from "./mailSender";
 import TelegramServices from "./telegramServices";
 import { role } from "../../enum/role";
 import { LUGGAGE_PRICE } from "../../constants";
-import { signTicketToken, verifyTicketToken } from "../../utils/ticketToken";
+
+/**
+ * Calcolo SERVER-SIDE del flag `paid` per un booking.
+ * payment_status e' scritto SOLO dal webhook Stripe (V7) o dal flusso contanti:
+ * nessuna scorciatoia "confirmed => paid".
+ * Fallback per record non ancora migrati (payment_status assente):
+ * vale la formula pagamento-contanti o paymentIntentId presente (scritto solo dal webhook).
+ */
+export function computePaid(book: any): boolean {
+  if (!book || book.status !== "confirmed") return false;
+  if (book.payment_status !== undefined && book.payment_status !== null) {
+    return book.payment_status === "paid";
+  }
+  return book.paymentMethod === "cash" || (!!book.paymentIntentId && book.paymentIntentId !== "");
+}
 
 class BookingsServices {
   private bookingDao: BookingDao;
@@ -142,7 +156,9 @@ class BookingsServices {
     return await this.bookingDao.readBookingConfirmed(date, routeId, scheduleId, status);
   }
   async getBookingFromUser(userId: string, includeAllStatus: boolean = false) {
-    return await this.bookingDao.getBookingFromUser(userId, includeAllStatus);
+    const list = await this.bookingDao.getBookingFromUser(userId, includeAllStatus);
+    // Flag `paid` sempre calcolato e garantito lato server per ogni booking
+    return (list || []).map((book: any) => ({ ...book, paid: computePaid(book) }));
   }
   async checkPriceAndTime(ticket: any) {
     let totale = ticket.total;
@@ -225,11 +241,11 @@ class BookingsServices {
 
   /**
    * Gate server-side per i dati del biglietto (PDF/QR).
-   * Restituisce i dati SOLO se la prenotazione e' confermata e pagata
-   * (payment_status 'paid', incluso l'equivalente contanti) e appartiene
-   * all'utente (o l'utente e' admin). Altrimenti null.
+   * Restituisce i dati SOLO se la prenotazione e' confermata e PAGATA
+   * (flag calcolato da computePaid: payment_status 'paid' via webhook, o contanti)
+   * e appartiene all'utente (o l'utente e' admin). Altrimenti null.
    */
-  async getTicketForUser(numberOfTickets: string, user: any): Promise<{ booking: any; qrPayload: string } | null> {
+  async getTicketForUser(numberOfTickets: string, user: any): Promise<{ booking: any; paid: boolean } | null> {
     const raw = await this.bookingDao.getBooking(numberOfTickets);
     if (!raw) return null;
 
@@ -237,30 +253,22 @@ class BookingsServices {
     const isAdmin = user.role <= role.ADMIN;
     if (!isOwner && !isAdmin) return null;
 
-    if (raw.status !== "confirmed" || raw.payment_status !== "paid") {
+    if (!computePaid(raw)) {
       return null;
     }
 
-    const qrPayload = signTicketToken(raw.numberOfTickets, raw.userId, raw.seats);
     delete raw.userId;
     delete raw.user;
     delete raw.paymentIntentId;
-    return { booking: raw, qrPayload };
+    return { booking: raw, paid: true };
   }
 
   async scanTicket(ticketPayload: string, driverId: string, driverName: string) {
-    // Il payload puo' essere l'ID semplice (legacy) oppure il token firmato "ID.sig" emesso dal server
-    let numberOfTickets = (ticketPayload || "").trim();
-    if (numberOfTickets.includes(".")) {
-      const raw = await this.bookingDao.getBooking(numberOfTickets.slice(0, numberOfTickets.lastIndexOf(".")));
-      if (!raw) return { found: false };
-      const verified = verifyTicketToken(ticketPayload, raw.userId, raw.seats);
-      if (!verified) return { found: false };
-      numberOfTickets = verified;
-    }
+    // Il QR contiene il plain id della prenotazione: la validita' (pagamento) e' decisa SOLO qui, server-side
+    const numberOfTickets = (ticketPayload || "").trim();
 
     const bookingRaw = await this.bookingDao.getBooking(numberOfTickets);
-    if (!bookingRaw || bookingRaw.status !== "confirmed" || bookingRaw.payment_status !== "paid") {
+    if (!bookingRaw || !computePaid(bookingRaw)) {
       return { found: false };
     }
 
@@ -384,7 +392,8 @@ class BookingsServices {
     return await this.bookingDao.andamento();
   }
   async currentDayBookingsFromScheduleId(bookingId: string) {
-    return await this.bookingDao.currentDayBookingsFromScheduleId(bookingId);
+    const list = await this.bookingDao.currentDayBookingsFromScheduleId(bookingId);
+    return (list || []).map((book: any) => ({ ...book, paid: computePaid(book) }));
   }
   async andamentoVendite() {
     return await this.bookingDao.andamentoVendite();

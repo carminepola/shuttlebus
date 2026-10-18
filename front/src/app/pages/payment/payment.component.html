@@ -24,28 +24,75 @@
     </div>
   }
   @if (actions == 'success' && !isCashPayment()) {
-    <div class="payment-result-card">
-      <div class="result-icon result-icon-success">
-        <i class="fa-solid fa-check"></i>
+    @if (verifyState == 'checking') {
+      <div class="payment-result-card">
+        <div class="result-icon result-icon-success">
+          <span class="spinner-border"></span>
+        </div>
+        <h2
+          class="result-title"
+          [innerText]="inVerificationTitle()"
+        ></h2>
+        <p
+          class="result-subtitle"
+          [innerText]="inVerificationDesc()"
+        ></p>
       </div>
-      <h2
-        class="result-title"
-        [innerText]="'str_pagamento_riuscito' | translate"
-      ></h2>
-      <p
-        class="result-subtitle"
-        [innerText]="'str_pagamento_riuscito_desc' | translate"
-      ></p>
-      <p
-        class="result-desc"
-        [innerText]="'str_pagamento_riuscito_desc2' | translate"
-      ></p>
-      <a
-        [routerLink]="['/user/mytickets']"
-        class="result-btn"
-        [innerText]="'str_vai_a_account' | translate"
-      ></a>
-    </div>
+    }
+    @if (verifyState == 'pending') {
+      <div class="payment-result-card">
+        <div class="result-icon result-icon-success">
+          <i class="fa-regular fa-clock"></i>
+        </div>
+        <h2
+          class="result-title"
+          [innerText]="inVerificationTitle()"
+        ></h2>
+        <p
+          class="result-subtitle"
+          [innerText]="inVerificationDesc()"
+        ></p>
+        <p
+          class="result-desc"
+          [innerText]="inVerificationDesc2()"
+        ></p>
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+          <button class="result-btn" (click)="checkPayment()">
+            <i class="fa-solid fa-rotate me-1"></i>
+            <span [innerText]="retryLabel()"></span>
+          </button>
+          <a
+            [routerLink]="['/user/mytickets']"
+            class="result-btn"
+            [innerText]="'str_vai_a_account' | translate"
+          ></a>
+        </div>
+      </div>
+    }
+    @if (verifyState == 'confirmed') {
+      <div class="payment-result-card">
+        <div class="result-icon result-icon-success">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h2
+          class="result-title"
+          [innerText]="'str_pagamento_riuscito' | translate"
+        ></h2>
+        <p
+          class="result-subtitle"
+          [innerText]="'str_pagamento_riuscito_desc' | translate"
+        ></p>
+        <p
+          class="result-desc"
+          [innerText]="'str_pagamento_riuscito_desc2' | translate"
+        ></p>
+        <a
+          [routerLink]="['/user/mytickets']"
+          class="result-btn"
+          [innerText]="'str_vai_a_account' | translate"
+        ></a>
+      </div>
+    }
   }
   @if (actions == 'success' && isCashPayment()) {
     <div class="payment-result-card">
