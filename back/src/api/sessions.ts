@@ -231,8 +231,20 @@ router.get("/me", authMiddleware, async (req: Request, res: Response, next: Next
   // options senza PIN (dati sensibili) - serve al front per il tema UI
   let options = { ...(user?.options || {}) } as any;
   delete options?.pin;
-  delete options?.google;
-  delete options?.microsoft;
+  // pentest: VIA solo i token/payload grezzi OAuth; le foto di profilo RESTANO
+  // (l'avatar google/microsoft e' usato da navbar/sidebar dell'area admin).
+  if (options?.google) {
+    delete options.google._raw;
+    delete options.google._json;
+    delete options.google.accessToken;
+    delete options.google.refreshToken;
+  }
+  if (options?.microsoft) {
+    delete options.microsoft._raw;
+    delete options.microsoft._json;
+    delete options.microsoft.accessToken;
+    delete options.microsoft.refreshToken;
+  }
   res.json({
     user: {
       _id: user?._id,
