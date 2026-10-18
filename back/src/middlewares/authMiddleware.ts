@@ -4,13 +4,8 @@ import MessageModel from "../model/messageModel";
 import { logger, env, db } from "..";
 import { CookieOptions } from "express";
 import jwt from "jsonwebtoken";
-import FailToBanDao from "../components/dao/failToBan";
 import UsersDao from "../components/dao/usersDao";
 import { role } from "../enum/role";
-
-function sleep(seconds: number) {
-  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-}
 
 function verifyJwt(token: string, secret: string, options?: jwt.VerifyOptions): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -28,11 +23,10 @@ export default async function authMiddleware(req: Request, res: Response<Message
     const refreshToken = req.cookies?.refreshToken;
 
     if (!token) {
-      const failToBanDao = new FailToBanDao(db);
-      await failToBanDao.insertIp(res.locals.log.ip);
-      if (await failToBanDao.isFail(res.locals.log.ip)) {
-        await sleep(15);
-      }
+      // 401 anonimo: NON e' un tentativo fallito di autenticazione, e' una richiesta
+      // legittima di un utente non loggato (l'SPA ne fa tante in una pagina).
+      // Contarlo in failToBan riempiva i contatori per IP e generava 429 al login.
+      // L'anti-bruteforce sui login resta su /auth (authRateLimitMiddleware + failToBan).
       res.clearCookie("refreshToken");
       return res.sendStatus(401);
     }
@@ -105,7 +99,6 @@ export default async function authMiddleware(req: Request, res: Response<Message
     delete user.exp;
     delete user.iat;
     delete user.options?.pin;
-
     // Se l'utente ha role NO_PERMISSION, sloggalo
     // Se i permessi non sono stati appena aggiornati (sessionCheck != 2),
     // verifica il ruolo attuale dal DB per sicurezza

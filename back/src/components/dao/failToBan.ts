@@ -10,10 +10,12 @@ export default class FailToBanDao {
   db: Db;
   schema: string = "failToBan";
 
-  // Finestra di osservazione: 15 minuti
-  public static readonly FAIL_WINDOW_MS = 15 * 60 * 1000;
-  // Tentativi falliti concessi nella finestra prima del lockout
-  public static readonly FAIL_MAX_ATTEMPTS = 5;
+  // Finestra di osservazione (default: 10 minuti, prima 15)
+  public static readonly FAIL_WINDOW_MS = parseInt(process.env.FAILED_ATTEMPT_WINDOW_MS || String(10 * 60 * 1000), 10);
+  // Tentativi falliti concessi nella finestra prima del lockout (default: 8, prima 5)
+  public static readonly FAIL_MAX_ATTEMPTS = parseInt(process.env.FAILED_ATTEMPT_MAX || "8", 10);
+  // Soglia del doppio check "isFail" usato dove serve un ritardo punitivo (totalmente rimosso da authMiddleware)
+  public static readonly FAIL_HARD_BAN_ATTEMPTS = parseInt(process.env.FAILED_ATTEMPT_HARD_BAN || "15", 10);
 
   constructor(db: Db) {
     this.db = db;
@@ -43,7 +45,7 @@ export default class FailToBanDao {
   /**
    * Calcola se la chiave e' bloccata con backoff esponenziale:
    * oltre FAIL_MAX_ATTEMPTS il tempo di attesa raddoppia ad ogni
-   * tentativo aggiuntivo (60s, 120s, 240s... max 15 minuti).
+   * tentativo aggiuntivo (30s, 60s, 120s, 240s... max 5 minuti).
    */
   async isRateLimited(key: string): Promise<boolean> {
     try {
@@ -52,7 +54,7 @@ export default class FailToBanDao {
         return false;
       }
       const extraAttempts = state.count - FailToBanDao.FAIL_MAX_ATTEMPTS;
-      const delayMs = Math.min(Math.pow(2, extraAttempts) * 60 * 1000, FailToBanDao.FAIL_WINDOW_MS);
+      const delayMs = Math.min(Math.pow(2, extraAttempts) * 30 * 1000, 5 * 60 * 1000);
       return new Date().getTime() - state.lastAttempt < delayMs;
     } catch (error) {
       throw error;
@@ -60,7 +62,7 @@ export default class FailToBanDao {
   }
 
   /**
-   * Check if the given key is banned (more than 10 attempts in the window)
+   * Check if the given key is banned (>= FAIL_HARD_BAN_ATTEMPTS attempts in the window)
    * @param key the key (ip or email) to check
    * @returns true if the key is banned, false otherwise
    * @throws Error if there was an error during the operation
@@ -68,7 +70,7 @@ export default class FailToBanDao {
   async isFail(key: string) {
     try {
       const state = await this.getFailState(key);
-      return state.count >= 10;
+      return state.count >= FailToBanDao.FAIL_HARD_BAN_ATTEMPTS;
     } catch (error) {
       throw error;
     }

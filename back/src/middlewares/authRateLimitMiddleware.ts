@@ -6,8 +6,8 @@ import type { Request } from "express";
 // (skipSuccessfulRequests), cosi' un login corretto non consuma la quota.
 
 const WINDOW_MS = parseInt(process.env.AUTH_RATE_LIMIT_WINDOW_MS || String(15 * 60 * 1000), 10);
-const IP_MAX = parseInt(process.env.AUTH_RATE_LIMIT_IP_MAX || "20", 10);
-const ACCOUNT_MAX = parseInt(process.env.AUTH_RATE_LIMIT_ACCOUNT_MAX || "5", 10);
+const IP_MAX = parseInt(process.env.AUTH_RATE_LIMIT_IP_MAX || "50", 10);
+const ACCOUNT_MAX = parseInt(process.env.AUTH_RATE_LIMIT_ACCOUNT_MAX || "10", 10);
 
 const baseOptions = {
   windowMs: WINDOW_MS,

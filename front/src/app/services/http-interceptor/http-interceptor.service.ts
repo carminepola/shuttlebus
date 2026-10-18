@@ -32,8 +32,12 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       if (error.status === 429) {
+        const silent = modifiedReq.headers.has('x-silent-auth');
         const currentUrl = router.url;
-        if (!currentUrl.includes('/too-many-requests')) {
+        if (
+          !silent &&
+          !currentUrl.includes('/too-many-requests')
+        ) {
           router.navigate(['/too-many-requests']);
         }
       }
