@@ -27,8 +27,8 @@
                 <div>
                   <h5
                     class="route-name mb-1"
-                    [innerHTML]="param.name | translateName"
-                  ></h5>
+                    >{{ param.name | translateName }}
+</h5>
                   <div class="route-date">
                     <i class="fa-regular fa-calendar me-1"></i>
                     {{ param.date | date: "dd MMMM yyyy" }}
@@ -42,16 +42,16 @@
                     <div class="timeline-dot"></div>
                     <div
                       class="timeline-time"
-                      [innerHTML]="param.from.stopTime"
-                    ></div>
+                      >{{ param.from.stopTime }}
+</div>
                     <div
                       class="timeline-label"
-                      [innerHTML]="param.from.name"
-                    ></div>
+                      >{{ param.from.name }}
+</div>
                     <div
                       class="timeline-desc"
-                      [innerHTML]="param.from.address"
-                    ></div>
+                      >{{ param.from.address }}
+</div>
                   </div>
                   <div class="timeline-line">
                     <div class="timeline-line-inner"></div>
@@ -61,16 +61,16 @@
                     <div class="timeline-dot"></div>
                     <div
                       class="timeline-time"
-                      [innerHTML]="param.to.stopTime"
-                    ></div>
+                      >{{ param.to.stopTime }}
+</div>
                     <div
                       class="timeline-label"
-                      [innerHTML]="param.to.name"
-                    ></div>
+                      >{{ param.to.name }}
+</div>
                     <div
                       class="timeline-desc"
-                      [innerHTML]="param.to.address"
-                    ></div>
+                      >{{ param.to.address }}
+</div>
                   </div>
                 </div>
               </div>
@@ -92,17 +92,17 @@
                     <div class="ticket-row-info">
                       <h6
                         class="mb-0"
-                        [innerHTML]="ticket.name | translateName"
-                      ></h6>
+                        >{{ ticket.name | translateName }}
+</h6>
                       <span
                         class="ticket-row-desc"
-                        [innerHTML]="ticket.description | translateName"
-                      ></span>
+                        >{{ ticket.description | translateName }}
+</span>
                     </div>
                     <div class="ticket-row-right">
                       <div class="ticket-qty">
                         <span class="ticket-qty-x">x</span>
-                        <span [innerHTML]="ticket.count"></span>
+                        <span >{{ ticket.count }}</span>
                       </div>
                       <div class="ticket-row-price">
                         {{ ticket.cost * ticket.count }}€
@@ -115,19 +115,19 @@
                     <div class="ticket-row-info">
                       <h6
                         class="mb-0"
-                        [innerHTML]="'str_bagagli_aggiuntivi' | translate"
-                      ></h6>
+                        >{{ 'str_bagagli_aggiuntivi' | translate }}
+</h6>
                       <span
                         class="ticket-row-desc"
-                        [innerHTML]="
+                        >{{ 
                           'str_bagagli_aggiuntivi_descrizione' | translate
-                        "
-                      ></span>
+                         }}
+</span>
                     </div>
                     <div class="ticket-row-right">
                       <div class="ticket-qty">
                         <span class="ticket-qty-x">x</span>
-                        <span [innerHTML]="param.luggage"></span>
+                        <span >{{ param.luggage }}</span>
                       </div>
                       <div class="ticket-row-price">
                         {{ luggagePrice * param.luggage }}€
@@ -160,10 +160,10 @@
                 <div class="alert-sidebar">
                   <i class="fa-solid fa-triangle-exclamation me-2"></i>
                   <span
-                    [innerHTML]="
+                    >{{ 
                       'str_attenzione_biglietto_non_rimborsabile' | translate
-                    "
-                  ></span>
+                     }}
+</span>
                 </div>
               }
 
@@ -172,8 +172,8 @@
                   <div class="duplicate-warning-text">
                     <i class="fa-solid fa-circle-info me-2"></i>
                     <span
-                      [innerHTML]="'str_biglietto_gia_acquistato' | translate"
-                    ></span>
+                      >{{ 'str_biglietto_gia_acquistato' | translate }}
+</span>
                   </div>
                   <a
                     class="duplicate-ticket-link"
@@ -190,9 +190,9 @@
                       @if (errorMessage == "str_error_pending_booking") {
                         <a
                           class="error-link"
-                          [innerHTML]="'str_vai_a_account' | translate"
                           routerLink="/user/myticket"
-                        ></a>
+                          >{{ 'str_vai_a_account' | translate }}</a
+                        >
                       }
                     </div>
                   }
@@ -266,8 +266,8 @@
                 <div class="sidebar-body">
                   <div class="login-inline-title mb-3">
                     <span
-                      [innerHTML]="'str_accendi_account' | translate"
-                    ></span>
+                      >{{ 'str_accendi_account' | translate }}
+</span>
                   </div>
 
                   <form
@@ -385,8 +385,8 @@
 
                   <div class="login-inline-register mt-3">
                     <span
-                      [innerHTML]="'str_non_hai_account' | translate"
-                    ></span>
+                      >{{ 'str_non_hai_account' | translate }}
+</span>
                     <a class="register-link" (click)="openModal(true)">
                       {{ "str_registrati" | translate }}
                     </a>

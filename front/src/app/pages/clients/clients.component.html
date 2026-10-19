@@ -43,7 +43,7 @@
               <div
                 class="d-flex justify-content-between align-items-start mb-3"
               >
-                <h5 class="card-title mb-0" [innerHTML]="client.name"></h5>
+                <h5 class="card-title mb-0" >{{ client.name }}</h5>
                 <div>
                   <button
                     class="btn btn-warning btn-sm me-1 rounded-3"
@@ -67,15 +67,15 @@
               </div>
               <p class="mb-2">
                 Email:
-                <span class="text-secondary" [innerHTML]="client.email"></span>
+                <span class="text-secondary" >{{ client.email }}</span>
               </p>
               @if (client.phone) {
                 <p class="mb-2">
                   Numero:
                   <span
                     class="text-secondary"
-                    [innerHTML]="client.phone"
-                  ></span>
+                    >{{ client.phone }}
+</span>
                 </p>
               }
             </div>
@@ -97,9 +97,9 @@
             <tbody>
               @for (client of clients; track client._id) {
                 <tr class="bg-white mb-2">
-                  <td [innerHTML]="client.name"></td>
-                  <td [innerHTML]="client.email"></td>
-                  <td [innerHTML]="client.phone || '-'"></td>
+                  <td >{{ client.name }}</td>
+                  <td >{{ client.email }}</td>
+                  <td >{{ client.phone || '-' }}</td>
                   <td>
                     <button
                       class="btn btn-warning btn-sm me-1 rounded-3"
@@ -244,7 +244,7 @@
     <div class="ci-header">
       <h5 class="ci-title mb-0">
         <i class="fa-solid fa-user me-2"></i>
-        <span [innerHTML]="selectedClient.name"></span>
+        <span >{{ selectedClient.name }}</span>
       </h5>
       <div class="d-flex gap-2">
         <button
@@ -262,18 +262,18 @@
       <div class="ci-info">
         <div class="ci-info-row">
           <i class="fa-solid fa-envelope ci-icon"></i>
-          <span [innerHTML]="selectedClient.email"></span>
+          <span >{{ selectedClient.email }}</span>
         </div>
         @if (selectedClient.phone) {
           <div class="ci-info-row">
             <i class="fa-solid fa-phone ci-icon"></i>
-            <span [innerHTML]="selectedClient.phone"></span>
+            <span >{{ selectedClient.phone }}</span>
           </div>
         }
         @if (selectedClient.pin) {
           <div class="ci-info-row">
             <i class="fa-solid fa-lock ci-icon"></i>
-            <span [innerHTML]="selectedClient.pin"></span>
+            <span >{{ selectedClient.pin }}</span>
           </div>
         }
       </div>

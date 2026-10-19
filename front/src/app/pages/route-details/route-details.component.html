@@ -51,7 +51,7 @@
                     Seleziona il tipo di biglietto
                   </option>
                   @for (t of ticket; track t) {
-                    <option [value]="t.id" [innerHTML]="t.name.it"></option>
+                    <option [value]="t.id" >{{ t.name.it }}</option>
                   }
                 </select>
                 <div class="input-group-append">
@@ -97,7 +97,7 @@
                     Seleziona una fermata
                   </option>
                   @for (t of stops; track t) {
-                    <option [value]="t.id" [innerHTML]="t.name"></option>
+                    <option [value]="t.id" >{{ t.name }}</option>
                   }
                 </select>
                 <div class="input-group-append">

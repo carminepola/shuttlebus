@@ -249,11 +249,18 @@ class momapServices {
   }
 
   private async getPositionFromMomap(imei: string): Promise<{ lat: string; lng: string; angle: string; doors: any; updatedAt: string }> {
+    // N-03: l'IMEI arriva da DB (input admin): prima si valida il formato (solo cifre,
+    // lunghezza tipica 15-16), poi si URL-encode. Un IMEI arbitrario non puo' piu'
+    // iniettare parametri extra (es. "&foo=") verso l'API esterna MOMAP.
+    if (!/^\d{10,17}$/.test(String(imei))) {
+      logger.error(`IMEI non valido per la chiamata MOMAP (rifiutato): ${JSON.stringify(String(imei))}`);
+      throw new Error("Imei non valido");
+    }
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
     headers.append("Authorization", `Bearer ${process.env.MOMAP_JWT}`);
 
-    const url = `https://auth-api.momap.it/v1/Customers/Devices/deviceData?imei=${imei}`;
+    const url = `https://auth-api.momap.it/v1/Customers/Devices/deviceData?imei=${encodeURIComponent(imei)}`;
     const response = await fetch(url, { method: "GET", headers, redirect: "follow" as RequestRedirect });
 
     const result = await response.json();

@@ -18,6 +18,31 @@ export default class BookingsDAO {
     };
     return this.db.collection("bookings").find(q).toArray();
   }
+  /**
+   * N-01 (TOCTOU overbooking): "mutex" transazionale per (routeId, scheduleId, date).
+   * L'upsert e' disegnato per essere la PRIMA scrittura della transazione di
+   * insertBooking: due transazioni concorrenti che toccano lo stesso documento
+   * vanno in WriteConflict e Mongo abortisce la seconda come
+   * TransientTransactionError; il service riprova l'intera transazione, che ora
+   * rilegge le bookings in uno snapshot DOPO il commit della prima. In tal modo
+   * l'aggregazione availableSeats (snapshot isolation) non puo' piu' valutare
+   * entrambe le richieste sull'istante vecchio "posti liberi" -> niente piu'
+   * overbooking. Doc minimo: _id deterministico + contatori diagnostici.
+   */
+  async acquireSeatLock(travelDate: string, routeId: string, scheduleId: string, session: ClientSession) {
+    const _id = `${routeId}_${scheduleId}_${travelDate}`;
+    await this.db.collection("seat_locks").updateOne(
+      { _id: _id as any },
+      {
+        $inc: { takes: 1 },
+        $set: { updatedAt: new Date() },
+        $setOnInsert: { createdAt: new Date() },
+      },
+      { upsert: true, session },
+    );
+    return _id;
+  }
+
   async availableSeats(travelDate: string, routeId: string, scheduleId: string, fromStopId: string, toStopId: string, session?: ClientSession) {
     let q = [
       { $match: { id: routeId } },

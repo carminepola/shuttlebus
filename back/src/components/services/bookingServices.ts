@@ -28,6 +28,18 @@ export function computePaid(book: any): boolean {
   return book.paymentMethod === "cash" || (!!book.paymentIntentId && book.paymentIntentId !== "");
 }
 
+/**
+ * N-01 (TOCTOU): true per gli errori transitori di MongoDB (WriteConflict e simili)
+ * su cui vale la pena riprovare l'intera transazione con uno snapshot nuovo.
+ */
+function isTransientTransactionError(error: any): boolean {
+  return (
+    (typeof error?.hasErrorLabel === "function" && error.hasErrorLabel("TransientTransactionError")) ||
+    error?.codeName === "WriteConflict" ||
+    error?.code === 112
+  );
+}
+
 class BookingsServices {
   private bookingDao: BookingDao;
   private userServices: UserServices;
@@ -58,7 +70,6 @@ class BookingsServices {
   }
 
   async insertBooking(ticket: any, userId: string) {
-    let session: ClientSession = client.startSession();
     let paymentType = ticket.paymentType || "stripe";
 
     try {
@@ -70,74 +81,7 @@ class BookingsServices {
       throw error;
     }
 
-    let book: booking;
-    try {
-      session.startTransaction();
-      // pentest: MASS-ASSIGNMENT — il body veniva copiato nel booking così com'è:
-      // un cliente poteva auto-dichiarare paymentIntentId, status, payment_status,
-      // refundedAmount o arbitrare il PK numberOfTickets. Tutti i campi di stato
-      // vengono riscritti/azzerati qui sotto.
-      const cleanTicket: any = { ...ticket };
-      delete cleanTicket.paymentIntentId;
-      delete cleanTicket.status;
-      delete cleanTicket.payment_status;
-      delete cleanTicket.paymentMethod;
-      delete cleanTicket.other;
-      delete cleanTicket.refundedAmount;
-      delete cleanTicket.scannedBy;
-      delete cleanTicket.confirmationSentAt;
-      delete cleanTicket.cancelMotivation;
-      delete cleanTicket._id;
-      cleanTicket.numberOfTickets = undefined; // il PK e' generato SOLO dal server
-
-      ticket.userId = userId;
-      let user = await this.userServices.getUserById(userId);
-      if (user) {
-        ticket.user = {
-          id: userId,
-          name: user.details?.name,
-          mail: user.email,
-          phone: user.details?.phone,
-        };
-      } else {
-        return;
-      }
-
-      book = new booking({ ...cleanTicket, userId, user: ticket.user });
-
-      let numeroPosti: any = await this.availableSeats(book.date, book.routeId, book.scheduleId, book.from.id, book.to.id, session);
-
-      if (book.seats > numeroPosti.availableSeats) {
-        throw new Error("str_error_seats");
-      }
-      if (book.luggage > 0 && book.luggage > numeroPosti.availableLuggage) {
-        throw new Error("str_error_luggage");
-      }
-
-      switch (paymentType) {
-        case "stripe":
-          book.status = "pending";
-          book.payment_status = "unpaid";
-          break;
-        case "cash":
-          if (user.role > role.DRIVER) {
-            throw new Error("str_error_permission");
-          }
-          book.status = "confirmed";
-          book.payment_status = "paid";
-          break;
-      }
-
-      let res = await this.bookingDao.insertBooking(book, session);
-
-      await session.commitTransaction();
-    } catch (error) {
-      await session.abortTransaction();
-      await session.endSession();
-      throw error;
-    }
-
-    await session.endSession();
+    let book: booking = await this.createBookingInTransaction(ticket, userId, paymentType);
 
     try {
       let paymentSession: any = await this.paymentServices.calculatePayment(book, paymentType);
@@ -165,6 +109,107 @@ class BookingsServices {
       this.bookingDao.deleteBooking(book.numberOfTickets);
       throw error;
     }
+  }
+
+  private static readonly SEAT_TX_MAX_RETRIES = 5;
+
+  /**
+   * N-01 (TOCTOU overbooking): transazione di inserimento con retry sui conflitti
+   * di scrittura. acquireSeatLock (prima scrittura) serializza due transazioni
+   * concorrenti sulla stessa corsa/data: la "perdente" va in WriteConflict,
+   * Mongo la abortisce come TransientTransactionError e qui la transazione intera
+   * riparte con uno snapshot aggiornato — availableSeats conta quindi anche le
+   * prenotazioni appena committate dalle transazioni precedenti. Gli errori di
+   * business (str_error_seats, str_error_luggage, str_error_permission) NON sono
+   * transitori e non vengono riprovati.
+   */
+  private async createBookingInTransaction(ticket: any, userId: string, paymentType: string): Promise<booking> {
+    for (let attempt = 1; attempt <= BookingsServices.SEAT_TX_MAX_RETRIES; attempt++) {
+      const session: ClientSession = client.startSession();
+      let book: booking;
+      try {
+        session.startTransaction();
+
+        // DEVE essere la prima scrittura della transazione (vedi bookingDao.acquireSeatLock)
+        await this.bookingDao.acquireSeatLock(ticket.date, ticket.routeId, ticket.scheduleId, session);
+
+        // pentest: MASS-ASSIGNMENT — il body veniva copiato nel booking così com'è:
+        // un cliente poteva auto-dichiarare paymentIntentId, status, payment_status,
+        // refundedAmount o arbitrare il PK numberOfTickets. Tutti i campi di stato
+        // vengono riscritti/azzerati qui sotto.
+        const cleanTicket: any = { ...ticket };
+        delete cleanTicket.paymentIntentId;
+        delete cleanTicket.status;
+        delete cleanTicket.payment_status;
+        delete cleanTicket.paymentMethod;
+        delete cleanTicket.other;
+        delete cleanTicket.refundedAmount;
+        delete cleanTicket.scannedBy;
+        delete cleanTicket.confirmationSentAt;
+        delete cleanTicket.cancelMotivation;
+        delete cleanTicket._id;
+        cleanTicket.numberOfTickets = undefined; // il PK e' generato SOLO dal server
+
+        ticket.userId = userId;
+        let user = await this.userServices.getUserById(userId);
+        if (user) {
+          ticket.user = {
+            id: userId,
+            name: user.details?.name,
+            mail: user.email,
+            phone: user.details?.phone,
+          };
+        } else {
+          // comportamento storico: utente inesistente -> nessun booking
+          return undefined as unknown as booking;
+        }
+
+        book = new booking({ ...cleanTicket, userId, user: ticket.user });
+
+        let numeroPosti: any = await this.availableSeats(book.date, book.routeId, book.scheduleId, book.from.id, book.to.id, session);
+
+        if (book.seats > numeroPosti.availableSeats) {
+          throw new Error("str_error_seats");
+        }
+        if (book.luggage > 0 && book.luggage > numeroPosti.availableLuggage) {
+          throw new Error("str_error_luggage");
+        }
+
+        switch (paymentType) {
+          case "stripe":
+            book.status = "pending";
+            book.payment_status = "unpaid";
+            break;
+          case "cash":
+            if (user.role > role.DRIVER) {
+              throw new Error("str_error_permission");
+            }
+            book.status = "confirmed";
+            book.payment_status = "paid";
+            break;
+        }
+
+        let res = await this.bookingDao.insertBooking(book, session);
+
+        await session.commitTransaction();
+        await session.endSession();
+        return book;
+      } catch (error) {
+        try {
+          await session.abortTransaction();
+        } catch {}
+        await session.endSession();
+        if (isTransientTransactionError(error) && attempt < BookingsServices.SEAT_TX_MAX_RETRIES) {
+          logger.warn(
+            `Conflitto di scrittura sui posti (tentativo ${attempt}/${BookingsServices.SEAT_TX_MAX_RETRIES}) per ${ticket.routeId}/${ticket.scheduleId} del ${ticket.date}: riprovo con snapshot aggiornato`,
+          );
+          continue;
+        }
+        throw error;
+      }
+    }
+    // Irraggiungibile: ogni iterazione termina con return o throw
+    throw new Error("str_error_seats");
   }
   async removeExpiredPendingBookings() {
     return await this.bookingDao.removeExpiredPendingBookings();

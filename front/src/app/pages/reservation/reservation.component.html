@@ -45,8 +45,8 @@
               @for (route of routes; track route) {
                 <option
                   [value]="route.id"
-                  [innerHTML]="route.name | translateName"
-                ></option>
+                  >{{ route.name | translateName }}
+</option>
               }
             </select>
           </div>
@@ -60,8 +60,8 @@
               @for (s of filterSchedule; track s) {
                 <option
                   [value]="s.id"
-                  [innerHTML]="s.name"
-                ></option>
+                  >{{ s.name }}
+</option>
               }
             </select>
           </div>
@@ -125,7 +125,7 @@
               </p>
               <p class="mb-2">
                 Email:
-                <span class="text-secondary" [innerHTML]="b.mail"></span>
+                <span class="text-secondary" >{{ b.mail }}</span>
               </p>
               @if (b.telefono) {
                 <p class="mb-2">
@@ -139,9 +139,9 @@
               }
               @for (t of b.ticket; track t) {
                 <p>
-                  <span [innerHTML]="t.name.it"></span>:
+                  <span >{{ t.name.it }}</span>:
                   <span class="text-secondary">X</span>
-                  <span [innerHTML]="t.count"></span>
+                  <span >{{ t.count }}</span>
                 </p>
               }
               <p class="mb-0">
@@ -180,8 +180,8 @@
                   'text-bg-warning': b.status === 'pending',
                   'text-bg-info': b.status === 'refunded'
                 }"
-                    [innerHTML]="b.status | translate"
-                  ></div>
+                    >{{ b.status | translate }}
+</div>
                 </div>
               </div>
             </div>
@@ -213,7 +213,7 @@
               <tbody>
                 @for (b of booking | filter : search; track b) {
                   <tr class="bg-white">
-                    <td [innerHTML]="b.ticketId"></td>
+                    <td >{{ b.ticketId }}</td>
                     <td>
                       <span
                         class="badge"
@@ -223,31 +223,31 @@
                     'text-bg-warning': b.status === 'pending',
                     'text-bg-info': b.status === 'refunded'
                   }"
-                         [innerHTML]="b.status | translate"
-                       ></span>
+                         >{{ b.status | translate }}
+</span>
                      </td>
-                     <td [innerHTML]="b.paymentMethod" class="text-uppercase"></td>
-                    <td [innerHTML]="b.route"></td>
-                    <td [innerHTML]="b.from"></td>
-                    <td [innerHTML]="b.to"></td>
+                     <td class="text-uppercase">{{ b.paymentMethod }}</td>
+                    <td >{{ b.route }}</td>
+                    <td >{{ b.from }}</td>
+                    <td >{{ b.to }}</td>
                     <td>
                       @if (b.name) {
-                        <div [innerHTML]="b.name"></div>
+                        <div >{{ b.name }}</div>
                       }
                       <div>
                         @if (b.phone) {
                           <a
                             [href]="'tel:' + b.phone"
-                            [innerHTML]="b.phone"
-                          ></a>
+                            >{{ b.phone }}
+</a>
                         }
                       </div>
                       <div>
                         @if (b.mail) {
                           <a
                             [href]="'mailto:' + b.mail"
-                            [innerHTML]="b.mail"
-                          ></a>
+                            >{{ b.mail }}
+</a>
                         }
                       </div>
                     </td>
@@ -255,18 +255,18 @@
                       @for (t of b.ticket; track t) {
                         <div>
                           <div>
-                            <span [innerHTML]="t.count"></span>
+                            <span >{{ t.count }}</span>
                             <span class="text-secondary">X</span>
-                            <span [innerHTML]="t.name.it"></span>
+                            <span >{{ t.name.it }}</span>
                           </div>
                         </div>
                       }
                     </td>
                     <td class="text-center">
-                      <span [innerHTML]="b.bagagli"></span>
+                      <span >{{ b.bagagli }}</span>
                     </td>
                     <td>
-                      <span [innerHTML]="b.total"></span
+                      <span >{{ b.total }}</span
                         ><span class="text-secondary">€</span>
                         @if (b.refundedAmount > 0) {
                           <br><span class="badge text-bg-warning" style="font-size:0.7em">Rimb. {{ b.refundedAmount }}€</span>

@@ -52,8 +52,8 @@
             <div class="route-info-left">
               <h5
                 class="route-name mb-1"
-                [innerHTML]="param.name | translateName"
-              ></h5>
+                >{{ param.name | translateName }}
+</h5>
               <div class="route-date text-secondary">
                 <i class="fa-regular fa-calendar me-1"></i>
                 {{ param.date | date: "dd MMMM yyyy" }}
@@ -77,13 +77,13 @@
                 <div class="timeline-dot"></div>
                 <div
                   class="timeline-time"
-                  [innerHTML]="param.from.stopTime"
-                ></div>
-                <div class="timeline-label" [innerHTML]="param.from.name"></div>
+                  >{{ param.from.stopTime }}
+</div>
+                <div class="timeline-label" >{{ param.from.name }}</div>
                 <div
                   class="timeline-desc"
-                  [innerHTML]="param.from.description | translateName"
-                ></div>
+                  >{{ param.from.description | translateName }}
+</div>
               </div>
               <div class="timeline-line">
                 <div class="timeline-line-inner"></div>
@@ -93,13 +93,13 @@
                 <div class="timeline-dot"></div>
                 <div
                   class="timeline-time"
-                  [innerHTML]="param.to.stopTime"
-                ></div>
-                <div class="timeline-label" [innerHTML]="param.to.name"></div>
+                  >{{ param.to.stopTime }}
+</div>
+                <div class="timeline-label" >{{ param.to.name }}</div>
                 <div
                   class="timeline-desc"
-                  [innerHTML]="param.to.description | translateName"
-                ></div>
+                  >{{ param.to.description | translateName }}
+</div>
               </div>
             </div>
 
@@ -121,10 +121,10 @@
                 <i class="fa-solid fa-ticket me-1 text-primary"></i>
                 <span
                   class="fst-italic"
-                  [innerHTML]="
+                  >{{ 
                     'str_seleziona_biglietti_per_acquisto' | translate
-                  "
-                ></span>
+                   }}
+</span>
               </div>
 
               <div class="tickets-summary">
@@ -139,8 +139,8 @@
                         <span class="summary-count">{{ ticket.count }}x</span>
                         <span
                           class="summary-name"
-                          [innerHTML]="ticket.name | translateName"
-                        ></span>
+                          >{{ ticket.name | translateName }}
+</span>
                       </span>
                       <span class="summary-price"
                         >{{ ticket.count * ticket.cost }}€</span
@@ -157,8 +157,8 @@
                       >
                       <span
                         class="summary-name"
-                        [innerHTML]="'str_bagagli_aggiuntivi' | translate"
-                      ></span>
+                        >{{ 'str_bagagli_aggiuntivi' | translate }}
+</span>
                     </span>
                      <span class="summary-price"
                        >{{ ricerca.bagagli * luggagePrice }}€</span
@@ -186,7 +186,7 @@
                 }}</span>
                 <i class="fa-solid fa-arrow-right ms-2"></i>
               } @else {
-                <span [innerHTML]="'str_acquista' | translate"></span>
+                <span >{{ 'str_acquista' | translate }}</span>
               }
             </button>
           </div>

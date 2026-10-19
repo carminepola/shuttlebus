@@ -35,10 +35,10 @@
         @for (user of users; track user._id) {
           <div class="card mb-3 shadow-sm rounded-4">
             <div class="card-body">
-              <h5 class="card-title mb-0" [innerHTML]="user.name || user.email"></h5>
+              <h5 class="card-title mb-0" >{{ user.name || user.email }}</h5>
               <p class="mb-1 mt-2">
                 Email:
-                <span class="text-secondary" [innerHTML]="user.email"></span>
+                <span class="text-secondary" >{{ user.email }}</span>
               </p>
               @if (user.pin) {
                 <p class="mb-0">
@@ -67,8 +67,8 @@
             <tbody>
               @for (user of users; track user._id) {
                 <tr class="bg-white mb-2">
-                  <td [innerHTML]="user.name || '-'"></td>
-                  <td [innerHTML]="user.email"></td>
+                  <td >{{ user.name || '-' }}</td>
+                  <td >{{ user.email }}</td>
                   <td>
                     @if (user.pin) {
                       <span class="user-pin" (click)="copyPin(user.pin)" title="Copia PIN">
