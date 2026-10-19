@@ -13,8 +13,8 @@ import booking from "./booking";
 import google from "./google";
 import microsoft from "./microsoft";
 import stripe from "./stripe";
-import momap from "./momap";
-import licensePlate from "./licensePlate";
+import stripeWebhook from "./stripeWebhook";
+import momap from "./momap";import licensePlate from "./licensePlate";
 import depotSettings from "./depotSettings";
 import attendance from "./attendance";
 
@@ -38,6 +38,10 @@ router.use("/routes", routes);
 router.use("/booking", booking);
 router.use("/google", google);
 router.use("/microsoft", microsoft);
+//Webhook Stripe: montato PRIMA del router stripe ("padre" primo vince su POST /webhook).
+//Raggiungibile sia da /stripe/webhook (mount in app.ts, body RAW nativo) sia da qui
+//sotto /api: in quello caso la firma usa la copia rawBody conservata da express.json.
+router.use("/stripe", stripeWebhook);
 router.use("/stripe", stripe);
 router.use("/licensePlate", licensePlate);
 router.use("/depotSettings", depotSettings);
