@@ -1,6 +1,6 @@
 {
   "name": "pintour",
-  "version": "2.2.7",
+  "version": "2.3.7",
   "scripts": {
     "ng": "ng",
     "start": "ng serve ",
