@@ -91,7 +91,13 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
 router.get("/auth/callback", (req: any, res: Response, next: NextFunction) => {
   passport.authenticate("spotify", (err: any, user: any) => {
     if (err) {
-      logger.warn(`Login Spotify: scambio codice fallito (${err.message || "errore OAuth"})`);
+      // err.oauthError contiene statusCode/body della risposta del provider
+      // (es. "failed to fetch user profile" senza dettagli senza questo campo).
+      logger.warn(
+        `Login Spotify: autenticazione fallita (${err.message || "errore OAuth"}${
+          err.oauthError?.statusCode ? ` - HTTP ${err.oauthError.statusCode}` : ""
+        })`,
+      );
       return res.redirect("/login");
     }
     if (!user) return res.redirect("/login");

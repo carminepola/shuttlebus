@@ -14,12 +14,17 @@ const router = express.Router();
 import FailToBanServices from "../components/services/failToBanServices";
 
 // Reindirizza l'utente a Microsoft per il login
-router.get(
-  "/auth",
-  passport.authenticate("microsoft", {
-    scope: ["user.read"],
-  }),
-);
+// Guardia: provider non configurato (env assenti) -> redirect al login, non 500.
+router.get("/auth", (req: Request, res: Response) => {
+  if (
+    !process.env.MICROSOFT_CLIENT_ID ||
+    !process.env.MICROSOFT_CLIENT_SECRET ||
+    !process.env.MICROSOFT_CALLBACK_URL
+  ) {
+    return res.redirect("/login");
+  }
+  passport.authenticate("microsoft", { scope: ["user.read"] })(req, res, () => undefined);
+});
 
 router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction) => {
   try {
@@ -88,7 +93,11 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
 router.get("/auth/callback", (req: any, res: Response, next: NextFunction) => {
   passport.authenticate("microsoft", (err: any, user: any) => {
     if (err) {
-      logger.warn(`Login Microsoft: scambio codice fallito (${err.message || "errore OAuth"})`);
+      logger.warn(
+        `Login Microsoft: autenticazione fallita (${err.message || "errore OAuth"}${
+          err.oauthError?.statusCode ? ` - HTTP ${err.oauthError.statusCode}` : ""
+        })`,
+      );
       return res.redirect("/login");
     }
     if (!user) return res.redirect("/login");

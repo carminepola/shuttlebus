@@ -12,6 +12,7 @@ import { GoogleAuthService } from '../../services/google-auth/google-auth.servic
 import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-auth.service';
 import { FacebookAuthService } from '../../services/facebook-auth/facebook-auth.service';
 import { SpotifyAuthService } from '../../services/spotify-auth/spotify-auth.service';
+import { OAuthProviders, OAuthProvidersService } from '../../services/oauth-providers/oauth-providers.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -27,6 +28,13 @@ export class LoginComponent implements OnInit {
   loginError = '';
   isLoading = false;
   showPassword = false;
+  // Pulsanti OAuth visibili SOLO se il provider e' configurato lato server.
+  // Finche' l'elenco non arriva da /api/providers restano nascosti.
+  oauthProviders: OAuthProviders = { google: false, microsoft: false, facebook: false, spotify: false };
+
+  get hasOAuth(): boolean {
+    return this.oauthProviders.google || this.oauthProviders.microsoft || this.oauthProviders.facebook || this.oauthProviders.spotify;
+  }
 
   constructor(
     private formBuilder: FormBuilder,
@@ -35,7 +43,8 @@ export class LoginComponent implements OnInit {
     private googleAuthService: GoogleAuthService,
     private microsoftAuthService: MicrosoftAuthService,
     private facebookAuthService: FacebookAuthService,
-    private spotifyAuthService: SpotifyAuthService
+    private spotifyAuthService: SpotifyAuthService,
+    private oauthProvidersService: OAuthProvidersService
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +55,14 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       rememberMe: [false],
+    });
+    this.oauthProvidersService.getProviders().subscribe({
+      next: (response) => {
+        this.oauthProviders = response.providers;
+      },
+      error: () => {
+        // Provider non disponibili: nessun pulsante OAuth, resta il login classico
+      },
     });
   }
 

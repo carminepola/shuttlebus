@@ -13,12 +13,20 @@ import GoogleSessionServices from "../components/services/googleSessionsServices
 const router = express.Router();
 import FailToBanServices from "../components/services/failToBanServices";
 // Reindirizza l'utente a Google per il login
-router.get(
-  "/auth",
-  passport.authenticate("google", {
-    scope: ["profile", "email", "https://www.googleapis.com/auth/user.phonenumbers.read"],
-  }),
-);
+// Guardia: provider non configurato (env assenti) -> redirect al login, non 500.
+router.get("/auth", (req: Request, res: Response) => {
+  if (
+    !process.env.GOOGLE_CLIENT_ID ||
+    !process.env.GOOGLE_CLIENT_SECRET ||
+    !process.env.GOOGLE_CALLBACK_URL
+  ) {
+    return res.redirect("/login");
+  }
+  passport
+    .authenticate("google", {
+      scope: ["profile", "email", "https://www.googleapis.com/auth/user.phonenumbers.read"],
+    })(req, res, () => undefined);
+});
 
 router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction) => {
   try {
@@ -86,7 +94,11 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
 router.get("/auth/callback", (req: any, res: Response, next: NextFunction) => {
   passport.authenticate("google", (err: any, user: any) => {
     if (err) {
-      logger.warn(`Login Google: scambio codice fallito (${err.message || "errore OAuth"})`);
+      logger.warn(
+        `Login Google: autenticazione fallita (${err.message || "errore OAuth"}${
+          err.oauthError?.statusCode ? ` - HTTP ${err.oauthError.statusCode}` : ""
+        })`,
+      );
       return res.redirect("/login");
     }
     if (!user) return res.redirect("/login");

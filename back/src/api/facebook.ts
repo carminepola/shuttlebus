@@ -94,7 +94,11 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
 router.get("/auth/callback", (req: any, res: Response, next: NextFunction) => {
   passport.authenticate("facebook", (err: any, user: any) => {
     if (err) {
-      logger.warn(`Login Facebook: scambio codice fallito (${err.message || "errore OAuth"})`);
+      logger.warn(
+        `Login Facebook: autenticazione fallita (${err.message || "errore OAuth"}${
+          err.oauthError?.statusCode ? ` - HTTP ${err.oauthError.statusCode}` : ""
+        })`,
+      );
       return res.redirect("/login");
     }
     if (!user) return res.redirect("/login");
