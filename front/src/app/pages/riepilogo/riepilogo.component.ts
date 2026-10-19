@@ -18,6 +18,8 @@ import { TitlePageComponent } from '../../components/title-page/title-page.compo
 import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
 import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-auth.service';
+import { FacebookAuthService } from '../../services/facebook-auth/facebook-auth.service';
+import { SpotifyAuthService } from '../../services/spotify-auth/spotify-auth.service';
 import { LngService } from '../../services/lng/lng.service';
 import { LUGGAGE_PRICE } from '../../constants/app.constants';
 import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
@@ -51,6 +53,8 @@ export class RiepilogoComponent implements OnInit {
     private pendingBookingService: PendingBookingService,
     private googleAuthService: GoogleAuthService,
     private microsoftAuthService: MicrosoftAuthService,
+    private facebookAuthService: FacebookAuthService,
+    private spotifyAuthService: SpotifyAuthService,
     private lngService: LngService,
     private formBuilder: FormBuilder,
   ) {}
@@ -217,6 +221,14 @@ export class RiepilogoComponent implements OnInit {
   loginWithMicrosoft() {
     localStorage.setItem('authUrl', '/riepilogo');
     this.microsoftAuthService.loginWithMicrosoft();
+  }
+  loginWithFacebook() {
+    localStorage.setItem('authUrl', '/riepilogo');
+    this.facebookAuthService.loginWithFacebook();
+  }
+  loginWithSpotify() {
+    localStorage.setItem('authUrl', '/riepilogo');
+    this.spotifyAuthService.loginWithSpotify();
   }
 
   onQuickLogin(event: Event) {

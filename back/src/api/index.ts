@@ -14,6 +14,8 @@ import google from "./google";
 import microsoft from "./microsoft";
 import stripe from "./stripe";
 import stripeWebhook from "./stripeWebhook";
+import facebook from "./facebook";
+import spotify from "./spotify";
 import momap from "./momap";import licensePlate from "./licensePlate";
 import depotSettings from "./depotSettings";
 import attendance from "./attendance";
@@ -43,6 +45,8 @@ router.use("/microsoft", microsoft);
 //sotto /api: in quello caso la firma usa la copia rawBody conservata da express.json.
 router.use("/stripe", stripeWebhook);
 router.use("/stripe", stripe);
+router.use("/facebook", facebook);
+router.use("/spotify", spotify);
 router.use("/licensePlate", licensePlate);
 router.use("/depotSettings", depotSettings);
 router.use("/attendance", attendance);

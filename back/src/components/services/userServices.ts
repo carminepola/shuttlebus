@@ -100,7 +100,7 @@ export default class UserServices {
     }
   }
 
-  async changePassword(user: { email: string; password: string; oldPassword: string }) {
+  async changePassword(user: { email: string; password: string; oldPassword: string; session?: string }) {
     try {
       if (await this.userDao.checkPassword(user.email, user.oldPassword)) {
         const result = await this.userDao.updatePassword(user);
@@ -269,6 +269,17 @@ export default class UserServices {
         id: googleInfo.id,
       };
       return await this.userDao.updateGoogleInfo(email, google);
+    } catch (error) {
+      throw error;
+    }
+  }
+  /**
+   * SSO: update profilo per provider OAuth (firma identica a google/microsoft).
+   * La whitelist del provider sta nel DAO (nessuna composizione libera di path).
+   */
+  async updateOAuthInfo(email: string, provider: "google" | "microsoft" | "facebook" | "spotify", info: any) {
+    try {
+      return await this.userDao.updateOAuthInfo(email, provider, info);
     } catch (error) {
       throw error;
     }

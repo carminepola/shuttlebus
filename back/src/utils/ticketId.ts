@@ -1,12 +1,21 @@
+import { randomInt } from "crypto";
+
 const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 const WEIGHTS = [7, 3, 5, 2, 4];
-const RANDOM_LENGTH = 5;
+// P-03 (ticket ID predictability): 5 caratteri base-36 = ~26 bit, e Math.random()
+// e' un PRNG NON crittografico (xorshift128+: lo stato interno si ricostruisce
+// osservando gli output e si predicono gli ID successivi). Con 10 caratteri
+// CSPRNG lo spazio sale a 36^10 = 3,6e15 (~2^51.7): non indovinabile online e
+// offline-feasibile solo con costi irrealistici. validateTicketId e' gia'
+// tollerante sulla lunghezza: gli ID legacy a 5 restano validi.
+const RANDOM_LENGTH = 10;
 const BASE = 36;
 
 function randomBase36(length: number): string {
   let result = "";
   for (let i = 0; i < length; i++) {
-    result += Math.floor(Math.random() * BASE).toString(BASE).toUpperCase();
+    // CSPRNG del core Node: nessun stato condiviso/predicibile come Math.random()
+    result += randomInt(0, BASE).toString(BASE).toUpperCase();
   }
   return result;
 }

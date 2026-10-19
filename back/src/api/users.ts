@@ -191,6 +191,9 @@ router.patch(
         email: res.locals.userLogged.email,
         password: req.body.password,
         oldPassword: req.body.oldPassword,
+        // N-08: la sessione che esegue il cambio e' l'UNICA che sopravvive;
+        // tutte le altre (rubate, dispositivi vecchi) vengono revocate a valle.
+        session: res.locals.userLogged.session,
       };
 
       let userServices = new UserServices(db);

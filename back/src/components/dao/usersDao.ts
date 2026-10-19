@@ -633,10 +633,21 @@ export default class UsersDao {
     try {
       user.email = user.email.toLowerCase();
       user.password = bcrypt.hashSync(user.password, 10);
-      const result = await this.db.collection(this.schema).findOneAndUpdate({ email: user.email }, { $set: { password: user.password } });
+      // N-08 (sessioni sopravvivono al cambio password): l'invalidazione delle altre
+      // sessioni deve avvenire NELLO STESSO update della password, in modo atomico:
+      // $pull di tutte le sessioni con id != di quella che esegue la chiamata.
+      // Le sessioni laterali (rubate, dispositivi vecchi) restano quindi invalide
+      // al primo checkSession (0 -> 401 + pulizia cookie in authMiddleware).
+      // sessionId assente/invalido -> NON si tocca l'array (evita il wipe completo).
+      const update: { $set: any; $pull?: any } = { $set: { password: user.password } };
+      if (typeof user.session === "string" && user.session.length > 0) {
+        update.$pull = { sessions: { id: { $ne: user.session } } };
+      }
+      const result = await this.db.collection(this.schema).findOneAndUpdate({ email: user.email }, update);
       if (result) {
         delete user.password;
         delete user.oldPassword;
+        delete user.session; // N-08: il guid di sessione non lascia il backend
         return user;
       } else {
         throw new Error("Errore durante l'inserimento nel database");
@@ -859,6 +870,24 @@ export default class UsersDao {
     } catch (error) {
       console.error("Errore durante la ricerca degli utenti con il ruolo selezionato:", error);
       throw error; // Rilancia l'errore
+    }
+  }
+  /**
+   * N-09/SSO: update generico dell'info profilo provider (google, microsoft,
+   * facebook, spotify). provider e' whitelisted: mai comporre il path da input
+   * arbitrario (NoSQL injection su options.<provider>).
+   */
+  async updateOAuthInfo(email: string, provider: "google" | "microsoft" | "facebook" | "spotify", info: any) {
+    try {
+      email = email.toLowerCase();
+      return await this.db
+        .collection<userModel>(this.schema)
+        .updateOne(
+          { email: email },
+          { $set: { [`options.${provider}`]: { photos: info.photos, email: info.email, displayName: info.displayName, id: info.id } } },
+        );
+    } catch (error) {
+      throw error;
     }
   }
   async updateGoogleInfo(email: string, googleInfo: any) {

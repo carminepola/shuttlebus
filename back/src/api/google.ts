@@ -1,4 +1,5 @@
 import express, { CookieOptions } from "express";
+import { cookieSameSite, cookieSecure } from "../cookiePolicy";
 import passport from "passport";
 
 import UserServices from "../components/services/userServices";
@@ -57,16 +58,16 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
         // Il JWT NON e' leggibile dal JavaScript (mitigazione furto via XSS):
         // l'identita' lato front passa dall'endpoint GET /auth/me.
         httpOnly: true,
-        sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
-        secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
+        sameSite: cookieSameSite(),
+        secure: cookieSecure(),
       };
 
       res.cookie("jwt", token, settingsJwt);
       res.cookie("refreshToken", refreshToken, {
         maxAge: 2592000000,
         httpOnly: true,
-        sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
-        secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
+        sameSite: cookieSameSite(),
+        secure: cookieSecure(),
       });
 
       res.json({ message: "Accesso autorizzato" });

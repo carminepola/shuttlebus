@@ -75,7 +75,7 @@ class BookingsServices {
     try {
       await this.removeExpiredPendingBookings();
       let booking = await this.removePendingBooking(userId);
-      if (booking.length >= 3) throw new Error("str_error_pending_booking");
+      if (booking.length >= 3) throw new ErrorModel(400, "str_error_pending_booking");
       await this.checkPriceAndTime(ticket);
     } catch (error) {
       throw error;
@@ -169,10 +169,11 @@ class BookingsServices {
         let numeroPosti: any = await this.availableSeats(book.date, book.routeId, book.scheduleId, book.from.id, book.to.id, session);
 
         if (book.seats > numeroPosti.availableSeats) {
-          throw new Error("str_error_seats");
+          // N-07: errore di dominio -> ErrorModel (409 Conflict), NON 500 generico
+          throw new ErrorModel(409, "str_error_seats");
         }
         if (book.luggage > 0 && book.luggage > numeroPosti.availableLuggage) {
-          throw new Error("str_error_luggage");
+          throw new ErrorModel(409, "str_error_luggage");
         }
 
         switch (paymentType) {
@@ -182,7 +183,7 @@ class BookingsServices {
             break;
           case "cash":
             if (user.role > role.DRIVER) {
-              throw new Error("str_error_permission");
+              throw new ErrorModel(403, "str_error_permission");
             }
             book.status = "confirmed";
             book.payment_status = "paid";
@@ -199,17 +200,26 @@ class BookingsServices {
           await session.abortTransaction();
         } catch {}
         await session.endSession();
-        if (isTransientTransactionError(error) && attempt < BookingsServices.SEAT_TX_MAX_RETRIES) {
-          logger.warn(
-            `Conflitto di scrittura sui posti (tentativo ${attempt}/${BookingsServices.SEAT_TX_MAX_RETRIES}) per ${ticket.routeId}/${ticket.scheduleId} del ${ticket.date}: riprovo con snapshot aggiornato`,
+        if (isTransientTransactionError(error)) {
+          if (attempt < BookingsServices.SEAT_TX_MAX_RETRIES) {
+            logger.warn(
+              `Conflitto di scrittura sui posti (tentativo ${attempt}/${BookingsServices.SEAT_TX_MAX_RETRIES}) per ${ticket.routeId}/${ticket.scheduleId} del ${ticket.date}: riprovo con snapshot aggiornato`,
+            );
+            continue;
+          }
+          // N-07: retry esauriti su contenzione della corsa -> 409 (Conflict),
+          // NON un 500 generico. La prenotazione non esiste (transazione abortita)
+          // e l'utente puo' riprovare; il front mostra gia' str_error_seats tradotto.
+          logger.error(
+            `Esauriti ${BookingsServices.SEAT_TX_MAX_RETRIES} tentativi (conflitti di scrittura sui posti) per ${ticket.routeId}/${ticket.scheduleId} del ${ticket.date}: rispondo 409 str_error_seats`,
           );
-          continue;
+          throw new ErrorModel(409, "str_error_seats");
         }
         throw error;
       }
     }
     // Irraggiungibile: ogni iterazione termina con return o throw
-    throw new Error("str_error_seats");
+    throw new ErrorModel(409, "str_error_seats");
   }
   async removeExpiredPendingBookings() {
     return await this.bookingDao.removeExpiredPendingBookings();
@@ -600,10 +610,14 @@ class BookingsServices {
     let googleCount = 0;
     let emailCount = 0;
     let microsoftCount = 0;
+    let facebookCount = 0;
+    let spotifyCount = 0;
     for (const stat of registrationStats) {
       if (stat._id === "google") googleCount = stat.count;
       if (stat._id === "email") emailCount = stat.count;
       if (stat._id === "microsoft") microsoftCount = stat.count;
+      if (stat._id === "facebook") facebookCount = stat.count;
+      if (stat._id === "spotify") spotifyCount = stat.count;
     }
 
     return {
@@ -617,8 +631,10 @@ class BookingsServices {
       registrations: {
         google: googleCount,
         microsoft: microsoftCount,
+        facebook: facebookCount,
+        spotify: spotifyCount,
         email: emailCount,
-        total: googleCount + microsoftCount + emailCount,
+        total: googleCount + microsoftCount + facebookCount + spotifyCount + emailCount,
       },
     };
   }

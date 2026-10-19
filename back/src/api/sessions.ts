@@ -1,4 +1,5 @@
 import express, { CookieOptions } from "express";
+import { cookieSameSite, cookieSecure } from "../cookiePolicy";
 import { db, logger, env } from "../index";
 import bcrypt from "bcrypt";
 import UserDao from "../components/dao/usersDao";
@@ -95,16 +96,16 @@ router.post(
         // Il JWT NON e' leggibile dal JavaScript (mitigazione furto via XSS):
         // l'identita' lato front passa dall'endpoint GET /auth/me, non dal cookie.
         httpOnly: true,
-        sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
-        secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
+        sameSite: cookieSameSite(),
+        secure: cookieSecure(),
       };
       if (req.body.rememberMe) {
         settingsJwt.maxAge = 2592000000;
         res.cookie("refreshToken", refreshToken, {
           maxAge: 2592000000,
           httpOnly: true,
-          sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
-          secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
+          sameSite: cookieSameSite(),
+          secure: cookieSecure(),
         });
       }
 

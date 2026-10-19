@@ -11,6 +11,8 @@ import { AuthService } from '../../services/auth/auth.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
 import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-auth.service';
+import { FacebookAuthService } from '../../services/facebook-auth/facebook-auth.service';
+import { SpotifyAuthService } from '../../services/spotify-auth/spotify-auth.service';
 import { LngService } from '../../services/lng/lng.service';
 declare var bootstrap: any;
 
@@ -35,6 +37,8 @@ export class LoginFormComponent implements OnInit {
     private authService: AuthService,
     private googleAuthService: GoogleAuthService,
     private microsoftAuthService: MicrosoftAuthService,
+    private facebookAuthService: FacebookAuthService,
+    private spotifyAuthService: SpotifyAuthService,
     private lngService: LngService,
   ) {}
   @Output() loginSuccess = new EventEmitter<void>();
@@ -56,6 +60,14 @@ export class LoginFormComponent implements OnInit {
   loginWithMicrosoft() {
     localStorage.setItem('authUrl', window.location.pathname);
     this.microsoftAuthService.loginWithMicrosoft();
+  }
+  loginWithFacebook() {
+    localStorage.setItem('authUrl', window.location.pathname);
+    this.facebookAuthService.loginWithFacebook();
+  }
+  loginWithSpotify() {
+    localStorage.setItem('authUrl', window.location.pathname);
+    this.spotifyAuthService.loginWithSpotify();
   }
   get formControls() {
     return this.loginForm.controls;

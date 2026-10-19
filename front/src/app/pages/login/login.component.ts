@@ -10,6 +10,8 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { GoogleAuthService } from '../../services/google-auth/google-auth.service';
 import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-auth.service';
+import { FacebookAuthService } from '../../services/facebook-auth/facebook-auth.service';
+import { SpotifyAuthService } from '../../services/spotify-auth/spotify-auth.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -31,7 +33,9 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private googleAuthService: GoogleAuthService,
-    private microsoftAuthService: MicrosoftAuthService
+    private microsoftAuthService: MicrosoftAuthService,
+    private facebookAuthService: FacebookAuthService,
+    private spotifyAuthService: SpotifyAuthService
   ) {}
 
   ngOnInit(): void {
@@ -55,6 +59,14 @@ export class LoginComponent implements OnInit {
   loginWithMicrosoft() {
     localStorage.setItem('authUrl', '/admin/home');
     this.microsoftAuthService.loginWithMicrosoft();
+  }
+  loginWithFacebook() {
+    localStorage.setItem('authUrl', '/admin/home');
+    this.facebookAuthService.loginWithFacebook();
+  }
+  loginWithSpotify() {
+    localStorage.setItem('authUrl', '/admin/home');
+    this.spotifyAuthService.loginWithSpotify();
   }
   onSubmit(event: Event): void {
     try {

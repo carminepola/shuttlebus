@@ -3,6 +3,7 @@ import MessageModel from "../model/messageModel";
 
 import { logger, env, db } from "..";
 import { CookieOptions } from "express";
+import { cookieSameSite, cookieSecure } from "../cookiePolicy";
 import jwt from "jsonwebtoken";
 import UsersDao from "../components/dao/usersDao";
 import { role } from "../enum/role";
@@ -74,8 +75,8 @@ export default async function authMiddleware(req: Request, res: Response<Message
       res.cookie("refreshToken", newRefreshToken, {
         maxAge: 2592000000,
         httpOnly: true,
-        secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
-        sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
+        secure: cookieSecure(),
+        sameSite: cookieSameSite(),
       });
     }
 
@@ -123,8 +124,8 @@ export default async function authMiddleware(req: Request, res: Response<Message
       maxAge: 2592000000,
       // Anche il re-issue del JWT deve restare NON leggibile dal JavaScript
       httpOnly: true,
-      secure: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST",
-      sameSite: env.NODE_ENV === "PROD" || env.NODE_ENV === "TEST" ? "none" : "strict",
+      secure: cookieSecure(),
+      sameSite: cookieSameSite(),
     };
     if (!user.rememberMe) {
       settingsJwt.maxAge = undefined;
