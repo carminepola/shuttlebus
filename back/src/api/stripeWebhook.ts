@@ -81,9 +81,14 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
           await bookingServices.updatePaymentIntentId(bookingId, paymentIntentId);
         }
 
-        // NESSUNA conferma/mail se non c'e' un pagamento reale completato
-        if (effectiveSession.payment_status !== "paid") {
-          logger.warn(`checkout.session.completed per ${bookingId} con payment_status=${effectiveSession.payment_status}: nessuna conferma, nessuna mail`);
+        // Con capture_method=manual la sessione completata arriva con
+        // payment_status="unpaid" (fondi riservati, PI in requires_capture):
+        // NON e' motivo di scarto. La conferma avviene SOLO sullo stato reale
+        // del PaymentIntent (requires_capture -> capture nostra, oppure
+        // succeeded), quindi una capture e' possibile SOLO dopo il gate
+        // importo P-01.
+        if (effectiveSession.payment_status === "no_payment_required") {
+          logger.warn(`checkout.session.completed per ${bookingId} con payment_status=no_payment_required: nessun pagamento da confermare`);
           break;
         }
 
