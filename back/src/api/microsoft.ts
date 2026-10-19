@@ -81,7 +81,21 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
 });
 
 // Callback dopo il login su Microsoft
-router.get("/auth/callback", passport.authenticate("microsoft", { failureRedirect: "/login" }), async (req: any, res: Response) => {
+// Il codice di autorizzazione OAuth e' MONOUSO: un refresh o un back del browser
+// sulla callback ripropone un codice gia' consumato -> TokenError. Passport
+// instrada l'errore a error() (500), ignorando failureRedirect: qui viene
+// intercettato e convertito in redirect al login.
+router.get("/auth/callback", (req: any, res: Response, next: NextFunction) => {
+  passport.authenticate("microsoft", (err: any, user: any) => {
+    if (err) {
+      logger.warn(`Login Microsoft: scambio codice fallito (${err.message || "errore OAuth"})`);
+      return res.redirect("/login");
+    }
+    if (!user) return res.redirect("/login");
+    req.user = user;
+    next();
+  })(req, res, next);
+}, async (req: any, res: Response) => {
   if (!req.user) return res.redirect("/login");
   let url = env.CLIENT_URL;
 

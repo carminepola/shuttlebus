@@ -83,7 +83,22 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
 });
 
 // Callback dopo il login su Spotify
-router.get("/auth/callback", passport.authenticate("spotify", { failureRedirect: "/login" }), async (req: any, res: Response) => {
+// Il codice di autorizzazione OAuth e' MONOUSO: un refresh o un back del browser
+// sulla callback ripropone un codice gia' consumato -> TokenError
+// "Invalid authorization code". Passport instrada l'errore a error() (500),
+// ignorando failureRedirect: qui viene intercettato e convertito in redirect al
+// login, cosi' l'utente riparte con un flusso pulito invece della pagina di errore.
+router.get("/auth/callback", (req: any, res: Response, next: NextFunction) => {
+  passport.authenticate("spotify", (err: any, user: any) => {
+    if (err) {
+      logger.warn(`Login Spotify: scambio codice fallito (${err.message || "errore OAuth"})`);
+      return res.redirect("/login");
+    }
+    if (!user) return res.redirect("/login");
+    req.user = user;
+    next();
+  })(req, res, next);
+}, async (req: any, res: Response) => {
   if (!req.user) return res.redirect("/login");
   let url = env.CLIENT_URL;
 
