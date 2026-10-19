@@ -87,6 +87,22 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
           break;
         }
 
+        // P-01 (price manipulation): confronto OBBLIGATORIO importo <-> booking.total.
+        // Una sessione pagata ad un prezzo diverso dal total server-side non conferma
+        // mai la prenotazione; con capture manuale l'importo scorretto NON viene catturato.
+        const bookingRaw = await bookingServices.getBookingRaw(bookingId);
+        if (!bookingRaw) {
+          logger.warn(`checkout.session.completed per booking inesistente ${bookingId} (event ${event.id})`);
+          break;
+        }
+        const expectedAmount = Math.round((bookingRaw.total ?? 0) * 100);
+        if ((effectiveSession.amount_total ?? -1) !== expectedAmount) {
+          logger.error(`Discordanza importo per la prenotazione ${bookingId}: session.amount_total=${effectiveSession.amount_total}, atteso=${expectedAmount} (booking.total=${bookingRaw.total}). Prenotazione invalidata, importo non catturato (event ${event.id})`);
+          await bookingServices.expireTicketById(bookingId);
+          await bookingServices.updatePaymentStatus(bookingId, "failed");
+          break;
+        }
+
         if (paymentIntentId) {
           const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
@@ -132,6 +148,15 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         }
         if (book?.numberOfTickets) {
           const ticketId = book.numberOfTickets;
+          // P-01 (price manipulation): anche questo percorso conferma SOLO se
+          // l'importo del payment intent corrisponde al booking.total server-side.
+          const expectedAmount = Math.round((book.total ?? 0) * 100);
+          if ((paymentIntent.amount ?? -1) !== expectedAmount) {
+            logger.error(`Discordanza importo (payment_intent.succeeded) per la prenotazione ${ticketId}: pi.amount=${paymentIntent.amount}, atteso=${expectedAmount} (booking.total=${book.total}). Prenotazione NON confermata (event ${event.id})`);
+            await bookingServices.expireTicketById(ticketId);
+            await bookingServices.updatePaymentStatus(ticketId, "failed");
+            break;
+          }
           // Persisti il collegamento + stato pagamento anche se checkout.session.completed non e' mai arrivato
           if (book.paymentIntentId !== paymentIntent.id) {
             await bookingServices.updatePaymentIntentId(ticketId, paymentIntent.id);

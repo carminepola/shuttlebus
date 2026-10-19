@@ -2,6 +2,7 @@ import { env, logger } from "../../index";
 import { TicketType } from "../../model/bookFromSiteModel";
 import booking from "../../model/bookFromSiteModel";
 import StripeInstance from "../../stripe";
+import { LUGGAGE_PRICE } from "../../constants";
 
 type SupportedLng = "it" | "en" | "fr" | "de" | "es" | "jp";
 
@@ -30,11 +31,21 @@ class StripeServices {
     this.stripe = StripeInstance.getInstance();
   }
 
-  async getPaymentSession(ticket: booking) {
+  /**
+   * P-01 (price manipulation): i costi delle line item NON vengono piu' presi dal
+   * payload client (un utente puo' spedire ticketTypes[0].cost = 1). L'importo in
+   * centesimi e' calcolato SOLO dai prezzi letti da DB (`dbPrices`, id -> cost),
+   * costruiti da PaymentServices. Costo inesistente/non attivo -> sessione bloccata.
+   */
+  async getPaymentSession(ticket: booking, dbPrices: Record<string, number>) {
     try {
       let ticketData = ticket.date.split("-").reverse().join("/");
       let name = `${getLocalizedName(ticket.name, ticket.lng)} • ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}) • ${ticketData} `;
       let items = ticket.ticketTypes.map((item: TicketType) => {
+        const dbCost = dbPrices?.[item.id];
+        if (dbCost === undefined || dbCost === null) {
+          throw new Error(`Ticket type ${item.id} assente o non attivo: sessione di pagamento bloccata`);
+        }
         return {
           price_data: {
             currency: "eur",
@@ -42,7 +53,7 @@ class StripeServices {
               name: getLocalizedName(item.name, ticket.lng) + " • " + getLocalizedName(item.description, ticket.lng),
               description: name,
             },
-            unit_amount: item.cost * 100,
+            unit_amount: Math.round(dbCost * 100),
           },
           quantity: item.count,
         };
@@ -56,7 +67,7 @@ class StripeServices {
               name: getStripeLabel("extraLuggage", ticket.lng),
               description: getStripeLabel("extraLuggageDesc", ticket.lng),
             },
-            unit_amount: 2 * 100,
+            unit_amount: Math.round(LUGGAGE_PRICE * 100),
           },
           quantity: ticket.luggage,
         });

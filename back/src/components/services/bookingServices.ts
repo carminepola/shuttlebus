@@ -223,6 +223,8 @@ class BookingsServices {
         if (find) {
           count += t.count;
           newTotale += find.cost * t.count;
+          // P-01: il costo salvato nel booking e' SOLO quello da DB, mai quello del client
+          t.cost = find.cost;
         } else {
           continue;
         }
@@ -230,6 +232,8 @@ class BookingsServices {
     }
     newTotale += ticket.luggage * LUGGAGE_PRICE;
     if (count == ticket.seats && newTotale == totale && totale > 0 && ticket.seats > 0) {
+      // P-01: total server-side, non la copia del client
+      ticket.total = newTotale;
       return true;
     }
 
