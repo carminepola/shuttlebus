@@ -177,7 +177,7 @@
                   </div>
                   <a
                     class="duplicate-ticket-link"
-                    href="/user/mytickets"
+                    routerLink="/user/mytickets"
                   >{{ "str_vai_ai_miei_biglietti" | translate }}</a>
                 </div>
               }
@@ -185,12 +185,12 @@
               @if (isLoggedIn()) {
                 <div class="sidebar-body">
                   @if (errorMessage) {
-                    <div class="error-alert">
+                    <div class="error-alert" role="alert">
                       <div>{{ errorMessage | translate }}</div>
                       @if (errorMessage == "str_error_pending_booking") {
                         <a
                           class="error-link"
-                          routerLink="/user/myticket"
+                          routerLink="/user/mytickets"
                           >{{ 'str_vai_a_account' | translate }}</a
                         >
                       }
@@ -346,7 +346,7 @@
                     </div>
 
                     @if (checkoutLoginError) {
-                      <div class="error-alert">
+                      <div class="error-alert" role="alert">
                         {{ checkoutLoginError }}
                       </div>
                     }

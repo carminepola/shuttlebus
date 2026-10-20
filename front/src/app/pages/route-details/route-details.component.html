@@ -43,8 +43,8 @@
               <div class="input-group mb-3">
                 <select
                   [(ngModel)]="ticketSelected"
-                  class="form-control"
-                  id="inputGroupSelect01"
+                  class="form-select"
+                  id="selectTicketType"
                   name="ticket_type"
                 >
                   <option value="" disabled selected>
@@ -58,7 +58,7 @@
                   <button
                     class="btn btn-outline-secondary"
                     type="button"
-                    id="button-addon1"
+                    id="addTicketBtn"
                     (click)="addTicket()"
                   >
                     <i class="fas fa-plus"></i>
@@ -89,9 +89,9 @@
               <div class="input-group mb-3">
                 <select
                   [(ngModel)]="stopSelected"
-                  name="ticket_type"
-                  class="form-control"
-                  id="inputGroupSelect01"
+                  name="stop_type"
+                  class="form-select"
+                  id="selectStopType"
                 >
                   <option value="" disabled selected>
                     Seleziona una fermata
@@ -104,7 +104,7 @@
                   <button
                     class="btn btn-outline-secondary"
                     type="button"
-                    id="button-addon1"
+                    id="addStopBtn"
                     (click)="addStop()"
                   >
                     <i class="fas fa-plus"></i>

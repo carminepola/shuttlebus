@@ -1,5 +1,5 @@
 <div class="container topspace pt-2">
-  <app-title-page back="ture" class="toppad"> </app-title-page>
+  <app-title-page back="true" class="toppad"> </app-title-page>
   <app-step-indicator [steps]="funnelSteps" [current]="1"></app-step-indicator>
   <div class="search-bar-card rounded-4">
     <div class="card-body py-3 px-4">
@@ -41,7 +41,7 @@
           >{{ params.length }}
           {{
             params.length === 1
-              ? "str_corsa_disponibile"
+              ? ("str_corsa_disponibile" | translate)
               : ("str_corse_disponibili" | translate)
           }}</span
         >
@@ -171,7 +171,11 @@
 
           <div class="route-card-footer">
             <div class="selected-info">
-              <span class="seats-selected"></span>
+              @if (param.seats > 0) {
+                <span class="seats-selected">
+                  {{ param.seats }} {{ "str_seats" | translate }}
+                </span>
+              }
             </div>
             <button
               class="purchase-btn"

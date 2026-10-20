@@ -13,7 +13,14 @@
         <h3 class="cp-title">Cookie Policy</h3>
       </div>
       <p class="cp-text" [innerHTML]="'str_cookie_policy' | translate"></p>
-      <a class="cp-link" (click)="goToPolicy()">Privacy Policy</a>
+      <a
+        class="cp-link"
+        role="link"
+        tabindex="0"
+        (click)="goToPolicy()"
+        (keydown.enter)="goToPolicy()"
+        >Privacy Policy</a
+      >
       <div class="cp-actions">
         <button
           class="cp-btn cp-btn-accept"

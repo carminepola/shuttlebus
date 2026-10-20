@@ -355,7 +355,7 @@
     gap: 0.5rem;
   }
 
-  .payment-method-option {
+   .payment-method-option {
     flex: 1;
     cursor: pointer;
     position: relative;
@@ -365,6 +365,13 @@
       opacity: 0;
       width: 0;
       height: 0;
+
+      // Focus visibile da tastiera sui metodi di pagamento
+      &:focus-visible + .payment-option-content {
+        outline: 2px solid rgba(var(--bs-primary-rgb), 1);
+        outline-offset: 2px;
+        border-radius: 0.75rem;
+      }
     }
 
     .payment-option-content {

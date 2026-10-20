@@ -295,3 +295,12 @@
     color: rgba(255, 255, 255, 0.3);
   }
 }
+
+// Accessibilità: focus visibile sul consenso termini usato da tastiera
+.auth-terms {
+  input.visually-hidden:focus-visible + .auth-checkbox-box {
+    outline: 2px solid rgba(var(--bs-primary-rgb), 0.7);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ConfirmModalService, ConfirmModalConfig } from '../../services/confirm-modal/confirm-modal.service';
@@ -34,5 +34,13 @@ export class ConfirmModalComponent implements OnInit, OnDestroy {
 
   onCancel(): void {
     this.confirmModalService.cancel();
+  }
+
+  // Chiude il dialog con ESC quando è aperto
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.config) {
+      this.onCancel();
+    }
   }
 }

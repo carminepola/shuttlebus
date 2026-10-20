@@ -1,8 +1,8 @@
 @if (config) {
-  <div class="cm-overlay" (click)="onCancel()">
+  <div class="cm-overlay" role="dialog" aria-modal="true" aria-labelledby="cm-title" (click)="onCancel()">
     <div class="cm-dialog" (click)="$event.stopPropagation()">
       <div class="cm-header">
-        <h5 class="cm-title">{{ config.title }}</h5>
+        <h5 class="cm-title" id="cm-title">{{ config.title }}</h5>
       </div>
       <div class="cm-body">
         <p class="cm-message">{{ config.message }}</p>

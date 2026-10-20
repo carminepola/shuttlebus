@@ -130,9 +130,6 @@
                     Download PDF
                   </button>
                 } @else if (booking.status === "pending") {
-                  // Il label "In attesa di pagamento" vale SOLO per il qui-pendente:
-                  // status refunded/failed/expired non va confuso con un pagamento
-                  // attesa (il badge di stato in alto mostra gia' la situazione).
                   <div class="awaiting-payment">
                     <i class="fa-regular fa-clock me-1"></i>
                     <span>{{ pendingPaymentLabel() }}</span>
@@ -158,9 +155,6 @@
                   <span>{{
                     pendingCountdowns[booking.numberOfTickets] || "00:00"
                   }}</span>
-                </div>
-                <div class="awaiting-payment">
-                  <span>{{ pendingPaymentLabel() }}</span>
                 </div>
                 <button
                   class="action-btn action-btn-cancel"

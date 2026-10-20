@@ -22,9 +22,7 @@
               {{ "str_partenza_placeholder" | translate }}
             </option>
             @for (s of selectStart; track s) {
-              <option [value]="s.id">
-                <div>{{ s.name }}</div>
-              </option>
+              <option [value]="s.id">{{ s.name }}</option>
             }
           </select>
         </div>
@@ -58,9 +56,7 @@
               {{ "str_arrivo_placeholder" | translate }}
             </option>
             @for (s of selectEnd; track s) {
-              <option [value]="s.id">
-                <div>{{ s.name }}</div>
-              </option>
+              <option [value]="s.id">{{ s.name }}</option>
             }
           </select>
         </div>

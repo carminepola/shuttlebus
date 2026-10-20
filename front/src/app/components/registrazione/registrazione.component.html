@@ -141,7 +141,16 @@
       <div class="auth-field-group">
         <div class="prefix-autocomplete" style="max-width: 130px; flex: none;">
           @if (!prefixDropdownOpen) {
-            <div class="auth-field prefix-selected" (click)="openPrefixDropdown()">
+            <div
+              class="auth-field prefix-selected"
+              role="button"
+              tabindex="0"
+              aria-haspopup="listbox"
+              [attr.aria-expanded]="false"
+              (click)="openPrefixDropdown()"
+              (keydown.enter)="openPrefixDropdown()"
+              (keydown.space)="openPrefixDropdown()"
+            >
               <span class="prefix-flag">{{ selectedCountry?.code === 'IT' ? '🇮🇹' : selectedCountry?.code === 'GB' ? '🇬🇧' : selectedCountry?.code === 'DE' ? '🇩🇪' : selectedCountry?.code === 'FR' ? '🇫🇷' : selectedCountry?.code === 'ES' ? '🇪🇸' : selectedCountry?.code === 'US' ? '🇺🇸' : selectedCountry?.code === 'CH' ? '🇨🇭' : selectedCountry?.code === 'PT' ? '🇵🇹' : '🌍' }}</span>
               <span class="prefix-value">{{ selectedPrefixLabel || '+...' }}</span>
               <i class="fa-solid fa-chevron-down prefix-chevron"></i>
@@ -166,8 +175,11 @@
                 @for (country of filteredCountries; track country.code) {
                   <div
                     class="prefix-item"
+                    role="option"
+                    tabindex="0"
                     [class.prefix-item-selected]="selectedCountry?.code === country.code"
                     (click)="selectCountry(country)"
+                    (keydown.enter)="selectCountry(country)"
                   >
                     <span class="prefix-item-name">{{ country.name }}</span>
                     <span class="prefix-item-code">{{ country.prefix }}</span>
@@ -199,7 +211,14 @@
         </div>
       </div>
 
-      <div class="auth-terms" [class.is-invalid]="isSubmitted && !termsAccepted" (click)="termsAccepted = !termsAccepted">
+      <label class="auth-terms" [class.is-invalid]="isSubmitted && !termsAccepted">
+        <input
+          type="checkbox"
+          class="visually-hidden"
+          name="termsAccepted"
+          [(ngModel)]="termsAccepted"
+          [ngModelOptions]="{ standalone: true }"
+        />
         <span class="auth-checkbox-box" [class.auth-checkbox-checked]="termsAccepted">
           <i class="fa-solid fa-check"></i>
         </span>
@@ -211,7 +230,7 @@
             [innerHTML]="'str_qui_riportati' | translate"
           ></a>
         </span>
-      </div>
+      </label>
 
       <button [disabled]="isLoading" type="submit" class="auth-submit">
         @if (!isLoading) {
