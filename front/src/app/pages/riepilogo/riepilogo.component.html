@@ -264,6 +264,13 @@
               }
               @if (!isLoggedIn()) {
                 <div class="sidebar-body">
+                  @if (checkoutMfa) {
+                  <app-mfa-challenge
+                    [challenge]="checkoutMfa"
+                    (verified)="onCheckoutMfaVerified()"
+                    (cancelled)="checkoutMfa = null"
+                  ></app-mfa-challenge>
+                  } @else {
                   <div class="login-inline-title mb-3">
                     <span
                       >{{ 'str_accendi_account' | translate }}
@@ -369,29 +376,46 @@
                     </button>
                   </form>
 
-                  <div class="login-inline-divider my-3">
-                    <span>o</span>
-                  </div>
+                  @if (hasOAuth || passkeySupported) {
+                    <div class="login-inline-divider my-3">
+                      <span>o</span>
+                    </div>
+                  }
 
-                  <button class="google-btn" (click)="loginWithGoogle()">
-                    <i class="fa-brands fa-google"></i>
-                    <span>Google</span>
-                  </button>
+                  @if (passkeySupported) {
+                    <button type="button" class="google-btn microsoft-btn" (click)="loginWithPasskey()" [disabled]="checkoutLoginLoading">
+                      <i class="fa-solid fa-key"></i>
+                      <span>{{ lngService.traslateOr('str_passkey_login', 'Accedi con passkey') }}</span>
+                    </button>
+                  }
 
-                  <button class="google-btn microsoft-btn" (click)="loginWithMicrosoft()">
-                    <i class="fa-brands fa-microsoft"></i>
-                    <span>Microsoft</span>
-                  </button>
+                  @if (oauthProviders.google) {
+                    <button class="google-btn" (click)="loginWithGoogle()">
+                      <i class="fa-brands fa-google"></i>
+                      <span>Google</span>
+                    </button>
+                  }
 
-                  <button class="google-btn microsoft-btn" (click)="loginWithFacebook()">
-                    <i class="fa-brands fa-facebook" style="color: #0866ff"></i>
-                    <span>Facebook</span>
-                  </button>
+                  @if (oauthProviders.microsoft) {
+                    <button class="google-btn microsoft-btn" (click)="loginWithMicrosoft()">
+                      <i class="fa-brands fa-microsoft"></i>
+                      <span>Microsoft</span>
+                    </button>
+                  }
 
-                  <button class="google-btn microsoft-btn" (click)="loginWithSpotify()">
-                    <i class="fa-brands fa-spotify" style="color: #1db954"></i>
-                    <span>Spotify</span>
-                  </button>
+                  @if (oauthProviders.facebook) {
+                    <button class="google-btn microsoft-btn" (click)="loginWithFacebook()">
+                      <i class="fa-brands fa-facebook" style="color: #0866ff"></i>
+                      <span>Facebook</span>
+                    </button>
+                  }
+
+                  @if (oauthProviders.spotify) {
+                    <button class="google-btn microsoft-btn" (click)="loginWithSpotify()">
+                      <i class="fa-brands fa-spotify" style="color: #1db954"></i>
+                      <span>Spotify</span>
+                    </button>
+                  }
 
                   <div class="login-inline-register mt-3">
                     <span
@@ -401,6 +425,7 @@
                       {{ "str_registrati" | translate }}
                     </a>
                   </div>
+                  }
                 </div>
               }
             </div>

@@ -20,6 +20,9 @@ import { GoogleAuthService } from '../../services/google-auth/google-auth.servic
 import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-auth.service';
 import { FacebookAuthService } from '../../services/facebook-auth/facebook-auth.service';
 import { SpotifyAuthService } from '../../services/spotify-auth/spotify-auth.service';
+import { OAuthProviders, OAuthProvidersService } from '../../services/oauth-providers/oauth-providers.service';
+import { MfaChallenge, MfaService } from '../../services/mfa/mfa.service';
+import { MfaChallengeComponent } from '../../components/mfa-challenge/mfa-challenge.component';
 import { LngService } from '../../services/lng/lng.service';
 import { LUGGAGE_PRICE } from '../../constants/app.constants';
 import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
@@ -38,6 +41,7 @@ declare var bootstrap: any;
     StepIndicatorComponent,
     FormsModule,
     FooterComponent,
+    MfaChallengeComponent,
   ],
   templateUrl: './riepilogo.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -55,7 +59,9 @@ export class RiepilogoComponent implements OnInit {
     private microsoftAuthService: MicrosoftAuthService,
     private facebookAuthService: FacebookAuthService,
     private spotifyAuthService: SpotifyAuthService,
-    private lngService: LngService,
+    private oauthProvidersService: OAuthProvidersService,
+    private mfaService: MfaService,
+    public lngService: LngService,
     private formBuilder: FormBuilder,
   ) {}
 
@@ -71,12 +77,32 @@ export class RiepilogoComponent implements OnInit {
   public checkoutLoginSubmitted = false;
   public checkoutLoginLoading = false;
   public checkoutLoginError = '';
+  // Login a due passaggi nel checkout: password corretta ma serve il secondo fattore
+  public checkoutMfa: MfaChallenge | null = null;
+  public passkeySupported = false;
   public selectedPaymentType: string = 'stripe';
   public canPayCash: boolean = false;
+  // Pulsanti OAuth visibili SOLO se il provider e' configurato lato server
+  // (stessa logica della login). Finche' l'elenco non arriva restano nascosti.
+  public oauthProviders: OAuthProviders = { google: false, microsoft: false, facebook: false, spotify: false };
+
+  get hasOAuth(): boolean {
+    return this.oauthProviders.google || this.oauthProviders.microsoft || this.oauthProviders.facebook || this.oauthProviders.spotify;
+  }
+
   async ngOnInit() {
     this.checkoutLoginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
+    });
+    this.passkeySupported = this.mfaService.passkeySupported();
+    this.oauthProvidersService.getProviders().subscribe({
+      next: (response) => {
+        this.oauthProviders = response.providers;
+      },
+      error: () => {
+        // Provider non disponibili: nessun pulsante OAuth, resta il login classico
+      },
     });
 
     this.router.events.subscribe((event) => {
@@ -245,9 +271,13 @@ export class RiepilogoComponent implements OnInit {
     const { email, password } = this.checkoutLoginForm.value;
 
     this.authService.login(email, password, false).subscribe({
-      next: () => {
+      next: (response: any) => {
         this.checkoutLoginLoading = false;
         this.checkoutLoginError = '';
+        if (this.mfaService.isMfaChallenge(response)) {
+          this.checkoutMfa = response;
+          return;
+        }
         this.checkCashEligibility();
         this.checkDuplicateTicket();
       },
@@ -256,5 +286,30 @@ export class RiepilogoComponent implements OnInit {
         this.checkoutLoginError = this.lngService.traslate('str_login_error');
       },
     });
+  }
+
+  async onCheckoutMfaVerified() {
+    this.checkoutMfa = null;
+    await this.authService.refreshSession();
+    this.checkCashEligibility();
+    this.checkDuplicateTicket();
+  }
+
+  async loginWithPasskey() {
+    this.checkoutLoginError = '';
+    this.checkoutLoginLoading = true;
+    try {
+      await this.mfaService.loginWithPasskey(false);
+      await this.authService.refreshSession();
+      this.checkCashEligibility();
+      this.checkDuplicateTicket();
+    } catch (e: any) {
+      // annullamento dal dialogo del browser: nessun messaggio d'errore
+      if (e?.name !== 'NotAllowedError' && e?.name !== 'AbortError') {
+        this.checkoutLoginError = this.lngService.traslateOr('str_passkey_error', 'Accesso con passkey non riuscito');
+      }
+    } finally {
+      this.checkoutLoginLoading = false;
+    }
   }
 }
