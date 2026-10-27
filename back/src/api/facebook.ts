@@ -7,6 +7,7 @@ import { role } from "../enum/role";
 import userModel from "../model/userModel";
 import { db, env, logger } from "../index";
 import SessionServices from "../components/services/sessionServices";
+import MfaServices from "../components/services/mfaServices";
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import GoogleSessionServices from "../components/services/googleSessionsServices"; // handshake provider-agnostico (collection googleSessions)
@@ -45,6 +46,11 @@ router.get("/getSession/:id", async (req: any, res: Response, next: NextFunction
     let fbSession = await handshakeServices.readGoogleSessionByToken(id);
     if (fbSession) {
       failToBanServices.deleteIp(req.ip);
+      // 2FA attivo: la sessione nasce solo dopo il secondo fattore (POST /auth/mfa/verify)
+      const mfaChallenge = await new MfaServices(db).startLoginChallenge(fbSession, true, true);
+      if (mfaChallenge) {
+        return res.json(mfaChallenge);
+      }
       let loginResponse = await sessionServices.loginGoogle(fbSession);
       let sessionToken = loginResponse.sessionToken;
       let userSession = loginResponse.userSession;

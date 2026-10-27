@@ -15,12 +15,14 @@ import { FacebookAuthService } from '../../services/facebook-auth/facebook-auth.
 import { SpotifyAuthService } from '../../services/spotify-auth/spotify-auth.service';
 import { OAuthProviders, OAuthProvidersService } from '../../services/oauth-providers/oauth-providers.service';
 import { LngService } from '../../services/lng/lng.service';
+import { MfaChallenge, MfaService } from '../../services/mfa/mfa.service';
+import { MfaChallengeComponent } from '../mfa-challenge/mfa-challenge.component';
 declare var bootstrap: any;
 
 @Component({
   selector: 'app-login-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe, MfaChallengeComponent],
   templateUrl: './login-form.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login-form.component.scss',
@@ -36,6 +38,10 @@ export class LoginFormComponent implements OnInit {
   // Finche' l'elenco non arriva da /api/providers restano nascosti.
   oauthProviders: OAuthProviders = { google: false, microsoft: false, facebook: false, spotify: false };
 
+  // Login a due passaggi: valorizzato quando la password e' corretta ma serve il secondo fattore
+  mfaChallenge: MfaChallenge | null = null;
+  passkeySupported = false;
+
   get hasOAuth(): boolean {
     return this.oauthProviders.google || this.oauthProviders.microsoft || this.oauthProviders.facebook || this.oauthProviders.spotify;
   }
@@ -49,7 +55,8 @@ export class LoginFormComponent implements OnInit {
     private facebookAuthService: FacebookAuthService,
     private spotifyAuthService: SpotifyAuthService,
     private oauthProvidersService: OAuthProvidersService,
-    private lngService: LngService,
+    public lngService: LngService,
+    private mfaService: MfaService,
   ) {}
   @Output() loginSuccess = new EventEmitter<void>();
 
@@ -62,6 +69,7 @@ export class LoginFormComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
       rememberMe: [false],
     });
+    this.passkeySupported = this.mfaService.passkeySupported();
     this.oauthProvidersService.getProviders().subscribe({
       next: (response) => {
         this.oauthProviders = response.providers;
@@ -109,18 +117,12 @@ export class LoginFormComponent implements OnInit {
       this.authService.login(email, password, rememberMe).subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          // Il cookie jwt e' httpOnly: ricarica l'identita' da /auth/me
-          // prima di riprendere la navigazione.
-          this.authService.refreshSession().then(() => {
-            this.loginSuccess.emit();
+          if (this.mfaService.isMfaChallenge(response)) {
             this.loginError = '';
-            this.loginSuccessMsg =
-              this.lngService.traslate('str_login_success') || 'Login riuscito!';
-            setTimeout(() => {
-              this.loginSuccessMsg = '';
-            }, 3000);
-            // this.router.navigate(['/user/account']);
-          });
+            this.mfaChallenge = response;
+            return;
+          }
+          this.completeLogin();
         },
         error: (e: any) => {
           this.isLoading = false;
@@ -134,5 +136,40 @@ export class LoginFormComponent implements OnInit {
       console.error(e);
       this.loginError = 'Errore durante la navigazione. Riprova.';
     }
+  }
+
+  onMfaVerified(): void {
+    this.mfaChallenge = null;
+    this.completeLogin();
+  }
+
+  async loginWithPasskey(): Promise<void> {
+    this.loginError = '';
+    this.isLoading = true;
+    try {
+      await this.mfaService.loginWithPasskey(this.loginForm.value.rememberMe);
+      this.completeLogin();
+    } catch (e: any) {
+      // annullamento dal dialogo del browser: nessun messaggio d'errore
+      if (e?.name !== 'NotAllowedError' && e?.name !== 'AbortError') {
+        this.loginError = this.lngService.traslateOr('str_passkey_error', 'Accesso con passkey non riuscito');
+      }
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  private completeLogin(): void {
+    // Il cookie jwt e' httpOnly: ricarica l'identita' da /auth/me
+    // prima di riprendere la navigazione.
+    this.authService.refreshSession().then(() => {
+      this.loginSuccess.emit();
+      this.loginError = '';
+      this.loginSuccessMsg =
+        this.lngService.traslate('str_login_success') || 'Login riuscito!';
+      setTimeout(() => {
+        this.loginSuccessMsg = '';
+      }, 3000);
+    });
   }
 }

@@ -16,6 +16,8 @@
     "invalidate:unpaidTickets": "ts-node src/scripts/invalidate-unpaid-tickets.ts",
     "sync:unpaidBookings": "ts-node src/scripts/sync-unpaid-bookings.ts",
     "migrate:recoverMail": "ts-node src/scripts/update-recover-password-template.ts",
+    "seed:mfaLng": "ts-node src/scripts/seed-mfa-lng.ts",
+    "admin:resetPassword": "ts-node src/scripts/reset-admin-password.ts",
     "version-patch": "npm version patch --no-git-tag-version",
     "version-minor": "npm version minor",
     "version-major": "npm version major"
@@ -28,6 +30,7 @@
   "license": "MIT",
   "dependencies": {
     "@datalust/winston-seq": "^2.0.0",
+    "@simplewebauthn/server": "^14.0.3",
     "@types/crypto-js": "^4.2.2",
     "@types/express-useragent": "^1.0.5",
     "@types/nodemailer": "^6.4.17",
@@ -52,6 +55,7 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.7.1",
     "nodemailer": "^9.0.1",
+    "otplib": "^13.5.0",
     "passport": "^0.7.0",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",

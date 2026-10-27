@@ -13,12 +13,14 @@ import { MicrosoftAuthService } from '../../services/microsoft-auth/microsoft-au
 import { FacebookAuthService } from '../../services/facebook-auth/facebook-auth.service';
 import { SpotifyAuthService } from '../../services/spotify-auth/spotify-auth.service';
 import { OAuthProviders, OAuthProvidersService } from '../../services/oauth-providers/oauth-providers.service';
+import { MfaChallenge, MfaService } from '../../services/mfa/mfa.service';
+import { MfaChallengeComponent } from '../../components/mfa-challenge/mfa-challenge.component';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, MfaChallengeComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   providers: [],
 })
@@ -32,6 +34,10 @@ export class LoginComponent implements OnInit {
   // Finche' l'elenco non arriva da /api/providers restano nascosti.
   oauthProviders: OAuthProviders = { google: false, microsoft: false, facebook: false, spotify: false };
 
+  // Login a due passaggi: valorizzato quando la password e' corretta ma serve il secondo fattore
+  mfaChallenge: MfaChallenge | null = null;
+  passkeySupported = false;
+
   get hasOAuth(): boolean {
     return this.oauthProviders.google || this.oauthProviders.microsoft || this.oauthProviders.facebook || this.oauthProviders.spotify;
   }
@@ -44,7 +50,8 @@ export class LoginComponent implements OnInit {
     private microsoftAuthService: MicrosoftAuthService,
     private facebookAuthService: FacebookAuthService,
     private spotifyAuthService: SpotifyAuthService,
-    private oauthProvidersService: OAuthProvidersService
+    private oauthProvidersService: OAuthProvidersService,
+    private mfaService: MfaService
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +63,7 @@ export class LoginComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
       rememberMe: [false],
     });
+    this.passkeySupported = this.mfaService.passkeySupported();
     this.oauthProvidersService.getProviders().subscribe({
       next: (response) => {
         this.oauthProviders = response.providers;
@@ -103,15 +111,12 @@ export class LoginComponent implements OnInit {
       this.authService.login(email, password, rememberMe).subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          this.router
-            .navigate(['/admin/home'])
-            .then(() => {
-              // Navigazione completata
-            })
-            .catch((err) => {
-              this.loginError = 'Errore durante la navigazione. Riprova.';
-            });
           this.loginError = '';
+          if (this.mfaService.isMfaChallenge(response)) {
+            this.mfaChallenge = response;
+            return;
+          }
+          this.completeLogin();
         },
         error: (e: any) => {
           this.isLoading = false;
@@ -125,5 +130,32 @@ export class LoginComponent implements OnInit {
       console.error(e);
       this.loginError = 'Errore durante la navigazione. Riprova.';
     }
+  }
+
+  onMfaVerified(): void {
+    this.mfaChallenge = null;
+    this.completeLogin();
+  }
+
+  async loginWithPasskey(): Promise<void> {
+    this.loginError = '';
+    this.isLoading = true;
+    try {
+      await this.mfaService.loginWithPasskey(this.loginForm.value.rememberMe);
+      this.completeLogin();
+    } catch (e: any) {
+      // annullamento dal dialogo del browser: nessun messaggio d'errore
+      if (e?.name !== 'NotAllowedError' && e?.name !== 'AbortError') {
+        this.loginError = 'Accesso con passkey non riuscito.';
+      }
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  private completeLogin(): void {
+    this.router.navigate(['/admin/home']).catch(() => {
+      this.loginError = 'Errore durante la navigazione. Riprova.';
+    });
   }
 }

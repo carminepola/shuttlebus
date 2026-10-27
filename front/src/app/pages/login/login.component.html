@@ -28,6 +28,13 @@
 
   <div class="login-right">
     <div class="login-right-inner">
+      @if (mfaChallenge) {
+      <app-mfa-challenge
+        [challenge]="mfaChallenge"
+        (verified)="onMfaVerified()"
+        (cancelled)="mfaChallenge = null"
+      ></app-mfa-challenge>
+      } @else {
       <div class="login-mobile-logo d-lg-none mb-4">
         <img src="../../../assets/pintour-logo.png" alt="Pintour" />
       </div>
@@ -128,10 +135,17 @@
         </button>
       </form>
 
-      @if (hasOAuth) {
+      @if (hasOAuth || passkeySupported) {
         <div class="auth-divider">
           <span>o</span>
         </div>
+      }
+
+      @if (passkeySupported) {
+        <button type="button" class="auth-google auth-microsoft" (click)="loginWithPasskey()" [disabled]="isLoading">
+          <i class="fa-solid fa-key" aria-hidden="true"></i>
+          <span>Accedi con passkey</span>
+        </button>
       }
 
       @if (oauthProviders.google) {
@@ -180,6 +194,7 @@
           </svg>
           <span>Accedi con Spotify</span>
         </button>
+      }
       }
     </div>
   </div>

@@ -1,4 +1,11 @@
 <div class="auth-form-wrapper">
+  @if (mfaChallenge) {
+  <app-mfa-challenge
+    [challenge]="mfaChallenge"
+    (verified)="onMfaVerified()"
+    (cancelled)="mfaChallenge = null"
+  ></app-mfa-challenge>
+  } @else {
   <div class="auth-header">
     <h2 class="auth-title">{{ "str_accendi_account" | translate }}</h2>
   </div>
@@ -114,10 +121,17 @@
     </button>
   </form>
 
-  @if (hasOAuth) {
+  @if (hasOAuth || passkeySupported) {
     <div class="auth-divider">
       <span>{{ "str_or" | translate }}</span>
     </div>
+  }
+
+  @if (passkeySupported) {
+    <button type="button" class="auth-google auth-microsoft" (click)="loginWithPasskey()" [disabled]="isLoading">
+      <i class="fa-solid fa-key" aria-hidden="true"></i>
+      <span>{{ lngService.traslateOr("str_passkey_login", "Accedi con passkey") }}</span>
+    </button>
   }
 
   @if (oauthProviders.google) {
@@ -178,5 +192,6 @@
       </svg>
       <span>Accedi con Spotify</span>
     </button>
+  }
   }
 </div>

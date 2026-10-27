@@ -237,6 +237,25 @@ class MailSenderServices {
     );
   }
 
+  /**
+   * Codice di verifica 2FA sul template GENERIC. A differenza di sendGenericMail
+   * restituisce la promise: il chiamante deve sapere se l'invio e' fallito
+   * (es. SMTP non configurato) invece di lasciare un rejection non gestito.
+   */
+  async sendMfaCode(to: string, title: string, body: string): Promise<boolean> {
+    return this.mailService.sendMail(
+      new Mail({
+        to: to,
+        type: "GENERIC",
+        bodyVariables: {
+          title: title,
+          body: body,
+          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
+        },
+      })
+    );
+  }
+
   async sendGenericMail(to: string, title: string, body: string) {
     this.mailService.sendMail(
       new Mail({

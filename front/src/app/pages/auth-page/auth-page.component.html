@@ -1,3 +1,13 @@
 <div class="vh-100 vw-100 d-flex align-items-center justify-content-center">
-  <app-loading></app-loading>
+  @if (mfaChallenge) {
+    <div class="card border-0 rounded-4 shadow p-4 mx-3 mfa-card">
+      <app-mfa-challenge
+        [challenge]="mfaChallenge"
+        (verified)="onMfaVerified()"
+        (cancelled)="onMfaCancelled()"
+      ></app-mfa-challenge>
+    </div>
+  } @else {
+    <app-loading></app-loading>
+  }
 </div>

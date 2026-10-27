@@ -24,6 +24,15 @@ export default class SessionServices {
       refreshToken: String;
     };
   }> {
+    await this.verifyCredentials(email, password);
+    return this.createUserSession(email, rememberMe);
+  }
+
+  /**
+   * Solo verifica password + stato account (nessuna sessione creata): usata dal
+   * login a due fattori, dove la sessione nasce dopo il secondo fattore.
+   */
+  public async verifyCredentials(email: string, password: string): Promise<void> {
     if (await this.userServices.checkPassword(email, password)) {
       this.failToBan.deleteIp(email);
       let userFind = await this.userServices.getUserByEmail(email);
@@ -36,29 +45,6 @@ export default class SessionServices {
         this.userServices.deleteOldSessions(email);
         throw new ErrorModel(400, "Account disattivato. Contatta l'amministratore.");
       }
-
-      let sessionToken = await this.userServices.createSession(email);
-
-      if (userFind?.sessions) {
-        //va oltre le possibilità del cookie
-        delete userFind.sessions;
-      }
-
-      let userSession: any = {
-        ...userFind,
-        rememberMe: rememberMe,
-        session: sessionToken.newSession,
-        email: email,
-        _id: userFind?._id,
-        role: userFind?.role >= 0 && userFind?.role != undefined && userFind?.role != null ? userFind.role : 9999,
-        permissions: userFind?.permissions ? userFind.permissions : [],
-      };
-
-      delete userSession.options?.pin;
-
-      this.userServices.deleteOldSessions(email);
-
-      return { userSession, sessionToken };
     } else {
       this.failToBan.insertIp(email);
       const state = await this.failToBan.getFailState(email);
@@ -67,6 +53,52 @@ export default class SessionServices {
       //new Error().stack
       throw new ErrorModel(400, "Credenziali non valide. Riprova.");
     }
+  }
+
+  /** Crea la sessione per un utente gia' autenticato (password + 2FA, passkey). */
+  public async createUserSession(
+    email: string,
+    rememberMe: boolean,
+  ): Promise<{
+    userSession: any;
+    sessionToken: {
+      newSession: String;
+      refreshToken: String;
+    };
+  }> {
+    let userFind = await this.userServices.getUserByEmail(email);
+
+    if (!userFind || userFind?.role == role.NO_PERMISSION) {
+      throw new ErrorModel(400, "Credenziali non valide. Riprova.");
+    }
+
+    if (userFind?.disabled) {
+      this.userServices.deleteOldSessions(email);
+      throw new ErrorModel(400, "Account disattivato. Contatta l'amministratore.");
+    }
+
+    let sessionToken = await this.userServices.createSession(email);
+
+    if (userFind?.sessions) {
+      //va oltre le possibilità del cookie
+      delete userFind.sessions;
+    }
+
+    let userSession: any = {
+      ...userFind,
+      rememberMe: rememberMe,
+      session: sessionToken.newSession,
+      email: email,
+      _id: userFind?._id,
+      role: userFind?.role >= 0 && userFind?.role != undefined && userFind?.role != null ? userFind.role : 9999,
+      permissions: userFind?.permissions ? userFind.permissions : [],
+    };
+
+    delete userSession.options?.pin;
+
+    this.userServices.deleteOldSessions(email);
+
+    return { userSession, sessionToken };
   }
   public async loginGoogle(email: string): Promise<{
     userSession: any;

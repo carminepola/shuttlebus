@@ -12,6 +12,7 @@ import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle
 import { AuthService } from '../../services/auth/auth.service';
 import { UserService } from '../../services/user/user.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { SecuritySettingsComponent } from '../../components/security-settings/security-settings.component';
 @Component({
   selector: 'app-user-settings',
   imports: [
@@ -19,6 +20,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
     ReactiveFormsModule,
     TitlePageComponent,
     TranslatePipe,
+    SecuritySettingsComponent,
   ],
   templateUrl: './user-settings.component.html',
   styleUrls: ['./user-settings.component.scss'],

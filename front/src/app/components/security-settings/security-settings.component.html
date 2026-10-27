@@ -1,0 +1,260 @@
+<div class="card border-0 rounded-4 shadow mt-4">
+  <div class="card-body">
+    <h3 class="text-muted mb-1">{{ t("str_security", "Sicurezza dell'account") }}</h3>
+    <p class="text-muted small mb-3">
+      {{ t("str_security_desc", "Proteggi l'accesso con la verifica in due passaggi o accedi senza password con una passkey.") }}
+    </p>
+
+    @if (error) {
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ error }}
+        <button type="button" class="btn-close" (click)="error = ''" aria-label="Chiudi"></button>
+      </div>
+    }
+    @if (success) {
+      <div class="alert alert-success alert-dismissible fade show" role="status">
+        {{ success }}
+        <button type="button" class="btn-close" (click)="success = ''" aria-label="Chiudi"></button>
+      </div>
+    }
+
+    @if (loading) {
+      <div class="text-center py-3">
+        <span class="spinner-border spinner-border-sm" role="status"></span>
+      </div>
+    } @else {
+      <h4 class="security-heading">{{ t("str_mfa_title", "Verifica in due passaggi") }}</h4>
+
+      <!-- App di autenticazione -->
+      <div class="security-row">
+        <div class="security-row-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+        <div class="security-row-body">
+          <div class="security-row-title">
+            {{ t("str_mfa_app", "App di autenticazione") }}
+            <span class="badge" [class.text-bg-success]="status.totp" [class.text-bg-secondary]="!status.totp">
+              {{ status.totp ? t("str_mfa_on", "Attiva") : t("str_mfa_off", "Non attiva") }}
+            </span>
+          </div>
+          <div class="security-row-desc">
+            {{ t("str_mfa_app_desc", "Codici generati da un'app come Google Authenticator, Microsoft Authenticator o 1Password.") }}
+          </div>
+        </div>
+        @if (!pending) {
+          @if (status.totp) {
+            <button type="button" class="btn btn-outline-danger btn-sm" [disabled]="busy" (click)="startTotpDisable()">
+              {{ t("str_mfa_disable", "Disattiva") }}
+            </button>
+          } @else {
+            <button type="button" class="btn btn-secondary btn-sm" [disabled]="busy" (click)="startTotpEnable()">
+              {{ t("str_mfa_enable", "Attiva") }}
+            </button>
+          }
+        }
+      </div>
+
+      @if (pending === "totp-enable") {
+        <div class="security-step">
+          <p class="small mb-2">
+            {{ t("str_mfa_scan_qr", "Scansiona il QR code con l'app di autenticazione, poi inserisci il codice a 6 cifre che mostra.") }}
+          </p>
+          <img class="security-qr" [src]="totpQr" alt="QR code" width="200" height="200" />
+          <p class="small text-muted mb-1">{{ t("str_mfa_manual_key", "Oppure inserisci manualmente la chiave:") }}</p>
+          <code class="security-secret">{{ totpSecret }}</code>
+          <ng-container *ngTemplateOutlet="codeForm"></ng-container>
+        </div>
+      }
+      @if (pending === "totp-disable") {
+        <div class="security-step">
+          <p class="small mb-2">{{ t("str_mfa_confirm_app", "Inserisci un codice dell'app per confermare.") }}</p>
+          <ng-container *ngTemplateOutlet="codeForm"></ng-container>
+        </div>
+      }
+
+      <!-- Email -->
+      <div class="security-row">
+        <div class="security-row-icon"><i class="fa-solid fa-envelope"></i></div>
+        <div class="security-row-body">
+          <div class="security-row-title">
+            {{ t("str_mfa_email", "Email") }}
+            <span class="badge" [class.text-bg-success]="status.email" [class.text-bg-secondary]="!status.email">
+              {{ status.email ? t("str_mfa_on", "Attiva") : t("str_mfa_off", "Non attiva") }}
+            </span>
+          </div>
+          <div class="security-row-desc">
+            {{ t("str_mfa_email_desc", "A ogni accesso ricevi un codice all'indirizzo email dell'account.") }}
+          </div>
+        </div>
+        @if (!pending) {
+          @if (status.email) {
+            <button type="button" class="btn btn-outline-danger btn-sm" [disabled]="busy" (click)="startEmail('email-disable')">
+              {{ t("str_mfa_disable", "Disattiva") }}
+            </button>
+          } @else {
+            <button type="button" class="btn btn-secondary btn-sm" [disabled]="busy" (click)="startEmail('email-enable')">
+              {{ t("str_mfa_enable", "Attiva") }}
+            </button>
+          }
+        }
+      </div>
+
+      @if (pending === "email-enable" || pending === "email-disable") {
+        <div class="security-step">
+          <p class="small mb-2">{{ t("str_mfa_confirm_email", "Inserisci il codice che ti abbiamo inviato via email.") }}</p>
+          <ng-container *ngTemplateOutlet="codeForm"></ng-container>
+          <button type="button" class="btn btn-link btn-sm px-0" [disabled]="busy" (click)="resendEmail()">
+            {{ t("str_mfa_resend", "Invia di nuovo il codice") }}
+          </button>
+        </div>
+      }
+
+      <!-- Codici di recupero -->
+      @if (newRecoveryCodes) {
+        <div class="alert alert-warning mt-3" role="alert">
+          <h5 class="alert-heading fs-6 fw-bold">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i>{{ t("str_recovery_save_title", "Salva i codici di recupero") }}
+          </h5>
+          <p class="small mb-2">
+            {{ t("str_recovery_save_desc", "Se perdi l'accesso all'app o all'email puoi entrare con uno di questi codici. Ognuno vale una sola volta e non verranno più mostrati.") }}
+          </p>
+          <ul class="recovery-codes">
+            @for (c of newRecoveryCodes; track c) {
+              <li><code>{{ c }}</code></li>
+            }
+          </ul>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-dark btn-sm" (click)="copyRecoveryCodes()">
+              <i class="fa-solid me-1" [class.fa-copy]="!copied" [class.fa-check]="copied"></i>
+              {{ copied ? t("str_copied", "Copiati") : t("str_copy", "Copia") }}
+            </button>
+            <button type="button" class="btn btn-dark btn-sm" (click)="newRecoveryCodes = null">
+              {{ t("str_recovery_saved", "Li ho salvati") }}
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (status.totp || status.email) {
+        <div class="security-row">
+          <div class="security-row-icon"><i class="fa-solid fa-life-ring"></i></div>
+          <div class="security-row-body">
+            <div class="security-row-title">
+              {{ t("str_recovery_codes", "Codici di recupero") }}
+              <span class="badge" [class.text-bg-warning]="status.recoveryCodes <= 2" [class.text-bg-light]="status.recoveryCodes > 2">
+                {{ status.recoveryCodes }} {{ t("str_recovery_left", "rimasti") }}
+              </span>
+            </div>
+            <div class="security-row-desc">
+              {{ t("str_recovery_desc", "Da usare al posto del codice se perdi l'accesso all'app o all'email.") }}
+            </div>
+          </div>
+          @if (!pending) {
+            <button type="button" class="btn btn-outline-secondary btn-sm text-nowrap" [disabled]="busy" (click)="startRecoveryRegenerate()">
+              {{ t("str_recovery_regenerate", "Genera nuovi") }}
+            </button>
+          }
+        </div>
+        @if (pending === "recovery-regenerate") {
+          <div class="security-step">
+            <p class="small mb-2">
+              @if (status.totp) {
+                {{ t("str_mfa_confirm_app", "Inserisci un codice dell'app per confermare.") }}
+              } @else {
+                {{ t("str_mfa_confirm_email", "Inserisci il codice che ti abbiamo inviato via email.") }}
+              }
+            </p>
+            <ng-container *ngTemplateOutlet="codeForm"></ng-container>
+          </div>
+        }
+      }
+
+      <!-- Passkey -->
+      <h4 class="security-heading mt-4">{{ t("str_passkeys", "Passkey") }}</h4>
+      <p class="text-muted small">
+        {{ t("str_passkeys_desc", "Accedi senza password con impronta, volto o PIN del dispositivo.") }}
+      </p>
+
+      @if (status.passkeys.length === 0) {
+        <p class="small text-muted fst-italic">{{ t("str_passkey_none", "Nessuna passkey registrata.") }}</p>
+      }
+      @for (passkey of status.passkeys; track passkey.id) {
+        <div class="security-row">
+          <div class="security-row-icon"><i class="fa-solid fa-key"></i></div>
+          <div class="security-row-body">
+            <div class="security-row-title">{{ passkey.name }}</div>
+            <div class="security-row-desc">
+              {{ t("str_passkey_created", "Aggiunta il") }} {{ passkey.createdAt | date: "dd/MM/yyyy" }}
+              @if (passkey.lastUsedAt) {
+                · {{ t("str_passkey_last_used", "Ultimo uso") }} {{ passkey.lastUsedAt | date: "dd/MM/yyyy HH:mm" }}
+              }
+            </div>
+          </div>
+          @if (confirmRemoveId === passkey.id) {
+            <div class="d-flex gap-1">
+              <button type="button" class="btn btn-danger btn-sm" [disabled]="busy" (click)="removePasskey(passkey.id)">
+                {{ t("str_confermo", "Conferma") }}
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="confirmRemoveId = null">
+                {{ t("str_annulla", "Annulla") }}
+              </button>
+            </div>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              [disabled]="busy"
+              (click)="confirmRemoveId = passkey.id"
+              [attr.aria-label]="t('str_passkey_remove', 'Rimuovi') + ' ' + passkey.name"
+            >
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          }
+        </div>
+      }
+
+      @if (passkeySupported) {
+        <form class="security-passkey-add" (ngSubmit)="addPasskey()">
+          <label class="visually-hidden" for="passkey-name">{{ t("str_passkey_name", "Nome passkey") }}</label>
+          <input
+            id="passkey-name"
+            name="passkeyName"
+            class="form-control form-control-sm"
+            [(ngModel)]="passkeyName"
+            maxlength="60"
+            [placeholder]="t('str_passkey_name_placeholder', 'Nome (es. iPhone di lavoro)')"
+          />
+          <button type="submit" class="btn btn-secondary btn-sm text-nowrap" [disabled]="busy">
+            <i class="fa-solid fa-plus me-1"></i>{{ t("str_passkey_add", "Aggiungi passkey") }}
+          </button>
+        </form>
+      } @else {
+        <p class="small text-muted">{{ t("str_passkey_unsupported", "Questo browser non supporta le passkey.") }}</p>
+      }
+    }
+  </div>
+</div>
+
+<ng-template #codeForm>
+  <form class="security-code-form" (ngSubmit)="confirmCode()">
+    <label class="visually-hidden" for="security-code">{{ t("str_mfa_code", "Codice di verifica") }}</label>
+    <input
+      id="security-code"
+      name="code"
+      class="form-control security-code-input"
+      [(ngModel)]="code"
+      inputmode="numeric"
+      autocomplete="one-time-code"
+      maxlength="7"
+      placeholder="000000"
+    />
+    <button type="submit" class="btn btn-secondary" [disabled]="busy">
+      @if (busy) {
+        <span class="spinner-border spinner-border-sm" role="status"></span>
+      } @else {
+        {{ t("str_confermo", "Conferma") }}
+      }
+    </button>
+    <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
+      {{ t("str_annulla", "Annulla") }}
+    </button>
+  </form>
+</ng-template>

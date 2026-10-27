@@ -71,4 +71,10 @@ export class LngService {
     }
     return value;
   }
+
+  /** Come traslate, ma con un testo di riserva se la chiave non e' ancora tradotta. */
+  traslateOr(id: string, fallback: string) {
+    const value = this.traslate(id);
+    return value === id ? fallback : value;
+  }
 }

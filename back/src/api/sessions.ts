@@ -16,6 +16,8 @@ import FailToBanServices from "../components/services/failToBanServices";
 import SessionServices from "../components/services/sessionServices";
 import BookingsServices from "../components/services/bookingServices";
 import { authIpLimiter, authAccountLimiter } from "../middlewares/authRateLimitMiddleware";
+import MfaServices from "../components/services/mfaServices";
+import { setSessionCookies } from "../utils/sessionCookies";
 const router = express.Router();
 
 router.post(
@@ -54,17 +56,16 @@ router.post(
         throw new ErrorModel(429, "Troppi tentativi. Riprova più tardi.");
       }
 
-      // Login: verifica password + crea sessione + fail-to-ban basato su email
-      // Se le credenziali sono errate, sessionServices.login() lancia ErrorModel(400)
-      let loginResponse;
+      // Login: verifica password + fail-to-ban basato su email
+      // Se le credenziali sono errate, sessionServices.verifyCredentials() lancia ErrorModel(400)
       try {
-        loginResponse = await sessionServices.login(email, req.body.password, req.body.rememberMe);
+        await sessionServices.verifyCredentials(email, req.body.password);
       } catch (loginError) {
         // Registra il fallimento anche per IP e logga server-side il contatore
         try {
           await failToBanServices.insertIp(clientIp);
           const state = await failToBanServices.getFailState(email);
-          logger.warn(`Login fallito: email=${email} ip=${clientIp} tentativi_falliti_account=${state.count}`);
+          logger.warn(`Login fallito: email=${email} tentativi_falliti_account=${state.count}`);
         } catch (logError) {
           logger.error("Errore registrazione fallimento login", logError);
         }
@@ -75,44 +76,122 @@ router.post(
       await failToBanServices.deleteIp(email);
       await failToBanServices.deleteIp(clientIp);
 
-      let sessionToken = loginResponse.sessionToken;
-      let userSession = loginResponse.userSession;
-
-      let jwtToken: any = jwt.sign(userSession, secretKey, {
-        expiresIn: "72h",
-      });
-
-      let refreshToken: any = jwt.sign(
-        {
-          refreshToken: sessionToken.refreshToken,
-        },
-        secretKey,
-        {
-          expiresIn: "30d",
-        },
-      );
-      let settingsJwt: CookieOptions = {
-        maxAge: undefined,
-        // Il JWT NON e' leggibile dal JavaScript (mitigazione furto via XSS):
-        // l'identita' lato front passa dall'endpoint GET /auth/me, non dal cookie.
-        httpOnly: true,
-        sameSite: cookieSameSite(),
-        secure: cookieSecure(),
-      };
-      if (req.body.rememberMe) {
-        settingsJwt.maxAge = 2592000000;
-        res.cookie("refreshToken", refreshToken, {
-          maxAge: 2592000000,
-          httpOnly: true,
-          sameSite: cookieSameSite(),
-          secure: cookieSecure(),
-        });
+      // 2FA attivo: nessuna sessione finche' non arriva il secondo fattore
+      const mfaChallenge = await new MfaServices(db).startLoginChallenge(email, !!req.body.rememberMe, false);
+      if (mfaChallenge) {
+        return res.json(mfaChallenge);
       }
 
-      res.cookie("jwt", jwtToken, settingsJwt);
+      const loginResponse = await sessionServices.createUserSession(email, !!req.body.rememberMe);
+      setSessionCookies(res, loginResponse, !!req.body.rememberMe);
 
       res.json({ message: "Accesso autorizzato" });
     } catch (error: ErrorModel | any) {
+      next(error);
+    }
+  },
+);
+
+/** Reinvio del codice 2FA via email durante il login (ticket MFA nel body). */
+router.post(
+  "/mfa/email",
+  authIpLimiter,
+  [check("mfaToken").notEmpty().withMessage("mfaToken is required")],
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const mfaServices = new MfaServices(db);
+      const ticket = mfaServices.readTicket(req.body.mfaToken);
+      if (!(await mfaServices.getLoginMethods(ticket.userId)).includes("email")) {
+        throw new ErrorModel(400, "Metodo non disponibile");
+      }
+      const user = await new UserServices(db).getUserByEmailAll(ticket.email);
+      await mfaServices.sendEmailCode(ticket.userId, ticket.email, user?.options?.lng);
+      res.json({ message: "Codice inviato" });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/** Secondo fattore del login: codice app (totp), email o codice di recupero. Crea la sessione. */
+router.post(
+  "/mfa/verify",
+  authIpLimiter,
+  [
+    check("mfaToken").notEmpty().withMessage("mfaToken is required"),
+    check("method").isIn(["totp", "email", "recovery"]).withMessage("method non valido"),
+    check("code").notEmpty().withMessage("code is required"),
+  ],
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const mfaServices = new MfaServices(db);
+      const failToBanServices = new FailToBanServices(db);
+      const ticket = mfaServices.readTicket(req.body.mfaToken);
+      const failKey = `mfa:${ticket.userId}`;
+
+      if (await failToBanServices.isRateLimited(failKey)) {
+        throw new ErrorModel(429, "Troppi tentativi. Riprova più tardi.");
+      }
+      if (!(await mfaServices.verifySecondFactor(ticket.userId, req.body.method, String(req.body.code)))) {
+        await failToBanServices.insertIp(failKey);
+        logger.warn(`Codice 2FA errato per ${ticket.email} (metodo ${req.body.method})`);
+        throw new ErrorModel(400, "Codice non valido");
+      }
+      await failToBanServices.deleteIp(failKey);
+
+      const sessionServices = new SessionServices(db);
+      // OAuth: stessa sessione di loginGoogle (sempre "ricordami"); password: createUserSession
+      const loginResponse = ticket.oauth
+        ? await sessionServices.loginGoogle(ticket.email)
+        : await sessionServices.createUserSession(ticket.email, ticket.rememberMe);
+      setSessionCookies(res, loginResponse, ticket.oauth || ticket.rememberMe);
+
+      res.json({ message: "Accesso autorizzato" });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/** Login con passkey, passo 1: challenge WebAuthn (credenziali individuabili). */
+router.post("/passkey/options", authIpLimiter, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.json(await new MfaServices(db).passkeyLoginOptions());
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * Login con passkey, passo 2: verifica asserzione e crea la sessione.
+ * La passkey e' gia' un fattore forte (possesso + biometria/PIN): niente 2FA aggiuntivo.
+ */
+router.post(
+  "/passkey/verify",
+  authIpLimiter,
+  [check("challengeId").notEmpty().withMessage("challengeId is required"), check("response").isObject().withMessage("response is required")],
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const failToBanServices = new FailToBanServices(db);
+      const clientIp = res.locals.log?.ip || req.ip;
+      if (await failToBanServices.isRateLimited(clientIp)) {
+        throw new ErrorModel(429, "Troppi tentativi. Riprova più tardi.");
+      }
+      let email: string;
+      try {
+        email = await new MfaServices(db).passkeyLoginVerify(req.body.challengeId, req.body.response);
+      } catch (error) {
+        await failToBanServices.insertIp(clientIp);
+        throw error;
+      }
+      const rememberMe = !!req.body.rememberMe;
+      const loginResponse = await new SessionServices(db).createUserSession(email, rememberMe);
+      setSessionCookies(res, loginResponse, rememberMe);
+      res.json({ message: "Accesso autorizzato" });
+    } catch (error) {
       next(error);
     }
   },

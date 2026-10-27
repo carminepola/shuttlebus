@@ -1,0 +1,42 @@
+.mfa-challenge {
+  text-align: center;
+}
+
+.mfa-icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 0.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: rgba(var(--bs-secondary-rgb), 1);
+  background: rgba(var(--bs-secondary-rgb), 0.1);
+}
+
+.mfa-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.mfa-hint {
+  font-size: 0.85rem;
+  color: var(--bs-secondary-color);
+  margin-bottom: 1rem;
+}
+
+.mfa-code-input {
+  text-align: center;
+  letter-spacing: 0.4em;
+  font-variant-numeric: tabular-nums;
+}
+
+.mfa-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
