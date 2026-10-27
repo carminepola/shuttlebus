@@ -68,7 +68,7 @@ router.post(
         // pentest: veniva restituito 409 "Utente gia' esistente" permettendo a chiunque
         // di ENUMERARE gli account registrati. Non si rivelera' piu' nulla: la risposta
         // e' sempre identica, l'email di verifica parte solo se l'account e' davvero nuovo.
-        if (regError?.status === 409 || String(regError?.message || "").includes("esistente")) {
+        if (regError?.code === 409 || String(regError?.message || "").includes("esistente")) {
           logger.warn(`Tentativo di registrazione su account esistente (enumerazione bloccata): ${user.email}`);
         } else {
           throw regError;
@@ -101,7 +101,7 @@ router.post(
         await userServices.validateEmail(email, pin);
       } catch (err: any) {
         // PIN errato: registra il fallimento per l'account (anti-bruteforce)
-        if (err?.status === 400) {
+        if (err?.code === 400) {
           const failToBanServices = new FailToBanServices(db);
           await failToBanServices.insertIp(`pin:${email}`);
           const state = await failToBanServices.getFailState(`pin:${email}`);
