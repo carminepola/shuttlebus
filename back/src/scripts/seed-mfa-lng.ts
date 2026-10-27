@@ -14,8 +14,8 @@ if (!connectionString) {
 const dryRun = args.includes("--dry-run");
 
 /**
- * Chiavi di traduzione della verifica in due passaggi e delle passkey
- * (login, checkout, pagina account). Il front ha gia' un testo di riserva in
+ * Chiavi di traduzione della verifica in due passaggi, delle passkey
+ * (login, checkout, pagina account) e dell'avviso di aggiornamento PWA. Il front ha gia' un testo di riserva in
  * italiano: questo script aggiunge it/en nella collection 'lng'.
  *
  * Inserisce SOLO le chiavi mancanti ($setOnInsert): le traduzioni gia'
@@ -93,6 +93,11 @@ const KEYS: Record<string, { it: string; en: string }> = {
   str_recovery_saved: { it: "Li ho salvati", en: "I've saved them" },
   str_copy: { it: "Copia", en: "Copy" },
   str_copied: { it: "Copiati", en: "Copied" },
+  // PWA: avviso di nuova versione disponibile
+  str_pwa_update_title: { it: "Nuova versione disponibile", en: "New version available" },
+  str_pwa_update_text: { it: "Ricarica per usare l'ultima versione dell'app.", en: "Reload to use the latest version of the app." },
+  str_pwa_update_reload: { it: "Ricarica", en: "Reload" },
+  str_pwa_update_later: { it: "Più tardi", en: "Later" },
   str_security: { it: "Sicurezza dell'account", en: "Account security" },
   str_security_desc: {
     it: "Proteggi l'accesso con la verifica in due passaggi o accedi senza password con una passkey.",

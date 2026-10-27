@@ -17,6 +17,7 @@ import { LngService } from './services/lng/lng.service';
 import { LoadingComponent } from './components/loading/loading/loading.component';
 import { CookiePolicyComponent } from './components/cookie-policy/cookie-policy.component';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
+import { PwaUpdateService } from './services/pwa/pwa-update.service';
 import { version } from '../../package.json';
 @Component({
   selector: 'app-root',
@@ -44,11 +45,13 @@ export class AppComponent implements OnInit {
     private authService: AuthService,
     private cookieService: CookieWatcherServiceService,
     private lngService: LngService,
+    private pwaUpdateService: PwaUpdateService,
   ) {}
 
   ngOnInit() {
     console.log(this.getVersion());
     this.loadLng();
+    this.pwaUpdateService.init();
 
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {

@@ -1,7 +1,28 @@
 {
+  "id": "/",
   "name": "Pintour",
   "short_name": "Pintour",
+  "description": "Prenota il tuo shuttle bus e tieni i biglietti sempre a portata di mano.",
+  "lang": "it",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#194295",
+  "background_color": "#ffffff",
+  "categories": ["travel"],
   "icons": [
+    {
+      "src": "/assets/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/assets/web-app-manifest-192x192.png",
       "sizes": "192x192",
@@ -15,7 +36,12 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#194295",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "shortcuts": [
+    {
+      "name": "I miei biglietti",
+      "short_name": "Biglietti",
+      "url": "/user/mytickets",
+      "icons": [{ "src": "/assets/web-app-manifest-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
 }
