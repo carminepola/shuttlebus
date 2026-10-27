@@ -155,3 +155,9 @@ body {
   background-color: rgba(33, 37, 41, 0.92);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
+// Pagine con footer: lo spazio per la lowBar lo riserva gia' il footer
+// (padding-bottom su mobile), lo spaziatore bianco sotto non serve.
+body:has(app-footer) .space-lowBar {
+  display: none !important;
+}

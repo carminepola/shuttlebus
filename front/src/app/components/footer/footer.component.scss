@@ -173,6 +173,9 @@
 @media (max-width: 991.98px) {
   .footer {
     text-align: center;
+    // La lowBar fissa (58px + 5px di margine) si appoggia sopra il footer:
+    // lo spazio sotto resta del colore del footer invece che bianco.
+    padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
   }
 
   .footer-description {
