@@ -317,7 +317,9 @@
   }
 }
 
-.auth-microsoft {
+// Spazio SOLO tra due pulsanti SSO visibili consecutivi: i provider non
+// configurati non vengono renderizzati e il primo visibile puo' essere chiunque.
+.auth-google + .auth-google {
   margin-top: 0.625rem;
 }
 

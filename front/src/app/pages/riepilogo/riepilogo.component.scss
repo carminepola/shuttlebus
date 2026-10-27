@@ -583,9 +583,13 @@
   }
 }
 
-.microsoft-btn {
+// Spazio SOLO tra due pulsanti SSO visibili consecutivi: i provider non
+// configurati non vengono renderizzati e il primo visibile puo' essere chiunque.
+.google-btn + .google-btn {
   margin-top: 0.5rem;
+}
 
+.microsoft-btn {
   i {
     color: #00a4ef;
   }
