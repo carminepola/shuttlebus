@@ -1,0 +1,81 @@
+@if (canDelete()) {
+  <div class="card border-0 rounded-4 shadow mt-4 delete-account">
+    <div class="card-body">
+      <h3 class="text-danger mb-1">{{ t("str_account_delete", "Elimina account") }}</h3>
+      <p class="text-muted small mb-3">
+        {{
+          t(
+            "str_account_delete_desc",
+            "Elimina definitivamente l'account, i dati personali e le carte salvate. Le prenotazioni passate restano in forma anonima per obblighi contabili."
+          )
+        }}
+      </p>
+
+      @if (error) {
+        <div class="alert alert-danger" role="alert">{{ error }}</div>
+      }
+      @if (info && !error) {
+        <div class="alert alert-info" role="status">{{ info }}</div>
+      }
+
+      @switch (step) {
+        @case ("idle") {
+          <button type="button" class="btn btn-outline-danger" (click)="open()">
+            <i class="fa-solid fa-user-xmark me-2"></i>{{ t("str_account_delete", "Elimina account") }}
+          </button>
+        }
+        @case ("confirm") {
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="delete-understood" name="understood" [(ngModel)]="understood" />
+            <label class="form-check-label" for="delete-understood">
+              {{ t("str_account_delete_understood", "Ho capito che l'eliminazione è immediata e non può essere annullata.") }}
+            </label>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-danger" [disabled]="!understood || busy" (click)="start()">
+              @if (busy) {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+              }
+              {{ t("str_continue", "Continua") }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="cancel()">{{ t("str_annulla", "Annulla") }}</button>
+          </div>
+        }
+        @case ("code") {
+          <p class="small mb-2">
+            @if (method === "totp") {
+              {{ t("str_account_delete_totp_hint", "Inserisci il codice dell'app di autenticazione o un codice di recupero.") }}
+            } @else {
+              {{ t("str_account_delete_email_hint", "Inserisci il codice che ti abbiamo inviato via email.") }}
+            }
+          </p>
+          <form class="delete-code-form" (ngSubmit)="confirm()">
+            <label class="visually-hidden" for="delete-code">{{ t("str_mfa_code", "Codice di verifica") }}</label>
+            <input
+              id="delete-code"
+              name="code"
+              class="form-control delete-code-input"
+              [(ngModel)]="code"
+              autocomplete="one-time-code"
+              [attr.inputmode]="method === 'email' ? 'numeric' : null"
+              maxlength="20"
+              placeholder="000000"
+            />
+            <button type="submit" class="btn btn-danger" [disabled]="busy || !code.trim()">
+              @if (busy) {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+              }
+              {{ t("str_account_delete_confirm", "Elimina definitivamente") }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="cancel()">{{ t("str_annulla", "Annulla") }}</button>
+          </form>
+          @if (method === "email") {
+            <button type="button" class="btn btn-link btn-sm px-0 mt-2" [disabled]="busy" (click)="resend()">
+              {{ t("str_mfa_resend", "Invia di nuovo il codice") }}
+            </button>
+          }
+        }
+      }
+    </div>
+  </div>
+}

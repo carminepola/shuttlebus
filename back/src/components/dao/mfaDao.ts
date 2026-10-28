@@ -120,6 +120,10 @@ export default class MfaDao {
       );
   }
 
+  async deleteByUserId(userId: string): Promise<void> {
+    await this.db.collection<UserMfa>(this.schema).deleteOne({ userId: String(userId) });
+  }
+
   async removePasskey(userId: string, credentialId: string): Promise<boolean> {
     const result = await this.db
       .collection<UserMfa>(this.schema)

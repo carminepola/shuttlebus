@@ -774,6 +774,22 @@ export default class BookingsDAO {
     return { alreadyScanned: false, booking: updated };
   }
 
+  /** Biglietti confermati per oggi o per una data futura (date in formato YYYY-MM-DD). */
+  async countUpcomingConfirmed(userId: string, today: string): Promise<number> {
+    return this.db.collection("bookings").countDocuments({ userId: String(userId), status: "confirmed", date: { $gte: today } });
+  }
+
+  /**
+   * Account eliminato: le prenotazioni restano per la contabilita' ma senza
+   * dati personali dell'utente.
+   */
+  async anonymizeUserBookings(userId: string): Promise<number> {
+    const result = await this.db
+      .collection("bookings")
+      .updateMany({ userId: String(userId) }, { $set: { "user.name": "Utente eliminato", "user.mail": "", "user.phone": "", updatedAt: Date.now() } });
+    return result.modifiedCount;
+  }
+
   readPendingBookingForUser(userId: string) {
     return this.db.collection("bookings").find({ userId, status: "pending" }).toArray();
   }

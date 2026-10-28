@@ -115,6 +115,15 @@ export class UserService {
     });
   }
 
+  /** Cancellazione del proprio account: invia il codice email se e' il metodo richiesto. */
+  startDeleteAccount(): Observable<{ method: 'totp' | 'email' }> {
+    return this.http.post<{ method: 'totp' | 'email' }>(`${this.apiUrl}/${this.path}/deleteAccount/start`, {});
+  }
+
+  deleteAccount(code: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${this.path}/deleteAccount`, { code });
+  }
+
   deleteUser(userId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${this.path}/${userId}`);
   }

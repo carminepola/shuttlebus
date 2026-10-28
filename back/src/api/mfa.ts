@@ -19,7 +19,7 @@ const codeCheck = [check("code").notEmpty().withMessage("code is required")];
  * Anti-bruteforce sui codici richiesti per attivare/disattivare un fattore:
  * stessa chiave failToBan del login 2FA, cosi' i tentativi si sommano.
  */
-async function withCodeGuard(userId: string, action: () => Promise<void>) {
+export async function withCodeGuard(userId: string, action: () => Promise<void>) {
   const failToBanServices = new FailToBanServices(db);
   const failKey = `mfa:${userId}`;
   if (await failToBanServices.isRateLimited(failKey)) {

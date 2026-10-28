@@ -55,6 +55,8 @@ const AUTH_ONLY_MUTATIONS: Record<string, Record<string, string>> = {
     "DELETE /": "logout",
     "DELETE /all": "logout sessioni",
     "PATCH /terms": "proprietario",
+    "POST /deleteAccount/start": "proprietario (userId dal token)",
+    "POST /deleteAccount": "proprietario + codice di conferma (app/recupero o email)",
   },
   "sessions.ts": {
     "DELETE /": "logout",

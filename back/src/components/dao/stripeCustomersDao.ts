@@ -50,4 +50,8 @@ export default class StripeCustomersDao {
       .collection<StripeCustomer>(this.schema)
       .updateOne({ userId: String(userId) }, { $set: { customerId, createdAt: Date.now() } }, { upsert: true });
   }
+
+  async deleteByUserId(userId: string): Promise<void> {
+    await this.db.collection<StripeCustomer>(this.schema).deleteOne({ userId: String(userId) });
+  }
 }

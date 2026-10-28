@@ -187,6 +187,27 @@ export default class MfaServices {
     return this.verifyEmailCode(userId, code);
   }
 
+  // ---------------------------------------------------------------- azioni sensibili
+
+  /**
+   * Fattore richiesto per confermare un'azione irreversibile sull'account:
+   * l'app se attiva (o un codice di recupero), altrimenti un codice via email,
+   * disponibile anche per chi accede solo con Google/Microsoft.
+   */
+  async getConfirmMethod(userId: string): Promise<"totp" | "email"> {
+    const mfa = await this.mfaDao.getByUserId(userId);
+    return mfa?.totp?.enabled ? "totp" : "email";
+  }
+
+  async verifyConfirmCode(userId: string, code: string): Promise<boolean> {
+    if ((await this.getConfirmMethod(userId)) === "email") return this.verifyEmailCode(userId, code);
+    return (await this.verifyTotpCode(userId, code)) || this.consumeRecoveryCode(userId, code);
+  }
+
+  async deleteAll(userId: string): Promise<void> {
+    await this.mfaDao.deleteByUserId(userId);
+  }
+
   // ---------------------------------------------------------------- TOTP (app)
 
   async setupTotp(userId: string, email: string) {

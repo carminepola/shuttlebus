@@ -85,6 +85,16 @@ class PaymentServices {
   }
 
   /** Con andata e ritorno `tickets` ha due prenotazioni, pagate con un'unica sessione. */
+  /** Cancella il customer Stripe dell'utente: con lui spariscono le carte salvate. */
+  async deleteCustomer(userId: string): Promise<void> {
+    const saved = await this.stripeCustomersDao.getByUserId(userId);
+    if (!saved) return;
+    if (await this.stripeServices.customerExists(saved.customerId)) {
+      await this.stripeServices.deleteCustomer(saved.customerId);
+    }
+    await this.stripeCustomersDao.deleteByUserId(userId);
+  }
+
   async calculatePayment(tickets: booking[], paymentType?: string): Promise<{ type: string; other: any }> {
     try {
       if (paymentType === "cash") {

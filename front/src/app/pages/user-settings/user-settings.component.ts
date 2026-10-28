@@ -14,6 +14,7 @@ import { UserService } from '../../services/user/user.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { SecuritySettingsComponent } from '../../components/security-settings/security-settings.component';
 import { SavedCardsComponent } from '../../components/saved-cards/saved-cards.component';
+import { DeleteAccountComponent } from '../../components/delete-account/delete-account.component';
 @Component({
   selector: 'app-user-settings',
   imports: [
@@ -23,6 +24,7 @@ import { SavedCardsComponent } from '../../components/saved-cards/saved-cards.co
     TranslatePipe,
     SecuritySettingsComponent,
     SavedCardsComponent,
+    DeleteAccountComponent,
   ],
   templateUrl: './user-settings.component.html',
   styleUrls: ['./user-settings.component.scss'],

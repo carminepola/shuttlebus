@@ -16,6 +16,9 @@ import MailService from "../components/services/mailServices";
 import { Mail } from "../model/mailModel";
 import { authIpLimiter, authAccountLimiter } from "../middlewares/authRateLimitMiddleware";
 import FailToBanServices from "../components/services/failToBanServices";
+import MfaServices from "../components/services/mfaServices";
+import AccountDeletionServices from "../components/services/accountDeletionServices";
+import { withCodeGuard } from "./mfa";
 const router = express.Router();
 let requiredRole = "USER_MANAGEMENT";
 
@@ -365,6 +368,44 @@ router.put(
       return res.status(205).json({ message: "Opzioni aggiornate con successo" });
     } catch (error) {
       logger.error(error);
+      next(error);
+    }
+  },
+);
+// Cancellazione dell'account da parte dell'utente stesso (userId dal token).
+// Passo 1: controlli preliminari e invio del codice email se serve.
+router.post("/deleteAccount/start", authMiddleware, authIpLimiter, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = res.locals.userLogged;
+    await new AccountDeletionServices(db).checkCanDelete(user._id);
+    const mfaServices = new MfaServices(db);
+    const method = await mfaServices.getConfirmMethod(user._id);
+    if (method === "email") await mfaServices.sendEmailCode(user._id, user.email, user.options?.lng);
+    res.json({ method });
+  } catch (error) {
+    next(error);
+  }
+});
+// Passo 2: codice valido -> cancellazione immediata e logout.
+router.post(
+  "/deleteAccount",
+  authMiddleware,
+  authIpLimiter,
+  [check("code").notEmpty().withMessage("code is required")],
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = res.locals.userLogged._id;
+      await withCodeGuard(userId, async () => {
+        if (!(await new MfaServices(db).verifyConfirmCode(userId, String(req.body.code)))) {
+          throw new ErrorModel(400, "Codice non valido");
+        }
+      });
+      await new AccountDeletionServices(db).deleteAccount(userId);
+      res.clearCookie("jwt");
+      res.clearCookie("refreshToken");
+      res.json({ message: "Account eliminato" });
+    } catch (error) {
       next(error);
     }
   },

@@ -1,0 +1,16 @@
+.delete-account {
+  border-left: 4px solid var(--bs-danger) !important;
+}
+
+.delete-code-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.delete-code-input {
+  max-width: 12rem;
+  text-align: center;
+  letter-spacing: 0.2em;
+  font-variant-numeric: tabular-nums;
+}

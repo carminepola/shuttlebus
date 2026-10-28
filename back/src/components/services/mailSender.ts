@@ -152,6 +152,7 @@ class MailSenderServices {
   }
 
   async sendRefoundBook(to: string, name: string, amount: string, order_id: string, lng: string = "it") {
+    if (!to) return; // prenotazione anonimizzata (account eliminato)
     let type = this.getMailType("REFUND_PROCESSED", lng);
     this.mailService.sendMail(
       new Mail({
@@ -168,6 +169,7 @@ class MailSenderServices {
   }
 
   async sendConfirmBook(email: string, name: string, order_id: string, amount: string, payment_method: string, route: string, lng: string = "it") {
+    if (!email) return; // prenotazione anonimizzata (account eliminato)
     let type = this.getMailType("PURCHASE_COMPLETED", lng);
     this.mailService.sendMail(
       new Mail({
@@ -188,6 +190,7 @@ class MailSenderServices {
   }
 
   async sendCancelBook(email: string, name: string, order_id: string, lng: string = "it") {
+    if (!email) return; // prenotazione anonimizzata (account eliminato)
     let type = this.getMailType("PURCHASE_CANCELLED", lng);
     this.mailService.sendMail(
       new Mail({
