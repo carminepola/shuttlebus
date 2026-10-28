@@ -19,11 +19,7 @@
   @if (showLegend && !loading) {
     <div class="map-legend">
       <div class="legend-item">
-        <img
-          src="https://maps.google.com/mapfiles/kml/paddle/pink-blank.png"
-          alt="Fermata"
-          class="legend-icon"
-        />
+        <span class="legend-icon legend-icon-stop" aria-hidden="true"></span>
         <span>{{ "str_fermate" | translate }} ({{ stopCount }})</span>
       </div>
       <div class="legend-item">

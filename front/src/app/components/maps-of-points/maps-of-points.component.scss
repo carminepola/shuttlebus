@@ -88,13 +88,31 @@
   object-fit: contain;
 }
 
-.legend-icon-bus {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #0d6efd;
+.legend-icon-stop {
+  width: 12px;
+  height: 12px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: #e83e8c;
   border: 2px solid #fff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.legend-icon-bus {
+  width: 14px;
+  height: 16px;
+  background: #0d6efd;
+  clip-path: polygon(50% 0, 100% 100%, 50% 78%, 0 100%);
+}
+
+::ng-deep .stop-marker {
+  background: none;
+  border: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+
+  svg {
+    display: block;
+  }
 }
 
 // Il marker è creato da Leaflet fuori dal template: serve ::ng-deep.

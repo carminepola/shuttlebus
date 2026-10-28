@@ -26,8 +26,14 @@ const MAX_ANIMATED_METERS = 5000;
 
 const BUS_ARROW_SVG = `
   <svg viewBox="0 0 40 40" width="40" height="40" aria-hidden="true">
-    <circle cx="20" cy="20" r="15" fill="#0d6efd" stroke="#fff" stroke-width="3"/>
-    <path d="M20 9 L28 27 L20 22.5 L12 27 Z" fill="#fff"/>
+    <path d="M20 3 L34 35 L20 27 L6 35 Z" fill="#0d6efd" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+  </svg>`;
+
+const STOP_PIN_SVG = `
+  <svg viewBox="0 0 32 32" width="100%" height="100%" aria-hidden="true">
+    <path d="M16 1C9.9 1 5 5.8 5 11.8 5 20 16 31 16 31s11-11 11-19.2C27 5.8 22.1 1 16 1z"
+      fill="#e83e8c" stroke="#fff" stroke-width="2"/>
+    <circle cx="16" cy="12" r="4.5" fill="#fff"/>
   </svg>`;
 
 interface BusMarker {
@@ -76,17 +82,22 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
     private zone: NgZone
   ) {}
 
-  private stopIcon = L.icon({
-    iconUrl: 'https://maps.google.com/mapfiles/kml/paddle/pink-blank.png',
+  // Icone SVG interne: con immagini esterne bloccate (tracking protection, rete)
+  // Leaflet mostrava al loro posto il testo alternativo "Marker" sovrapposto.
+  private stopIcon = L.divIcon({
+    html: STOP_PIN_SVG,
+    className: 'stop-marker',
     iconSize: [32, 32],
     iconAnchor: [16, 32],
+    popupAnchor: [0, -28],
   });
 
-  private stopIconInteractive = L.icon({
-    iconUrl: 'https://maps.google.com/mapfiles/kml/paddle/pink-blank.png',
+  private stopIconInteractive = L.divIcon({
+    html: STOP_PIN_SVG,
+    className: 'stop-marker interactive-stop-marker',
     iconSize: [36, 36],
     iconAnchor: [18, 36],
-    className: 'interactive-stop-marker',
+    popupAnchor: [0, -32],
   });
 
   private busIcon = L.divIcon({
@@ -104,7 +115,7 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
         attributionControl: false,
       }).setView(this.center ?? [40.74894, 14.50349], this.zoom ?? 10);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
       }).addTo(this.map);
 
