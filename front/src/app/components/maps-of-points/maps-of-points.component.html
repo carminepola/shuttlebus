@@ -7,7 +7,7 @@
     </div>
   }
 
-  <div id="map" [style.height.px]="height"></div>
+  <div #mapContainer class="map" [style.height.px]="height"></div>
 
   @if (showLiveBadge && !loading) {
     <div class="map-live-badge">
@@ -27,11 +27,7 @@
         <span>{{ "str_fermate" | translate }} ({{ stopCount }})</span>
       </div>
       <div class="legend-item">
-        <img
-          src="https://earth.google.com/images/kml-icons/track-directional/track-0.png"
-          alt="Autobus"
-          class="legend-icon legend-icon-bus"
-        />
+        <span class="legend-icon legend-icon-bus" aria-hidden="true"></span>
         <span>{{ "str_autobus" | translate }} ({{ busCount }})</span>
       </div>
     </div>

@@ -9,6 +9,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
 import { role } from "../enum/role";
 import momapServices from "../components/services/momapServices";
+import { attachTrails } from "../components/services/busTrailServices";
 const router = Router();
 
 function getAllowedIps(): string[] {
@@ -68,7 +69,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
       }
       return bus;
     });
-    res.json({ position: safePosition });
+    res.json({ position: await attachTrails(safePosition) });
   } catch (error) {
     next(error);
   }
