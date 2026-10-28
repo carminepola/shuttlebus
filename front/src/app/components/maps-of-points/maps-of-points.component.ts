@@ -115,7 +115,9 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
         attributionControl: false,
       }).setView(this.center ?? [40.74894, 14.50349], this.zoom ?? 10);
 
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // ngsw-bypass: le tile non passano dal service worker. Con la pagina controllata
+      // dal SW (dopo il primo F5) Firefox bloccava le immagini cross-origin rifatte dal worker.
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png?ngsw-bypass=true', {
         maxZoom: 19,
       }).addTo(this.map);
 
