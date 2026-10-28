@@ -56,6 +56,11 @@ export class ReservationComponent implements OnInit {
     public stripeService: StripeService,
   ) {}
 
+  /** Testo dello storico rimborsi, una riga per rimborso. */
+  refundsText(refunds: any[]): string {
+    return refunds.map((r) => r.description + ' (' + r.amount + '€)').join('\n');
+  }
+
   async ngOnInit(): Promise<void> {
     this.loading = true;
 
@@ -301,6 +306,7 @@ export class ReservationComponent implements OnInit {
         phone: t.user.phone,
         bagagli: t.luggage,
         refundedAmount: t.refundedAmount || 0,
+        refunds: t.refunds || [],
       };
     });
 

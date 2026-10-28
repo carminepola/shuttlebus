@@ -119,6 +119,34 @@
                     </div>
                   }
                 </div>
+                @if (booking.refunds?.length > 0) {
+                  <div class="details-refunds">
+                    <div class="details-label">
+                      <i class="fa-solid fa-rotate-left me-1"></i>
+                      {{ refundsLabel }}
+                    </div>
+                    @for (refund of booking.refunds; track refund.at) {
+                      <div class="refund-row">
+                        <div class="refund-row-head">
+                          <span>{{ refund.at | date: "dd/MM/yyyy" }}</span>
+                          <span class="refund-row-amount">{{ refund.amount }}€</span>
+                        </div>
+                        @for (item of refund.items; track item.ticketTypeId) {
+                          <div class="detail-row">
+                            <span class="detail-name" [innerText]="item.name | translateName"></span>
+                            <span class="detail-qty">x {{ item.count }}</span>
+                          </div>
+                        }
+                        @if (refund.luggage > 0) {
+                          <div class="detail-row">
+                            <span class="detail-name" [innerText]="'str_bagagli_aggiuntivi' | translate"></span>
+                            <span class="detail-qty">x {{ refund.luggage }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
               </div>
 
               <div class="details-section details-section-qr">

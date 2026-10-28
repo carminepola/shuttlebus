@@ -207,6 +207,9 @@
                 <span>{{ r.amount }} EUR</span>
                 <span class="text-muted small">{{ r.created }}</span>
               </div>
+              @if (r.description) {
+                <div class="small mt-1">{{ r.description }}</div>
+              }
             </div>
           }
         </div>

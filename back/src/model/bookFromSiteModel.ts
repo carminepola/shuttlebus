@@ -27,6 +27,8 @@ export default class booking {
   scannedBy?: { driverId: string; driverName: string; scannedAt: number };
   // Andata e ritorno: due prenotazioni pagate con un'unica sessione Stripe
   roundTrip?: RoundTrip;
+  // Storico dei rimborsi: cosa e' stato rimborsato, quando e con quale rimborso Stripe
+  refunds?: RefundRecord[];
   constructor(book: any) {
     try {
       if (book.userId === undefined) throw new Error("userId is required");
@@ -66,6 +68,7 @@ export default class booking {
       this.refundedAmount = book.refundedAmount || 0;
       this.other = book.other;
       if (book.roundTrip) this.roundTrip = book.roundTrip;
+      if (book.refunds) this.refunds = book.refunds;
     } catch (error) {
       throw error;
     }
@@ -75,6 +78,16 @@ export default class booking {
 export interface RoundTrip {
   leg: "outbound" | "return";
   linkedTicket: string;
+}
+
+export interface RefundRecord {
+  at: number;
+  amount: number;
+  full: boolean;
+  items: { ticketTypeId: string; name: Name; count: number; cost: number }[];
+  luggage: number;
+  description: string;
+  stripeRefundId: string;
 }
 
 export class Name {

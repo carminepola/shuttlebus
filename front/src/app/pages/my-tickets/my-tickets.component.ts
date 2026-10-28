@@ -55,6 +55,10 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       : this.lng.traslateOr('str_andata', 'Andata');
   }
 
+  get refundsLabel(): string {
+    return this.lng.traslateOr('str_rimborsi_effettuati', 'Rimborsato');
+  }
+
   private get pdfLng(): string {
     return this.lng.getLng() === 'jp' ? 'en' : this.lng.getLng();
   }

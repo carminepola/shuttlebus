@@ -354,6 +354,9 @@
               {{ booking.total }} &euro;
               @if (booking.refundedAmount > 0) {
                 <div class="ci-ticket-refunded-badge">Rimb. {{ booking.refundedAmount }}€</div>
+                @for (r of booking.refunds; track r.at) {
+                  <div class="ci-ticket-refund-line">{{ r.at | date: "dd/MM/yyyy" }} · {{ r.description }} · {{ r.amount }}€</div>
+                }
               }
             </div>
           </div>

@@ -289,6 +289,8 @@ class StripeServices {
         currency: r.currency.toUpperCase(),
         status: r.status,
         reason: r.reason || r.failure_reason || "N/D",
+        description: r.metadata?.refund || "",
+        bookingId: r.metadata?.booking_id || "",
         created: new Date(r.created * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
         chargeId: r.charge?.id || "",
       }));
@@ -526,6 +528,7 @@ class StripeServices {
           amount: +(r.amount / 100).toFixed(2),
           status: r.status,
           reason: r.reason || "",
+          description: r.metadata?.refund || "",
           created: new Date(r.created * 1000).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
         })) || [],
       };

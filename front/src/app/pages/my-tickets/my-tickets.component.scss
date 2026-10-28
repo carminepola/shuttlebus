@@ -228,6 +228,29 @@
   }
 }
 
+.details-refunds {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.12);
+}
+
+.refund-row {
+  padding: 0.25rem 0;
+  opacity: 0.8;
+}
+
+.refund-row-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.refund-row-amount {
+  color: var(--bs-danger);
+}
+
 .detail-row {
   display: flex;
   justify-content: space-between;

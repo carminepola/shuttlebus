@@ -13,6 +13,23 @@ const router = express.Router();
 import { role } from "../enum/role";
 
 const stripe = StripeInstance.getInstance();
+const LUGGAGE_PRICE = 2;
+
+/**
+ * Voci rimborsate e testo leggibile ("Ritorno SB... · 2x Adulto, 1x Bagaglio extra"):
+ * finisce nello storico della prenotazione e nei metadata del rimborso Stripe, dove
+ * altrimenti resterebbe solo l'importo (con andata e ritorno anche sullo stesso pagamento).
+ */
+function describeRefund(book: any, items: { ticketTypeId: string; count: number }[], luggage: number) {
+  const lines = items.map((item) => {
+    const tt = book.ticketTypes.find((t: any) => t.id === item.ticketTypeId);
+    return { ticketTypeId: item.ticketTypeId, name: tt?.name, count: item.count, cost: tt?.cost ?? 0 };
+  });
+  const parts = lines.map((l) => `${l.count}x ${l.name?.it || l.ticketTypeId}`);
+  if (luggage > 0) parts.push(`${luggage}x Bagaglio extra`);
+  const leg = book.roundTrip ? (book.roundTrip.leg === "return" ? "Ritorno " : "Andata ") : "";
+  return { lines, description: `${leg}${book.numberOfTickets} · ${parts.join(", ")}`.slice(0, 500) };
+}
 
 router.post("/delete", authMiddleware, async (req, res, next) => {
   try {
@@ -105,7 +122,6 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
             refundedSeats += item.count;
           }
 
-          const LUGGAGE_PRICE = 2;
           if (refundLuggageCount < 0 || refundLuggageCount > book.luggage) {
             throw new ErrorModel(400, "str_refund_exceeds_luggage");
           }
@@ -124,11 +140,13 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
           }
 
           logger.info("Rimborso parziale iniziato per la prenotazione " + req.body.id + " importo: " + requestedAmount);
+          const refunded = describeRefund(book, refundItems, refundLuggageCount);
           try {
             const refund = await stripe.refunds.create(
               {
                 payment_intent: book.paymentIntentId,
                 amount: Math.round(requestedAmount * 100),
+                metadata: { booking_id: req.body.id, refund: refunded.description },
               },
               // Idempotency-Key deterministica legata al claim: anche in caso di
               // timeout/ritrasmissione HTTP di questa chiamata Stripe NON crea mai
@@ -139,6 +157,15 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
             );
 
             if (refund.status === "succeeded" || refund.status === "pending") {
+              await new BookingsDao(db).addRefundRecord(req.body.id, {
+                at: new Date().getTime(),
+                amount: requestedAmount,
+                full: false,
+                items: refunded.lines,
+                luggage: refundLuggageCount,
+                description: refunded.description,
+                stripeRefundId: refund.id,
+              });
               risposta = await bookingServices.partialRefundBookingAdmin(req.body.id, requestedAmount, refundItems, refundedSeats, refundLuggageCount);
             } else {
               await new BookingsDao(db).rollbackPartialRefundClaim(req.body.id, requestedAmount);
@@ -160,12 +187,18 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
           }
 
           logger.info("Rimborso totale iniziato per la prenotazione " + req.body.id);
+          const refunded = describeRefund(
+            book,
+            book.ticketTypes.map((t: any) => ({ ticketTypeId: t.id, count: t.count })),
+            book.luggage,
+          );
           try {
             const refund = await stripe.refunds.create(
               {
                 payment_intent: book.paymentIntentId,
                 // Andata e ritorno: il PaymentIntent copre entrambe le tratte, si rimborsa solo questa
                 ...(book.roundTrip ? { amount: Math.round(book.total * 100) } : {}),
+                metadata: { booking_id: req.body.id, refund: refunded.description },
               },
               // Stesso principio: chiave legata al claim DB (vedi sopra).
               {
@@ -175,6 +208,15 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
 
             if (refund.status === "succeeded" || refund.status === "pending") {
               await new BookingsDao(db).finalizeFullRefund(req.body.id, book.total);
+              await new BookingsDao(db).addRefundRecord(req.body.id, {
+                at: new Date().getTime(),
+                amount: book.total,
+                full: true,
+                items: refunded.lines,
+                luggage: book.luggage,
+                description: refunded.description,
+                stripeRefundId: refund.id,
+              });
               // notifiche mail/telegram (prima fatte da refundBookingAdmin/refundBooking)
               await bookingServices.sendRefundNotifications(req.body.id);
               risposta = true;
