@@ -69,7 +69,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
       }
       return bus;
     });
-    res.json({ position: await attachTrails(safePosition) });
+    res.json({ position: await attachTrails(safePosition, (busId, lat, lng) => momap.getUpcomingStops(busId, lat, lng)) });
   } catch (error) {
     next(error);
   }

@@ -363,6 +363,63 @@ class momapServices {
   }
 
   /**
+   * Coordinate [lat, lng] delle prossime fermate della corsa che il bus sta facendo
+   * adesso, usate per prevedere la strada che percorrerà. Vuoto se il bus non ha
+   * una corsa in orario.
+   */
+  async getUpcomingStops(busId: string, busLat: number, busLng: number, limit = 3): Promise<[number, number][]> {
+    try {
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const assignments = await this.db
+        .collection("busScheduleAssignments")
+        .find({ day: now.toISOString().split("T")[0], busId })
+        .toArray();
+
+      const active = assignments.filter((a: any) => {
+        if (!a.departureTime || !a.arrivalTime || !a.stops?.length) return false;
+        return currentMinutes >= this.timeToMinutes(a.departureTime) && currentMinutes <= this.timeToMinutes(a.arrivalTime);
+      });
+      if (!active.length) return [];
+
+      const stopIds = [...new Set(active.flatMap((a: any) => a.stops.map((s: any) => s.id)))];
+      const stopsMap = new Map<string, { name: string; lat: number; lng: number }>();
+      for (const stop of await this.db.collection("stops").find({ id: { $in: stopIds } }).toArray()) {
+        if (stop.location?.latitude && stop.location?.longitude) {
+          stopsMap.set(stop.id, { name: stop.name, lat: stop.location.latitude, lng: stop.location.longitude });
+        }
+      }
+
+      // Con più corse in orario (sovrapposizioni) si sceglie quella più vicina al bus.
+      let best: { stops: any[]; nextIndex: number } | null = null;
+      let bestDistance = Infinity;
+      for (const assignment of active) {
+        const stops = assignment.stops.filter((s: any) => s.status !== "disabled" && s.status !== "deleted" && stopsMap.has(s.id));
+        const segment = this.findClosestRouteSegment(busLat, busLng, stops, stopsMap);
+        if (!segment) continue;
+        const a = stopsMap.get(stops[segment.prevIndex].id)!;
+        const b = stopsMap.get(stops[segment.nextIndex].id)!;
+        const lat = a.lat + (b.lat - a.lat) * segment.progress;
+        const lng = a.lng + (b.lng - a.lng) * segment.progress;
+        const distance = this.calculateDistance(busLat, busLng, lat, lng);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          best = { stops, nextIndex: segment.nextIndex };
+        }
+      }
+      if (!best) return [];
+
+      return best.stops.slice(best.nextIndex, best.nextIndex + limit).map((s: any) => {
+        const d = stopsMap.get(s.id)!;
+        return [d.lat, d.lng] as [number, number];
+      });
+    } catch (error) {
+      logger.error("Errore in getUpcomingStops momapServices:", error);
+      return [];
+    }
+  }
+
+  /**
    * Converte un orario in formato "HH:mm" in minuti dalla mezzanotte
    */
   private timeToMinutes(time: string): number {

@@ -18,11 +18,16 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 
 const REFRESH_MS = 30000;
-// L'animazione copre quasi tutto l'intervallo di aggiornamento: il bus scorre in
-// modo continuo invece di fermarsi e ripartire a ogni polling.
-const ANIMATION_MS = REFRESH_MS * 0.95;
 // Oltre questa distanza (es. primo caricamento, scheda rimasta in background) si salta.
 const MAX_ANIMATED_METERS = 5000;
+// Se la freccia è entro questa distanza dal nuovo percorso vi si aggancia e prosegue,
+// altrimenti lo raggiunge in linea retta.
+const SNAP_METERS = 40;
+// Tempo (s) in cui la freccia recupera lo scarto tra dove si trova e dove il bus
+// dovrebbe essere: più alto = correzioni più morbide, più basso = più precise.
+const CATCH_UP_SECONDS = 4;
+// Limite alla velocità di recupero (m/s), per evitare scatti dopo un fix lontano.
+const MAX_CATCH_UP_SPEED = 40;
 
 const BUS_ARROW_SVG = `
   <svg viewBox="0 0 40 40" width="40" height="40" aria-hidden="true">
@@ -39,7 +44,16 @@ const STOP_PIN_SVG = `
 interface BusMarker {
   marker: L.Marker;
   angle: number;
-  frame: number | null;
+  // Percorso corrente (strada già percorsa + previsione) e distanze cumulative.
+  path: L.LatLng[];
+  cumulative: number[];
+  // Distanza lungo il percorso dove si trova la freccia.
+  travelled: number;
+  // Distanza lungo il percorso dell'ultimo fix GPS, istante del fix e velocità (m/s):
+  // la posizione attesa avanza da lì a velocità costante.
+  fixDistance: number;
+  fixAt: number;
+  speed: number;
 }
 
 @Component({
@@ -59,6 +73,8 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
   private busMarkers = new Map<string, BusMarker>();
   private resizeObserver?: ResizeObserver;
   private intervalId: any;
+  private frame: number | null = null;
+  private lastFrameAt = 0;
 
   @Input() height = 500;
   @Input() showLegend = true;
@@ -185,7 +201,6 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
 
       for (const [id, bus] of this.busMarkers) {
         if (seen.has(id)) continue;
-        if (bus.frame !== null) cancelAnimationFrame(bus.frame);
         this.busesLayer.removeLayer(bus.marker);
         this.busMarkers.delete(id);
       }
@@ -199,74 +214,183 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
 
   private upsertBus(id: string, point: any) {
     const target = L.latLng(point.currentLat, point.currentLng);
-    const popup = this.buildPopup(point);
-    let bus = this.busMarkers.get(id);
+    const toLatLngs = (list: [number, number][] | undefined) => (list ?? []).map((p) => L.latLng(p[0], p[1]));
+    const trail = toLatLngs(point.trail);
+    const ahead = toLatLngs(point.ahead);
+    const speed = Number(point.speed) > 0 ? Number(point.speed) : 0;
+    const fixAt = performance.now() - (Number(point.age) > 0 ? Number(point.age) : 0) * 1000;
 
+    // Percorso stradale dal backend: tratto percorso (finisce sul fix) + previsione
+    // (parte dal fix). `fixIndex` è il punto del fix dentro il percorso.
+    const route: L.LatLng[] = trail.length >= 2 ? trail.slice() : [target];
+    const fixIndex = route.length - 1;
+    route.push(...ahead.slice(1));
+
+    let bus = this.busMarkers.get(id);
     if (!bus) {
       const marker = L.marker(target, { icon: this.busIcon, zIndexOffset: 1000 })
         .addTo(this.busesLayer)
-        .bindPopup(popup);
-      bus = { marker, angle: 0, frame: null };
+        .bindPopup(this.buildPopup(point));
+      bus = { marker, angle: 0, path: [], cumulative: [], travelled: 0, fixDistance: 0, fixAt, speed };
       this.busMarkers.set(id, bus);
       this.setHeading(bus, Number(point.currentAngle) || 0);
+      this.setRoute(bus, route.slice(fixIndex), 0, 0, fixAt, speed, true);
       return;
     }
 
-    bus.marker.setPopupContent(popup);
-    const start = bus.marker.getLatLng();
-    if (start.equals(target)) {
-      if (point.currentAngle != null) this.setHeading(bus, Number(point.currentAngle));
+    bus.marker.setPopupContent(this.buildPopup(point));
+    const shown = bus.marker.getLatLng();
+
+    if (shown.distanceTo(target) > MAX_ANIMATED_METERS) {
+      this.setRoute(bus, route.slice(fixIndex), 0, 0, fixAt, speed, true);
       return;
     }
 
-    // Percorso stradale calcolato dal backend; se non c'è, o non parte da dove il
-    // marker si trova adesso, si collega la posizione attuale al suo inizio.
-    const trail: L.LatLng[] = (point.trail ?? []).map((p: [number, number]) => L.latLng(p[0], p[1]));
-    const path = trail.length >= 2 ? trail : [target];
-    if (!path[0].equals(start)) path.unshift(start);
-
-    if (start.distanceTo(target) > MAX_ANIMATED_METERS) {
-      if (bus.frame !== null) cancelAnimationFrame(bus.frame);
-      bus.frame = null;
-      bus.marker.setLatLng(target);
-      if (point.currentAngle != null) this.setHeading(bus, Number(point.currentAngle));
-      return;
+    // Se la freccia è già sul nuovo percorso (dietro o davanti al fix) prosegue da lì,
+    // così una correzione non la fa mai tornare indietro né tagliare le curve.
+    const snap = this.projectOnPath(shown, route);
+    if (snap && snap.distance <= SNAP_METERS) {
+      const rest = [shown, ...route.slice(snap.index + 1)];
+      const fixDistance = this.distanceAlong(route, snap.index, snap.point, fixIndex);
+      this.setRoute(bus, rest, 0, fixDistance, fixAt, speed);
+    } else {
+      const rest = [shown, ...route.slice(fixIndex)];
+      this.setRoute(bus, rest, 0, shown.distanceTo(target), fixAt, speed);
     }
 
-    this.animateAlong(bus, path);
+    if (!speed && point.currentAngle != null && bus.path.length < 2) {
+      this.setHeading(bus, Number(point.currentAngle));
+    }
   }
 
-  private animateAlong(bus: BusMarker, path: L.LatLng[]) {
-    if (bus.frame !== null) cancelAnimationFrame(bus.frame);
-
-    const cumulative = [0];
+  private setRoute(
+    bus: BusMarker,
+    path: L.LatLng[],
+    travelled: number,
+    fixDistance: number,
+    fixAt: number,
+    speed: number,
+    jump = false
+  ) {
+    bus.path = path;
+    bus.cumulative = [0];
     for (let i = 1; i < path.length; i++) {
-      cumulative.push(cumulative[i - 1] + path[i - 1].distanceTo(path[i]));
+      bus.cumulative.push(bus.cumulative[i - 1] + path[i - 1].distanceTo(path[i]));
     }
-    const total = cumulative[cumulative.length - 1];
-    const startedAt = performance.now();
-    let segment = 1;
+    bus.travelled = travelled;
+    bus.fixDistance = fixDistance;
+    bus.fixAt = fixAt;
+    bus.speed = speed;
+    if (jump) {
+      bus.travelled = Math.min(this.expectedDistance(bus, performance.now()), this.pathLength(bus));
+      this.placeMarker(bus);
+    }
+    this.startLoop();
+  }
 
+  // Un solo requestAnimationFrame per tutti i bus. Ogni frame la freccia avanza alla
+  // velocità stimata più una correzione proporzionale allo scarto dalla posizione
+  // attesa: niente blocchi tra un aggiornamento e l'altro, niente salti all'arrivo.
+  private startLoop() {
+    if (this.frame !== null) return;
+    this.lastFrameAt = performance.now();
     const step = (now: number) => {
-      const travelled = Math.min((now - startedAt) / ANIMATION_MS, 1) * total;
-      while (segment < path.length - 1 && cumulative[segment] < travelled) segment++;
+      // Scheda in background: rAF si ferma, al ritorno si recupera senza superare 1 s.
+      const dt = Math.min((now - this.lastFrameAt) / 1000, 1);
+      this.lastFrameAt = now;
+      let moving = false;
 
-      const from = path[segment - 1];
-      const to = path[segment];
-      const segLength = cumulative[segment] - cumulative[segment - 1];
-      const t = segLength > 0 ? (travelled - cumulative[segment - 1]) / segLength : 1;
+      for (const bus of this.busMarkers.values()) {
+        const total = this.pathLength(bus);
+        const gap = this.expectedDistance(bus, now) - bus.travelled;
+        // Bus fermo: la freccia scivola sul fix, anche all'indietro se la previsione
+        // l'aveva portata oltre (es. bus fermo alla fermata), poi si ferma.
+        if (!bus.speed) {
+          if (Math.abs(gap) < 0.5) continue;
+          bus.travelled = Math.max(bus.travelled + (gap / CATCH_UP_SECONDS) * dt, 0);
+          this.placeMarker(bus, gap > 0);
+          moving = true;
+          continue;
+        }
+        const velocity = Math.min(Math.max(bus.speed + gap / CATCH_UP_SECONDS, 0), Math.max(MAX_CATCH_UP_SPEED, bus.speed));
+        if (velocity <= 0) {
+          moving ||= bus.speed > 0;
+          continue;
+        }
+        if (bus.travelled >= total) continue;
+        bus.travelled = Math.min(bus.travelled + velocity * dt, total);
+        this.placeMarker(bus);
+        moving = true;
+      }
 
-      bus.marker.setLatLng([
-        from.lat + (to.lat - from.lat) * t,
-        from.lng + (to.lng - from.lng) * t,
-      ]);
-      // Sotto il metro la direzione del segmento è rumore: si mantiene l'ultima.
-      if (segLength > 1) this.setHeading(bus, this.bearing(from, to));
-
-      bus.frame = travelled < total ? requestAnimationFrame(step) : null;
+      this.frame = moving ? requestAnimationFrame(step) : null;
     };
+    this.frame = requestAnimationFrame(step);
+  }
 
-    bus.frame = requestAnimationFrame(step);
+  private expectedDistance(bus: BusMarker, now: number): number {
+    return Math.min(bus.fixDistance + (bus.speed * (now - bus.fixAt)) / 1000, this.pathLength(bus));
+  }
+
+  private pathLength(bus: BusMarker): number {
+    return bus.cumulative[bus.cumulative.length - 1] ?? 0;
+  }
+
+  private placeMarker(bus: BusMarker, updateHeading = true) {
+    const { path, cumulative } = bus;
+    if (path.length < 2) {
+      if (path.length) bus.marker.setLatLng(path[0]);
+      return;
+    }
+    let i = 1;
+    while (i < path.length - 1 && cumulative[i] < bus.travelled) i++;
+    const from = path[i - 1];
+    const to = path[i];
+    const segLength = cumulative[i] - cumulative[i - 1];
+    const t = segLength > 0 ? Math.min(Math.max((bus.travelled - cumulative[i - 1]) / segLength, 0), 1) : 1;
+    bus.marker.setLatLng([from.lat + (to.lat - from.lat) * t, from.lng + (to.lng - from.lng) * t]);
+    // Sotto il metro la direzione del segmento è rumore: si mantiene l'ultima.
+    if (updateHeading && segLength > 1) this.setHeading(bus, this.bearing(from, to));
+  }
+
+  // Punto del percorso più vicino a `p`: indice del segmento, punto proiettato, distanza (m).
+  private projectOnPath(p: L.LatLng, path: L.LatLng[]) {
+    if (path.length < 2) return null;
+    // Piano locale in metri centrato su `p`: preciso a sufficienza su poche centinaia di metri.
+    const kx = 111320 * Math.cos((p.lat * Math.PI) / 180);
+    const ky = 110540;
+    const xy = (q: L.LatLng) => [(q.lng - p.lng) * kx, (q.lat - p.lat) * ky];
+    let best: { index: number; point: L.LatLng; distance: number } | null = null;
+    for (let i = 0; i < path.length - 1; i++) {
+      const [ax, ay] = xy(path[i]);
+      const [bx, by] = xy(path[i + 1]);
+      const dx = bx - ax;
+      const dy = by - ay;
+      const len2 = dx * dx + dy * dy;
+      const t = len2 > 0 ? Math.min(Math.max(-(ax * dx + ay * dy) / len2, 0), 1) : 0;
+      const distance = Math.hypot(ax + dx * t, ay + dy * t);
+      if (!best || distance < best.distance) {
+        best = {
+          index: i,
+          point: L.latLng(path[i].lat + (path[i + 1].lat - path[i].lat) * t, path[i].lng + (path[i + 1].lng - path[i].lng) * t),
+          distance,
+        };
+      }
+    }
+    return best;
+  }
+
+  // Distanza lungo il percorso dal punto `point` (sul segmento `index`) al vertice
+  // `target`; negativa se il vertice è alle spalle.
+  private distanceAlong(path: L.LatLng[], index: number, point: L.LatLng, target: number): number {
+    if (target > index) {
+      let d = point.distanceTo(path[index + 1]);
+      for (let i = index + 1; i < target; i++) d += path[i].distanceTo(path[i + 1]);
+      return d;
+    }
+    let d = -point.distanceTo(path[index]);
+    for (let i = index; i > target; i--) d -= path[i - 1].distanceTo(path[i]);
+    return d;
   }
 
   private setHeading(bus: BusMarker, angle: number) {
@@ -312,7 +436,7 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     clearInterval(this.intervalId);
     this.resizeObserver?.disconnect();
-    this.busMarkers.forEach((bus) => bus.frame !== null && cancelAnimationFrame(bus.frame));
+    if (this.frame !== null) cancelAnimationFrame(this.frame);
     this.busMarkers.clear();
     this.map?.remove();
   }
