@@ -495,23 +495,17 @@ async function run() {
     if (!existing) {
       console.log(`${prefix}+ ${txt}`);
       if (!dryRun) {
-        await col.insertOne({ id: Guid.create().toString(), txt, ...values });
+        await col.insertOne({  txt, ...values });
       }
       inserted++;
       continue;
     }
 
     // Solo cio' che manca: lingue vuote e id (chiavi inserite dalle versioni precedenti dello script)
-    const set: Record<string, string> = {};
-    if (!existing.id) set.id = Guid.create().toString();
-    for (const lang of LANGS) {
-      if (!existing[lang]) set[lang] = values[lang];
-    }
-    if (Object.keys(set).length === 0) continue;
-
+    const set: Record<string, string> = {}; 
     console.log(`${prefix}~ ${txt} (${Object.keys(set).join(", ")})`);
     if (!dryRun) {
-      await col.updateOne({ _id: existing._id }, { $set: set });
+      await col.updateOne({ txt:txt }, { $set: values });
     }
     completed++;
   }
