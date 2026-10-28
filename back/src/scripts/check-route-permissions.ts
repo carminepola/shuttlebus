@@ -81,6 +81,7 @@ const AUTH_ONLY_MUTATIONS: Record<string, Record<string, string>> = {
   "stripe.ts": {
     "POST /delete": "proprietario (ownership check interno)",
     "POST /refund": "owner-or-admin check interno + claim atomico",
+    "DELETE /savedCards/:id": "proprietario (customer dal token, carta verificata sul customer)",
   },
 };
 

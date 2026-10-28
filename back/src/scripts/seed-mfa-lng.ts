@@ -15,7 +15,7 @@ const dryRun = args.includes("--dry-run");
 
 /**
  * Chiavi di traduzione della verifica in due passaggi, delle passkey
- * (login, checkout, pagina account) e dell'avviso di aggiornamento PWA. Il front ha gia' un testo di riserva in
+ * (login, checkout, pagina account), delle carte salvate e dell'avviso di aggiornamento PWA. Il front ha gia' un testo di riserva in
  * italiano: questo script aggiunge it/en nella collection 'lng'.
  *
  * Inserisce SOLO le chiavi mancanti ($setOnInsert): le traduzioni gia'
@@ -126,6 +126,18 @@ const KEYS: Record<string, { it: string; en: string }> = {
   str_passkey_created: { it: "Aggiunta il", en: "Added on" },
   str_passkey_last_used: { it: "Ultimo uso", en: "Last used" },
   str_passkey_unsupported: { it: "Questo browser non supporta le passkey.", en: "This browser does not support passkeys." },
+  str_saved_cards: { it: "Carte salvate", en: "Saved cards" },
+  str_saved_cards_desc: {
+    it: 'Al pagamento spunta "Salva" per non reinserire la carta la volta successiva. Potrai sempre pagare con una carta diversa.',
+    en: 'At checkout tick "Save" so you don\'t have to enter your card next time. You can always pay with a different card.',
+  },
+  str_cards_none: { it: "Nessuna carta salvata.", en: "No saved cards." },
+  str_cards_load_error: { it: "Impossibile caricare le carte salvate.", en: "Unable to load saved cards." },
+  str_card: { it: "Carta", en: "Card" },
+  str_card_expires: { it: "Scadenza", en: "Expires" },
+  str_card_expired: { it: "Scaduta", en: "Expired" },
+  str_card_remove: { it: "Rimuovi carta", en: "Remove card" },
+  str_card_removed: { it: "Carta rimossa", en: "Card removed" },
 };
 
 async function run() {

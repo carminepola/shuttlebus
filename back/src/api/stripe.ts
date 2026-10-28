@@ -4,6 +4,7 @@ import StripeInstance from "../stripe";
 import StripeServices from "../components/services/stripeServices";
 import BookingsServices from "../components/services/bookingServices";
 import BookingsDao from "../components/dao/bookingsDao";
+import PaymentServices from "../components/services/paymentServices";
 import authMiddleware from "../middlewares/authMiddleware";
 import ErrorModel from "../model/errorModel";
 import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware";
@@ -197,6 +198,23 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
       logger.info("Rimborso non riuscito " + req.body.id);
       throw new ErrorModel(400, "str_refund_error");
     }
+  } catch (error) {
+    next(error);
+  }
+});
+// Carte salvate al checkout dall'utente della sessione (userId dal token).
+router.get("/savedCards", authMiddleware, async (req, res, next) => {
+  try {
+    res.json({ result: await new PaymentServices(db).listSavedCards(res.locals.userLogged._id) });
+  } catch (error) {
+    next(error);
+  }
+});
+router.delete("/savedCards/:id", authMiddleware, async (req, res, next) => {
+  try {
+    const removed = await new PaymentServices(db).removeSavedCard(res.locals.userLogged._id, String(req.params.id));
+    if (!removed) throw new ErrorModel(404, "Carta non trovata");
+    res.json({ message: "Carta rimossa" });
   } catch (error) {
     next(error);
   }

@@ -17,7 +17,7 @@ function getStripe(): Stripe {
       console.error("STRIPE_SECRET_KEY mancante nel file .env");
       process.exit(1);
     }
-    stripe = new Stripe(key, { apiVersion: "2025-02-24.acacia" });
+    stripe = new Stripe(key, { apiVersion: "2026-09-30.endive" });
   }
   return stripe!;
 }

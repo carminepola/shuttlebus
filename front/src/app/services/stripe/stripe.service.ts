@@ -3,6 +3,14 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+export interface SavedCard {
+  id: string;
+  brand: string;
+  last4: string;
+  expMonth: number;
+  expYear: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -36,6 +44,12 @@ export class StripeService {
         return throwError(() => error);
       })
     );
+  }
+  getSavedCards(): Observable<SavedCard[]> {
+    return this.http.get<{ result: SavedCard[] }>(this.apiUrl + '/savedCards').pipe(map((res) => res.result));
+  }
+  removeSavedCard(id: string): Observable<any> {
+    return this.http.delete(this.apiUrl + '/savedCards/' + encodeURIComponent(id));
   }
   getPayouts(): Observable<any> {
     return this.http.get(this.apiUrl + '/getPayouts').pipe(

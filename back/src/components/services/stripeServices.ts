@@ -37,7 +37,7 @@ class StripeServices {
    * centesimi e' calcolato SOLO dai prezzi letti da DB (`dbPrices`, id -> cost),
    * costruiti da PaymentServices. Costo inesistente/non attivo -> sessione bloccata.
    */
-  async getPaymentSession(ticket: booking, dbPrices: Record<string, number>) {
+  async getPaymentSession(ticket: booking, dbPrices: Record<string, number>, customerId?: string) {
     try {
       let ticketData = ticket.date.split("-").reverse().join("/");
       let name = `${getLocalizedName(ticket.name, ticket.lng)} • ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}) • ${ticketData} `;
@@ -74,8 +74,15 @@ class StripeServices {
       }
 
       const session = await this.stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        customer_email: ticket.user.mail,
+        allowed_payment_method_types: ["card"],
+        // Con un customer Checkout mostra le carte salvate (si puo' sempre inserirne
+        // una nuova o rimuoverle) e la casella "salva per i prossimi acquisti".
+        ...(customerId
+          ? {
+              customer: customerId,
+              saved_payment_method_options: { payment_method_save: "enabled", payment_method_remove: "enabled" },
+            }
+          : { customer_email: ticket.user.mail }),
         line_items: items,
         mode: "payment",
         payment_intent_data: {
@@ -109,6 +116,57 @@ class StripeServices {
 
       throw new Error("str_error_payment");
     }
+  }
+
+  public async createCustomer(userId: string, email: string, name?: string): Promise<string> {
+    const customer = await this.stripe.customers.create({ email, name: name || undefined, metadata: { userId } });
+    return customer.id;
+  }
+
+  /** false se il customer e' stato cancellato o non esiste (es. chiavi test/live cambiate). */
+  public async customerExists(customerId: string): Promise<boolean> {
+    try {
+      const customer = await this.stripe.customers.retrieve(customerId);
+      return !customer.deleted;
+    } catch (error: any) {
+      if (error?.code === "resource_missing") return false;
+      throw error;
+    }
+  }
+
+  public async deleteCustomer(customerId: string): Promise<void> {
+    await this.stripe.customers.del(customerId);
+  }
+
+  /**
+   * Carte che l'utente ha scelto di salvare al checkout (allow_redisplay "always"):
+   * sono le stesse che Checkout gli ripropone.
+   */
+  public async listSavedCards(customerId: string) {
+    const methods = await this.stripe.customers.listPaymentMethods(customerId, { type: "card", limit: 100 });
+    return methods.data
+      .filter((pm: any) => pm.allow_redisplay === "always")
+      .map((pm: any) => ({
+        id: pm.id,
+        brand: pm.card?.display_brand || pm.card?.brand || "card",
+        last4: pm.card?.last4 || "",
+        expMonth: pm.card?.exp_month,
+        expYear: pm.card?.exp_year,
+      }));
+  }
+
+  /** Scollega la carta solo se appartiene al customer indicato. */
+  public async detachCard(customerId: string, paymentMethodId: string): Promise<boolean> {
+    let pm: any;
+    try {
+      pm = await this.stripe.paymentMethods.retrieve(paymentMethodId);
+    } catch (error: any) {
+      if (error?.code === "resource_missing") return false;
+      throw error;
+    }
+    if (pm.customer !== customerId) return false;
+    await this.stripe.paymentMethods.detach(paymentMethodId);
+    return true;
   }
 
   public async deletePaymentSession(booking_id: string) {
@@ -157,7 +215,7 @@ class StripeServices {
   }
   public async getAccountSchedule() {
     try {
-      const account = await this.stripe.accounts.retrieve();
+      const account = await this.stripe.accounts.retrieveCurrent();
       const interval = account.settings?.payouts?.schedule?.interval;
       let nextPayoutDate: Date | null = null;
 

@@ -62,7 +62,7 @@
     "passport-microsoft": "^2.1.0",
     "passport-spotify": "^2.0.0",
     "pg": "^8.11.3",
-    "stripe": "^17.7.0",
+    "stripe": "^23.0.1",
     "user-agents": "^1.1.207",
     "winston": "^3.11.0"
   },

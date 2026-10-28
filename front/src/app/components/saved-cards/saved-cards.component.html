@@ -1,0 +1,72 @@
+<div class="card border-0 rounded-4 shadow mt-4">
+  <div class="card-body">
+    <h3 class="text-muted mb-1">{{ t("str_saved_cards", "Carte salvate") }}</h3>
+    <p class="text-muted small mb-3">
+      {{
+        t(
+          "str_saved_cards_desc",
+          "Al pagamento spunta \"Salva\" per non reinserire la carta la volta successiva. Potrai sempre pagare con una carta diversa."
+        )
+      }}
+    </p>
+
+    @if (error) {
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ error }}
+        <button type="button" class="btn-close" (click)="error = ''" aria-label="Chiudi"></button>
+      </div>
+    }
+    @if (success) {
+      <div class="alert alert-success alert-dismissible fade show" role="status">
+        {{ success }}
+        <button type="button" class="btn-close" (click)="success = ''" aria-label="Chiudi"></button>
+      </div>
+    }
+
+    @if (loading) {
+      <div class="text-center py-3">
+        <span class="spinner-border spinner-border-sm" role="status"></span>
+      </div>
+    } @else {
+      @if (cards.length === 0) {
+        <p class="small text-muted fst-italic mb-0">{{ t("str_cards_none", "Nessuna carta salvata.") }}</p>
+      }
+      @for (card of cards; track card.id) {
+        <div class="card-row">
+          <div class="card-row-icon"><i [class]="brandIcon(card.brand)"></i></div>
+          <div class="card-row-body">
+            <div class="card-row-title">
+              {{ brandName(card.brand) }} •••• {{ card.last4 }}
+              @if (isExpired(card)) {
+                <span class="badge text-bg-danger">{{ t("str_card_expired", "Scaduta") }}</span>
+              }
+            </div>
+            <div class="card-row-desc">
+              {{ t("str_card_expires", "Scadenza") }} {{ card.expMonth.toString().padStart(2, "0") }}/{{ card.expYear }}
+            </div>
+          </div>
+          @if (confirmRemoveId === card.id) {
+            <div class="d-flex gap-1">
+              <button type="button" class="btn btn-danger btn-sm" [disabled]="busy" (click)="removeCard(card.id)">
+                {{ t("str_confermo", "Conferma") }}
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="confirmRemoveId = null">
+                {{ t("str_annulla", "Annulla") }}
+              </button>
+            </div>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              [disabled]="busy"
+              (click)="confirmRemoveId = card.id"
+              [attr.aria-label]="t('str_card_remove', 'Rimuovi carta') + ' ' + card.last4"
+            >
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>
