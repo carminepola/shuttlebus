@@ -489,29 +489,37 @@ async function run() {
 
   let inserted = 0;
   let completed = 0;
+  let updated = 0;
   for (const [txt, values] of Object.entries(KEYS)) {
     const existing = await col.findOne({ txt });
 
+
     if (!existing) {
+      console.log(txt + " non esiste")
       console.log(`${prefix}+ ${txt}`);
       if (!dryRun) {
-        await col.insertOne({  txt, ...values });
+        await col.insertOne({ txt, ...values });
       }
+      console.log("inserita " + txt)
       inserted++;
       continue;
     }
-
-    // Solo cio' che manca: lingue vuote e id (chiavi inserite dalle versioni precedenti dello script)
-    const set: Record<string, string> = {}; 
-    console.log(`${prefix}~ ${txt} (${Object.keys(set).join(", ")})`);
-    if (!dryRun) {
-      await col.updateOne({ txt:txt }, { $set: values });
+    else {
+      console.log(txt + " esiste")
+      // Solo cio' che manca: lingue vuote e id (chiavi inserite dalle versioni precedenti dello script)
+      const set: Record<string, string> = {};
+      console.log(`${prefix}~ ${txt} (${Object.keys(set).join(", ")})`);
+      if (!dryRun) {
+        await col.updateOne({ txt: txt }, { $set: values });
+      }
+      updated++
     }
-    completed++;
+
+
   }
 
-  const total = Object.keys(KEYS).length;
-  console.log(`${dryRun ? "Da inserire" : "Inserite"}: ${inserted} · ${dryRun ? "da completare" : "completate"}: ${completed} · invariate: ${total - inserted - completed} / ${total} chiavi`);
+ 
+   console.log("Inserite "+inserted+" Aggiornate " + updated)
   await client.close();
 }
 
