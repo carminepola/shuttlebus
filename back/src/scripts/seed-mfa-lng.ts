@@ -15,7 +15,7 @@ const dryRun = args.includes("--dry-run");
 
 /**
  * Chiavi di traduzione della verifica in due passaggi, delle passkey
- * (login, checkout, pagina account), delle carte salvate e dell'avviso di aggiornamento PWA. Il front ha gia' un testo di riserva in
+ * (login, checkout, pagina account), delle carte salvate, dell'avviso di aggiornamento PWA e dell'andata e ritorno. Il front ha gia' un testo di riserva in
  * italiano: questo script aggiunge it/en nella collection 'lng'.
  *
  * Inserisce SOLO le chiavi mancanti ($setOnInsert): le traduzioni gia'
@@ -138,6 +138,19 @@ const KEYS: Record<string, { it: string; en: string }> = {
   str_card_expired: { it: "Scaduta", en: "Expired" },
   str_card_remove: { it: "Rimuovi carta", en: "Remove card" },
   str_card_removed: { it: "Carta rimossa", en: "Card removed" },
+  str_solo_andata: { it: "Solo andata", en: "One way" },
+  str_andata_ritorno: { it: "Andata e ritorno", en: "Round trip" },
+  str_andata: { it: "Andata", en: "Outbound" },
+  str_ritorno: { it: "Ritorno", en: "Return" },
+  str_data_andata: { it: "Data andata", en: "Departure date" },
+  str_data_ritorno: { it: "Data ritorno", en: "Return date" },
+  str_err_data_ritorno: {
+    it: "Scegli una data di ritorno uguale o successiva all'andata",
+    en: "Choose a return date on or after the departure date",
+  },
+  str_seleziona: { it: "Seleziona", en: "Select" },
+  str_selezionata: { it: "Selezionata", en: "Selected" },
+  str_totale_andata_ritorno: { it: "Totale andata e ritorno", en: "Round trip total" },
 };
 
 async function run() {

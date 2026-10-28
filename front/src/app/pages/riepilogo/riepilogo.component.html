@@ -22,136 +22,158 @@
 
         <div class="summary-layout">
           <div class="summary-main">
-            <div class="summary-route-card rounded-4">
-              <div class="route-card-header">
-                <div>
-                  <h5
-                    class="route-name mb-1"
-                    >{{ param.name | translateName }}
-</h5>
-                  <div class="route-date">
-                    <i class="fa-regular fa-calendar me-1"></i>
-                    {{ param.date | date: "dd MMMM yyyy" }}
+            @for (leg of legs; track leg) {
+              <div class="summary-route-card rounded-4">
+                <div class="route-card-header">
+                  <div>
+                    @if (legs.length > 1) {
+                      <span class="leg-badge">
+                        <i class="fa-solid me-1" [class.fa-arrow-right]="$first" [class.fa-arrow-left]="!$first"></i>
+                        {{ $first ? lngService.traslateOr("str_andata", "Andata") : lngService.traslateOr("str_ritorno", "Ritorno") }}
+                      </span>
+                    }
+                    <h5
+                      class="route-name mb-1"
+                      >{{ leg.name | translateName }}
+  </h5>
+                    <div class="route-date">
+                      <i class="fa-regular fa-calendar me-1"></i>
+                      {{ leg.date | date: "dd MMMM yyyy" }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="route-card-body">
+                  <div class="route-timeline">
+                    <div class="timeline-point departure">
+                      <div class="timeline-dot"></div>
+                      <div
+                        class="timeline-time"
+                        >{{ leg.from.stopTime }}
+  </div>
+                      <div
+                        class="timeline-label"
+                        >{{ leg.from.name }}
+  </div>
+                      <div
+                        class="timeline-desc"
+                        >{{ leg.from.address }}
+  </div>
+                    </div>
+                    <div class="timeline-line">
+                      <div class="timeline-line-inner"></div>
+                      <i class="fa-solid fa-bus timeline-icon"></i>
+                    </div>
+                    <div class="timeline-point arrival">
+                      <div class="timeline-dot"></div>
+                      <div
+                        class="timeline-time"
+                        >{{ leg.to.stopTime }}
+  </div>
+                      <div
+                        class="timeline-label"
+                        >{{ leg.to.name }}
+  </div>
+                      <div
+                        class="timeline-desc"
+                        >{{ leg.to.address }}
+  </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div class="route-card-body">
-                <div class="route-timeline">
-                  <div class="timeline-point departure">
-                    <div class="timeline-dot"></div>
-                    <div
-                      class="timeline-time"
-                      >{{ param.from.stopTime }}
-</div>
-                    <div
-                      class="timeline-label"
-                      >{{ param.from.name }}
-</div>
-                    <div
-                      class="timeline-desc"
-                      >{{ param.from.address }}
-</div>
+              <div class="summary-tickets-card rounded-4">
+                <div class="card-section-header">
+                  <i class="fa-solid fa-ticket me-1"></i>
+                  <span [innerText]="'str_totale' | translate"></span>
+                </div>
+
+                <div class="tickets-list">
+                  @for (
+                    ticket of leg.ticketTypes;
+                    track ticket;
+                    let i = $index
+                  ) {
+                    <div class="ticket-row">
+                      <div class="ticket-row-info">
+                        <h6
+                          class="mb-0"
+                          >{{ ticket.name | translateName }}
+  </h6>
+                        <span
+                          class="ticket-row-desc"
+                          >{{ ticket.description | translateName }}
+  </span>
+                      </div>
+                      <div class="ticket-row-right">
+                        <div class="ticket-qty">
+                          <span class="ticket-qty-x">x</span>
+                          <span >{{ ticket.count }}</span>
+                        </div>
+                        <div class="ticket-row-price">
+                          {{ ticket.cost * ticket.count }}€
+                        </div>
+                      </div>
+                    </div>
+                  }
+                  @if (leg.luggage > 0) {
+                    <div class="ticket-row">
+                      <div class="ticket-row-info">
+                        <h6
+                          class="mb-0"
+                          >{{ 'str_bagagli_aggiuntivi' | translate }}
+  </h6>
+                        <span
+                          class="ticket-row-desc"
+                          >{{ 
+                            'str_bagagli_aggiuntivi_descrizione' | translate
+                           }}
+  </span>
+                      </div>
+                      <div class="ticket-row-right">
+                        <div class="ticket-qty">
+                          <span class="ticket-qty-x">x</span>
+                          <span >{{ leg.luggage }}</span>
+                        </div>
+                        <div class="ticket-row-price">
+                          {{ luggagePrice * leg.luggage }}€
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="ticket-total-row">
+                  <div class="ticket-total-left">
+                    <span
+                      class="ticket-total-label"
+                      [innerText]="'str_totale' | translate"
+                    ></span>
                   </div>
-                  <div class="timeline-line">
-                    <div class="timeline-line-inner"></div>
-                    <i class="fa-solid fa-bus timeline-icon"></i>
-                  </div>
-                  <div class="timeline-point arrival">
-                    <div class="timeline-dot"></div>
-                    <div
-                      class="timeline-time"
-                      >{{ param.to.stopTime }}
-</div>
-                    <div
-                      class="timeline-label"
-                      >{{ param.to.name }}
-</div>
-                    <div
-                      class="timeline-desc"
-                      >{{ param.to.address }}
-</div>
+                  <div class="ticket-total-right">
+                    <span class="ticket-total-value purchase-total">{{
+                      leg.total
+                    }}</span>
+                    <span class="ticket-total-currency">€</span>
                   </div>
                 </div>
               </div>
-            </div>
+            }
 
-            <div class="summary-tickets-card rounded-4">
-              <div class="card-section-header">
-                <i class="fa-solid fa-ticket me-1"></i>
-                <span [innerText]="'str_totale' | translate"></span>
-              </div>
-
-              <div class="tickets-list">
-                @for (
-                  ticket of param.ticketTypes;
-                  track ticket;
-                  let i = $index
-                ) {
-                  <div class="ticket-row">
-                    <div class="ticket-row-info">
-                      <h6
-                        class="mb-0"
-                        >{{ ticket.name | translateName }}
-</h6>
-                      <span
-                        class="ticket-row-desc"
-                        >{{ ticket.description | translateName }}
-</span>
-                    </div>
-                    <div class="ticket-row-right">
-                      <div class="ticket-qty">
-                        <span class="ticket-qty-x">x</span>
-                        <span >{{ ticket.count }}</span>
-                      </div>
-                      <div class="ticket-row-price">
-                        {{ ticket.cost * ticket.count }}€
-                      </div>
-                    </div>
+            @if (legs.length > 1) {
+              <div class="summary-tickets-card rounded-4">
+                <div class="ticket-total-row">
+                  <div class="ticket-total-left">
+                    <span class="ticket-total-label">{{ lngService.traslateOr("str_totale_andata_ritorno", "Totale andata e ritorno") }}</span>
                   </div>
-                }
-                @if (param.luggage > 0) {
-                  <div class="ticket-row">
-                    <div class="ticket-row-info">
-                      <h6
-                        class="mb-0"
-                        >{{ 'str_bagagli_aggiuntivi' | translate }}
-</h6>
-                      <span
-                        class="ticket-row-desc"
-                        >{{ 
-                          'str_bagagli_aggiuntivi_descrizione' | translate
-                         }}
-</span>
-                    </div>
-                    <div class="ticket-row-right">
-                      <div class="ticket-qty">
-                        <span class="ticket-qty-x">x</span>
-                        <span >{{ param.luggage }}</span>
-                      </div>
-                      <div class="ticket-row-price">
-                        {{ luggagePrice * param.luggage }}€
-                      </div>
-                    </div>
+                  <div class="ticket-total-right">
+                    <span class="ticket-total-value purchase-total">{{ grandTotal }}</span>
+                    <span class="ticket-total-currency">€</span>
                   </div>
-                }
-              </div>
-
-              <div class="ticket-total-row">
-                <div class="ticket-total-left">
-                  <span
-                    class="ticket-total-label"
-                    [innerText]="'str_totale' | translate"
-                  ></span>
-                </div>
-                <div class="ticket-total-right">
-                  <span class="ticket-total-value purchase-total">{{
-                    param.total
-                  }}</span>
-                  <span class="ticket-total-currency">€</span>
                 </div>
               </div>
-            </div>
+            }
           </div>
 
           <div class="summary-sidebar">
@@ -257,7 +279,7 @@
                     "
                     (click)="bookNow()"
                   >
-                    <span class="purchase-total">{{ param.total }}€</span>
+                    <span class="purchase-total">{{ grandTotal }}€</span>
                     <span [innerText]="'str_acquista' | translate"></span>
                   </button>
                 </div>
@@ -364,7 +386,7 @@
                       class="purchase-btn active w-100"
                     >
                       @if (!checkoutLoginLoading) {
-                        <span class="purchase-total">{{ param.total }}€</span>
+                        <span class="purchase-total">{{ grandTotal }}€</span>
                         <span [innerText]="'str_acquista' | translate"></span>
                       }
                       @if (checkoutLoginLoading) {

@@ -38,6 +38,12 @@
               <div class="booking-date">
                 <i class="fa-regular fa-calendar me-1"></i>
                 {{ booking.date | date: "dd MMMM yyyy" }}
+                @if (booking.roundTrip) {
+                  <span class="booking-leg">
+                    <i class="fa-solid ms-2 me-1" [class.fa-arrow-right]="booking.roundTrip.leg === 'outbound'" [class.fa-arrow-left]="booking.roundTrip.leg === 'return'"></i>
+                    {{ legLabel(booking) }}
+                  </span>
+                }
               </div>
             </div>
             <span

@@ -6,6 +6,7 @@ import { StopsService } from '../../services/stops/stops.service';
 import { RoutesService } from '../../services/routes/routes.service';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
+import { LngService } from '../../services/lng/lng.service';
 
 import { Router } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
@@ -24,6 +25,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     partenza?: string;
     arrivo?: string;
     data?: string;
+    ritorno?: string;
     bagagli?: number;
     ticketSelections?: { [id: string]: number };
   };
@@ -43,6 +45,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   public errors: string[] = [];
   public maxTickets = 12;
   public maxBagagli = 10;
+  public andataRitorno = false;
 
   constructor(
     private routesService: RoutesService,
@@ -50,6 +53,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     private ticketTypeService: TicketTypeService,
     private router: Router,
     private pendingBookingService: PendingBookingService,
+    public lngService: LngService,
   ) {}
 
   ngAfterViewInit() {
@@ -73,6 +77,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
           if (this.ricerca?.data && this.ricerca.data < today) {
             this.ricerca!.data = today;
           }
+          if (this.ricerca?.ritorno && this.ricerca.ritorno < this.ricerca.data!) {
+            this.ricerca!.ritorno = this.ricerca!.data;
+          }
         } catch {
           this.ricerca = undefined;
         }
@@ -89,6 +96,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
         bagagli: 0,
       };
     }
+
+    this.andataRitorno = !!this.ricerca.ritorno;
 
     if (this.ricerca.ticketSelections) {
       this.selectedTickets = { ...this.ricerca.ticketSelections };
@@ -284,6 +293,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
     if (this.ricerca?.bagagli === undefined || this.ricerca?.bagagli === null) {
       this.errors.push('str_err_bagagli');
     }
+    if (this.andataRitorno && (!this.ricerca?.ritorno || this.ricerca.ritorno < this.ricerca.data!)) {
+      this.errors.push('str_err_data_ritorno');
+    }
 
     if (this.errors.length > 0) {
       return;
@@ -308,6 +320,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         partenza: this.ricerca?.partenza,
         arrivo: this.ricerca?.arrivo,
         data: this.ricerca?.data,
+        ritorno: this.ritorno,
         bagagli: this.ricerca?.bagagli,
         ticketSelections: this.selectedTickets,
       }),
@@ -326,6 +339,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         arrivo: this.ricerca?.arrivo,
         persone: this.getTotalPersone(),
         data: this.ricerca?.data,
+        ritorno: this.ritorno,
         bagagli: this.ricerca?.bagagli,
         tickets: JSON.stringify(filteredTickets),
       },
@@ -335,5 +349,26 @@ export class SearchComponent implements OnInit, AfterViewInit {
     const dateObj = new Date(event);
 
     this.ricerca!.data = dateObj.toISOString().split('T')[0];
+    if (this.ricerca!.ritorno && this.ricerca!.ritorno < this.ricerca!.data) {
+      this.ricerca!.ritorno = this.ricerca!.data;
+    }
+  }
+
+  setAndataRitorno(value: boolean) {
+    this.andataRitorno = value;
+    if (value && !this.ricerca!.ritorno) {
+      this.ricerca!.ritorno = this.ricerca!.data;
+    }
+  }
+
+  /** Data del ritorno, solo se e' stata scelta l'andata e ritorno. */
+  get ritorno(): string | undefined {
+    return this.andataRitorno ? this.ricerca?.ritorno : undefined;
+  }
+
+  errorText(err: string): string {
+    return err === 'str_err_data_ritorno'
+      ? this.lngService.traslateOr(err, 'Scegli una data di ritorno uguale o successiva all\'andata')
+      : this.lngService.traslate(err);
   }
 }

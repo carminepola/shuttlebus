@@ -1,5 +1,27 @@
 <form #f="ngForm" (ngSubmit)="onSubmit(f)">
   <div class="search-fields">
+    <div class="trip-type" role="group">
+      <button
+        type="button"
+        class="trip-type-btn"
+        [class.active]="!andataRitorno"
+        [attr.aria-pressed]="!andataRitorno"
+        (click)="setAndataRitorno(false)"
+      >
+        <i class="fa-solid fa-arrow-right"></i>
+        {{ lngService.traslateOr("str_solo_andata", "Solo andata") }}
+      </button>
+      <button
+        type="button"
+        class="trip-type-btn"
+        [class.active]="andataRitorno"
+        [attr.aria-pressed]="andataRitorno"
+        (click)="setAndataRitorno(true)"
+      >
+        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+        {{ lngService.traslateOr("str_andata_ritorno", "Andata e ritorno") }}
+      </button>
+    </div>
     <div class="search-route-row">
       <div class="search-field">
         <div class="field-icon">
@@ -140,23 +162,49 @@
         </div>
       </div>
 
-      <div class="search-field search-field-full">
-        <div class="field-icon">
-          <i class="fa-regular fa-calendar"></i>
+      <div class="search-dates search-field-full" [class.round-trip]="andataRitorno">
+        <div class="search-field">
+          <div class="field-icon">
+            <i class="fa-regular fa-calendar"></i>
+          </div>
+          <div class="field-content">
+            @if (andataRitorno) {
+              <label for="giorno">{{ lngService.traslateOr("str_data_andata", "Data andata") }}</label>
+            } @else {
+              <label for="giorno" [innerHTML]="'str_day' | translate"></label>
+            }
+            <input
+              required
+              [(ngModel)]="ricerca!.data"
+              name="data"
+              type="date"
+              id="giorno"
+              (ngModelChange)="updateDate($event)"
+              class="form-control"
+              [min]="today"
+            />
+          </div>
         </div>
-        <div class="field-content">
-          <label for="giorno" [innerHTML]="'str_day' | translate"></label>
-          <input
-            required
-            [(ngModel)]="ricerca!.data"
-            name="data"
-            type="date"
-            id="giorno"
-            (ngModelChange)="updateDate($event)"
-            class="form-control"
-            [min]="today"
-          />
-        </div>
+
+        @if (andataRitorno) {
+          <div class="search-field">
+            <div class="field-icon field-icon-arrival">
+              <i class="fa-regular fa-calendar-check"></i>
+            </div>
+            <div class="field-content">
+              <label for="ritorno">{{ lngService.traslateOr("str_data_ritorno", "Data ritorno") }}</label>
+              <input
+                required
+                [(ngModel)]="ricerca!.ritorno"
+                name="ritorno"
+                type="date"
+                id="ritorno"
+                class="form-control"
+                [min]="ricerca!.data || today"
+              />
+            </div>
+          </div>
+        }
       </div>
     </div>
   </div>
@@ -166,7 +214,7 @@
       @for (err of errors; track err) {
         <div class="search-error-item">
           <i class="fa-solid fa-circle-exclamation me-1"></i>
-          <span [innerHTML]="err | translate"></span>
+          <span [innerHTML]="errorText(err)"></span>
         </div>
       }
     </div>

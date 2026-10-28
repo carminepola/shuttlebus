@@ -72,33 +72,49 @@ class BookingsServices {
   async insertBooking(ticket: any, userId: string) {
     let paymentType = ticket.paymentType || "stripe";
 
+    // Andata e ritorno: la tratta di ritorno arriva annidata nell'andata
+    const returnTrip = ticket.returnTrip;
+    delete ticket.returnTrip;
+    const legs: any[] = returnTrip ? [ticket, returnTrip] : [ticket];
+
     try {
       await this.removeExpiredPendingBookings();
       let booking = await this.removePendingBooking(userId);
       if (booking.length >= 3) throw new ErrorModel(400, "str_error_pending_booking");
-      await this.checkPriceAndTime(ticket);
+      if (returnTrip && (typeof returnTrip.date !== "string" || returnTrip.date < ticket.date)) {
+        throw new ErrorModel(400, "str_error_time");
+      }
+      for (const leg of legs) {
+        await this.checkPriceAndTime(leg);
+      }
     } catch (error) {
       throw error;
     }
 
-    let book: booking = await this.createBookingInTransaction(ticket, userId, paymentType);
+    let books: booking[] = await this.createBookingInTransaction(legs, userId, paymentType);
+    if (!books) throw new ErrorModel(404, "Utente non trovato");
+    let book = books[0];
 
     try {
-      let paymentSession: any = await this.paymentServices.calculatePayment(book, paymentType);
+      let paymentSession: any = await this.paymentServices.calculatePayment(books, paymentType);
       let url: any = "";
       switch (paymentSession.type) {
         case "stripe":
-          this.bookingDao.updatePaymentInfo("stripe", paymentSession.other, book.numberOfTickets);
+          for (const b of books) {
+            this.bookingDao.updatePaymentInfo("stripe", paymentSession.other, b.numberOfTickets);
+          }
           url = paymentSession.other.url;
           break;
         case "cash":
-          this.bookingDao.updatePaymentInfo("cash", { type: "cash" }, book.numberOfTickets);
-          let bookObj = await this.getBooking(book.numberOfTickets);
-          if (process.env.MAIL_ADMIN) {
-            await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Conferma Prenotazione (Contanti)", this.mailSenderServices.transformBookGeneric(bookObj));
-          }
+          for (const b of books) {
+            this.bookingDao.updatePaymentInfo("cash", { type: "cash" }, b.numberOfTickets);
+            let bookObj = await this.getBooking(b.numberOfTickets);
+            if (process.env.MAIL_ADMIN) {
+              await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Conferma Prenotazione (Contanti)", this.mailSenderServices.transformBookGeneric(bookObj));
+            }
 
-          await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(bookObj, "✅ *Prenotazione Confermata (Contanti)* ✅"));
+            await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(bookObj, "✅ *Prenotazione Confermata (Contanti)* ✅"));
+          }
           return { type: "cash", bookingId: book.numberOfTickets };
       }
       if (url == "") {
@@ -106,7 +122,9 @@ class BookingsServices {
       }
       return url;
     } catch (error) {
-      this.bookingDao.deleteBooking(book.numberOfTickets);
+      for (const b of books) {
+        this.bookingDao.deleteBooking(b.numberOfTickets);
+      }
       throw error;
     }
   }
@@ -122,79 +140,96 @@ class BookingsServices {
    * prenotazioni appena committate dalle transazioni precedenti. Gli errori di
    * business (str_error_seats, str_error_luggage, str_error_permission) NON sono
    * transitori e non vengono riprovati.
+   * Con andata e ritorno le due tratte nascono nella stessa transazione: o
+   * entrambe hanno posto, o non viene creata nessuna delle due.
    */
-  private async createBookingInTransaction(ticket: any, userId: string, paymentType: string): Promise<booking> {
+  private async createBookingInTransaction(tickets: any[], userId: string, paymentType: string): Promise<booking[]> {
+    const first = tickets[0];
     for (let attempt = 1; attempt <= BookingsServices.SEAT_TX_MAX_RETRIES; attempt++) {
       const session: ClientSession = client.startSession();
-      let book: booking;
       try {
         session.startTransaction();
 
-        // DEVE essere la prima scrittura della transazione (vedi bookingDao.acquireSeatLock)
-        await this.bookingDao.acquireSeatLock(ticket.date, ticket.routeId, ticket.scheduleId, session);
+        // DEVONO essere le prime scritture della transazione (vedi bookingDao.acquireSeatLock).
+        // Ordine stabile e senza doppioni: due tratte sulla stessa corsa/data prendono un solo lock
+        const locks = [...new Map(tickets.map((t) => [`${t.routeId}_${t.scheduleId}_${t.date}`, t])).entries()].sort(([a], [b]) => a.localeCompare(b));
+        for (const [, t] of locks) {
+          await this.bookingDao.acquireSeatLock(t.date, t.routeId, t.scheduleId, session);
+        }
 
-        // pentest: MASS-ASSIGNMENT — il body veniva copiato nel booking così com'è:
-        // un cliente poteva auto-dichiarare paymentIntentId, status, payment_status,
-        // refundedAmount o arbitrare il PK numberOfTickets. Tutti i campi di stato
-        // vengono riscritti/azzerati qui sotto.
-        const cleanTicket: any = { ...ticket };
-        delete cleanTicket.paymentIntentId;
-        delete cleanTicket.status;
-        delete cleanTicket.payment_status;
-        delete cleanTicket.paymentMethod;
-        delete cleanTicket.other;
-        delete cleanTicket.refundedAmount;
-        delete cleanTicket.scannedBy;
-        delete cleanTicket.confirmationSentAt;
-        delete cleanTicket.cancelMotivation;
-        delete cleanTicket._id;
-        cleanTicket.numberOfTickets = undefined; // il PK e' generato SOLO dal server
-
-        ticket.userId = userId;
         let user = await this.userServices.getUserById(userId);
-        if (user) {
-          ticket.user = {
-            id: userId,
-            name: user.details?.name,
-            mail: user.email,
-            phone: user.details?.phone,
-          };
-        } else {
+        if (!user) {
           // comportamento storico: utente inesistente -> nessun booking
-          return undefined as unknown as booking;
+          return undefined as unknown as booking[];
+        }
+        const bookingUser = {
+          id: userId,
+          name: user.details?.name,
+          mail: user.email,
+          phone: user.details?.phone,
+        };
+
+        const books: booking[] = tickets.map((ticket) => {
+          // pentest: MASS-ASSIGNMENT — il body veniva copiato nel booking così com'è:
+          // un cliente poteva auto-dichiarare paymentIntentId, status, payment_status,
+          // refundedAmount o arbitrare il PK numberOfTickets. Tutti i campi di stato
+          // vengono riscritti/azzerati qui sotto.
+          const cleanTicket: any = { ...ticket };
+          delete cleanTicket.paymentIntentId;
+          delete cleanTicket.status;
+          delete cleanTicket.payment_status;
+          delete cleanTicket.paymentMethod;
+          delete cleanTicket.other;
+          delete cleanTicket.refundedAmount;
+          delete cleanTicket.scannedBy;
+          delete cleanTicket.confirmationSentAt;
+          delete cleanTicket.cancelMotivation;
+          delete cleanTicket.roundTrip;
+          delete cleanTicket._id;
+          cleanTicket.numberOfTickets = undefined; // il PK e' generato SOLO dal server
+
+          ticket.userId = userId;
+          ticket.user = bookingUser;
+          return new booking({ ...cleanTicket, userId, user: bookingUser });
+        });
+
+        if (books.length === 2) {
+          books[0].roundTrip = { leg: "outbound", linkedTicket: books[1].numberOfTickets };
+          books[1].roundTrip = { leg: "return", linkedTicket: books[0].numberOfTickets };
         }
 
-        book = new booking({ ...cleanTicket, userId, user: ticket.user });
+        for (const book of books) {
+          // Le letture della transazione vedono gli inserimenti precedenti della stessa sessione
+          let numeroPosti: any = await this.availableSeats(book.date, book.routeId, book.scheduleId, book.from.id, book.to.id, session);
 
-        let numeroPosti: any = await this.availableSeats(book.date, book.routeId, book.scheduleId, book.from.id, book.to.id, session);
+          if (book.seats > numeroPosti.availableSeats) {
+            // N-07: errore di dominio -> ErrorModel (409 Conflict), NON 500 generico
+            throw new ErrorModel(409, "str_error_seats");
+          }
+          if (book.luggage > 0 && book.luggage > numeroPosti.availableLuggage) {
+            throw new ErrorModel(409, "str_error_luggage");
+          }
 
-        if (book.seats > numeroPosti.availableSeats) {
-          // N-07: errore di dominio -> ErrorModel (409 Conflict), NON 500 generico
-          throw new ErrorModel(409, "str_error_seats");
+          switch (paymentType) {
+            case "stripe":
+              book.status = "pending";
+              book.payment_status = "unpaid";
+              break;
+            case "cash":
+              if (user.role > role.DRIVER) {
+                throw new ErrorModel(403, "str_error_permission");
+              }
+              book.status = "confirmed";
+              book.payment_status = "paid";
+              break;
+          }
+
+          await this.bookingDao.insertBooking(book, session);
         }
-        if (book.luggage > 0 && book.luggage > numeroPosti.availableLuggage) {
-          throw new ErrorModel(409, "str_error_luggage");
-        }
-
-        switch (paymentType) {
-          case "stripe":
-            book.status = "pending";
-            book.payment_status = "unpaid";
-            break;
-          case "cash":
-            if (user.role > role.DRIVER) {
-              throw new ErrorModel(403, "str_error_permission");
-            }
-            book.status = "confirmed";
-            book.payment_status = "paid";
-            break;
-        }
-
-        let res = await this.bookingDao.insertBooking(book, session);
 
         await session.commitTransaction();
         await session.endSession();
-        return book;
+        return books;
       } catch (error) {
         try {
           await session.abortTransaction();
@@ -203,7 +238,7 @@ class BookingsServices {
         if (isTransientTransactionError(error)) {
           if (attempt < BookingsServices.SEAT_TX_MAX_RETRIES) {
             logger.warn(
-              `Conflitto di scrittura sui posti (tentativo ${attempt}/${BookingsServices.SEAT_TX_MAX_RETRIES}) per ${ticket.routeId}/${ticket.scheduleId} del ${ticket.date}: riprovo con snapshot aggiornato`,
+              `Conflitto di scrittura sui posti (tentativo ${attempt}/${BookingsServices.SEAT_TX_MAX_RETRIES}) per ${first.routeId}/${first.scheduleId} del ${first.date}: riprovo con snapshot aggiornato`,
             );
             continue;
           }
@@ -211,7 +246,7 @@ class BookingsServices {
           // NON un 500 generico. La prenotazione non esiste (transazione abortita)
           // e l'utente puo' riprovare; il front mostra gia' str_error_seats tradotto.
           logger.error(
-            `Esauriti ${BookingsServices.SEAT_TX_MAX_RETRIES} tentativi (conflitti di scrittura sui posti) per ${ticket.routeId}/${ticket.scheduleId} del ${ticket.date}: rispondo 409 str_error_seats`,
+            `Esauriti ${BookingsServices.SEAT_TX_MAX_RETRIES} tentativi (conflitti di scrittura sui posti) per ${first.routeId}/${first.scheduleId} del ${first.date}: rispondo 409 str_error_seats`,
           );
           throw new ErrorModel(409, "str_error_seats");
         }
@@ -309,6 +344,10 @@ class BookingsServices {
   }
   async readByPaymentIntentId(paymentIntentId: string) {
     return await this.bookingDao.readByPaymentIntentId(paymentIntentId);
+  }
+  /** Tutte le prenotazioni pagate con lo stesso PaymentIntent (2 per andata e ritorno). */
+  async readAllByPaymentIntentId(paymentIntentId: string) {
+    return await this.bookingDao.readAllByPaymentIntentId(paymentIntentId);
   }
   async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {
     return await this.bookingDao.updatePaymentInfo(type, other, numberOfTickets);
@@ -519,7 +558,13 @@ class BookingsServices {
     await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "✅ *Prenotazione Confermata* ✅"));
   }
   async deleteBooking(numberOfTickets: string, userId?: string) {
-    return await this.bookingDao.deleteBooking(numberOfTickets, userId);
+    const deleted = await this.bookingDao.deleteBooking(numberOfTickets, userId);
+    // Andata e ritorno condividono la sessione di pagamento: in attesa si annullano insieme
+    const linked = deleted ? (await this.bookingDao.getBooking(numberOfTickets))?.roundTrip?.linkedTicket : undefined;
+    if (linked) {
+      await this.bookingDao.deleteBooking(linked, userId);
+    }
+    return deleted;
   }
   async expireTicketById(ticketId: string) {
     return await this.bookingDao.expireTicketById(ticketId);

@@ -37,41 +37,51 @@ class StripeServices {
    * centesimi e' calcolato SOLO dai prezzi letti da DB (`dbPrices`, id -> cost),
    * costruiti da PaymentServices. Costo inesistente/non attivo -> sessione bloccata.
    */
-  async getPaymentSession(ticket: booking, dbPrices: Record<string, number>, customerId?: string) {
+  async getPaymentSession(tickets: booking[], dbPrices: Record<string, number>, customerId?: string) {
     try {
-      let ticketData = ticket.date.split("-").reverse().join("/");
-      let name = `${getLocalizedName(ticket.name, ticket.lng)} • ${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime}) • ${ticketData} `;
-      let items = ticket.ticketTypes.map((item: TicketType) => {
-        const dbCost = dbPrices?.[item.id];
-        if (dbCost === undefined || dbCost === null) {
-          throw new Error(`Ticket type ${item.id} assente o non attivo: sessione di pagamento bloccata`);
+      const ticket = tickets[0];
+      let items: any[] = [];
+      for (const leg of tickets) {
+        let ticketData = leg.date.split("-").reverse().join("/");
+        let name = `${getLocalizedName(leg.name, leg.lng)} • ${leg.from.name} (${leg.from.stopTime}) - ${leg.to.name} (${leg.to.stopTime}) • ${ticketData} `;
+        for (const item of leg.ticketTypes) {
+          const dbCost = dbPrices?.[item.id];
+          if (dbCost === undefined || dbCost === null) {
+            throw new Error(`Ticket type ${item.id} assente o non attivo: sessione di pagamento bloccata`);
+          }
+          items.push({
+            price_data: {
+              currency: "eur",
+              product_data: {
+                name: getLocalizedName(item.name, leg.lng) + " • " + getLocalizedName(item.description, leg.lng),
+                description: name,
+              },
+              unit_amount: Math.round(dbCost * 100),
+            },
+            quantity: item.count,
+          });
         }
-        return {
-          price_data: {
-            currency: "eur",
-            product_data: {
-              name: getLocalizedName(item.name, ticket.lng) + " • " + getLocalizedName(item.description, ticket.lng),
-              description: name,
-            },
-            unit_amount: Math.round(dbCost * 100),
-          },
-          quantity: item.count,
-        };
-      });
 
-      if (ticket.luggage > 0) {
-        items.push({
-          price_data: {
-            currency: "eur",
-            product_data: {
-              name: getStripeLabel("extraLuggage", ticket.lng),
-              description: getStripeLabel("extraLuggageDesc", ticket.lng),
+        if (leg.luggage > 0) {
+          items.push({
+            price_data: {
+              currency: "eur",
+              product_data: {
+                name: getStripeLabel("extraLuggage", leg.lng),
+                description: tickets.length > 1 ? `${getStripeLabel("extraLuggageDesc", leg.lng)} • ${name}` : getStripeLabel("extraLuggageDesc", leg.lng),
+              },
+              unit_amount: Math.round(LUGGAGE_PRICE * 100),
             },
-            unit_amount: Math.round(LUGGAGE_PRICE * 100),
-          },
-          quantity: ticket.luggage,
-        });
+            quantity: leg.luggage,
+          });
+        }
       }
+
+      const ids = tickets.map((t) => t.numberOfTickets);
+      const route = tickets.map((t) => `${t.from.name} (${t.from.stopTime}) - ${t.to.name} (${t.to.stopTime})`).join(" | ");
+      const departure = tickets.map((t) => t.date).join(" | ");
+      // booking_ids solo con andata e ritorno: il webhook gestisce tutte le prenotazioni elencate
+      const linked = ids.length > 1 ? { booking_ids: ids.join(",") } : {};
 
       const session = await this.stripe.checkout.sessions.create({
         allowed_payment_method_types: ["card"],
@@ -89,19 +99,21 @@ class StripeServices {
           capture_method: "manual",
           metadata: {
             booking_id: ticket.numberOfTickets,
-            departure: ticket.date,
-            route: `${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime})`,
+            ...linked,
+            departure,
+            route,
             user: ticket.user.name,
             mail: ticket.user.mail,
           },
-          description: `Ticket ${ticket.numberOfTickets} - ${ticket.from.name} → ${ticket.to.name} (${ticket.date})`,
+          description: tickets.map((t) => `Ticket ${t.numberOfTickets} - ${t.from.name} → ${t.to.name} (${t.date})`).join(" + "),
         },
         success_url: `${env.CLIENT_URL}/payment/stripe/success/${ticket.numberOfTickets}`,
         cancel_url: `${env.CLIENT_URL}/payment/stripe/cancel/${ticket.numberOfTickets}`,
         metadata: {
-          route: `${ticket.from.name} (${ticket.from.stopTime}) - ${ticket.to.name} (${ticket.to.stopTime})`,
+          route,
           booking_id: ticket.numberOfTickets,
-          departure: ticket.date,
+          ...linked,
+          departure,
           userId: ticket.user.id,
           user: ticket.user.name,
           lng: ticket.lng,

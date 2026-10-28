@@ -84,11 +84,14 @@ class PaymentServices {
     return customerId ? await this.stripeServices.detachCard(customerId, paymentMethodId) : false;
   }
 
-  async calculatePayment(ticket: booking, paymentType?: string): Promise<{ type: string; other: any }> {
+  /** Con andata e ritorno `tickets` ha due prenotazioni, pagate con un'unica sessione. */
+  async calculatePayment(tickets: booking[], paymentType?: string): Promise<{ type: string; other: any }> {
     try {
       if (paymentType === "cash") {
-        ticket.paymentMethod = [{ type: "cash", data: null }];
-        ticket.other = { type: "cash" };
+        for (const ticket of tickets) {
+          ticket.paymentMethod = [{ type: "cash", data: null }];
+          ticket.other = { type: "cash" };
+        }
         return { type: "cash", other: { type: "cash" } };
       }
 
@@ -96,10 +99,12 @@ class PaymentServices {
       switch (paymentMethods.type) {
         case "stripe":
           let dbPrices = await this.getPricesFromDb();
-          let customerId = await this.getCheckoutCustomerId(ticket);
-          let session: any = await this.stripeServices.getPaymentSession(ticket, dbPrices, customerId);
-          ticket.paymentMethod = paymentMethods.type;
-          ticket.other = session;
+          let customerId = await this.getCheckoutCustomerId(tickets[0]);
+          let session: any = await this.stripeServices.getPaymentSession(tickets, dbPrices, customerId);
+          for (const ticket of tickets) {
+            ticket.paymentMethod = paymentMethods.type;
+            ticket.other = session;
+          }
 
           return { type: "stripe", other: session };
       }

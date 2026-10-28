@@ -144,6 +144,13 @@ export class RiepilogoComponent implements OnInit {
       }
     }
   }
+  /** Tratte da acquistare: l'andata e, se scelto, il ritorno. */
+  get legs(): any[] {
+    return this.param?.returnTrip ? [this.param, this.param.returnTrip] : [this.param];
+  }
+  get grandTotal(): number {
+    return this.legs.reduce((sum, leg) => sum + (leg.total || 0), 0);
+  }
   isLoggedIn() {
     return this.authService.isLoggedIn();
   }
@@ -212,12 +219,14 @@ export class RiepilogoComponent implements OnInit {
     try {
       const res = await lastValueFrom(this.bookingService.getBookingFromUser());
       const bookings = res['booking'] || [];
-      this.hasDuplicateTicket = bookings.some((b: any) =>
-        (b.status === 'confirmed' || b.status === 'pending') &&
-        b.routeId === this.param.routeId &&
-        b.date === this.param.date &&
-        b.from?.id === this.param.from.id &&
-        b.to?.id === this.param.to.id
+      this.hasDuplicateTicket = this.legs.some((leg: any) =>
+        bookings.some((b: any) =>
+          (b.status === 'confirmed' || b.status === 'pending') &&
+          b.routeId === leg.routeId &&
+          b.date === leg.date &&
+          b.from?.id === leg.from.id &&
+          b.to?.id === leg.to.id
+        )
       );
     } catch {
       this.hasDuplicateTicket = false;

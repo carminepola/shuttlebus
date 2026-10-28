@@ -37,6 +37,12 @@
   @if (params.length > 0 && !loading) {
     <div class="results-section my-4">
       <div class="results-header mb-3">
+        @if (andataRitorno) {
+          <h4 class="leg-title">
+            <i class="fa-solid fa-arrow-right me-2"></i>
+            {{ lngService.traslateOr("str_andata", "Andata") }}
+          </h4>
+        }
         <span class="results-count"
           >{{ params.length }}
           {{
@@ -46,157 +52,256 @@
           }}</span
         >
       </div>
-      @for (param of params; track param; let j = $index) {
-        <div class="route-card rounded-4 mb-4" @fadeInOut>
-          <div class="route-card-header">
-            <div class="route-info-left">
-              <h5
-                class="route-name mb-1"
-                >{{ param.name | translateName }}
-</h5>
-              <div class="route-date text-secondary">
-                <i class="fa-regular fa-calendar me-1"></i>
-                {{ param.date | date: "dd MMMM yyyy" }}
-              </div>
-            </div>
-            <div class="route-availability d-none d-lg-flex gap-3">
-              <div class="availability-badge">
-                <i class="fa-solid fa-user me-1"></i>
-                {{ param.availableSeats }} {{ "str_seats" | translate }}
-              </div>
-              <div class="availability-badge">
-                <i class="fa-solid fa-suitcase-rolling me-1"></i>
-                {{ param.availableLuggage }} {{ "str_baggage" | translate }}
-              </div>
-            </div>
-          </div>
-
-          <div class="route-card-body">
-            <div class="route-timeline">
-              <div class="timeline-point departure">
-                <div class="timeline-dot"></div>
-                <div
-                  class="timeline-time"
-                  >{{ param.from.stopTime }}
-</div>
-                <div class="timeline-label" >{{ param.from.name }}</div>
-                <div
-                  class="timeline-desc"
-                  >{{ param.from.description | translateName }}
-</div>
-              </div>
-              <div class="timeline-line">
-                <div class="timeline-line-inner"></div>
-                <i class="fa-solid fa-bus timeline-icon"></i>
-              </div>
-              <div class="timeline-point arrival">
-                <div class="timeline-dot"></div>
-                <div
-                  class="timeline-time"
-                  >{{ param.to.stopTime }}
-</div>
-                <div class="timeline-label" >{{ param.to.name }}</div>
-                <div
-                  class="timeline-desc"
-                  >{{ param.to.description | translateName }}
-</div>
-              </div>
-            </div>
-
-            <hr class="route-divider" />
-
-            <div class="route-availability-mobile d-flex d-lg-none gap-3 mb-3">
-              <div class="availability-badge">
-                <i class="fa-solid fa-user me-1"></i>
-                {{ param.availableSeats }} {{ "str_seats" | translate }}
-              </div>
-              <div class="availability-badge">
-                <i class="fa-solid fa-suitcase-rolling me-1"></i>
-                {{ param.availableLuggage }} {{ "str_baggage" | translate }}
-              </div>
-            </div>
-
-            <div class="tickets-summary-section">
-              <div class="tickets-label mb-2">
-                <i class="fa-solid fa-ticket me-1 text-primary"></i>
-                <span
-                  class="fst-italic"
-                  >{{ 
-                    'str_seleziona_biglietti_per_acquisto' | translate
-                   }}
-</span>
-              </div>
-
-              <div class="tickets-summary">
-                @for (
-                  ticket of param.ticketTypes;
-                  track ticket;
-                  let i = $index
-                ) {
-                  @if (ticket.count > 0) {
-                    <div class="summary-row">
-                      <span class="summary-info">
-                        <span class="summary-count">{{ ticket.count }}x</span>
-                        <span
-                          class="summary-name"
-                          >{{ ticket.name | translateName }}
-</span>
-                      </span>
-                      <span class="summary-price"
-                        >{{ ticket.count * ticket.cost }}€</span
-                      >
-                    </div>
-                  }
-                }
-                @if (ricerca.bagagli > 0) {
-                  <div class="summary-row summary-row-luggage">
-                    <span class="summary-info">
-                      <span class="summary-count"
-                        ><i class="fa-solid fa-suitcase me-1"></i
-                        >{{ ricerca.bagagli }}x</span
-                      >
-                      <span
-                        class="summary-name"
-                        >{{ 'str_bagagli_aggiuntivi' | translate }}
-</span>
-                    </span>
-                     <span class="summary-price"
-                       >{{ ricerca.bagagli * luggagePrice }}€</span
-                    >
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-
-          <div class="route-card-footer">
-            <div class="selected-info">
-              @if (param.seats > 0) {
-                <span class="seats-selected">
-                  {{ param.seats }} {{ "str_seats" | translate }}
-                </span>
-              }
-            </div>
-            <button
-              class="purchase-btn"
-              [class.active]="param.seats > 0"
-              [disabled]="param.seats === 0"
-              (click)="acquista(param)"
-            >
-              @if (param.seats > 0) {
-                <span class="purchase-total">{{ param.total }}€</span>
-                <span class="purchase-action">{{
-                  "str_acquista" | translate
-                }}</span>
-                <i class="fa-solid fa-arrow-right ms-2"></i>
-              } @else {
-                <span >{{ 'str_acquista' | translate }}</span>
-              }
-            </button>
-          </div>
-        </div>
+      @for (param of params; track param) {
+        <ng-container
+          *ngTemplateOutlet="routeCard; context: { $implicit: param, leg: andataRitorno ? 'outbound' : null }"
+        ></ng-container>
       }
     </div>
+
+    @if (andataRitorno) {
+      <div class="results-section my-4" id="return-results">
+        <div class="results-header mb-3">
+          <h4 class="leg-title">
+            <i class="fa-solid fa-arrow-left me-2"></i>
+            {{ lngService.traslateOr("str_ritorno", "Ritorno") }}
+          </h4>
+          @if (returnParams.length > 0) {
+            <span class="results-count"
+              >{{ returnParams.length }}
+              {{
+                returnParams.length === 1
+                  ? ("str_corsa_disponibile" | translate)
+                  : ("str_corse_disponibili" | translate)
+              }}</span
+            >
+          }
+        </div>
+        @if (returnParams.length == 0) {
+          <div class="empty-state empty-state-inline mx-auto text-center my-4">
+            <div class="empty-state-icon">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            <h5
+              class="text-primary mt-3"
+              [innerText]="'search_not_found' | translate"
+            ></h5>
+          </div>
+        }
+        @for (param of returnParams; track param) {
+          <ng-container
+            *ngTemplateOutlet="routeCard; context: { $implicit: param, leg: 'return' }"
+          ></ng-container>
+        }
+      </div>
+
+      @if (returnParams.length > 0) {
+        <div class="round-trip-bar rounded-4 mb-4">
+          <div class="round-trip-legs">
+            <div class="round-trip-leg" [class.done]="selectedOutbound">
+              <i class="fa-solid" [class.fa-circle-check]="selectedOutbound" [class.fa-circle]="!selectedOutbound"></i>
+              <span>{{ lngService.traslateOr("str_andata", "Andata") }}</span>
+              @if (selectedOutbound) {
+                <span class="round-trip-time">{{ selectedOutbound.date | date: "dd/MM" }} · {{ selectedOutbound.from.stopTime }}</span>
+              }
+            </div>
+            <div class="round-trip-leg" [class.done]="selectedReturn">
+              <i class="fa-solid" [class.fa-circle-check]="selectedReturn" [class.fa-circle]="!selectedReturn"></i>
+              <span>{{ lngService.traslateOr("str_ritorno", "Ritorno") }}</span>
+              @if (selectedReturn) {
+                <span class="round-trip-time">{{ selectedReturn.date | date: "dd/MM" }} · {{ selectedReturn.from.stopTime }}</span>
+              }
+            </div>
+          </div>
+          <button
+            class="purchase-btn"
+            [class.active]="selectedOutbound && selectedReturn"
+            [disabled]="!selectedOutbound || !selectedReturn"
+            (click)="acquistaAndataRitorno()"
+          >
+            @if (selectedOutbound && selectedReturn) {
+              <span class="purchase-total">{{ roundTripTotal }}€</span>
+            }
+            <span class="purchase-action">{{ "str_acquista" | translate }}</span>
+            <i class="fa-solid fa-arrow-right ms-2"></i>
+          </button>
+        </div>
+      }
+    }
   }
 </div>
+
+<ng-template #routeCard let-param let-leg="leg">
+  <div
+    class="route-card rounded-4 mb-4"
+    [class.route-card-selected]="isSelected(param, leg)"
+    [class.route-card-disabled]="leg === 'return' && isReturnBeforeOutbound(param)"
+    @fadeInOut
+  >
+    <div class="route-card-header">
+      <div class="route-info-left">
+        <h5
+          class="route-name mb-1"
+          >{{ param.name | translateName }}
+</h5>
+        <div class="route-date text-secondary">
+          <i class="fa-regular fa-calendar me-1"></i>
+          {{ param.date | date: "dd MMMM yyyy" }}
+        </div>
+      </div>
+      <div class="route-availability d-none d-lg-flex gap-3">
+        <div class="availability-badge">
+          <i class="fa-solid fa-user me-1"></i>
+          {{ param.availableSeats }} {{ "str_seats" | translate }}
+        </div>
+        <div class="availability-badge">
+          <i class="fa-solid fa-suitcase-rolling me-1"></i>
+          {{ param.availableLuggage }} {{ "str_baggage" | translate }}
+        </div>
+      </div>
+    </div>
+
+    <div class="route-card-body">
+      <div class="route-timeline">
+        <div class="timeline-point departure">
+          <div class="timeline-dot"></div>
+          <div
+            class="timeline-time"
+            >{{ param.from.stopTime }}
+</div>
+          <div class="timeline-label" >{{ param.from.name }}</div>
+          <div
+            class="timeline-desc"
+            >{{ param.from.description | translateName }}
+</div>
+        </div>
+        <div class="timeline-line">
+          <div class="timeline-line-inner"></div>
+          <i class="fa-solid fa-bus timeline-icon"></i>
+        </div>
+        <div class="timeline-point arrival">
+          <div class="timeline-dot"></div>
+          <div
+            class="timeline-time"
+            >{{ param.to.stopTime }}
+</div>
+          <div class="timeline-label" >{{ param.to.name }}</div>
+          <div
+            class="timeline-desc"
+            >{{ param.to.description | translateName }}
+</div>
+        </div>
+      </div>
+
+      <hr class="route-divider" />
+
+      <div class="route-availability-mobile d-flex d-lg-none gap-3 mb-3">
+        <div class="availability-badge">
+          <i class="fa-solid fa-user me-1"></i>
+          {{ param.availableSeats }} {{ "str_seats" | translate }}
+        </div>
+        <div class="availability-badge">
+          <i class="fa-solid fa-suitcase-rolling me-1"></i>
+          {{ param.availableLuggage }} {{ "str_baggage" | translate }}
+        </div>
+      </div>
+
+      <div class="tickets-summary-section">
+        <div class="tickets-label mb-2">
+          <i class="fa-solid fa-ticket me-1 text-primary"></i>
+          <span
+            class="fst-italic"
+            >{{ 
+              'str_seleziona_biglietti_per_acquisto' | translate
+             }}
+</span>
+        </div>
+
+        <div class="tickets-summary">
+          @for (
+            ticket of param.ticketTypes;
+            track ticket;
+            let i = $index
+          ) {
+            @if (ticket.count > 0) {
+              <div class="summary-row">
+                <span class="summary-info">
+                  <span class="summary-count">{{ ticket.count }}x</span>
+                  <span
+                    class="summary-name"
+                    >{{ ticket.name | translateName }}
+</span>
+                </span>
+                <span class="summary-price"
+                  >{{ ticket.count * ticket.cost }}€</span
+                >
+              </div>
+            }
+          }
+          @if (ricerca.bagagli > 0) {
+            <div class="summary-row summary-row-luggage">
+              <span class="summary-info">
+                <span class="summary-count"
+                  ><i class="fa-solid fa-suitcase me-1"></i
+                  >{{ ricerca.bagagli }}x</span
+                >
+                <span
+                  class="summary-name"
+                  >{{ 'str_bagagli_aggiuntivi' | translate }}
+</span>
+              </span>
+               <span class="summary-price"
+                 >{{ ricerca.bagagli * luggagePrice }}€</span
+              >
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="route-card-footer">
+      <div class="selected-info">
+        @if (param.seats > 0) {
+          <span class="seats-selected">
+            {{ param.seats }} {{ "str_seats" | translate }}
+          </span>
+        }
+      </div>
+      @if (leg) {
+        <button
+          class="purchase-btn"
+          [class.active]="param.seats > 0"
+          [class.selected]="isSelected(param, leg)"
+          [disabled]="param.seats === 0 || (leg === 'return' && isReturnBeforeOutbound(param))"
+          (click)="leg === 'outbound' ? selectOutbound(param) : selectReturn(param)"
+        >
+          <span class="purchase-total">{{ param.total }}€</span>
+          @if (isSelected(param, leg)) {
+            <i class="fa-solid fa-check ms-1"></i>
+            <span class="purchase-action">{{ lngService.traslateOr("str_selezionata", "Selezionata") }}</span>
+          } @else {
+            <span class="purchase-action">{{ lngService.traslateOr("str_seleziona", "Seleziona") }}</span>
+          }
+        </button>
+      } @else {
+        <button
+          class="purchase-btn"
+          [class.active]="param.seats > 0"
+          [disabled]="param.seats === 0"
+          (click)="acquista(param)"
+        >
+          @if (param.seats > 0) {
+            <span class="purchase-total">{{ param.total }}€</span>
+            <span class="purchase-action">{{
+              "str_acquista" | translate
+            }}</span>
+            <i class="fa-solid fa-arrow-right ms-2"></i>
+          } @else {
+            <span >{{ 'str_acquista' | translate }}</span>
+          }
+        </button>
+      }
+    </div>
+  </div>
+</ng-template>
 <app-footer></app-footer>

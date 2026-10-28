@@ -164,6 +164,8 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
             const refund = await stripe.refunds.create(
               {
                 payment_intent: book.paymentIntentId,
+                // Andata e ritorno: il PaymentIntent copre entrambe le tratte, si rimborsa solo questa
+                ...(book.roundTrip ? { amount: Math.round(book.total * 100) } : {}),
               },
               // Stesso principio: chiave legata al claim DB (vedi sopra).
               {

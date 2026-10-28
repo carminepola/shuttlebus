@@ -48,6 +48,13 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
     private pendingBookingService: PendingBookingService,
   ) {}
 
+  /** Andata o ritorno, per i biglietti acquistati insieme. */
+  legLabel(booking: any): string {
+    return booking.roundTrip?.leg === 'return'
+      ? this.lng.traslateOr('str_ritorno', 'Ritorno')
+      : this.lng.traslateOr('str_andata', 'Andata');
+  }
+
   private get pdfLng(): string {
     return this.lng.getLng() === 'jp' ? 'en' : this.lng.getLng();
   }

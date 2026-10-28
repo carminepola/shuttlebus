@@ -15,6 +15,12 @@ const router = express.Router();
 
 const stripe = StripeInstance.getInstance();
 
+/** Prenotazioni pagate dalla sessione: con andata e ritorno sono elencate in booking_ids. */
+function bookingIdsFrom(metadata?: Stripe.Metadata | null): string[] {
+  if (metadata?.booking_ids) return metadata.booking_ids.split(",").filter(Boolean);
+  return metadata?.booking_id ? [metadata.booking_id] : [];
+}
+
 router.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
   const signature = req.headers["stripe-signature"];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || process.env.WEBHOOK_SECRET;
@@ -61,11 +67,12 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        const bookingId = session.metadata?.booking_id;
-        if (!bookingId) {
+        const bookingIds = bookingIdsFrom(session.metadata);
+        if (bookingIds.length === 0) {
           logger.warn(`checkout.session.completed senza metadata.booking_id (event ${event.id})`);
           break;
         }
+        const bookingId = bookingIds.join(", ");
 
         // Rileggi la sessione dall'API: il payment_status nel payload va confermato a valle
         let effectiveSession: Stripe.Checkout.Session = session;
@@ -78,7 +85,9 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
 
         // Persisti SEMPRE il collegamento booking <-> paymentIntent (anche se il pagamento non e' ancora paid)
         if (paymentIntentId) {
-          await bookingServices.updatePaymentIntentId(bookingId, paymentIntentId);
+          for (const id of bookingIds) {
+            await bookingServices.updatePaymentIntentId(id, paymentIntentId);
+          }
         }
 
         // Con capture_method=manual la sessione completata arriva con
@@ -92,19 +101,25 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
           break;
         }
 
-        // P-01 (price manipulation): confronto OBBLIGATORIO importo <-> booking.total.
-        // Una sessione pagata ad un prezzo diverso dal total server-side non conferma
-        // mai la prenotazione; con capture manuale l'importo scorretto NON viene catturato.
-        const bookingRaw = await bookingServices.getBookingRaw(bookingId);
-        if (!bookingRaw) {
+        // P-01 (price manipulation): confronto OBBLIGATORIO importo <-> booking.total
+        // (somma delle tratte con andata e ritorno). Una sessione pagata ad un prezzo
+        // diverso dal total server-side non conferma mai la prenotazione; con capture
+        // manuale l'importo scorretto NON viene catturato.
+        const bookingsRaw = await Promise.all(bookingIds.map((id) => bookingServices.getBookingRaw(id)));
+        if (bookingsRaw.some((b) => !b)) {
           logger.warn(`checkout.session.completed per booking inesistente ${bookingId} (event ${event.id})`);
           break;
         }
-        const expectedAmount = Math.round((bookingRaw.total ?? 0) * 100);
+        const expectedAmount = bookingsRaw.reduce((sum, b: any) => sum + Math.round((b.total ?? 0) * 100), 0);
+        const invalidate = async () => {
+          for (const id of bookingIds) {
+            await bookingServices.expireTicketById(id);
+            await bookingServices.updatePaymentStatus(id, "failed");
+          }
+        };
         if ((effectiveSession.amount_total ?? -1) !== expectedAmount) {
-          logger.error(`Discordanza importo per la prenotazione ${bookingId}: session.amount_total=${effectiveSession.amount_total}, atteso=${expectedAmount} (booking.total=${bookingRaw.total}). Prenotazione invalidata, importo non catturato (event ${event.id})`);
-          await bookingServices.expireTicketById(bookingId);
-          await bookingServices.updatePaymentStatus(bookingId, "failed");
+          logger.error(`Discordanza importo per la prenotazione ${bookingId}: session.amount_total=${effectiveSession.amount_total}, atteso=${expectedAmount}. Prenotazione invalidata, importo non catturato (event ${event.id})`);
+          await invalidate();
           break;
         }
 
@@ -114,22 +129,25 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
           if (paymentIntent.status === "requires_capture") {
             const captured = await stripe.paymentIntents.capture(paymentIntentId);
             if (captured.status !== "succeeded") {
-              await bookingServices.expireTicketById(bookingId);
-              await bookingServices.updatePaymentStatus(bookingId, "failed");
+              await invalidate();
               logger.error(`Cattura pagamento fallita per la prenotazione ${bookingId} (event ${event.id})`);
               throw new Error("str_payment_failed");
             }
-            await bookingServices.confirmBooking(bookingId, session.id);
-            await bookingServices.updatePaymentStatus(bookingId, "paid");
+            for (const id of bookingIds) {
+              await bookingServices.confirmBooking(id, session.id);
+              await bookingServices.updatePaymentStatus(id, "paid");
+            }
             logger.info(`Pagamento catturato con successo per la prenotazione ${bookingId}`);
           } else if (paymentIntent.status === "succeeded") {
             // Conferma se ancora pending; se gia' confermata con lo STESSO paymentIntent
             // non fare nulla (idempotenza), ne' annullare pagamenti gia' riusciti
-            const alreadySynced = await bookingServices.isBookingSyncedWithPayment(bookingId, paymentIntentId);
-            if (!alreadySynced) {
-              await bookingServices.confirmBooking(bookingId, session.id);
+            for (const id of bookingIds) {
+              const alreadySynced = await bookingServices.isBookingSyncedWithPayment(id, paymentIntentId);
+              if (!alreadySynced) {
+                await bookingServices.confirmBooking(id, session.id);
+              }
+              await bookingServices.updatePaymentStatus(id, "paid");
             }
-            await bookingServices.updatePaymentStatus(bookingId, "paid");
             logger.info(`Il pagamento per la prenotazione ${bookingId} e' gia' stato addebitato.`);
           } else {
             logger.warn(`Stato payment_intent inatteso ${paymentIntent.status} per la prenotazione ${bookingId}: nessuna conferma, nessuna mail`);
@@ -137,7 +155,9 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
           }
 
           // Mail SOLO dopo conferma pagamento reale (idempotente)
-          await bookingServices.notifyConfirmation(bookingId);
+          for (const id of bookingIds) {
+            await bookingServices.notifyConfirmation(id);
+          }
         } else {
           logger.warn(`checkout.session.completed per ${bookingId} senza payment_intent`);
         }
@@ -146,34 +166,37 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
 
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        const bookingId = paymentIntent.metadata?.booking_id;
-        let book: any = await bookingServices.readByPaymentIntentId(paymentIntent.id);
-        if (!book && bookingId) {
-          book = await bookingServices.getBookingRaw(bookingId);
-        }
-        if (book?.numberOfTickets) {
-          const ticketId = book.numberOfTickets;
+        const linkedIds = (await bookingServices.readAllByPaymentIntentId(paymentIntent.id)).map((b: any) => b.numberOfTickets);
+        const ticketIds = [...new Set([...linkedIds, ...bookingIdsFrom(paymentIntent.metadata)])];
+        const books: any[] = (await Promise.all(ticketIds.map((id) => bookingServices.getBookingRaw(id)))).filter(Boolean);
+        if (books.length > 0) {
+          const label = books.map((b) => b.numberOfTickets).join(", ");
           // P-01 (price manipulation): anche questo percorso conferma SOLO se
           // l'importo del payment intent corrisponde al booking.total server-side.
-          const expectedAmount = Math.round((book.total ?? 0) * 100);
+          const expectedAmount = books.reduce((sum, b) => sum + Math.round((b.total ?? 0) * 100), 0);
           if ((paymentIntent.amount ?? -1) !== expectedAmount) {
-            logger.error(`Discordanza importo (payment_intent.succeeded) per la prenotazione ${ticketId}: pi.amount=${paymentIntent.amount}, atteso=${expectedAmount} (booking.total=${book.total}). Prenotazione NON confermata (event ${event.id})`);
-            await bookingServices.expireTicketById(ticketId);
-            await bookingServices.updatePaymentStatus(ticketId, "failed");
+            logger.error(`Discordanza importo (payment_intent.succeeded) per la prenotazione ${label}: pi.amount=${paymentIntent.amount}, atteso=${expectedAmount}. Prenotazione NON confermata (event ${event.id})`);
+            for (const book of books) {
+              await bookingServices.expireTicketById(book.numberOfTickets);
+              await bookingServices.updatePaymentStatus(book.numberOfTickets, "failed");
+            }
             break;
           }
-          // Persisti il collegamento + stato pagamento anche se checkout.session.completed non e' mai arrivato
-          if (book.paymentIntentId !== paymentIntent.id) {
-            await bookingServices.updatePaymentIntentId(ticketId, paymentIntent.id);
+          for (const book of books) {
+            const ticketId = book.numberOfTickets;
+            // Persisti il collegamento + stato pagamento anche se checkout.session.completed non e' mai arrivato
+            if (book.paymentIntentId !== paymentIntent.id) {
+              await bookingServices.updatePaymentIntentId(ticketId, paymentIntent.id);
+            }
+            if (book.status === "pending") {
+              await bookingServices.confirmBooking(ticketId);
+              logger.info(`payment_intent.succeeded: confermata la prenotazione ${ticketId} (checkout.session.completed mancante)`);
+            }
+            await bookingServices.updatePaymentStatus(ticketId, "paid");
+            logger.info(`payment_intent.succeeded: payment_status=paid per la prenotazione ${ticketId}`);
+            // Mail SOLO dopo conferma pagamento reale (idempotente: claim su confirmationSentAt)
+            await bookingServices.notifyConfirmation(ticketId);
           }
-          if (book.status === "pending") {
-            await bookingServices.confirmBooking(ticketId);
-            logger.info(`payment_intent.succeeded: confermata la prenotazione ${ticketId} (checkout.session.completed mancante)`);
-          }
-          await bookingServices.updatePaymentStatus(ticketId, "paid");
-          logger.info(`payment_intent.succeeded: payment_status=paid per la prenotazione ${ticketId}`);
-          // Mail SOLO dopo conferma pagamento reale (idempotente: claim su confirmationSentAt)
-          await bookingServices.notifyConfirmation(ticketId);
         } else {
           logger.warn(`payment_intent.succeeded per ${paymentIntent.id} senza booking associato`);
         }
@@ -190,8 +213,7 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
           decline_code: lastError?.decline_code,
           message: lastError?.message,
         });
-        let book: any = await bookingServices.readByPaymentIntentId(paymentIntent.id);
-        if (book?.numberOfTickets) {
+        for (const book of await bookingServices.readAllByPaymentIntentId(paymentIntent.id)) {
           await bookingServices.updatePaymentStatus(book.numberOfTickets, "failed");
         }
         break;
@@ -199,27 +221,35 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
 
       case "charge.refunded": {
         const charge = event.data.object as Stripe.Charge;
-        const bookingId = charge.metadata?.booking_id;
+        const bookingIds = bookingIdsFrom(charge.metadata);
 
-        if (bookingId && charge.refunded) {
-          let success = await bookingServices.refundBookingAdmin(bookingId);
-          if (success) {
-            await bookingServices.updatePaymentStatus(bookingId, "refunded");
-            logger.info(`Rimborso effettuato per la prenotazione ${bookingId}`);
-          } else {
-            logger.info("Rimborso arrivato ma il ticket in uno stato non rimborsabile");
+        // Con andata e ritorno ogni tratta si rimborsa per il suo importo (rimborso
+        // parziale del PaymentIntent): l'addebito risulta interamente rimborsato
+        // solo con entrambe, o con un rimborso totale dalla dashboard Stripe.
+        if (bookingIds.length > 0 && charge.refunded) {
+          for (const bookingId of bookingIds) {
+            let success = await bookingServices.refundBookingAdmin(bookingId);
+            if (success) {
+              await bookingServices.updatePaymentStatus(bookingId, "refunded");
+              logger.info(`Rimborso effettuato per la prenotazione ${bookingId}`);
+            } else {
+              logger.info(`Rimborso arrivato ma il ticket ${bookingId} e' in uno stato non rimborsabile`);
+            }
           }
-        } else if (bookingId) {
-          logger.info(`Rimborso parziale ricevuto per la prenotazione ${bookingId}, DB gia' aggiornato dalla API`);
+        } else if (bookingIds.length > 0) {
+          logger.info(`Rimborso parziale ricevuto per la prenotazione ${bookingIds.join(", ")}, DB gia' aggiornato dalla API`);
         }
         break;
       }
 
       case "checkout.session.expired": {
         const session = event.data.object as Stripe.Checkout.Session;
-        const bookingId = session.metadata?.booking_id;
+        const bookingIds = bookingIdsFrom(session.metadata);
 
-        if (bookingId) {
+        if (bookingIds.length === 0) {
+          logger.info(`checkout.session.expired senza booking_id (event ${event.id})`);
+        }
+        for (const bookingId of bookingIds) {
           // Idempotente: expireTicketById fa match SOLO con status 'pending':
           // se il pagamento e' arrivato nel frattempo (evento ritardato di
           // checkout.session.completed, booking gia' confirmed), la sessione
@@ -231,46 +261,46 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
           } else {
             logger.warn(`checkout.session.expired per ${bookingId} ma il booking non e' piu' pending: nessun annullamento ${bookingId}`);
           }
-        } else {
-          logger.info(`checkout.session.expired senza booking_id (event ${event.id})`);
         }
         break;
       }
 
       case "charge.dispute.created": {
         const dispute = event.data.object as Stripe.Dispute;
-        let book = await bookingServices.readByPaymentIntentId(dispute.payment_intent as string);
-        const bookingId = book?.numberOfTickets;
+        const books = await bookingServices.readAllByPaymentIntentId(dispute.payment_intent as string);
 
-        if (bookingId && new Date(book.date) > new Date()) {
-          await bookingServices.cancelBooking(bookingId, dispute.reason as string);
+        for (const book of books) {
+          if (new Date(book.date) > new Date()) {
+            await bookingServices.cancelBooking(book.numberOfTickets, dispute.reason as string);
+          }
         }
-        logger.warn(`Contestazione aperta per la prenotazione ${bookingId}`);
+        logger.warn(`Contestazione aperta per la prenotazione ${books.map((b: any) => b.numberOfTickets).join(", ") || undefined}`);
         break;
       }
       case "charge.dispute.closed": {
         const dispute = event.data.object as Stripe.Dispute;
-        let book = await bookingServices.readByPaymentIntentId(dispute.payment_intent as string);
-        const bookingId = book?.numberOfTickets;
+        const books = await bookingServices.readAllByPaymentIntentId(dispute.payment_intent as string);
 
-        if (bookingId && dispute.status === "lost") {
-          await bookingServices.refundBookingAdmin(bookingId);
-          await bookingServices.updatePaymentStatus(bookingId, "refunded");
-          logger.warn(`Contestazione persa per la prenotazione ${bookingId}, biglietto rimborsato`);
-        } else if (bookingId) {
-          logger.info(`Contestazione chiusa per la prenotazione ${bookingId}, stato: ${dispute.status}`);
+        for (const book of books) {
+          const bookingId = book.numberOfTickets;
+          if (dispute.status === "lost") {
+            await bookingServices.refundBookingAdmin(bookingId);
+            await bookingServices.updatePaymentStatus(bookingId, "refunded");
+            logger.warn(`Contestazione persa per la prenotazione ${bookingId}, biglietto rimborsato`);
+          } else {
+            logger.info(`Contestazione chiusa per la prenotazione ${bookingId}, stato: ${dispute.status}`);
+          }
         }
         break;
       }
       case "charge.dispute.funds_withdrawn": {
         const dispute = event.data.object as Stripe.Dispute;
-        let book = await bookingServices.readByPaymentIntentId(dispute.payment_intent as string);
-        const bookingId = book?.numberOfTickets;
+        const books = await bookingServices.readAllByPaymentIntentId(dispute.payment_intent as string);
 
-        if (bookingId) {
-          await bookingServices.refundBookingAdmin(bookingId);
-          await bookingServices.updatePaymentStatus(bookingId, "refunded");
-          logger.warn(`Fondi prelevati per contestazione sulla prenotazione ${bookingId}`);
+        for (const book of books) {
+          await bookingServices.refundBookingAdmin(book.numberOfTickets);
+          await bookingServices.updatePaymentStatus(book.numberOfTickets, "refunded");
+          logger.warn(`Fondi prelevati per contestazione sulla prenotazione ${book.numberOfTickets}`);
         }
         break;
       }

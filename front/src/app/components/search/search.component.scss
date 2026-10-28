@@ -33,6 +33,53 @@
   grid-column: 1 / -1;
 }
 
+.trip-type {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 50px;
+  background: rgba(var(--bs-primary-rgb), 0.06);
+  max-width: 100%;
+}
+
+.trip-type-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border: none;
+  border-radius: 50px;
+  background: transparent;
+  color: rgba(var(--bs-primary-rgb), 0.7);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  i {
+    font-size: 0.75rem;
+  }
+
+  &.active {
+    background: var(--bs-secondary);
+    color: white;
+    box-shadow: 0 2px 8px rgba(var(--bs-secondary-rgb), 0.25);
+  }
+}
+
+.search-dates {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+
+  @media (min-width: 576px) {
+    &.round-trip {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+}
+
 .search-field {
   display: flex;
   align-items: center;

@@ -784,7 +784,7 @@ export default class BookingsDAO {
     return this.db
       .collection("bookings")
       .find(query)
-      .project({ date: 1, createdAt: 1, numberOfTickets: 1, status: 1, payment_status: 1, paymentMethod: 1, paymentIntentId: 1, from: 1, to: 1, travelDate: 1, total: 1, luggage: 1, seats: 1, name: 1, ticketTypes: 1, other: 1, routeId: 1 })
+      .project({ date: 1, createdAt: 1, numberOfTickets: 1, status: 1, payment_status: 1, paymentMethod: 1, paymentIntentId: 1, from: 1, to: 1, travelDate: 1, total: 1, luggage: 1, seats: 1, name: 1, ticketTypes: 1, other: 1, routeId: 1, roundTrip: 1 })
       .sort({ createdAt: -1 })
       .toArray();
   }
@@ -805,6 +805,9 @@ export default class BookingsDAO {
   }
   async readByPaymentIntentId(paymentIntentId: string) {
     return this.db.collection("bookings").findOne({ paymentIntentId });
+  }
+  async readAllByPaymentIntentId(paymentIntentId: string) {
+    return this.db.collection("bookings").find({ paymentIntentId }).toArray();
   }
   async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {
     return this.db.collection("bookings").updateOne({ numberOfTickets }, { $set: { paymentMethod: type, other: other, updatedAt: new Date().getTime() } });

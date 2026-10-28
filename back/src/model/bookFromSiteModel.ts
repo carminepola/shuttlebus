@@ -25,6 +25,8 @@ export default class booking {
   cancelMotivation?: string;
   refundedAmount?: number;
   scannedBy?: { driverId: string; driverName: string; scannedAt: number };
+  // Andata e ritorno: due prenotazioni pagate con un'unica sessione Stripe
+  roundTrip?: RoundTrip;
   constructor(book: any) {
     try {
       if (book.userId === undefined) throw new Error("userId is required");
@@ -63,10 +65,16 @@ export default class booking {
       this.cancelMotivation = book.cancelMotivation || "";
       this.refundedAmount = book.refundedAmount || 0;
       this.other = book.other;
+      if (book.roundTrip) this.roundTrip = book.roundTrip;
     } catch (error) {
       throw error;
     }
   }
+}
+
+export interface RoundTrip {
+  leg: "outbound" | "return";
+  linkedTicket: string;
 }
 
 export class Name {
