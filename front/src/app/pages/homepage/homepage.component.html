@@ -45,11 +45,12 @@
               [innerHTML]="'str_main_title' | translate"
             ></h2>
             @if (("str_alert" | translate) != "str_alert") {
-              <div
-                class="alert border-0 shadow-sm alert-danger mb-3"
-                role="alert"
-                [innerHTML]="'str_alert' | translate"
-              ></div>
+              <div class="home-notice" role="status">
+                <span class="home-notice-icon">
+                  <i class="fa-solid fa-bus"></i>
+                </span>
+                <span class="home-notice-text" [innerHTML]="'str_alert' | translate"></span>
+              </div>
             }
             <app-search></app-search>
           </div>

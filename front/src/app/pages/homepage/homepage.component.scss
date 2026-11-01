@@ -349,3 +349,50 @@
     color: #1a1064 !important;
   }
 }
+
+// Avviso operativo nella hero (str_alert): tono informativo, palette brand
+.home-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1.1rem;
+  border-radius: 1.1rem;
+  background: linear-gradient(135deg, rgba(250, 58, 147, 0.1), rgba(250, 58, 147, 0.02));
+  border: 1px solid rgba(250, 58, 147, 0.18);
+  box-shadow: 0 2px 8px rgba(250, 58, 147, 0.08);
+  color: #8c0f3d;
+  font-weight: 500;
+  line-height: 1.35;
+  animation: home-notice-in 0.45s ease both;
+
+  &-icon {
+    flex: 0 0 auto;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #fa3a93, #ec2a7a);
+    color: #fff;
+    font-size: 1.05rem;
+    box-shadow: 0 4px 10px rgba(236, 42, 122, 0.35);
+  }
+}
+
+[data-bs-theme="dark"] .home-notice {
+  background: linear-gradient(135deg, rgba(250, 58, 147, 0.18), rgba(250, 58, 147, 0.05));
+  border-color: rgba(250, 58, 147, 0.3);
+  color: #ffcbe7;
+}
+
+@keyframes home-notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
