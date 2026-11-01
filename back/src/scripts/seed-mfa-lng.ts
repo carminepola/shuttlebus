@@ -29,7 +29,8 @@ type Translation = Record<(typeof LANGS)[number], string>;
  *   manca; le traduzioni gia' modificate dalla pagina admin non vengono toccate.
  * Uso: ts-node src/scripts/seed-mfa-lng.ts [--dry-run] [--uri=<conn>]
  */
-const KEYS: Record<string, Translation> = {
+// Esportata per il riuso da altri script (es. pre-release-lng-mail.ts)
+export const KEYS: Record<string, Translation> = {
   str_mfa_title: {
     it: "Verifica in due passaggi",
     en: "Two-step verification",
@@ -523,7 +524,9 @@ async function run() {
   await client.close();
 }
 
-run().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (require.main === module) {
+  run().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

@@ -58,7 +58,8 @@ function buildBody(header: { title: string; greeting: string; intro: string; but
 </div>`;
 }
 
-const TEMPLATES: { types: string[]; title: string; body: string }[] = [
+// Esportata per il riuso da altri script (es. pre-release-lng-mail.ts)
+export const TEMPLATES: { types: string[]; title: string; body: string }[] = [
   {
     types: ["RECOVER_PASSWORD"],
     title: "Reimposta la tua password",
@@ -174,7 +175,9 @@ async function run(): Promise<void> {
   );
 }
 
-run().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+if (require.main === module) {
+  run().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
