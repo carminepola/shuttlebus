@@ -23,13 +23,25 @@ export default async function authMiddleware(req: Request, res: Response<Message
     const token = req.cookies?.jwt;
     const refreshToken = req.cookies?.refreshToken;
 
+    // x-silent-auth: 1 (solo MeService del front su GET /auth/me): l'utente non
+    // autenticato NON e' un errore, rispondi 200 { user: null } cosi' la console
+    // del browser e i log del server restano puliti all'avvio dell'SPA.
+    const silent = req.headers["x-silent-auth"] === "1";
+    const respondUnauthorized = () => {
+      if (silent) {
+        // { user: null }: shape atteso da MeService.refresh()
+        return res.status(200).json({ user: null } as any);
+      }
+      return res.sendStatus(401);
+    };
+
     if (!token) {
       // 401 anonimo: NON e' un tentativo fallito di autenticazione, e' una richiesta
       // legittima di un utente non loggato (l'SPA ne fa tante in una pagina).
       // Contarlo in failToBan riempiva i contatori per IP e generava 429 al login.
       // L'anti-bruteforce sui login resta su /auth (authRateLimitMiddleware + failToBan).
       res.clearCookie("refreshToken");
-      return res.sendStatus(401);
+      return respondUnauthorized();
     }
 
     const usersDao = new UsersDao(db);
@@ -40,7 +52,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
     } catch (error) {
       res.clearCookie("jwt");
       res.clearCookie("refreshToken");
-      return res.sendStatus(401);
+      return respondUnauthorized();
     }
 
     if (user.exp < Math.floor(Date.now() / 1000)) {
@@ -48,7 +60,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
         await usersDao.deleteSession(user.email, user.session);
         res.clearCookie("jwt");
         res.clearCookie("refreshToken");
-        return res.sendStatus(401);
+        return respondUnauthorized();
       }
 
       let decodedRefresh: any;
@@ -58,7 +70,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
         await usersDao.deleteSession(user.email, user.session);
         res.clearCookie("jwt");
         res.clearCookie("refreshToken");
-        return res.sendStatus(401);
+        return respondUnauthorized();
       }
 
       const validRefreshToken = await usersDao.checkRefreshTokenAndSession(user.email, decodedRefresh.refreshToken, user.session);
@@ -66,7 +78,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
         await usersDao.deleteSession(user.email, user.session);
         res.clearCookie("jwt");
         res.clearCookie("refreshToken");
-        return res.sendStatus(401);
+        return respondUnauthorized();
       }
 
       const newRefreshToken = jwt.sign({ refreshToken: decodedRefresh.refreshToken }, secretKey, {
@@ -85,7 +97,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
       await usersDao.deleteSession(user.email, user.session);
       res.clearCookie("jwt");
       res.clearCookie("refreshToken");
-      return res.sendStatus(401);
+      return respondUnauthorized();
     }
     if (sessionCheck == 2) {
       const permission = await usersDao.getUserPermissionsFormEmail(user.email);
@@ -112,7 +124,7 @@ export default async function authMiddleware(req: Request, res: Response<Message
       await usersDao.deleteSession(user.email, user.session);
       res.clearCookie("jwt");
       res.clearCookie("refreshToken");
-      return res.sendStatus(401);
+      return respondUnauthorized();
     }
 
     let newToken = jwt.sign(user, secretKey, {
