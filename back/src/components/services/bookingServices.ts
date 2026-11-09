@@ -7,6 +7,7 @@ import { ClientSession } from "mongodb";
 import TicketTypeServices from "./ticketTypeServices";
 import { resolveFarePrice } from "../../utils/fares";
 import { isTicketTypeValidOn } from "../../utils/ticketDays";
+import { validateBookingInput } from "../../utils/bookingValidation";
 import ErrorModel from "../../model/errorModel";
 import PaymentServices from "./paymentServices";
 import RoutesServices from "./routesServices";
@@ -391,7 +392,12 @@ class BookingsServices {
       throw new ErrorModel(400, "str_error_time");
     }
 
-    let route = await this.routeServices.getRouteById(ticket.routeId);
+    let route: any = await this.routeServices.getRouteById(ticket.routeId);
+    // corsa, fermate, quantita' e tipi di biglietto devono descrivere un viaggio reale
+    const invalid = validateBookingInput(ticket, route);
+    if (invalid) {
+      throw new ErrorModel(400, invalid);
+    }
     if (route && route.enabled) {
       let schedule = route.schedules.find((s: any) => s.id == ticket.scheduleId);
       if (schedule && schedule.status == "active") {
@@ -433,8 +439,9 @@ class BookingsServices {
           count += t.count;
           newTotale += cost * t.count;
           t.cost = cost;
-        } else {
-          continue;
+        } else if (t.count > 0) {
+          // tipo inesistente o non attivo
+          throw new ErrorModel(400, "str_error_check_price");
         }
       }
     }

@@ -182,6 +182,10 @@ export class AdminNewTicketComponent implements OnInit {
     const from = this.stops.find((s) => s.id === this.from);
     const to = this.stops.find((s) => s.id === this.to);
     if (!route || !schedule || !from || !to) return null;
+    // la corsa deve accettare tutti i biglietti scelti (corse senza tipi associati: tutti)
+    const allowed: string[] = route.ticketTypes || [];
+    const selected = this.availableTicketTypes().filter((t) => (this.selections[t.id] || 0) > 0);
+    if (allowed.length > 0 && selected.some((t) => !allowed.includes(t.id))) return null;
     const stopTime = (id: string) => schedule.stops.find((z: any) => z.id === id)?.stopTime;
     const ticketTypes = this.availableTicketTypes()
       .filter((t) => (this.selections[t.id] || 0) > 0)

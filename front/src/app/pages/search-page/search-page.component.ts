@@ -223,6 +223,16 @@ export class SearchPageComponent implements OnInit {
           ),
         };
 
+        // la corsa deve accettare tutti i biglietti scelti (il server rifiuta gli altri);
+        // corse senza tipi associati li accettano tutti
+        const allowed: string[] = route.ticketTypes || [];
+        if (
+          allowed.length > 0 &&
+          Object.entries(this.ticketSelections).some(([id, n]) => n > 0 && !allowed.includes(id))
+        ) {
+          continue;
+        }
+
         info.ticketTypes = info.ticketTypes.map((t: any) => {
           return {
             ...t,
