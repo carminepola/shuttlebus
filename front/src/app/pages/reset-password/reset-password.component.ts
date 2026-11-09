@@ -6,6 +6,7 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { LngService } from '../../services/lng/lng.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { BRAND_VIEW } from '../../../brand';
 
 /**
  * Pagina di reset password raggiunta dal link della mail:
@@ -21,6 +22,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
   styleUrls: ['./reset-password.component.scss'],
 })
 export class ResetPasswordComponent implements OnInit {
+  readonly brand = BRAND_VIEW;
   resetForm!: FormGroup;
   token: string = '';
   isLoading: boolean = false;

@@ -19,7 +19,7 @@ compilazione_back:
     paths:
       - back/dist/
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_REF_NAME == "test"'
       changes:
         - back/**/*
 
@@ -31,6 +31,8 @@ compilazione_front:
   image: node:24.15
   script:
     - cd front
+    # brand identity scelta dal ramo: front/brands/branches.json
+    - export BRANCH="$CI_COMMIT_REF_NAME"
     - npm install -g @angular/cli@22.0.4
     - npm ci
     - npm run build-prod
@@ -38,7 +40,7 @@ compilazione_front:
     paths:
       - front/dist/
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_REF_NAME == "test"'
       changes:
         - front/**/*
 
@@ -67,13 +69,19 @@ compila_dockerfile_back:
       fi
 
     - |
+      if [ "$CI_COMMIT_REF_NAME" == "test" ]; then
+        docker tag $REGISTRY/pintour2/back:$GUID_TAG $REGISTRY/pintour2/back:test
+        docker push $REGISTRY/pintour2/back:test
+      fi
+
+    - |
       if [ "$CI_COMMIT_REF_NAME" == "main" ]; then
         docker tag $REGISTRY/pintour2/back:$GUID_TAG $REGISTRY/pintour2/back:latest
         docker push $REGISTRY/pintour2/back:latest
       fi
 
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_REF_NAME == "test"'
       changes:
         - back/**/*
 
@@ -102,13 +110,19 @@ compila_dockerfile_front:
       fi
 
     - |
+      if [ "$CI_COMMIT_REF_NAME" == "test" ]; then
+        docker tag $REGISTRY/pintour2/front:$GUID_TAG $REGISTRY/pintour2/front:test
+        docker push $REGISTRY/pintour2/front:test
+      fi
+
+    - |
       if [ "$CI_COMMIT_REF_NAME" == "main" ]; then
         docker tag $REGISTRY/pintour2/front:$GUID_TAG $REGISTRY/pintour2/front:latest
         docker push $REGISTRY/pintour2/front:latest
       fi
 
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_REF_NAME == "test"'
       changes:
         - front/**/*
 
@@ -119,7 +133,7 @@ aggiorna_portainer:
   stage: aggiorna_portainer
   image: curlimages/curl
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "dev" || $CI_COMMIT_REF_NAME == "test"'
       changes:
         - back/**/*
         - front/**/*
@@ -127,6 +141,10 @@ aggiorna_portainer:
     - |
       if [ "$CI_COMMIT_REF_NAME" == "dev" ]; then
         curl --location --request POST "$PORTAINER_URL_DEV"
+      fi
+    - |
+      if [ "$CI_COMMIT_REF_NAME" == "test" ]; then
+        curl --location --request POST "$PORTAINER_URL_TEST"
       fi
     - |
       if [ "$CI_COMMIT_REF_NAME" == "main" ]; then

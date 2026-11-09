@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { LngService } from '../../services/lng/lng.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { version } from '../../../../package.json';
+import { BRAND_VIEW } from '../../../brand';
 @Component({
   selector: 'app-footer',
   imports: [RouterModule, TranslatePipe],
@@ -12,6 +13,7 @@ import { version } from '../../../../package.json';
   styleUrl: './footer.component.scss',
 })
 export class FooterComponent {
+  readonly brand = BRAND_VIEW;
   currentYear = new Date().getFullYear();
 
   constructor(private router: Router, private lngService: LngService) {}

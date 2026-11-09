@@ -16,6 +16,7 @@ import { CommonModule } from '@angular/common';
 import { LoginFormComponent } from '../login-form/login-form.component';
 import { RegistrazioneComponent } from '../registrazione/registrazione.component';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { BRAND_VIEW } from '../../../brand';
 
 @Component({
   selector: 'app-navbar',
@@ -26,6 +27,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
   standalone: true,
 })
 export class NavbarComponent implements AfterViewInit, OnDestroy {
+  readonly brand = BRAND_VIEW;
   @ViewChildren('navLink') navLinks!: QueryList<ElementRef<HTMLAnchorElement>>;
   private indicatorEl: HTMLElement | null = null;
   private containerEl: HTMLElement | null = null;

@@ -1,0 +1,58 @@
+{
+  "id": "pintour",
+  "name": "Pintour",
+  "documentTitle": "Amalfi airport link",
+  "legalName": "Pintour S.C.A.R.L.",
+  "pdfTitle": "PINTOUR",
+  "siteUrl": "https://shuttlebus.pintourbus.com",
+  "manifestDescription": "Prenota il tuo shuttle bus e tieni i biglietti sempre a portata di mano.",
+  "colors": {
+    "theme": "#194295",
+    "background": "#ffffff",
+    "primaryShade": 950,
+    "secondaryShade": 600,
+    "primary": {
+      "50": "#f3f4ff", "100": "#e9eafe", "200": "#d6d8fe", "300": "#b5b7fd", "400": "#8d8bfa", "500": "#675cf6",
+      "600": "#523aed", "700": "#4428d9", "800": "#3821b6", "900": "#301d95", "950": "#1a1064"
+    },
+    "secondary": {
+      "50": "#fef1f8", "100": "#fee5f2", "200": "#ffcbe7", "300": "#ffa1d2", "400": "#ff67b2", "500": "#fa3a93",
+      "600": "#ec2a7a", "700": "#cc0a55", "800": "#a80c46", "900": "#8c0f3d", "950": "#560120"
+    }
+  },
+  "contacts": {
+    "phone": { "label": "+39 081 879 2645", "href": "tel:+390818792645" },
+    "email": "ordini@pintourbus.com",
+    "whatsapp": { "label": "+39 335 691 0211", "href": "https://api.whatsapp.com/send/?phone=%2B393356910211" }
+  },
+  "social": {
+    "facebook": "https://www.facebook.com/pintour",
+    "instagram": "https://www.instagram.com/_pintourbus_/"
+  },
+  "companyInfo": [
+    ["Pintour S.C.A.R.L."],
+    ["Via 1° Maggio, 1,", "06039 Trevi (PG)"],
+    ["Sede operativa:", "Roma", "Via Mariconda 39, 80045, Pompei (Na)"],
+    ["P.IVA 06565461214"]
+  ],
+  "images": {
+    "aboutAlt": "Costiera Amalfitana",
+    "busStatus": "https://www.pintourbus.com/wp-content/uploads/2019/05/navetta2bus-grande.png"
+  },
+  "seo": {
+    "homeTitle": "Pintour",
+    "it": {
+      "title": "Con Pintourbus vivi la Campania con comfort e sicurezza: transfer dall’aeroporto di Napoli, escursioni agli scavi di Pompei, tour lungo la Costiera Amalfitana e viaggi organizzati verso Amalfi, Sorrento e le meraviglie del Sud Italia.",
+      "description": "Viaggi sicuri e confortevoli in autobus in tutta Italia",
+      "homeKeywords": "noleggio autobus, noleggio pullman, noleggio bus turistici, autobus con conducente, noleggio autobus gran turismo, autobus per gite scolastiche, autobus per viaggi organizzati, noleggio autobus gruppi, tour in autobus, viaggi in pullman organizzati, noleggio autobus per eventi, noleggio autobus matrimonio, noleggio autobus pellegrinaggi, pullman turistici, servizio navetta autobus, noleggio autobus low cost, noleggio autobus trasferte aziendali, autobus turismo Italia",
+      "pageKeywords": "noleggio autobus,amalfi, napoli, airoporto, navetta, noleggio pullman, noleggio bus turistici, autobus con conducente, noleggio autobus gran turismo, autobus per gite scolastiche, autobus per viaggi organizzati, noleggio autobus gruppi, tour in autobus, viaggi in pullman organizzati, noleggio autobus per eventi, noleggio autobus matrimonio, noleggio autobus pellegrinaggi, pullman turistici, servizio navetta autobus, noleggio autobus low cost, noleggio autobus trasferte aziendali, autobus turismo Italia"
+    },
+    "en": {
+      "title": "With Pintourbus you can discover Campania in comfort and safety: transfers from Naples airport, excursions to the ruins of Pompeii, tours along the Amalfi Coast, and organized trips to Amalfi, Sorrento and the wonders of Southern Italy",
+      "description": "Safe and comfortable bus travel throughout Italy",
+      "homeKeywords": "bus rental, coach hire, tourist bus rental, charter bus, bus with driver, coach rental, school trip buses, organized trips by bus, group bus rental, bus tours Italy, organized coach trips, event bus rental, wedding bus rental, pilgrimage bus rental, tourist coach, shuttle bus service, low cost bus rental, corporate bus rental, bus travel Italy",
+      "pageKeywords": "bus rental, amalfi, napoli, airport, coach hire, tourist bus rental, charter bus, bus with driver, coach rental, school trip buses, organized trips by bus, group bus rental, bus tours Italy, organized coach trips, event bus rental, wedding bus rental, pilgrimage bus rental, tourist coach, shuttle bus service, low cost bus rental, corporate bus rental, bus travel Italy"
+    }
+  },
+  "forbiddenTerms": ["pintour", "S.C.A.R.L", "06565461214", "Amalfi airport link", "390818792645", "393356910211"]
+}

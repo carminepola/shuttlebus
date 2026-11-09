@@ -12,7 +12,7 @@
   padding: 0 16px;
   
   i {
-    color: #1a1064;
+    color: var(--brand-primary);
     font-size: 1rem;
   }
 }
@@ -25,7 +25,7 @@
     font-size: 1rem;
     font-weight: 600;
     font-family: 'Montserrat', sans-serif;
-    color: #1a1064;
+    color: var(--brand-primary);
     
     &::placeholder {
       color: #bbb;
@@ -89,7 +89,7 @@
 .detail-value {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #1a1064;
+  color: var(--brand-primary);
   text-align: right;
   
   &.small {
@@ -122,7 +122,7 @@
 .booking-number {
   font-size: 1.2rem;
   font-weight: 800;
-  color: #1a1064;
+  color: var(--brand-primary);
 }
 
 .badge {
@@ -174,7 +174,7 @@
   align-items: center;
   gap: 8px;
   padding: 16px;
-  background: rgba(26, 16, 100, 0.03);
+  background: rgba(var(--brand-primary-rgb), 0.03);
   border-radius: 12px;
 }
 
@@ -193,11 +193,11 @@
 }
 
 .stop-departure {
-  background: #1a1064;
+  background: var(--brand-primary);
 }
 
 .stop-arrival {
-  background: #ec2a7a;
+  background: var(--brand-secondary);
 }
 
 .stop-info {
@@ -209,7 +209,7 @@
 .stop-time {
   font-weight: 700;
   font-size: 0.95rem;
-  color: #1a1064;
+  color: var(--brand-primary);
 }
 
 .stop-name {
@@ -221,7 +221,7 @@
 .route-line {
   flex: 1;
   height: 2px;
-  background: linear-gradient(90deg, #1a1064 0%, #ec2a7a 100%);
+  background: linear-gradient(90deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
   min-width: 40px;
 }
 
@@ -248,7 +248,7 @@
 .detail-item-value {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #1a1064;
+  color: var(--brand-primary);
 }
 
 .tickets-list {
@@ -264,8 +264,8 @@
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 6px;
-  background: rgba(26, 16, 100, 0.06);
-  color: #1a1064;
+  background: rgba(var(--brand-primary-rgb), 0.06);
+  color: var(--brand-primary);
 }
 
 .card {
@@ -280,7 +280,7 @@
   .card-title {
     font-size: 1rem;
     font-weight: 700;
-    color: #1a1064;
+    color: var(--brand-primary);
     
     i {
       font-size: 0.9rem;
@@ -321,7 +321,7 @@
     width: 2px;
     height: 20px;
     min-width: auto;
-    background: linear-gradient(180deg, #1a1064 0%, #ec2a7a 100%);
+    background: linear-gradient(180deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
     margin: 0 0 0 5px;
   }
 }
@@ -338,19 +338,19 @@
 
   &:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
-    border-left-color: #1a1064;
+    border-left-color: var(--brand-primary);
   }
 }
 
 .booking-card-highlighted {
-  border: 2px solid #ec2a7a;
-  box-shadow: 0 4px 20px rgba(236, 42, 122, 0.35) !important;
+  border: 2px solid var(--brand-secondary);
+  box-shadow: 0 4px 20px rgba(var(--brand-secondary-rgb), 0.35) !important;
 }
 
 .booking-number-small {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #1a1064;
+  color: var(--brand-primary);
   font-family: 'Courier New', monospace;
 }
 
@@ -382,7 +382,7 @@
 .stop-name-small {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #1a1064;
+  color: var(--brand-primary);
 }
 
 .stop-time-small {
@@ -403,7 +403,7 @@
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
-  background: rgba(26, 16, 100, 0.06);
-  color: #1a1064;
+  background: rgba(var(--brand-primary-rgb), 0.06);
+  color: var(--brand-primary);
   margin-right: 4px;
 }

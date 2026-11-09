@@ -3,7 +3,7 @@
     <div class="login-left-bg"></div>
     <div class="login-left-content">
       <div class="login-left-logo">
-        <img src="../../../assets/pintour-logo.png" alt="Pintour" />
+        <img [src]="brand.logo" [alt]="brand.name" />
       </div>
       <h2 class="login-left-title">Pannello di Controllo</h2>
       <p class="login-left-desc">
@@ -36,7 +36,7 @@
       ></app-mfa-challenge>
       } @else {
       <div class="login-mobile-logo d-lg-none mb-4">
-        <img src="../../../assets/pintour-logo.png" alt="Pintour" />
+        <img [src]="brand.logo" [alt]="brand.name" />
       </div>
 
       <div class="auth-header" style="margin-bottom: 1.5rem;">

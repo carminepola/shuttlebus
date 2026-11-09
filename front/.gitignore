@@ -40,3 +40,9 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Brand identity generata da scripts/apply-brand.mjs (sorgente: brands/<brand>/)
+/src/brand/brand.ts
+/src/brand/_brand.scss
+/src/index.html
+/src/assets/brand/

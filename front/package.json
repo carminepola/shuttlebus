@@ -3,14 +3,22 @@
   "version": "2.3.7",
   "scripts": {
     "ng": "ng",
+    "prestart": "node scripts/apply-brand.mjs",
     "start": "ng serve ",
+    "prebuild": "node scripts/apply-brand.mjs",
     "build": "ng build",
+    "prewatch": "node scripts/apply-brand.mjs",
     "watch": "ng build --watch --configuration development",
+    "prebuild-prod": "node scripts/apply-brand.mjs && node scripts/check-brand.mjs",
     "build-prod": "ng build -c production",
+    "pretest": "node scripts/apply-brand.mjs",
     "test": "ng test",
     "version-patch": "npm version patch --no-git-tag-version",
     "version-minor": "npm version minor",
-    "version-major": "npm version major"
+    "version-major": "npm version major",
+    "postinstall": "node scripts/apply-brand.mjs",
+    "brand": "node scripts/apply-brand.mjs",
+    "check:brand": "node scripts/check-brand.mjs"
   },
   "private": true,
   "dependencies": {

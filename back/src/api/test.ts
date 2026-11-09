@@ -9,6 +9,7 @@ import ErrorModel from "../model/errorModel";
 import MailService from "../components/services/mailServices";
 import { Mail } from "../model/mailModel";
 import { db, logger, env } from "../index";
+import { BRAND_LOGO_PATH } from "../components/services/mailSender";
 
 // NOTE: le rotte echo di debug (GET / e POST /) sono state RIMOSE (pentest):
 // restano solo le rotte mail di test, protette da authMiddleware + role.ADMIN.
@@ -51,7 +52,7 @@ router.post(
         route: "Napoli — Pompei",
         title: "Email di test",
         body: "Questo è il corpo di prova dell'email di test.",
-        img: clientUrl + "/assets/pintour-logo.png",
+        img: clientUrl + BRAND_LOGO_PATH,
         url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TEST-ORDER-0001",
         mytickets_url: clientUrl + "/user/mytickets",
       };

@@ -6,9 +6,9 @@
   <div class="container-fluid mx-2 px-0">
     <a class="navbar-brand d-flex align-items-center" href="#">
       <img
-        src="../../../assets/pintour-logo.png"
+        [src]="brand.logo"
         style="max-width: 110px; max-height: 130px"
-        alt="pintour-logo"
+        [alt]="brand.name"
       />
     </a>
 
@@ -83,11 +83,12 @@
             <span>{{ "str_info" | translate }}</span>
           </a>
         </li>
+        @if (brand.contacts.whatsapp) {
         <li class="nav-item">
           <a
             #navLink
             class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2"
-            href="https://api.whatsapp.com/send/?phone=%2B393356910211"
+            [href]="brand.contacts.whatsapp.href"
             target="_blank"
             rel="noopener noreferrer"
             (mouseenter)="onNavMouseEnter($any($event.target))"
@@ -97,6 +98,7 @@
             <span>Whatsapp</span>
           </a>
         </li>
+        }
         <li class="nav-item dropdown">
           <a
             class="nav-link rounded-pill px-3 py-2 d-flex align-items-center gap-2 cursor-pointer footer-lang-btn"

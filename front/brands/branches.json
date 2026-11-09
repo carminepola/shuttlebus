@@ -1,0 +1,9 @@
+{
+  "$comment": "Ramo git -> brand compilato. Usato da scripts/apply-brand.mjs (in CI tramite BRANCH). I rami non elencati usano 'default'.",
+  "default": "pintour",
+  "branches": {
+    "main": "pintour",
+    "dev": "devmincorp",
+    "test": "devmincorp"
+  }
+}

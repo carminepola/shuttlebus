@@ -20,6 +20,7 @@ import { RoutesService } from '../../services/routes/routes.service';
 
 import { StripeService } from '../../services/stripe/stripe.service';
 import { LUGGAGE_PRICE } from '../../constants/app.constants';
+import { BRAND_SECONDARY, rgba } from '../../../brand';
 Chart.register(...registerables);
 
 interface DashboardCard {
@@ -413,8 +414,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           {
             label: 'Mese Corrente',
             data: currentMonthData,
-            borderColor: '#ec2a7a',
-            backgroundColor: 'rgba(236, 42, 122, 0.1)',
+            borderColor: BRAND_SECONDARY,
+            backgroundColor: rgba(BRAND_SECONDARY, 0.1),
             tension: 0.4,
             fill: true,
             pointRadius: 0,
@@ -533,8 +534,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           {
             label: 'Mese Corrente',
             data: currentMonthData,
-            borderColor: '#ec2a7a',
-            backgroundColor: 'rgba(236, 42, 122, 0.1)',
+            borderColor: BRAND_SECONDARY,
+            backgroundColor: rgba(BRAND_SECONDARY, 0.1),
             tension: 0.4,
             fill: true,
             pointRadius: 0,

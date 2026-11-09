@@ -1,8 +1,9 @@
+<!-- Template: scripts/apply-brand.mjs genera src/index.html con i valori del brand. -->
 <!doctype html>
 <html lang="it" translate="no">
   <head>
     <meta charset="utf-8" />
-    <title>Amalfi airport link</title>
+    <title>{{documentTitle}}</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google" content="notranslate" />
@@ -10,22 +11,22 @@
     <link
       rel="icon"
       type="image/png"
-      href="/assets/favicon-96x96.png"
+      href="/assets/brand/favicon-96x96.png"
       sizes="96x96"
     />
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
-    <link rel="shortcut icon" href="/assets/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/assets/brand/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/brand/favicon.ico" />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
-      href="/assets/apple-touch-icon.png"
+      href="/assets/brand/apple-touch-icon.png"
     />
-    <meta name="apple-mobile-web-app-title" content="Pintour" />
-    <meta name="theme-color" content="#194295" />
+    <meta name="apple-mobile-web-app-title" content="{{name}}" />
+    <meta name="theme-color" content="{{themeColor}}" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="manifest" href="/assets/site.webmanifest" />
+    <link rel="manifest" href="/assets/brand/site.webmanifest" />
   </head>
 
   <body>

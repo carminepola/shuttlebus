@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { LngService } from '../../services/lng/lng.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
+import { BRAND_VIEW } from '../../../brand';
 @Component({
   selector: 'app-lost-password',
   standalone: true,
@@ -15,6 +16,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
   styleUrls: ['./lost-password.component.scss'],
 })
 export class LostPasswordComponent implements OnInit {
+  readonly brand = BRAND_VIEW;
   lostPasswordForm!: FormGroup;
   formCode!: FormGroup;
   isLoading: boolean = false;

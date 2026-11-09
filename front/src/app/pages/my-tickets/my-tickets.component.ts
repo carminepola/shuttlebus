@@ -13,6 +13,7 @@ import { PendingBookingService } from '../../services/pending-booking/pending-bo
 import { fadeAnimation } from '../../animations/fade.animation';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
+import { BRAND, brandRgb } from '../../../brand';
 
 const PENDING_EXPIRY_MS = 30 * 60 * 1000;
 
@@ -338,10 +339,10 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
         const contentWidth = pageWidth - mx * 2;
         let y = 0;
 
-        const PRIMARY: [number, number, number] = [26, 16, 100];
-        const SECONDARY: [number, number, number] = [236, 42, 122];
-        const LIGHT_INDIGO: [number, number, number] = [243, 244, 255];
-        const LIGHT_BLUE_LINE: [number, number, number] = [181, 183, 253];
+        const PRIMARY = brandRgb('primary', String(BRAND.colors.primaryShade));
+        const SECONDARY = brandRgb('secondary', String(BRAND.colors.secondaryShade));
+        const LIGHT_INDIGO = brandRgb('primary', '50');
+        const LIGHT_BLUE_LINE = brandRgb('primary', '300');
         const GRAY_DARK: [number, number, number] = [29, 29, 32];
         const GRAY_MID: [number, number, number] = [107, 114, 128];
         const GRAY_LIGHT: [number, number, number] = [243, 244, 246];
@@ -393,7 +394,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(26);
         doc.setTextColor(...WHITE);
-        doc.text('PINTOUR', mx, 22);
+        doc.text(BRAND.pdfTitle, mx, 22);
 
         // Ticket label top-right
         doc.setFontSize(11);

@@ -17,6 +17,7 @@ import { ModalService } from '../../services/modal/modal.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { TourGuideService } from '../../services/tour-guide/tour-guide.service';
 import { Subscription } from 'rxjs';
+import { BRAND_VIEW } from '../../../brand';
 
 @Component({
   selector: 'app-lowBar',
@@ -33,6 +34,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
 })
 export class LowBarComponent implements AfterViewInit, OnDestroy {
+  readonly brand = BRAND_VIEW;
   @ViewChildren('navLink') navLinks!: QueryList<ElementRef<HTMLAnchorElement>>;
   private indicatorEl: HTMLElement | null = null;
   private containerEl: HTMLElement | null = null;

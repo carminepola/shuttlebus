@@ -1,0 +1,74 @@
+{
+  "$todo": "SEGNAPOSTO: sostituire nome, testi, contatti, colori e i file in assets/ con la brand identity reale.",
+  "id": "devmincorp",
+  "name": "Devmincorp",
+  "documentTitle": "Devmincorp",
+  "legalName": "Devmincorp",
+  "pdfTitle": "DEVMINCORP",
+  "siteUrl": "https://devmincorp.example.invalid",
+  "manifestDescription": "Prenota il tuo viaggio e tieni i biglietti sempre a portata di mano.",
+  "colors": {
+    "theme": "#1e3a5f",
+    "background": "#ffffff",
+    "primaryShade": 900,
+    "secondaryShade": 700,
+    "primary": {
+      "50": "#f0f5fa",
+      "100": "#dde8f3",
+      "200": "#c2d5ea",
+      "300": "#98b9dc",
+      "400": "#6896ca",
+      "500": "#4677b7",
+      "600": "#345e9b",
+      "700": "#2b4c7e",
+      "800": "#274269",
+      "900": "#1e3a5f",
+      "950": "#15243b"
+    },
+    "secondary": {
+      "50": "#ecfeff",
+      "100": "#cffafe",
+      "200": "#a5f3fc",
+      "300": "#67e8f9",
+      "400": "#22d3ee",
+      "500": "#06b6d4",
+      "600": "#0891b2",
+      "700": "#0e7490",
+      "800": "#155e75",
+      "900": "#164e63",
+      "950": "#083344"
+    }
+  },
+  "contacts": {},
+  "social": {},
+  "companyInfo": [
+    [
+      "Devmincorp"
+    ],
+    [
+      "Dati aziendali da completare"
+    ]
+  ],
+  "images": {
+    "aboutAlt": "Devmincorp",
+    "busStatus": "/assets/brand/about.png"
+  },
+  "seo": {
+    "homeTitle": "Devmincorp",
+    "it": {
+      "title": "Devmincorp",
+      "description": "Viaggi sicuri e confortevoli",
+      "homeKeywords": "navetta, autobus",
+      "pageKeywords": "navetta, autobus"
+    },
+    "en": {
+      "title": "Devmincorp",
+      "description": "Safe and comfortable travel",
+      "homeKeywords": "shuttle, bus",
+      "pageKeywords": "shuttle, bus"
+    }
+  },
+  "forbiddenTerms": [
+    "devmincorp"
+  ]
+}

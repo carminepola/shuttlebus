@@ -87,8 +87,8 @@
 }
 
 .footer-lang-btn {
-  background: rgba(26, 16, 100, 0.06) !important;
-  border: 1px solid rgba(26, 16, 100, 0.08) !important;
+  background: rgba(var(--brand-primary-rgb), 0.06) !important;
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.08) !important;
   font-size: 0.75rem;
   padding: 4px 10px;
   border-radius: 8px;
@@ -100,6 +100,6 @@
   }
 
   &:hover {
-    background: rgba(26, 16, 100, 0.12) !important;
+    background: rgba(var(--brand-primary-rgb), 0.12) !important;
   }
 }

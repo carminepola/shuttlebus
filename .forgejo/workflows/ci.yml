@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - test
     paths:
       - back/**/*
       - front/**/*
@@ -20,7 +21,7 @@ jobs:
     runs-on: docker
     container: node:24.15
     if: |
-      (github.ref_name == 'main' || github.ref_name == 'dev') &&
+      (github.ref_name == 'main' || github.ref_name == 'dev' || github.ref_name == 'test') &&
       !startsWith(github.event.head_commit.message, 'skip-ci')
     steps:
       - uses: actions/checkout@v4
@@ -41,13 +42,15 @@ jobs:
     runs-on: docker
     container: node:24.15
     if: |
-      (github.ref_name == 'main' || github.ref_name == 'dev')
+      (github.ref_name == 'main' || github.ref_name == 'dev' || github.ref_name == 'test')
     steps:
       - uses: actions/checkout@v4
       - name: Build front
         working-directory: front
         run: |
           npm install -g @angular/cli@22.0.4
+          # brand identity scelta dal ramo: front/brands/branches.json
+          export BRANCH="${{ github.ref_name }}"
           npm ci
           npm run build-prod
       - uses: actions/upload-artifact@v3
@@ -66,7 +69,7 @@ jobs:
         options: --privileged
     needs: compilazione_back
     if: |
-      (github.ref_name == 'main' || github.ref_name == 'dev') &&
+      (github.ref_name == 'main' || github.ref_name == 'dev' || github.ref_name == 'test') &&
       !startsWith(github.event.head_commit.message, 'skip-ci')
     steps:
       - uses: actions/checkout@v4
@@ -92,6 +95,11 @@ jobs:
             docker push $REGISTRY_PRIVATE/pintour2/back:dev
           fi
 
+          if [ "${{ github.ref_name }}" == "test" ]; then
+            docker tag $REGISTRY_PRIVATE/pintour2/back:$GUID_TAG $REGISTRY_PRIVATE/pintour2/back:test
+            docker push $REGISTRY_PRIVATE/pintour2/back:test
+          fi
+
           if [ "${{ github.ref_name }}" == "main" ]; then
             docker tag $REGISTRY_PRIVATE/pintour2/back:$GUID_TAG $REGISTRY_PRIVATE/pintour2/back:latest
             docker push $REGISTRY_PRIVATE/pintour2/back:latest
@@ -108,7 +116,7 @@ jobs:
         options: --privileged
     needs: compilazione_front
     if: |
-      (github.ref_name == 'main' || github.ref_name == 'dev') &&
+      (github.ref_name == 'main' || github.ref_name == 'dev' || github.ref_name == 'test') &&
       !startsWith(github.event.head_commit.message, 'skip-ci')
     steps:
       - uses: actions/checkout@v4
@@ -134,6 +142,11 @@ jobs:
             docker push $REGISTRY_PRIVATE/pintour2/front:dev
           fi
 
+          if [ "${{ github.ref_name }}" == "test" ]; then
+            docker tag $REGISTRY_PRIVATE/pintour2/front:$GUID_TAG $REGISTRY_PRIVATE/pintour2/front:test
+            docker push $REGISTRY_PRIVATE/pintour2/front:test
+          fi
+
           if [ "${{ github.ref_name }}" == "main" ]; then
             docker tag $REGISTRY_PRIVATE/pintour2/front:$GUID_TAG $REGISTRY_PRIVATE/pintour2/front:latest
             docker push $REGISTRY_PRIVATE/pintour2/front:latest
@@ -150,14 +163,18 @@ jobs:
       - compila_dockerfile_front
     if: |
       always() &&
-      (github.ref_name == 'main' || github.ref_name == 'dev') &&
+      (github.ref_name == 'main' || github.ref_name == 'dev' || github.ref_name == 'test') &&
       !startsWith(github.event.head_commit.message, 'skip-ci')
     steps:
       - name: Trigger Portainer webhook
         env:
           WEBHOOK_DEV_PRIVATE: ${{ secrets.WEBHOOK_DEV_PRIVATE }}
           WEBHOOK_PRIVATE: ${{ secrets.WEBHOOK_PRIVATE }}
+          WEBHOOK_TEST_PRIVATE: ${{ secrets.WEBHOOK_TEST_PRIVATE }}
         run: |
+          if [ "${{ github.ref_name }}" == "test" ]; then
+            curl --location --request POST "$WEBHOOK_TEST_PRIVATE"
+          fi
           if [ "${{ github.ref_name }}" == "dev" ]; then
             curl --location --request POST "$WEBHOOK_DEV_PRIVATE"
           fi

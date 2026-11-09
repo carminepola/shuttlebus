@@ -1,0 +1,75 @@
+{
+  "$todo": "SEGNAPOSTO: sostituire nome, testi, contatti, colori e i file in assets/ con la brand identity reale.",
+  "id": "test",
+  "name": "ShuttleBus TEST",
+  "documentTitle": "ShuttleBus TEST",
+  "legalName": "Ambiente di test",
+  "pdfTitle": "TEST",
+  "siteUrl": "https://test.example.invalid",
+  "manifestDescription": "Ambiente di test: prenotazioni non reali.",
+  "colors": {
+    "theme": "#0f766e",
+    "background": "#ffffff",
+    "primaryShade": 800,
+    "secondaryShade": 700,
+    "primary": {
+      "50": "#f0fdfa",
+      "100": "#ccfbf1",
+      "200": "#99f6e4",
+      "300": "#5eead4",
+      "400": "#2dd4bf",
+      "500": "#14b8a6",
+      "600": "#0d9488",
+      "700": "#0f766e",
+      "800": "#115e59",
+      "900": "#134e4a",
+      "950": "#042f2e"
+    },
+    "secondary": {
+      "50": "#fff7ed",
+      "100": "#ffedd4",
+      "200": "#fed7aa",
+      "300": "#fdba74",
+      "400": "#fb923c",
+      "500": "#f97416",
+      "600": "#ea580c",
+      "700": "#c2410c",
+      "800": "#9a3413",
+      "900": "#7c2d12",
+      "950": "#431407"
+    }
+  },
+  "contacts": {},
+  "social": {},
+  "companyInfo": [
+    [
+      "Ambiente di test"
+    ],
+    [
+      "Dati aziendali non configurati"
+    ]
+  ],
+  "images": {
+    "aboutAlt": "Immagine di esempio",
+    "busStatus": "/assets/brand/about.png"
+  },
+  "seo": {
+    "homeTitle": "ShuttleBus TEST",
+    "it": {
+      "title": "Ambiente di test",
+      "description": "Ambiente di test",
+      "homeKeywords": "test",
+      "pageKeywords": "test"
+    },
+    "en": {
+      "title": "Test environment",
+      "description": "Test environment",
+      "homeKeywords": "test",
+      "pageKeywords": "test"
+    }
+  },
+  "forbiddenTerms": [
+    "ShuttleBus TEST",
+    "example.invalid"
+  ]
+}

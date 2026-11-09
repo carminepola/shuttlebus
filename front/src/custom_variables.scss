@@ -1,41 +1,16 @@
 @use "sass:map";
+@use "./brand/brand" as brand;
 
 $white: #fff;
 $black: #1d1d20;
 
-$pink-palette: (
-  50: #fef1f8,
-  100: #fee5f2,
-  200: #ffcbe7,
-  300: #ffa1d2,
-  400: #ff67b2,
-  500: #fa3a93,
-  600: #ec2a7a,
-  700: #cc0a55,
-  800: #a80c46,
-  900: #8c0f3d,
-  950: #560120,
-);
-
-$dark-blue-palette: (
-  50: #f3f4ff,
-  100: #e9eafe,
-  200: #d6d8fe,
-  300: #b5b7fd,
-  400: #8d8bfa,
-  500: #675cf6,
-  600: #523aed,
-  700: #4428d9,
-  800: #3821b6,
-  900: #301d95,
-  950: #1a1064,
-);
+// Palette del brand: generate da brands/<brand>/brand.json (scripts/apply-brand.mjs)
+$primary-palette: brand.$brand-primary-palette;
+$secondary-palette: brand.$brand-secondary-palette;
 
 $blue: #3b82f6;
-$pink: map.get($pink-palette, 600);
-$indigo: map.get($dark-blue-palette, 950);
-$primary: $indigo;
-$secondary: $pink;
+$primary: map.get($primary-palette, brand.$brand-primary-shade);
+$secondary: map.get($secondary-palette, brand.$brand-secondary-shade);
 $input-btn-focus-width: 0rem;
 $danger: #cf2f54;
 $font-weight-bold: 700;
@@ -45,8 +20,8 @@ $font-weight-bolder: 900;
 $input-focus-border-color: $secondary;
 $input-focus-color: $primary;
 $input-color: $primary;
-$focus-ring-color: map.get($pink-palette, 300);
-$primary-text-emphasis-dark: $pink;
+$focus-ring-color: map.get($secondary-palette, 300);
+$primary-text-emphasis-dark: $secondary;
 $success: #25867f;
 $info: #8c57e2;
  
@@ -162,7 +137,7 @@ a {
     background-color: #18181b;
   }
   .nav-link {
-    color: map.get($dark-blue-palette, 400);
+    color: map.get($primary-palette, 400);
   }
   .bg-white {
     background-color: #212529;
@@ -183,19 +158,19 @@ a {
   }
 
   .form-control {
-    color: map.get($dark-blue-palette, 400);
+    color: map.get($primary-palette, 400);
   }
 
   .text-primary {
-    color: map.get($dark-blue-palette, 400);
+    color: map.get($primary-palette, 400);
   }
 
   .form-control:focus {
-    color: map.get($dark-blue-palette, 400);
+    color: map.get($primary-palette, 400);
   }
 
   .btn-primary {
-    color: map.get($dark-blue-palette, 400);
+    color: map.get($primary-palette, 400);
   }
 
   .form-control {
@@ -208,6 +183,6 @@ a {
 
   .form-label,
   .form-check-label {
-    color: map.get($dark-blue-palette, 400);
+    color: map.get($primary-palette, 400);
   }
 }

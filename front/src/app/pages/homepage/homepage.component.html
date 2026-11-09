@@ -5,8 +5,8 @@
         <div class="card-body d-flex align-items-center py-2 position-relative">
           <div class="flex-grow-1 d-flex justify-content-center">
             <img
-              src="../../../assets/pintour-logo.png"
-              alt="Pintour"
+              [src]="brand.logo"
+              [alt]="brand.name"
               style="max-height: 32px"
             />
           </div>
@@ -92,8 +92,8 @@
       <div class="col-12 col-lg-6 about-section-img-col">
         <div class="about-section-img-overlay"></div>
         <img
-          src="../../../assets/amalfi.png"
-          alt="Costiera Amalfitana"
+          [src]="brand.assets + '/about.png'"
+          [alt]="brand.images.aboutAlt"
           class="about-section-img"
           loading="lazy"
         />

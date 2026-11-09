@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/
 import { CommonModule } from '@angular/common';
 import { MomapService } from '../../services/momap.service';
 import { lastValueFrom } from 'rxjs';
+import { BRAND_VIEW } from '../../../brand';
 
 interface BusStatus {
   busId: string;
@@ -39,6 +40,7 @@ interface BusStatus {
   styleUrl: './bus-status.component.scss',
 })
 export class BusStatusComponent implements OnInit, OnDestroy {
+  readonly brand = BRAND_VIEW;
   busStatusList: BusStatus[] = [];
   loading = true;
   error: string | null = null;

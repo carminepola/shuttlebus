@@ -42,10 +42,10 @@
 .ci-title {
   font-weight: 700;
   font-size: 1.05rem;
-  color: #1a1064;
+  color: var(--brand-primary);
 
   i {
-    color: #ec2a7a;
+    color: var(--brand-secondary);
   }
 }
 
@@ -96,8 +96,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: rgba(26, 16, 100, 0.06);
-  color: #1a1064;
+  background: rgba(var(--brand-primary-rgb), 0.06);
+  color: var(--brand-primary);
   font-size: 0.8rem;
   flex-shrink: 0;
 }
@@ -139,12 +139,12 @@
 
 .ci-tab-active {
   background: #fff;
-  color: #1a1064;
+  color: var(--brand-primary);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 
   &:hover {
     background: #fff;
-    color: #1a1064;
+    color: var(--brand-primary);
   }
 }
 
@@ -159,7 +159,7 @@
   border-bottom: 2px solid #f0f0f5;
 
   i {
-    color: #1a1064;
+    color: var(--brand-primary);
   }
 }
 
@@ -198,7 +198,7 @@
 .ci-ticket-id {
   font-weight: 700;
   font-size: 0.9rem;
-  color: #1a1064;
+  color: var(--brand-primary);
   margin-right: 8px;
 }
 
@@ -262,11 +262,11 @@
 }
 
 .ci-stop-dep {
-  background: #1a1064;
+  background: var(--brand-primary);
 }
 
 .ci-stop-arr {
-  background: #ec2a7a;
+  background: var(--brand-secondary);
 }
 
 .ci-ticket-line {
@@ -281,7 +281,7 @@
   display: block;
   font-weight: 700;
   font-size: 0.85rem;
-  color: #1a1064;
+  color: var(--brand-primary);
 }
 
 .ci-stop-name {
@@ -315,7 +315,7 @@
 .ci-ticket-total {
   font-weight: 800;
   font-size: 0.95rem;
-  color: #1a1064;
+  color: var(--brand-primary);
   flex-shrink: 0;
   text-align: right;
 }
@@ -474,7 +474,7 @@
 }
 
 .ci-activity-booking {
-  color: #1a1064;
+  color: var(--brand-primary);
   font-weight: 700;
 }
 
@@ -502,7 +502,7 @@
   margin-top: 4px;
 
   i {
-    color: #1a1064;
+    color: var(--brand-primary);
   }
 }
 
@@ -534,7 +534,7 @@
 .ci-tx-amount {
   font-weight: 700;
   font-size: 0.9rem;
-  color: #1a1064;
+  color: var(--brand-primary);
 }
 
 .ci-tx-date {

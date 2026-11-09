@@ -131,19 +131,21 @@
         }
       </a>
     </div>
-    <div class="col">
-      <a
-        #navLink
-        class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
-        href="https://api.whatsapp.com/send/?phone=%2B393356910211"
-        target="_blank"
-        rel="noopener noreferrer"
-        (mouseenter)="onNavMouseEnter($any($event.target))"
-        (mouseleave)="onNavMouseLeave()"
-      >
-        <i class="fa-brands fa-whatsapp"></i>
-      </a>
-    </div>
+    @if (brand.contacts.whatsapp) {
+      <div class="col">
+        <a
+          #navLink
+          class="nav-link w-100 h-100 d-flex align-items-center rounded-4 cursor-pointer justify-content-center"
+          [href]="brand.contacts.whatsapp.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          (mouseenter)="onNavMouseEnter($any($event.target))"
+          (mouseleave)="onNavMouseLeave()"
+        >
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+      </div>
+    }
     <div class="lowbar-indicator"></div>
   </div>
 </nav>

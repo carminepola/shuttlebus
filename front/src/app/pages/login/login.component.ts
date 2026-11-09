@@ -15,6 +15,7 @@ import { SpotifyAuthService } from '../../services/spotify-auth/spotify-auth.ser
 import { OAuthProviders, OAuthProvidersService } from '../../services/oauth-providers/oauth-providers.service';
 import { MfaChallenge, MfaService } from '../../services/mfa/mfa.service';
 import { MfaChallengeComponent } from '../../components/mfa-challenge/mfa-challenge.component';
+import { BRAND_VIEW } from '../../../brand';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -25,6 +26,7 @@ import { MfaChallengeComponent } from '../../components/mfa-challenge/mfa-challe
   providers: [],
 })
 export class LoginComponent implements OnInit {
+  readonly brand = BRAND_VIEW;
   loginForm!: FormGroup;
   isSubmitted = false;
   loginError = '';

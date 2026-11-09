@@ -11,6 +11,7 @@ import { SearchComponent } from '../../components/search/search.component';
 import { Router, RouterModule } from '@angular/router';
 import { BusStatusComponent } from '../../components/bus-status/bus-status.component';
 import { CommonModule } from '@angular/common';
+import { BRAND, BRAND_LOGO, BRAND_VIEW } from '../../../brand';
 @Component({
   selector: 'app-homepage',
   imports: [
@@ -28,6 +29,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './homepage.component.scss',
 })
 export class HomepageComponent implements OnInit {
+  readonly brand = BRAND_VIEW;
   public lng = [
     { lng: 'it', name: '🇮🇹 Italiano' },
     { lng: 'en', name: '🇬🇧 English' },
@@ -56,17 +58,11 @@ export class HomepageComponent implements OnInit {
     }
   }
   updateMeta() {
-    this.titleService.setTitle('Pintour');
+    this.titleService.setTitle(this.brand.seo.homeTitle);
 
-    let title =
-      'Con Pintourbus vivi la Campania con comfort e sicurezza: transfer dall’aeroporto di Napoli, escursioni agli scavi di Pompei, tour lungo la Costiera Amalfitana e viaggi organizzati verso Amalfi, Sorrento e le meraviglie del Sud Italia.';
-    let subtitle = 'Viaggi sicuri e confortevoli in autobus in tutta Italia';
-
-    if (localStorage.getItem('currentLng') == 'en') {
-      title =
-        'With Pintourbus you can discover Campania in comfort and safety: transfers from Naples airport, excursions to the ruins of Pompeii, tours along the Amalfi Coast, and organized trips to Amalfi, Sorrento and the wonders of Southern Italy';
-      subtitle = 'Safe and comfortable bus travel throughout Italy';
-    }
+    const seo = localStorage.getItem('currentLng') == 'en' ? this.brand.seo.en : this.brand.seo.it;
+    let title = seo.title;
+    let subtitle = seo.description;
 
     let tag: MetaDefinition[] = [
       {
@@ -92,27 +88,18 @@ export class HomepageComponent implements OnInit {
       },
       {
         property: 'og:url',
-        content: 'https://shuttlebus.pintourbus.com/',
+        content: BRAND.siteUrl + '/',
       },
       {
         property: 'og:image',
-        content: 'https://shuttlebus.pintourbus.com/assets/pintour-logo.png',
+        content: BRAND.siteUrl + BRAND_LOGO,
       },
     ];
 
-    if (localStorage.getItem('currentLng') !== 'en') {
-      tag.push({
-        name: 'keywords',
-        content:
-          'noleggio autobus, noleggio pullman, noleggio bus turistici, autobus con conducente, noleggio autobus gran turismo, autobus per gite scolastiche, autobus per viaggi organizzati, noleggio autobus gruppi, tour in autobus, viaggi in pullman organizzati, noleggio autobus per eventi, noleggio autobus matrimonio, noleggio autobus pellegrinaggi, pullman turistici, servizio navetta autobus, noleggio autobus low cost, noleggio autobus trasferte aziendali, autobus turismo Italia',
-      });
-    } else {
-      tag.push({
-        name: 'keywords',
-        content:
-          'bus rental, coach hire, tourist bus rental, charter bus, bus with driver, coach rental, school trip buses, organized trips by bus, group bus rental, bus tours Italy, organized coach trips, event bus rental, wedding bus rental, pilgrimage bus rental, tourist coach, shuttle bus service, low cost bus rental, corporate bus rental, bus travel Italy',
-      });
-    }
+    tag.push({
+      name: 'keywords',
+      content: (localStorage.getItem('currentLng') !== 'en' ? BRAND.seo.it : BRAND.seo.en).homeKeywords,
+    });
 
     for (const t of tag) {
       this.metaService.updateTag(t);

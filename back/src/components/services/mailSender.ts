@@ -3,6 +3,9 @@ import MailService from "./mailServices";
 import { Mail } from "../../model/mailModel";
 import booking from "../../model/bookFromSiteModel";
 
+/** Logo del brand servito dal front (front/brands/<brand>/assets/logo.png). */
+export const BRAND_LOGO_PATH = "/assets/brand/logo.png";
+
 type SupportedLng = "it" | "en" | "fr" | "de" | "es" | "jp";
 
 const BOOK_LABELS: Record<SupportedLng, Record<string, string>> = {
@@ -162,7 +165,7 @@ class MailSenderServices {
           name,
           order_id,
           amount,
-          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
+          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
         },
       })
     );
@@ -181,7 +184,7 @@ class MailSenderServices {
           amount,
           payment_method,
           route,
-          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
+          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
           url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + order_id,
           mytickets_url: process.env.CLIENT_URL + "/user/mytickets",
         },
@@ -199,7 +202,7 @@ class MailSenderServices {
         bodyVariables: {
           name,
           order_id,
-          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
+          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
         },
       })
     );
@@ -219,7 +222,7 @@ class MailSenderServices {
           // Il template RECOVER_PASSWORD deve usare la variabile {{url}}
           // (aggiornare il template in template_mail: vecchia variabile {{password}} rimossa).
           url: resetUrl,
-          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
+          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
         },
       })
     );
@@ -234,7 +237,7 @@ class MailSenderServices {
         bodyVariables: {
           name: name,
           pin: pin,
-          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
+          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
         },
       })
     );
@@ -253,7 +256,7 @@ class MailSenderServices {
         bodyVariables: {
           title: title,
           body: body,
-          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
+          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
         },
       })
     );
@@ -267,7 +270,7 @@ class MailSenderServices {
         bodyVariables: {
           title: title,
           body: body,
-          img: process.env.CLIENT_URL + "/assets/pintour-logo.png",
+          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
         },
       })
     );
