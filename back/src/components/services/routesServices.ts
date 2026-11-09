@@ -3,6 +3,7 @@ import { RouteDAO } from "../dao/routeDao";
 import { Route, Stop, Schedule, ScheduleStop } from "../../model/routesModel";
 import ErrorModel from "../../model/errorModel";
 import { Guid } from "guid-typescript";
+import { sanitizeFares } from "../../utils/fares";
 
 export default class RoutesServices {
   private routeDao: RouteDAO;
@@ -19,11 +20,14 @@ export default class RoutesServices {
     });
     route.enabled = true;
     route.ticketTypes = route.ticketTypes || [];
+    route.fares = sanitizeFares(route.fares, route.stops, route.ticketTypes);
     return this.routeDao.insertRoute(route);
   }
 
-  updateRoute(nameIt: string, nameEn: string, stops: Stop[], ticketTypes: string[], routeId: string, enabled: boolean) {
-    return this.routeDao.updateRoute(nameIt, nameEn, stops, ticketTypes, routeId, enabled);
+  updateRoute(nameIt: string, nameEn: string, stops: Stop[], ticketTypes: string[], routeId: string, enabled: boolean, fares?: any) {
+    // fares assente (client vecchio): le tariffe salvate restano invariate
+    const cleanFares = fares === undefined ? undefined : sanitizeFares(fares, stops, ticketTypes);
+    return this.routeDao.updateRoute(nameIt, nameEn, stops, ticketTypes, routeId, enabled, cleanFares);
   }
 
   getRoutes() {

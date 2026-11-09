@@ -8,6 +8,7 @@ import { RoutesService } from '../../services/routes/routes.service';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { StopsService } from '../../services/stops/stops.service';
+import { Fare } from '../../utils/fares';
 @Component({
   selector: 'app-route-details',
   imports: [
@@ -36,6 +37,8 @@ export class RouteDetailsComponent implements OnInit {
   public ticket: any = [];
   public id: string = '';
   public stopSelected: string = '';
+  // Tariffe per tratta: chiave "fromId|toId" -> ticketTypeId -> prezzo
+  public fareGrid: Record<string, Record<string, number | null>> = {};
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -130,11 +133,61 @@ export class RouteDetailsComponent implements OnInit {
     }
     return 'Non trovato';
   }
+  getTicketCost(id: string): number | null {
+    const ticket = this.ticket.find((t: any) => t.id === id);
+    return ticket ? ticket.cost : null;
+  }
+
+  /** Tutte le coppie origine -> destinazione nell'ordine attuale delle fermate. */
+  farePairs(): { key: string; from: string; to: string }[] {
+    const stops = this.routeForm.stops || [];
+    const pairs = [];
+    for (let i = 0; i < stops.length; i++) {
+      for (let j = i + 1; j < stops.length; j++) {
+        pairs.push({ key: `${stops[i].id}|${stops[j].id}`, from: stops[i].id, to: stops[j].id });
+      }
+    }
+    return pairs;
+  }
+
+  getFare(key: string, typeId: string): number | null {
+    return this.fareGrid[key]?.[typeId] ?? null;
+  }
+
+  setFare(key: string, typeId: string, value: any) {
+    const n = value === '' || value === null || value === undefined ? null : Number(value);
+    this.fareGrid[key] = { ...(this.fareGrid[key] || {}), [typeId]: n !== null && Number.isFinite(n) && n >= 0 ? n : null };
+  }
+
+  private loadFareGrid(fares: Fare[] | undefined) {
+    this.fareGrid = {};
+    for (const f of fares || []) {
+      this.fareGrid[`${f.fromStopId}|${f.toStopId}`] = { ...f.prices };
+    }
+  }
+
+  /** Solo coppie ancora valide (fermate e biglietti attuali) con almeno un prezzo. */
+  private buildFares(): Fare[] {
+    const fares: Fare[] = [];
+    for (const pair of this.farePairs()) {
+      const prices: Record<string, number> = {};
+      for (const typeId of this.routeForm.ticketTypes) {
+        const v = this.getFare(pair.key, typeId);
+        if (v !== null) prices[typeId] = v;
+      }
+      if (Object.keys(prices).length > 0) {
+        fares.push({ fromStopId: pair.from, toStopId: pair.to, prices });
+      }
+    }
+    return fares;
+  }
+
   load(id: string) {
     this.routeService.getRouteById(id).subscribe((res) => {
       this.loading = false;
       if (res && res.route) {
         this.routeForm = res.route;
+        this.loadFareGrid(res.route.fares);
         this.cdr.detectChanges();
       }
     });
@@ -160,6 +213,7 @@ export class RouteDetailsComponent implements OnInit {
       const { new: _, ...s } = stop;
       return { position: index, ...s };
     });
+    obj.fares = this.buildFares();
 
     if (this.new) {
       this.routeService.insertRoute(obj).subscribe({
@@ -182,7 +236,8 @@ export class RouteDetailsComponent implements OnInit {
           obj.stops,
           obj.ticketTypes,
           obj.id,
-          obj.enabled
+          obj.enabled,
+          obj.fares
         )
         .subscribe({
           next: (response: any) => {

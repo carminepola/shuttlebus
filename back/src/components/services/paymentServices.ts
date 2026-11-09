@@ -7,18 +7,22 @@ import { ClientSession } from "mongodb";
 import PaymentsDAO from "../dao/paymentsDao";
 import stripeServices from "./stripeServices";
 import TicketTypeServices from "./ticketTypeServices";
+import RoutesServices from "./routesServices";
+import { resolveFarePrice } from "../../utils/fares";
 import StripeCustomersDao from "../dao/stripeCustomersDao";
 import { logger } from "../../index";
 
 class PaymentServices {
   private paymentDao: PaymentsDAO;
   private ticketTypeServices: TicketTypeServices;
+  private routesServices: RoutesServices;
   private stripeCustomersDao: StripeCustomersDao;
   public stripeServices: stripeServices;
 
   constructor(db: Db) {
     this.paymentDao = new PaymentsDAO(db);
     this.ticketTypeServices = new TicketTypeServices(db);
+    this.routesServices = new RoutesServices(db);
     this.stripeCustomersDao = new StripeCustomersDao(db);
     this.stripeServices = new stripeServices();
   }
@@ -28,16 +32,22 @@ class PaymentServices {
   }
 
   /**
-   * P-01: mappa id -> costo costruita SOLO dai ticket types attivi su DB.
-   * Mai dal payload client: un costo mancante lato DB fa fallire la sessione.
+   * P-01: per ogni tratta una mappa id -> costo costruita SOLO da DB (ticket types
+   * attivi + tariffa from -> to della route). Mai dal payload client: un costo
+   * mancante lato DB fa fallire la sessione.
    */
-  private async getPricesFromDb(): Promise<Record<string, number>> {
+  private async getPricesFromDb(tickets: booking[]): Promise<Record<string, number>[]> {
     const types = (await this.ticketTypeServices.getAllActiveTicketTypes()) || [];
-    const map: Record<string, number> = {};
-    for (const t of types) {
-      map[t.id] = t.cost;
+    const result: Record<string, number>[] = [];
+    for (const leg of tickets) {
+      const route: any = await this.routesServices.getRouteById(leg.routeId);
+      const map: Record<string, number> = {};
+      for (const t of types) {
+        map[t.id] = resolveFarePrice(route, leg.from?.id, leg.to?.id, t);
+      }
+      result.push(map);
     }
-    return map;
+    return result;
   }
 
   /**
@@ -108,7 +118,7 @@ class PaymentServices {
       let paymentMethods: any = await this.paymentDao.getPaymentMethod();
       switch (paymentMethods.type) {
         case "stripe":
-          let dbPrices = await this.getPricesFromDb();
+          let dbPrices = await this.getPricesFromDb(tickets);
           let customerId = await this.getCheckoutCustomerId(tickets[0]);
           let session: any = await this.stripeServices.getPaymentSession(tickets, dbPrices, customerId);
           for (const ticket of tickets) {

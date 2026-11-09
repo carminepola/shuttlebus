@@ -1,5 +1,5 @@
 import { Db, ClientSession } from "mongodb";
-import { Route, Stop } from "../../model/routesModel";
+import { Route, Stop, Fare } from "../../model/routesModel";
 import { Schedule } from "../../model/routesModel";
 export class RouteDAO {
   private db: Db;
@@ -16,20 +16,17 @@ export class RouteDAO {
       throw error;
     }
   }
-  async updateRoute(nameIt: string, nameEn: string, stops: Stop[], ticketTypes: string[], routeId: string, enabled: boolean) {
+  async updateRoute(nameIt: string, nameEn: string, stops: Stop[], ticketTypes: string[], routeId: string, enabled: boolean, fares?: Fare[]) {
     try {
-      const result = await this.db.collection("routes").updateOne(
-        { id: routeId },
-        {
-          $set: {
-            "name.it": nameIt,
-            "name.en": nameEn,
-            stops: stops,
-            enabled: enabled,
-            ticketTypes: ticketTypes,
-          },
-        }
-      );
+      const set: Record<string, any> = {
+        "name.it": nameIt,
+        "name.en": nameEn,
+        stops: stops,
+        enabled: enabled,
+        ticketTypes: ticketTypes,
+      };
+      if (fares !== undefined) set.fares = fares;
+      const result = await this.db.collection("routes").updateOne({ id: routeId }, { $set: set });
       return result.modifiedCount > 0;
     } catch (error) {
       throw error;

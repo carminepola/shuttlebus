@@ -48,7 +48,8 @@ export class RoutesService {
     stops: any,
     ticketTypes: any,
     id: string,
-    enabled: boolean
+    enabled: boolean,
+    fares?: any[]
   ): Observable<any> {
     return this.http
       .put(`${this.apiUrl}/${id}`, {
@@ -57,6 +58,7 @@ export class RoutesService {
         stops,
         ticketTypes,
         enabled,
+        fares,
       })
       .pipe(
         catchError((error) => {

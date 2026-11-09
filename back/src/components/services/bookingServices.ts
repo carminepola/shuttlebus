@@ -5,6 +5,7 @@ import UserServices from "./userServices";
 import { client, logger } from "../../index";
 import { ClientSession } from "mongodb";
 import TicketTypeServices from "./ticketTypeServices";
+import { resolveFarePrice } from "../../utils/fares";
 import ErrorModel from "../../model/errorModel";
 import PaymentServices from "./paymentServices";
 import RoutesServices from "./routesServices";
@@ -311,17 +312,20 @@ class BookingsServices {
       for (let t of ticket.ticketTypes) {
         let find = ticketType.find((tt: any) => tt.id === t.id);
         if (find) {
+          // P-01: il costo salvato nel booking e' SOLO quello da DB (tariffa della tratta
+          // from -> to, o cost del ticket type se non definita), mai quello del client
+          const cost = resolveFarePrice(route, ticket.from?.id, ticket.to?.id, find);
           count += t.count;
-          newTotale += find.cost * t.count;
-          // P-01: il costo salvato nel booking e' SOLO quello da DB, mai quello del client
-          t.cost = find.cost;
+          newTotale += cost * t.count;
+          t.cost = cost;
         } else {
           continue;
         }
       }
     }
     newTotale += ticket.luggage * LUGGAGE_PRICE;
-    if (count == ticket.seats && newTotale == totale && totale > 0 && ticket.seats > 0) {
+    newTotale = Math.round(newTotale * 100) / 100;
+    if (count == ticket.seats && Math.abs(newTotale - totale) < 0.005 && totale > 0 && ticket.seats > 0) {
       // P-01: total server-side, non la copia del client
       ticket.total = newTotale;
       return true;

@@ -14,6 +14,14 @@ interface Route {
   stops: Stop[]; // Lista delle fermate
   ticketTypes: string[];
   enabled: boolean; // Tipologie di biglietti disponibili su questa tratta
+  fares?: Fare[]; // Prezzi per coppia di fermate; senza tariffa vale il cost del ticket type
+}
+
+/** 📁 Tariffa origine -> destinazione: prezzo per ticketTypeId */
+interface Fare {
+  fromStopId: string;
+  toStopId: string;
+  prices: Record<string, number>;
 }
 
 /** 📁 Modello per le fermate della corsa (ScheduleStop) */
@@ -39,4 +47,4 @@ interface Schedule {
   busId: string;
 }
 
-export { Stop, Route, ScheduleStop, Schedule };
+export { Stop, Route, Fare, ScheduleStop, Schedule };

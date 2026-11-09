@@ -45,6 +45,7 @@ router.put(
     check("stops").isArray().withMessage("stops must be an array"),
     check("ticketTypes").isArray().withMessage("ticketTypes must be an array"),
     check("enabled").isBoolean().withMessage("enabled must be a boolean"),
+    check("fares").optional().isArray().withMessage("fares must be an array"),
   ],
   authMiddleware,
   // pentest: il CRUD delle corse era accessibile a qualsiasi utente loggato
@@ -53,8 +54,8 @@ router.put(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let routesServices = new RoutesServices(db);
-      const { nameIt, nameEn, stops, ticketTypes, enabled } = req.body;
-      const result = await routesServices.updateRoute(nameIt, nameEn, stops, ticketTypes, req.params.id, enabled);
+      const { nameIt, nameEn, stops, ticketTypes, enabled, fares } = req.body;
+      const result = await routesServices.updateRoute(nameIt, nameEn, stops, ticketTypes, req.params.id, enabled, fares);
       res.json(result);
     } catch (error) {
       next(error);

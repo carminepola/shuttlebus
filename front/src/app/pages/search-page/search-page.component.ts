@@ -19,6 +19,7 @@ import { TitlePageComponent } from '../../components/title-page/title-page.compo
 import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
 import { LUGGAGE_PRICE } from '../../constants/app.constants';
 import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
+import { resolveFarePrice } from '../../utils/fares';
 @Component({
   selector: 'app-search-page',
   imports: [
@@ -226,6 +227,7 @@ export class SearchPageComponent implements OnInit {
         info.ticketTypes = info.ticketTypes.map((t: any) => {
           return {
             ...t,
+            cost: resolveFarePrice(route, fromId, toId, t),
             count: this.ticketSelections[t.id] || 0,
           };
         });
@@ -234,6 +236,7 @@ export class SearchPageComponent implements OnInit {
           (sum: number, t: any) => sum + t.count * t.cost,
           0,
         );
+        info.total = Math.round(info.total * 100) / 100;
         info.seats = info.ticketTypes.reduce(
           (sum: number, t: any) => sum + t.count,
           0,

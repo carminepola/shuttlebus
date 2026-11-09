@@ -37,15 +37,15 @@ class StripeServices {
    * centesimi e' calcolato SOLO dai prezzi letti da DB (`dbPrices`, id -> cost),
    * costruiti da PaymentServices. Costo inesistente/non attivo -> sessione bloccata.
    */
-  async getPaymentSession(tickets: booking[], dbPrices: Record<string, number>, customerId?: string) {
+  async getPaymentSession(tickets: booking[], dbPrices: Record<string, number>[], customerId?: string) {
     try {
       const ticket = tickets[0];
       let items: any[] = [];
-      for (const leg of tickets) {
+      for (const [legIndex, leg] of tickets.entries()) {
         let ticketData = leg.date.split("-").reverse().join("/");
         let name = `${getLocalizedName(leg.name, leg.lng)} • ${leg.from.name} (${leg.from.stopTime}) - ${leg.to.name} (${leg.to.stopTime}) • ${ticketData} `;
         for (const item of leg.ticketTypes) {
-          const dbCost = dbPrices?.[item.id];
+          const dbCost = dbPrices?.[legIndex]?.[item.id];
           if (dbCost === undefined || dbCost === null) {
             throw new Error(`Ticket type ${item.id} assente o non attivo: sessione di pagamento bloccata`);
           }
