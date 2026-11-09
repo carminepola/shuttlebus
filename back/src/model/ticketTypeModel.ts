@@ -1,4 +1,5 @@
 import { Guid } from "guid-typescript";
+import { sanitizeDaysOfWeek } from "../utils/ticketDays";
 
 export default class ticketTypeModel {
   public id?: string;
@@ -21,6 +22,8 @@ export default class ticketTypeModel {
     jp?: string;
   };
   public cost: number;
+  // Giorni di validita' (1 = lun ... 7 = dom); vuoto = tutti i giorni
+  public daysOfWeek: number[];
   public isActive: boolean;
   public isDeleted: boolean;
   constructor(ticketType?: any) {
@@ -32,6 +35,7 @@ export default class ticketTypeModel {
     this.name.en = ticketType?.name?.en || "";
     this.description = ticketType?.description || { it: "", en: "" };
     this.cost = ticketType?.cost || 0;
+    this.daysOfWeek = sanitizeDaysOfWeek(ticketType?.daysOfWeek);
 
     this.isActive = ticketType?.isActive == false ? false : true;
     this.isDeleted = ticketType?.isDeleted == true ? true : false;

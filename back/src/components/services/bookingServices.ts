@@ -6,6 +6,7 @@ import { client, logger } from "../../index";
 import { ClientSession } from "mongodb";
 import TicketTypeServices from "./ticketTypeServices";
 import { resolveFarePrice } from "../../utils/fares";
+import { isTicketTypeValidOn } from "../../utils/ticketDays";
 import ErrorModel from "../../model/errorModel";
 import PaymentServices from "./paymentServices";
 import RoutesServices from "./routesServices";
@@ -312,6 +313,10 @@ class BookingsServices {
       for (let t of ticket.ticketTypes) {
         let find = ticketType.find((tt: any) => tt.id === t.id);
         if (find) {
+          // Biglietto non valido nel giorno di viaggio (es. Over 60 solo il martedi')
+          if (t.count > 0 && !isTicketTypeValidOn(find, day)) {
+            throw new ErrorModel(400, "str_error_check_price");
+          }
           // P-01: il costo salvato nel booking e' SOLO quello da DB (tariffa della tratta
           // from -> to, o cost del ticket type se non definita), mai quello del client
           const cost = resolveFarePrice(route, ticket.from?.id, ticket.to?.id, find);

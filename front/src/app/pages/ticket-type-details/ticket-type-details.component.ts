@@ -6,6 +6,7 @@ import { LoadingComponent } from '../../components/loading/loading/loading.compo
 import { ActivatedRoute, Router } from '@angular/router';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { WEEK_DAYS, weekdayName } from '../../utils/ticket-days';
 @Component({
   selector: 'app-ticket-type-details',
   imports: [
@@ -34,9 +35,28 @@ export class TicketTypeDetailsComponent implements OnInit {
     name: { it: '', en: '', fr: '', de: '', es: '', jp: '' },
     cost: '0',
     isActive: true,
+    daysOfWeek: [],
     description: { it: '', en: '', fr: '', de: '', es: '', jp: '' },
   };
   errorMessage: string = '';
+  weekDays = WEEK_DAYS;
+
+  dayName(day: number): string {
+    return weekdayName(day, 'it', 'long');
+  }
+
+  hasDay(day: number): boolean {
+    return (this.form.daysOfWeek || []).includes(day);
+  }
+
+  /** Nessun giorno selezionato = biglietto valido tutti i giorni. */
+  toggleDay(day: number) {
+    const days: number[] = this.form.daysOfWeek || [];
+    this.form.daysOfWeek = days.includes(day)
+      ? days.filter((d) => d !== day)
+      : [...days, day].sort((a, b) => a - b);
+  }
+
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.id = params['id'];
@@ -95,6 +115,7 @@ export class TicketTypeDetailsComponent implements OnInit {
       this.loading = false;
       if (res && res.ticketType) {
         this.form = res.ticketType;
+        this.form.daysOfWeek = this.form.daysOfWeek || [];
         this.cdr.detectChanges();
       }
     });

@@ -9,6 +9,7 @@ import { FilterPipe } from '../../pipe/filter.pipe';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { daysLabel } from '../../utils/ticket-days';
 @Component({
   selector: 'app-ticketsType',
   imports: [
@@ -47,6 +48,7 @@ export class TicketsTypeComponent implements OnInit {
             name: t.name.it,
             description: t.description.it,
             cost: t.cost,
+            days: daysLabel(t.daysOfWeek) || 'Tutti',
           };
         });
       }

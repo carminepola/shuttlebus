@@ -80,6 +80,10 @@
                   ><span >{{ ticketType.cost }}</span>€</span
                   >
                 </p>
+                <p class="mb-0">
+                  Giorni:
+                  <span class="text-secondary">{{ ticketType.days }}</span>
+                </p>
               </div>
             </div>
           }
@@ -93,6 +97,7 @@
                   <th scope="col">Nome</th>
                   <th scope="col">Descrizione</th>
                   <th scope="col">Prezzo</th>
+                  <th scope="col">Giorni</th>
                   <th scope="col" class="rounded-end-3">Azioni</th>
                 </tr>
               </thead>
@@ -104,6 +109,7 @@
                     <td >{{ ticketType.name }}</td>
                     <td >{{ ticketType.description }}</td>
                     <td>{{ ticketType.cost }}€</td>
+                    <td>{{ ticketType.days }}</td>
                     <td>
                       <button
                         class="btn btn-warning btn-sm me-2 rounded-3"

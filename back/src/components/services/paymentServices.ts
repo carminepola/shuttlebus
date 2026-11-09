@@ -9,6 +9,7 @@ import stripeServices from "./stripeServices";
 import TicketTypeServices from "./ticketTypeServices";
 import RoutesServices from "./routesServices";
 import { resolveFarePrice } from "../../utils/fares";
+import { isTicketTypeValidOn } from "../../utils/ticketDays";
 import StripeCustomersDao from "../dao/stripeCustomersDao";
 import { logger } from "../../index";
 
@@ -43,6 +44,8 @@ class PaymentServices {
       const route: any = await this.routesServices.getRouteById(leg.routeId);
       const map: Record<string, number> = {};
       for (const t of types) {
+        // tipo non valido nel giorno della tratta: assente dalla mappa -> sessione bloccata
+        if (!isTicketTypeValidOn(t, leg.date)) continue;
         map[t.id] = resolveFarePrice(route, leg.from?.id, leg.to?.id, t);
       }
       result.push(map);

@@ -20,6 +20,7 @@ import { PendingBookingService } from '../../services/pending-booking/pending-bo
 import { LUGGAGE_PRICE } from '../../constants/app.constants';
 import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
 import { resolveFarePrice } from '../../utils/fares';
+import { isTicketTypeValidOn } from '../../utils/ticket-days';
 @Component({
   selector: 'app-search-page',
   imports: [
@@ -217,9 +218,7 @@ export class SearchPageComponent implements OnInit {
           },
           ticketTypes: JSON.parse(
             JSON.stringify(
-              ticketTypes.map((t: any) => {
-                return ticketTypes.find((z: any) => z.id === t.id);
-              }),
+              ticketTypes.filter((t: any) => isTicketTypeValidOn(t, date)),
             ),
           ),
         };

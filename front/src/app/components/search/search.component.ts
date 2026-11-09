@@ -7,6 +7,7 @@ import { RoutesService } from '../../services/routes/routes.service';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
 import { LngService } from '../../services/lng/lng.service';
+import { daysLabel, isTicketTypeValidOn } from '../../utils/ticket-days';
 
 import { Router } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
@@ -140,8 +141,30 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
+  /** Biglietti validi nella data di andata e, se presente, in quella di ritorno. */
+  availableTicketTypes(): any[] {
+    return this.ticketTypes.filter(
+      (tt) =>
+        isTicketTypeValidOn(tt, this.ricerca?.data) &&
+        (!this.andataRitorno || isTicketTypeValidOn(tt, this.ricerca?.ritorno)),
+    );
+  }
+
+  ticketDaysLabel(tt: any): string {
+    return daysLabel(tt.daysOfWeek, this.lngService.getLng());
+  }
+
+  /** Selezioni ancora valide per le date scelte (cambiando data un biglietto puo' sparire). */
+  private validSelections(): { [id: string]: number } {
+    const valid: { [id: string]: number } = {};
+    for (const tt of this.availableTicketTypes()) {
+      if (this.selectedTickets[tt.id] > 0) valid[tt.id] = this.selectedTickets[tt.id];
+    }
+    return valid;
+  }
+
   getTotalPersone(): number {
-    return Object.values(this.selectedTickets).reduce(
+    return Object.values(this.validSelections()).reduce(
       (sum, count) => sum + count,
       0
     );
@@ -326,12 +349,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       }),
     );
 
-    let filteredTickets: { [id: string]: number } = {};
-    for (let key in this.selectedTickets) {
-      if (this.selectedTickets[key] > 0) {
-        filteredTickets[key] = this.selectedTickets[key];
-      }
-    }
+    let filteredTickets = this.validSelections();
 
     this.router.navigate(['/search'], {
       queryParams: {
