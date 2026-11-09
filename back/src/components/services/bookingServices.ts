@@ -145,7 +145,11 @@ class BookingsServices {
    * Con andata e ritorno le due tratte nascono nella stessa transazione: o
    * entrambe hanno posto, o non viene creata nessuna delle due.
    */
-  private async createBookingInTransaction(tickets: any[], userId: string, paymentType: string): Promise<booking[]> {
+  /**
+   * `presetUser`: biglietto emesso dall'admin per conto di un cliente (registrato o
+   * ospite `guest:<mail>`); il controllo dei permessi e' gia' fatto dalla rotta admin.
+   */
+  private async createBookingInTransaction(tickets: any[], userId: string, paymentType: string, presetUser?: { id: string; name?: string; mail: string; phone?: string }): Promise<booking[]> {
     const first = tickets[0];
     for (let attempt = 1; attempt <= BookingsServices.SEAT_TX_MAX_RETRIES; attempt++) {
       const session: ClientSession = client.startSession();
@@ -159,12 +163,12 @@ class BookingsServices {
           await this.bookingDao.acquireSeatLock(t.date, t.routeId, t.scheduleId, session);
         }
 
-        let user = await this.userServices.getUserById(userId);
-        if (!user) {
+        let user: any = presetUser ? null : await this.userServices.getUserById(userId);
+        if (!presetUser && !user) {
           // comportamento storico: utente inesistente -> nessun booking
           return undefined as unknown as booking[];
         }
-        const bookingUser = {
+        const bookingUser = presetUser || {
           id: userId,
           name: user.details?.name,
           mail: user.email,
@@ -218,7 +222,15 @@ class BookingsServices {
               book.payment_status = "unpaid";
               break;
             case "cash":
-              if (user.role > role.DRIVER) {
+              if (!presetUser && user.role > role.DRIVER) {
+                throw new ErrorModel(403, "str_error_permission");
+              }
+              book.status = "confirmed";
+              book.payment_status = "paid";
+              break;
+            case "free":
+              // omaggio: solo da emissione admin
+              if (!presetUser) {
                 throw new ErrorModel(403, "str_error_permission");
               }
               book.status = "confirmed";
@@ -258,6 +270,102 @@ class BookingsServices {
     // Irraggiungibile: ogni iterazione termina con return o throw
     throw new ErrorModel(409, "str_error_seats");
   }
+  /** Id provvisorio dei biglietti emessi a chi non ha (ancora) un account. */
+  static guestUserId(email: string): string {
+    return `guest:${String(email).trim().toLowerCase()}`;
+  }
+
+  /**
+   * Biglietto emesso dall'admin per un cliente: registrato (`customer.userId`) oppure
+   * solo nome + mail. Se la mail appartiene gia' a un account attivo il biglietto va
+   * su quell'account, altrimenti su `guest:<mail>` e viene collegato all'account
+   * quando il cliente si registra/accede (vedi claimGuestBookings).
+   * Pagamento: "cash" (contanti/POS, prezzo pieno) o "free" (omaggio, totale 0).
+   */
+  async adminCreateBooking(body: any, admin: { _id: any; email?: string }) {
+    const ticket = body?.ticket;
+    const customer = body?.customer || {};
+    const paymentMode = body?.paymentMode;
+    const sendMail = body?.sendMail !== false;
+
+    if (!ticket || typeof ticket !== "object") throw new ErrorModel(400, "Dati del biglietto mancanti");
+    if (paymentMode !== "cash" && paymentMode !== "free") throw new ErrorModel(400, "Metodo di pagamento non valido");
+
+    let userId: string;
+    let bookingUser: { id: string; name?: string; mail: string; phone?: string };
+    if (customer.userId) {
+      if (!/^[a-f0-9]{24}$/i.test(String(customer.userId))) throw new ErrorModel(400, "Utente non valido");
+      const user: any = await this.userServices.getUserById(String(customer.userId));
+      if (!user || user.role === role.NO_PERMISSION) throw new ErrorModel(404, "Utente non trovato");
+      userId = String(user._id);
+      bookingUser = { id: userId, name: user.details?.name, mail: user.email, phone: user.details?.phone };
+    } else {
+      const email = typeof customer.email === "string" ? customer.email.trim().toLowerCase() : "";
+      const name = typeof customer.name === "string" ? customer.name.trim() : "";
+      const phone = typeof customer.phone === "string" ? customer.phone.trim() : undefined;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new ErrorModel(400, "Email non valida");
+      if (!name) throw new ErrorModel(400, "Nome obbligatorio");
+      const existing: any = await this.userServices.getUserByEmailAll(email);
+      if (existing && existing.role !== role.NO_PERMISSION) {
+        userId = String(existing._id);
+        bookingUser = { id: userId, name: existing.details?.name || name, mail: existing.email, phone: existing.details?.phone || phone };
+      } else {
+        userId = BookingsServices.guestUserId(email);
+        bookingUser = { id: userId, name, mail: email, phone };
+      }
+    }
+
+    const returnTrip = ticket.returnTrip;
+    delete ticket.returnTrip;
+    const legs: any[] = returnTrip ? [ticket, returnTrip] : [ticket];
+    if (returnTrip && (typeof returnTrip.date !== "string" || returnTrip.date < ticket.date)) {
+      throw new ErrorModel(400, "str_error_time");
+    }
+    for (const leg of legs) {
+      leg.lng = typeof leg.lng === "string" && leg.lng ? leg.lng : "it";
+      await this.checkPriceAndTime(leg, { skipCutoff: true });
+      if (paymentMode === "free") {
+        for (const t of leg.ticketTypes || []) t.cost = 0;
+        leg.total = 0;
+      }
+    }
+
+    const books = await this.createBookingInTransaction(legs, userId, paymentMode, bookingUser);
+    const issuedBy = { id: String(admin._id), email: admin.email };
+    for (const b of books) {
+      await this.bookingDao.updatePaymentInfo(paymentMode, { type: paymentMode, issuedBy }, b.numberOfTickets);
+    }
+    logger.info(`Biglietti ${books.map((b) => b.numberOfTickets).join(", ")} emessi da admin ${issuedBy.email || issuedBy.id} per ${bookingUser.mail} (${paymentMode})`);
+
+    if (sendMail) {
+      for (const b of books) {
+        try {
+          if (await this.bookingDao.markConfirmationSent(b.numberOfTickets)) {
+            await this.sendConfirmation(b.numberOfTickets, paymentMode);
+          }
+        } catch (error) {
+          logger.error(`Errore invio conferma per il biglietto emesso da admin ${b.numberOfTickets}`, error);
+        }
+      }
+    }
+    return { bookings: books.map((b) => b.numberOfTickets), userId, guest: userId.startsWith("guest:") };
+  }
+
+  /** Collega all'account i biglietti emessi dall'admin alla sua mail quando non era registrato. */
+  async claimGuestBookings(userId: string) {
+    try {
+      if (!/^[a-f0-9]{24}$/i.test(String(userId))) return 0;
+      const user: any = await this.userServices.getUserById(String(userId));
+      if (!user?.email || user.role === role.NO_PERMISSION) return 0;
+      const claimed = await this.bookingDao.claimGuestBookings(BookingsServices.guestUserId(user.email), String(user._id));
+      if (claimed > 0) logger.info(`Collegati ${claimed} biglietti ospite all'account ${user.email}`);
+      return claimed;
+    } catch (error) {
+      logger.error(`Errore collegamento biglietti ospite per ${userId}`, error);
+      return 0;
+    }
+  }
+
   async removeExpiredPendingBookings() {
     return await this.bookingDao.removeExpiredPendingBookings();
   }
@@ -265,11 +373,13 @@ class BookingsServices {
     return await this.bookingDao.readBookingConfirmed(date, routeId, scheduleId, status);
   }
   async getBookingFromUser(userId: string, includeAllStatus: boolean = false) {
+    await this.claimGuestBookings(userId);
     const list = await this.bookingDao.getBookingFromUser(userId, includeAllStatus);
     // Flag `paid` sempre calcolato e garantito lato server per ogni booking
     return (list || []).map((book: any) => ({ ...book, paid: computePaid(book) }));
   }
-  async checkPriceAndTime(ticket: any) {
+  /** `skipCutoff`: l'admin puo' emettere biglietti anche a ridosso della partenza (mai per giorni passati). */
+  async checkPriceAndTime(ticket: any, opts: { skipCutoff?: boolean } = {}) {
     let totale = ticket.total;
     let newTotale = 0;
     let count = 0;
@@ -285,7 +395,7 @@ class BookingsServices {
     if (route && route.enabled) {
       let schedule = route.schedules.find((s: any) => s.id == ticket.scheduleId);
       if (schedule && schedule.status == "active") {
-        if (new Date(day).setHours(0, 0, 0, 0) == new Date().setHours(0, 0, 0, 0)) {
+        if (!opts.skipCutoff && new Date(day).setHours(0, 0, 0, 0) == new Date().setHours(0, 0, 0, 0)) {
           if (new Date(schedule.startDate).getTime() <= new Date(day).getTime() && new Date(schedule.endDate).getTime() >= new Date(day).getTime()) {
             let t = schedule.departureTime.split(":");
             let time = parseInt(t[0]) * 60 + parseInt(t[1]) - 120;

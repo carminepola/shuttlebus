@@ -94,6 +94,11 @@ export class SidebarComponent implements OnInit {
       route: '/admin/prenotazioni',
     },
     {
+      icon: 'fa-ticket',
+      title: 'Emetti biglietto',
+      route: '/admin/emetti-biglietto',
+    },
+    {
       icon: 'fa-calendar-days',
       title: 'Fogli Presenze',
       route: '/admin/presenze',

@@ -11,6 +11,7 @@ import { StopsComponent } from './pages/stops/stops.component';
 import { StopDetailsComponent } from './pages/stop-details/stop-details.component';
 import { RouteComponent } from './pages/route/route.component';
 import { ReservationComponent } from './pages/reservation/reservation.component';
+import { AdminNewTicketComponent } from './pages/admin-new-ticket/admin-new-ticket.component';
 import { TicketsTypeComponent } from './pages/tickets-type/tickets-type.component';
 import { UsersComponent } from './pages/users/users.component';
 import { ClientsComponent } from './pages/clients/clients.component';
@@ -240,6 +241,12 @@ export const routes: Routes = [
       {
         path: 'prenotazioni',
         component: ReservationComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'emetti-biglietto',
+        component: AdminNewTicketComponent,
         canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },

@@ -829,6 +829,13 @@ export default class BookingsDAO {
   async readAllByPaymentIntentId(paymentIntentId: string) {
     return this.db.collection("bookings").find({ paymentIntentId }).toArray();
   }
+  /** Sposta i biglietti `guest:<mail>` sull'account appena registrato con quella mail. */
+  async claimGuestBookings(guestUserId: string, userId: string): Promise<number> {
+    const result = await this.db
+      .collection("bookings")
+      .updateMany({ userId: guestUserId }, { $set: { userId, "user.id": userId, updatedAt: new Date().getTime() } });
+    return result.modifiedCount;
+  }
   async updatePaymentInfo(type: string, other: any, numberOfTickets: string) {
     return this.db.collection("bookings").updateOne({ numberOfTickets }, { $set: { paymentMethod: type, other: other, updatedAt: new Date().getTime() } });
   }

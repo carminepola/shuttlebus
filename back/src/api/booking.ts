@@ -65,6 +65,17 @@ router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USE
   }
 });
 
+// Emissione biglietto da pannello admin per un cliente registrato o solo nome + mail
+router.post("/admin/createBooking", authMiddleware, checkPermissionMiddleware(role.ADMIN, []), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    const result = await bookingServices.adminCreateBooking(req.body, res.locals.userLogged);
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post(
   "/readBookingConfirmed",
   authMiddleware,

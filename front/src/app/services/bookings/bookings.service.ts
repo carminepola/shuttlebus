@@ -24,6 +24,15 @@ export class BookingsService {
       bagagli: bagagli,
     });
   }
+  /** Emissione da pannello admin: customer = { userId } oppure { name, email, phone? }. */
+  adminCreateBooking(data: {
+    ticket: any;
+    customer: { userId?: string; name?: string; email?: string; phone?: string };
+    paymentMode: 'cash' | 'free';
+    sendMail: boolean;
+  }): Observable<any> {
+    return this.http.post(this.apiUrl + '/admin/createBooking', data);
+  }
   insertBooking(ticket: any): Observable<any> {
     return this.http.post(this.apiUrl + '/insertBooking', ticket);
   }
