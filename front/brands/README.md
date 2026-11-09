@@ -40,6 +40,14 @@ brands/<brand>/
 
 - **Palette:** `colors.primary` e `colors.secondary` hanno le tonalità 50…950. `primaryShade` e
   `secondaryShade` indicano quale tonalità è il colore principale (`$primary` e `$secondary` di Bootstrap).
+- **Colori extra (facoltativi):** `colors.extra` contiene i colori con un ruolo preciso. Se mancano,
+  vengono ricavati dalla palette.
+  - `map-marker`: segnaposto delle fermate sulle mappe;
+  - `highlight`: decorazioni di sfondo e fumetto della barra in basso;
+  - `secondary-hover`: hover dei pulsanti col colore secondario;
+  - `icon`: icone evidenziate.
+
+  Nel CSS sono `var(--brand-<nome>)`, nel TypeScript `BRAND.colors.extra['<nome>']`.
 - **Contatti e social:** sono facoltativi. Se mancano, i link (WhatsApp, Facebook, …) non vengono mostrati.
 - **`forbiddenTerms`:** parole che non devono mai comparire nel codice, come nome, P.IVA o telefoni.
   Le usa `npm run check:brand`.

@@ -9,6 +9,12 @@
   "colors": {
     "theme": "#194295",
     "background": "#ffffff",
+    "extra": {
+      "map-marker": "#e83e8c",
+      "highlight": "#e05790",
+      "secondary-hover": "#d42068",
+      "icon": "#f52b74"
+    },
     "primaryShade": 950,
     "secondaryShade": 600,
     "primary": {

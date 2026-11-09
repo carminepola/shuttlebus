@@ -32,7 +32,9 @@ function rulesFor(brand) {
   } catch {}
   if (brand.contacts?.email) add('mail di contatto', new RegExp(escape(brand.contacts.email), 'i'));
   for (const url of Object.values(brand.social || {})) if (url) add('profilo social', new RegExp(escape(url.replace(/\/$/, '')), 'i'));
-  const colors = new Set([brand.colors.theme, ...Object.values(brand.colors.primary), ...Object.values(brand.colors.secondary)].map((c) => c.toLowerCase()));
+  const colors = new Set(
+    [brand.colors.theme, ...Object.values(brand.colors.primary), ...Object.values(brand.colors.secondary), ...Object.values(brand.colors.extra || {})].map((c) => c.toLowerCase()),
+  );
   for (const hex of colors) {
     add(`colore ${hex}`, new RegExp(`${escape(hex)}(?![0-9a-f])`, 'i'));
     const [r, g, b] = hexToRgb(hex);

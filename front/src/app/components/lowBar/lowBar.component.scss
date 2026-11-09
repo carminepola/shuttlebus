@@ -89,7 +89,7 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 10011;
-  background: #e05790;
+  background: var(--brand-highlight);
   color: #fff;
   border-radius: 16px;
   padding: 16px 20px;
@@ -109,7 +109,7 @@
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-  border-top: 10px solid #e05790;
+  border-top: 10px solid var(--brand-highlight);
 }
 
 .tour-popover-title {

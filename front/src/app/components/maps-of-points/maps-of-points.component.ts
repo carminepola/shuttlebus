@@ -16,6 +16,7 @@ import { StopsService } from '../../services/stops/stops.service';
 import { MomapService } from '../../services/momap.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { lastValueFrom } from 'rxjs';
+import { BRAND } from '../../../brand';
 
 const REFRESH_MS = 30000;
 // Oltre questa distanza (es. primo caricamento, scheda rimasta in background) si salta.
@@ -37,7 +38,7 @@ const BUS_ARROW_SVG = `
 const STOP_PIN_SVG = `
   <svg viewBox="0 0 32 32" width="100%" height="100%" aria-hidden="true">
     <path d="M16 1C9.9 1 5 5.8 5 11.8 5 20 16 31 16 31s11-11 11-19.2C27 5.8 22.1 1 16 1z"
-      fill="#e83e8c" stroke="#fff" stroke-width="2"/>
+      fill="${BRAND.colors.extra['map-marker']}" stroke="#fff" stroke-width="2"/>
     <circle cx="16" cy="12" r="4.5" fill="#fff"/>
   </svg>`;
 

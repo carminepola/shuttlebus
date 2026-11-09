@@ -33,6 +33,21 @@ export const REQUIRED_ASSETS = [
 ];
 const SHADES = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
 const HEX = /^#[0-9a-fA-F]{6}$/;
+/**
+ * Colori "extra" del brand (oltre alle palette), ognuno con il ruolo nel front.
+ * Facoltativi in brand.json: se mancano si ricavano dalla palette del brand.
+ */
+export const EXTRA_COLORS = {
+  'map-marker': { use: 'segnaposto delle fermate sulle mappe', fallback: (c) => c.secondary[String(c.secondaryShade)] },
+  highlight: { use: 'decorazioni di sfondo e fumetto della barra in basso', fallback: (c) => c.secondary['500'] },
+  'secondary-hover': { use: 'hover dei pulsanti col colore secondario', fallback: (c) => c.secondary['700'] },
+  icon: { use: 'icone evidenziate', fallback: (c) => c.secondary[String(c.secondaryShade)] },
+};
+
+/** Colori extra completi: valori del brand.json o ricavati dalla palette. */
+export function extraColors(colors) {
+  return Object.fromEntries(Object.entries(EXTRA_COLORS).map(([k, d]) => [k, colors.extra?.[k] || d.fallback(colors)]));
+}
 
 function fail(msg) {
   console.error(`\n[brand] ERRORE: ${msg}\n`);
@@ -76,6 +91,10 @@ function validate(b, dir) {
   for (const p of ['primary', 'secondary']) {
     for (const s of SHADES) if (!HEX.test(c[p]?.[s] || '')) errors.push(`colors.${p}.${s} non e' un colore #rrggbb`);
     if (!SHADES.includes(String(c[`${p}Shade`]))) errors.push(`colors.${p}Shade deve essere una tonalita' (${SHADES.join(', ')})`);
+  }
+  for (const [k, v] of Object.entries(c.extra || {})) {
+    if (!(k in EXTRA_COLORS)) errors.push(`colors.extra.${k} sconosciuto (validi: ${Object.keys(EXTRA_COLORS).join(', ')})`);
+    else if (!HEX.test(v)) errors.push(`colors.extra.${k} non e' un colore #rrggbb`);
   }
   if (!Array.isArray(b.companyInfo)) errors.push('companyInfo deve essere una lista di paragrafi');
   if (!b.images?.busStatus || !b.images?.aboutAlt) errors.push('images.busStatus / images.aboutAlt mancanti');
@@ -121,6 +140,7 @@ function apply() {
   // forbiddenTerms serve solo a check-brand; le chiavi "$..." sono commenti nel JSON
   const { forbiddenTerms, ...rest } = brand;
   const publicBrand = Object.fromEntries(Object.entries(rest).filter(([k]) => !k.startsWith('$')));
+  publicBrand.colors = { ...publicBrand.colors, extra: extraColors(brand.colors) };
 
   writeIfChanged(
     path.join(SRC, 'brand', 'brand.ts'),
@@ -135,7 +155,8 @@ function apply() {
       `$brand-secondary-palette: ${scssMap(c.secondary)};\n` +
       `$brand-primary-shade: ${c.primaryShade};\n` +
       `$brand-secondary-shade: ${c.secondaryShade};\n` +
-      `$brand-theme-color: ${c.theme};\n`,
+      `$brand-theme-color: ${c.theme};\n` +
+      `$brand-extra-colors: (\n${Object.entries(extraColors(c)).map(([k, v]) => `  "${k}": ${v},`).join('\n')}\n);\n`,
   );
 
   const values = {

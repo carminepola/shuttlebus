@@ -93,7 +93,7 @@
   height: 12px;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
-  background: #e83e8c;
+  background: var(--brand-map-marker);
   border: 2px solid #fff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
 }

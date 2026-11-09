@@ -4,6 +4,7 @@
 @use "sass:math";
 
 @use "./custom_variables" as *;
+@use "./brand/brand" as brand;
 @use "bootstrap/scss/bootstrap" as bootstrap with (
   $white: $white,
   $black: $black,
@@ -58,6 +59,10 @@
   --brand-primary-rgb: #{brand-rgb($primary)};
   --brand-secondary: #{$secondary};
   --brand-secondary-rgb: #{brand-rgb($secondary)};
+  @each $name, $c in brand.$brand-extra-colors {
+    --brand-#{$name}: #{$c};
+    --brand-#{$name}-rgb: #{brand-rgb($c)};
+  }
 }
 
 body {
@@ -126,7 +131,7 @@ body {
   top: 0;
   left: 0;
   overflow: hidden;
-  fill: #e05790;
+  fill: var(--brand-highlight);
   width: 20vmax;
   z-index: -1;
   animation: move 20s ease-in-out infinite;

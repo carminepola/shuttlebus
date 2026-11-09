@@ -28,6 +28,8 @@ export interface Brand {
     secondaryShade: number;
     primary: Palette;
     secondary: Palette;
+    /** Colori con un ruolo specifico (map-marker, highlight, ...): vedi EXTRA_COLORS in scripts/apply-brand.mjs. */
+    extra: Record<'map-marker' | 'highlight' | 'secondary-hover' | 'icon', string>;
   };
   contacts: {
     phone?: { label: string; href: string };

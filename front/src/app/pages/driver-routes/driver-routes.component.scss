@@ -95,7 +95,7 @@
   z-index: 1;
 
   &:hover {
-    background: #d42068;
+    background: var(--brand-secondary-hover);
     box-shadow: 0 6px 24px rgba(var(--brand-secondary-rgb), 0.5);
     transform: translateY(-1px);
   }
