@@ -168,11 +168,11 @@
                     <div class="small" [class.text-secondary]="selectedTrip !== trip">
                       {{ trip.availableSeats }} posti liberi ·
                       @for (t of trip.ticketTypes; track t.id; let last = $last) {
-                        {{ t.count }}× {{ t.name?.it }} {{ t.cost }}€@if (!last) {, }
+                        {{ t.count }}× {{ t.name?.it }} {{ t.cost | price }}@if (!last) {, }
                       }
                     </div>
                   </div>
-                  <strong>{{ trip.total }}€</strong>
+                  <strong>{{ trip.total | price }}</strong>
                 </button>
               }
             </div>
@@ -208,7 +208,7 @@
             </div>
             <div class="col-12 col-md-3 text-md-end">
               <div class="text-secondary small">Totale</div>
-              <div class="fs-3 fw-bold">{{ total() }}€</div>
+              <div class="fs-3 fw-bold">{{ total() | price }}</div>
             </div>
           </div>
 

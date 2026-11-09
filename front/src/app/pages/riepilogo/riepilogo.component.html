@@ -112,7 +112,7 @@
                           <span >{{ ticket.count }}</span>
                         </div>
                         <div class="ticket-row-price">
-                          {{ ticket.cost * ticket.count }}€
+                          {{ ticket.cost * ticket.count | price }}
                         </div>
                       </div>
                     </div>
@@ -137,7 +137,7 @@
                           <span >{{ leg.luggage }}</span>
                         </div>
                         <div class="ticket-row-price">
-                          {{ luggagePrice * leg.luggage }}€
+                          {{ luggagePrice * leg.luggage | price }}
                         </div>
                       </div>
                     </div>
@@ -153,7 +153,7 @@
                   </div>
                   <div class="ticket-total-right">
                     <span class="ticket-total-value purchase-total">{{
-                      leg.total
+                      leg.total | price: false
                     }}</span>
                     <span class="ticket-total-currency">€</span>
                   </div>
@@ -168,7 +168,7 @@
                     <span class="ticket-total-label">{{ lngService.traslateOr("str_totale_andata_ritorno", "Totale andata e ritorno") }}</span>
                   </div>
                   <div class="ticket-total-right">
-                    <span class="ticket-total-value purchase-total">{{ grandTotal }}</span>
+                    <span class="ticket-total-value purchase-total">{{ grandTotal | price: false }}</span>
                     <span class="ticket-total-currency">€</span>
                   </div>
                 </div>
@@ -279,7 +279,7 @@
                     "
                     (click)="bookNow()"
                   >
-                    <span class="purchase-total">{{ grandTotal }}€</span>
+                    <span class="purchase-total">{{ grandTotal | price }}</span>
                     <span [innerText]="'str_acquista' | translate"></span>
                   </button>
                 </div>
@@ -386,7 +386,7 @@
                       class="purchase-btn active w-100"
                     >
                       @if (!checkoutLoginLoading) {
-                        <span class="purchase-total">{{ grandTotal }}€</span>
+                        <span class="purchase-total">{{ grandTotal | price }}</span>
                         <span [innerText]="'str_acquista' | translate"></span>
                       }
                       @if (checkoutLoginLoading) {

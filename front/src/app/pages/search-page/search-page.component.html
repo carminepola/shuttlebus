@@ -1,11 +1,35 @@
 <div class="container topspace pt-2">
   <app-title-page back="true" class="toppad"> </app-title-page>
   <app-step-indicator [steps]="funnelSteps" [current]="1"></app-step-indicator>
-  <div class="search-bar-card rounded-4">
-    <div class="card-body py-3 px-4">
-      <app-search [ricerca]="ricercaFind"></app-search>
+  @if (showSearch) {
+    <div class="search-bar-card rounded-4">
+      <div class="card-body py-3 px-4">
+        <app-search [ricerca]="ricercaFind"></app-search>
+      </div>
     </div>
-  </div>
+  } @else {
+    <!-- Riassunto compatto: su mobile il form completo spingeva i risultati sotto la piega -->
+    <div class="search-summary rounded-4">
+      <div class="search-summary-text">
+        <div class="search-summary-route">
+          <span>{{ stopName(ricerca.partenza) }}</span>
+          <i class="fa-solid" [class.fa-arrow-right]="!andataRitorno" [class.fa-arrow-right-arrow-left]="andataRitorno"></i>
+          <span>{{ stopName(ricerca.arrivo) }}</span>
+        </div>
+        <div class="search-summary-details">
+          <span><i class="fa-regular fa-calendar"></i>{{ ricerca.data | date: "EEE d MMM" }}@if (andataRitorno) { – {{ ricerca.ritorno | date: "EEE d MMM" }}}</span>
+          <span><i class="fa-solid fa-user"></i>{{ ricerca.persone }}</span>
+          @if (ricerca.bagagli > 0) {
+            <span><i class="fa-solid fa-suitcase-rolling"></i>{{ ricerca.bagagli }}</span>
+          }
+        </div>
+      </div>
+      <button type="button" class="search-summary-edit" (click)="showSearch = true">
+        <i class="fa-solid fa-pen"></i>
+        <span>{{ lngService.traslateOr("str_modifica_ricerca", "Modifica") }}</span>
+      </button>
+    </div>
+  }
 </div>
 
 <div class="container" style="min-height: 50vh" id="search-result">
@@ -43,6 +67,7 @@
             {{ lngService.traslateOr("str_andata", "Andata") }}
           </h4>
         }
+        <div class="results-date">{{ ricerca.data | date: "EEEE d MMMM" }}</div>
         <span class="results-count"
           >{{ params.length }}
           {{
@@ -66,6 +91,7 @@
             <i class="fa-solid fa-arrow-left me-2"></i>
             {{ lngService.traslateOr("str_ritorno", "Ritorno") }}
           </h4>
+          <div class="results-date">{{ ricerca.ritorno | date: "EEEE d MMMM" }}</div>
           @if (returnParams.length > 0) {
             <span class="results-count"
               >{{ returnParams.length }}
@@ -120,7 +146,7 @@
             (click)="acquistaAndataRitorno()"
           >
             @if (selectedOutbound && selectedReturn) {
-              <span class="purchase-total">{{ roundTripTotal }}€</span>
+              <span class="purchase-total">{{ roundTripTotal | price }}</span>
             }
             <span class="purchase-action">{{ "str_acquista" | translate }}</span>
             <i class="fa-solid fa-arrow-right ms-2"></i>
@@ -133,138 +159,58 @@
 
 <ng-template #routeCard let-param let-leg="leg">
   <div
-    class="route-card rounded-4 mb-4"
+    class="route-card rounded-4 mb-3"
     [class.route-card-selected]="isSelected(param, leg)"
     [class.route-card-disabled]="leg === 'return' && isReturnBeforeOutbound(param)"
     @fadeInOut
   >
-    <div class="route-card-header">
-      <div class="route-info-left">
-        <h5
-          class="route-name mb-1"
-          >{{ param.name | translateName }}
-</h5>
-        <div class="route-date text-secondary">
-          <i class="fa-regular fa-calendar me-1"></i>
-          {{ param.date | date: "dd MMMM yyyy" }}
+    <div class="trip-main">
+      <div class="trip-times">
+        <div class="trip-point">
+          <span class="trip-time">{{ param.from.stopTime }}</span>
+          <span class="trip-stop">{{ param.from.name }}</span>
+        </div>
+        <div class="trip-mid">
+          <span class="trip-duration">{{ formatDuration(param.durationMin) }}</span>
+          <div class="trip-line"><i class="fa-solid fa-bus"></i></div>
+        </div>
+        <div class="trip-point trip-point-end">
+          <span class="trip-time">{{ param.to.stopTime }}</span>
+          <span class="trip-stop">{{ param.to.name }}</span>
         </div>
       </div>
-      <div class="route-availability d-none d-lg-flex gap-3">
-        <div class="availability-badge">
-          <i class="fa-solid fa-user me-1"></i>
-          {{ param.availableSeats }} {{ "str_seats" | translate }}
-        </div>
-        <div class="availability-badge">
-          <i class="fa-solid fa-suitcase-rolling me-1"></i>
-          {{ param.availableLuggage }} {{ "str_baggage" | translate }}
-        </div>
-      </div>
-    </div>
-
-    <div class="route-card-body">
-      <div class="route-timeline">
-        <div class="timeline-point departure">
-          <div class="timeline-dot"></div>
-          <div
-            class="timeline-time"
-            >{{ param.from.stopTime }}
-</div>
-          <div class="timeline-label" >{{ param.from.name }}</div>
-          <div
-            class="timeline-desc"
-            >{{ param.from.description | translateName }}
-</div>
-        </div>
-        <div class="timeline-line">
-          <div class="timeline-line-inner"></div>
-          <i class="fa-solid fa-bus timeline-icon"></i>
-        </div>
-        <div class="timeline-point arrival">
-          <div class="timeline-dot"></div>
-          <div
-            class="timeline-time"
-            >{{ param.to.stopTime }}
-</div>
-          <div class="timeline-label" >{{ param.to.name }}</div>
-          <div
-            class="timeline-desc"
-            >{{ param.to.description | translateName }}
-</div>
-        </div>
-      </div>
-
-      <hr class="route-divider" />
-
-      <div class="route-availability-mobile d-flex d-lg-none gap-3 mb-3">
-        <div class="availability-badge">
-          <i class="fa-solid fa-user me-1"></i>
-          {{ param.availableSeats }} {{ "str_seats" | translate }}
-        </div>
-        <div class="availability-badge">
-          <i class="fa-solid fa-suitcase-rolling me-1"></i>
-          {{ param.availableLuggage }} {{ "str_baggage" | translate }}
-        </div>
-      </div>
-
-      <div class="tickets-summary-section">
-        <div class="tickets-label mb-2">
-          <i class="fa-solid fa-ticket me-1 text-primary"></i>
-          <span
-            class="fst-italic"
-            >{{ 
-              'str_seleziona_biglietti_per_acquisto' | translate
-             }}
-</span>
-        </div>
-
-        <div class="tickets-summary">
-          @for (
-            ticket of param.ticketTypes;
-            track ticket;
-            let i = $index
-          ) {
-            @if (ticket.count > 0) {
-              <div class="summary-row">
-                <span class="summary-info">
-                  <span class="summary-count">{{ ticket.count }}x</span>
-                  <span
-                    class="summary-name"
-                    >{{ ticket.name | translateName }}
-</span>
-                </span>
-                <span class="summary-price"
-                  >{{ ticket.count * ticket.cost }}€</span
-                >
-              </div>
-            }
-          }
-          @if (ricerca.bagagli > 0) {
-            <div class="summary-row summary-row-luggage">
-              <span class="summary-info">
-                <span class="summary-count"
-                  ><i class="fa-solid fa-suitcase me-1"></i
-                  >{{ ricerca.bagagli }}x</span
-                >
-                <span
-                  class="summary-name"
-                  >{{ 'str_bagagli_aggiuntivi' | translate }}
-</span>
-              </span>
-               <span class="summary-price"
-                 >{{ ricerca.bagagli * luggagePrice }}€</span
-              >
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="route-card-footer">
-      <div class="selected-info">
-        @if (param.seats > 0) {
-          <span class="seats-selected">
-            {{ param.seats }} {{ "str_seats" | translate }}
+      <div class="trip-meta">
+        <span class="trip-route-name">{{ param.name | translateName }}</span>
+        @if (param.availableSeats <= lowSeats) {
+          <span class="seats-badge seats-badge-low">
+            <i class="fa-solid fa-fire"></i>
+            {{ lngService.traslateOr("str_ultimi_posti", "Ultimi") }} {{ param.availableSeats }} {{ "str_seats" | translate }}
           </span>
+        } @else {
+          <span class="seats-badge">
+            <i class="fa-solid fa-user"></i>
+            {{ param.availableSeats }} {{ lngService.traslateOr("str_posti_liberi", "posti liberi") }}
+          </span>
+        }
+        @if (ricerca.bagagli > 0) {
+          <span class="seats-badge">
+            <i class="fa-solid fa-suitcase-rolling"></i>
+            {{ param.availableLuggage }} {{ "str_baggage" | translate }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="trip-buy">
+      <!-- cosa comprende il prezzo (il dettaglio con i prezzi unitari e' nel riepilogo) -->
+      <div class="trip-includes">
+        @for (ticket of param.ticketTypes; track ticket.id) {
+          @if (ticket.count > 0) {
+            <span>{{ ticket.count }} {{ ticket.name | translateName }}</span>
+          }
+        }
+        @if (ricerca.bagagli > 0) {
+          <span>{{ ricerca.bagagli }} {{ ricerca.bagagli === 1 ? lngService.traslateOr("str_bagaglio", "bagaglio") : ("str_baggage" | translate) }}</span>
         }
       </div>
       @if (leg) {
@@ -275,7 +221,7 @@
           [disabled]="param.seats === 0 || (leg === 'return' && isReturnBeforeOutbound(param))"
           (click)="leg === 'outbound' ? selectOutbound(param) : selectReturn(param)"
         >
-          <span class="purchase-total">{{ param.total }}€</span>
+          <span class="purchase-total">{{ param.total | price }}</span>
           @if (isSelected(param, leg)) {
             <i class="fa-solid fa-check ms-1"></i>
             <span class="purchase-action">{{ lngService.traslateOr("str_selezionata", "Selezionata") }}</span>
@@ -290,15 +236,9 @@
           [disabled]="param.seats === 0"
           (click)="acquista(param)"
         >
-          @if (param.seats > 0) {
-            <span class="purchase-total">{{ param.total }}€</span>
-            <span class="purchase-action">{{
-              "str_acquista" | translate
-            }}</span>
-            <i class="fa-solid fa-arrow-right ms-2"></i>
-          } @else {
-            <span >{{ 'str_acquista' | translate }}</span>
-          }
+          <span class="purchase-total">{{ param.total | price }}</span>
+          <span class="purchase-action">{{ "str_acquista" | translate }}</span>
+          <i class="fa-solid fa-arrow-right ms-1"></i>
         </button>
       }
     </div>

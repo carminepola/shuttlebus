@@ -13,6 +13,7 @@ import { UserService } from '../../services/user/user.service';
 import { LUGGAGE_PRICE } from '../../constants/app.constants';
 import { resolveFarePrice } from '../../utils/fares';
 import { daysLabel, isTicketTypeValidOn } from '../../utils/ticket-days';
+import { PricePipe } from '../../pipe/price.pipe';
 
 /**
  * Emissione di un biglietto dal pannello admin per un cliente registrato
@@ -20,7 +21,7 @@ import { daysLabel, isTicketTypeValidOn } from '../../utils/ticket-days';
  */
 @Component({
   selector: 'app-admin-new-ticket',
-  imports: [TitlePageComponent, LoadingComponent, FormsModule],
+  imports: [PricePipe, TitlePageComponent, LoadingComponent, FormsModule],
   animations: [fadeAnimation],
   templateUrl: './admin-new-ticket.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

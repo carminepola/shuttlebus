@@ -26,12 +26,13 @@ import { MfaChallengeComponent } from '../../components/mfa-challenge/mfa-challe
 import { LngService } from '../../services/lng/lng.service';
 import { LUGGAGE_PRICE } from '../../constants/app.constants';
 import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
+import { PricePipe } from '../../pipe/price.pipe';
 
 declare var bootstrap: any;
 
 @Component({
   selector: 'app-riepilogo',
-  imports: [
+  imports: [PricePipe, 
     LoadingComponent,
     TranslatePipe,
     TranslateNamePipe,

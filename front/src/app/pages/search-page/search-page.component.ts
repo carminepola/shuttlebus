@@ -21,9 +21,10 @@ import { LUGGAGE_PRICE } from '../../constants/app.constants';
 import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
 import { resolveFarePrice } from '../../utils/fares';
 import { isTicketTypeValidOn } from '../../utils/ticket-days';
+import { PricePipe } from '../../pipe/price.pipe';
 @Component({
   selector: 'app-search-page',
-  imports: [
+  imports: [PricePipe, 
     LoadingComponent,
     SearchComponent,
     TitlePageComponent,
@@ -69,6 +70,11 @@ export class SearchPageComponent implements OnInit {
   public returnParams: any = [];
   public selectedOutbound: any = null;
   public selectedReturn: any = null;
+  // Form di ricerca completo aperto (altrimenti riassunto compatto + "Modifica")
+  public showSearch = false;
+  public stops: any[] = [];
+  /** Sotto questa soglia di posti liberi la corsa mostra "Ultimi N posti". */
+  public readonly lowSeats = 5;
 
   constructor(
     private routesService: RoutesService,
@@ -93,6 +99,8 @@ export class SearchPageComponent implements OnInit {
         this.ricerca.bagagli = parseInt(qParams['bagagli']) || 0;
         this.ticketSelections = JSON.parse(qParams['tickets'] || '{}');
         this.params = [];
+        // nuova ricerca: si torna al riassunto compatto (form aperto solo se manca la tratta)
+        this.showSearch = !this.ricerca.partenza || !this.ricerca.arrivo;
         this.ricercaFind = {
           partenza: this.ricerca.partenza,
           arrivo: this.ricerca.arrivo,
@@ -138,6 +146,7 @@ export class SearchPageComponent implements OnInit {
     let risStops = await lastValueFrom(this.stopsService.getAllActiveStops());
     const ticketTypes = risTicketTypes.ticketType;
     const stops = risStops.stops;
+    this.stops = stops || [];
     const routes = risRoutes.routes;
 
     const [outbound, inbound] = await Promise.all([
@@ -185,7 +194,7 @@ export class SearchPageComponent implements OnInit {
 
         let from: any = stops.find((t: any) => t.id === fromId);
         let to: any = stops.find((t: any) => t.id === toId);
-        let info = {
+        let info: any = {
           date: date,
           routeId: res[i].routeId,
           scheduleId: res[i].scheduleId,
@@ -246,6 +255,7 @@ export class SearchPageComponent implements OnInit {
           0,
         );
         info.total = Math.round(info.total * 100) / 100;
+        info.durationMin = this.minutesBetween(info.from.stopTime, info.to.stopTime);
         info.seats = info.ticketTypes.reduce(
           (sum: number, t: any) => sum + t.count,
           0,
@@ -283,7 +293,32 @@ export class SearchPageComponent implements OnInit {
       });
     }
 
+    // corse in ordine di partenza
+    params.sort((a: any, b: any) => (a.from.stopTime || '').localeCompare(b.from.stopTime || ''));
     return params;
+  }
+
+  private minutesBetween(from?: string, to?: string): number | null {
+    const toMin = (t?: string) => {
+      const m = /^(\d{1,2}):(\d{2})/.exec(t || '');
+      return m ? +m[1] * 60 + +m[2] : null;
+    };
+    const a = toMin(from);
+    const b = toMin(to);
+    if (a === null || b === null) return null;
+    return b >= a ? b - a : b + 24 * 60 - a; // arrivo dopo mezzanotte
+  }
+
+  /** "2 h 40 min", "45 min" */
+  formatDuration(min: number | null | undefined): string {
+    if (min === null || min === undefined) return '';
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return h > 0 ? `${h} h${m ? ` ${m} min` : ''}` : `${m} min`;
+  }
+
+  stopName(id: string): string {
+    return this.stops.find((s: any) => s.id === id)?.name || '';
   }
 
   /** Stesso giorno: il ritorno non puo' partire prima dell'arrivo dell'andata. */
@@ -337,6 +372,7 @@ export class SearchPageComponent implements OnInit {
     delete param['from']['image'];
     delete param['availableSeats'];
     delete param['availableLuggage'];
+    delete param['durationMin'];
     return param;
   }
 
