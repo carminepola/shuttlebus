@@ -8,10 +8,11 @@ import PaymentsDAO from "../dao/paymentsDao";
 import stripeServices from "./stripeServices";
 import TicketTypeServices from "./ticketTypeServices";
 import RoutesServices from "./routesServices";
-import { resolveFarePrice } from "../../utils/fares";
+import { resolveFarePrice, resolveLuggagePrice } from "../../utils/fares";
 import { isTicketTypeValidOn } from "../../utils/ticketDays";
 import StripeCustomersDao from "../dao/stripeCustomersDao";
 import { logger } from "../../index";
+import { LUGGAGE_PRICE_KEY } from "../../constants";
 
 class PaymentServices {
   private paymentDao: PaymentsDAO;
@@ -48,6 +49,8 @@ class PaymentServices {
         if (!isTicketTypeValidOn(t, leg.date)) continue;
         map[t.id] = resolveFarePrice(route, leg.from?.id, leg.to?.id, t);
       }
+      // prezzo del bagaglio della corsa (chiave riservata, non e' un id di ticket type)
+      map[LUGGAGE_PRICE_KEY] = resolveLuggagePrice(route?.schedules?.find((s: any) => s.id === leg.scheduleId));
       result.push(map);
     }
     return result;

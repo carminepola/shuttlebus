@@ -3,7 +3,8 @@ import { RouteDAO } from "../dao/routeDao";
 import { Route, Stop, Schedule, ScheduleStop } from "../../model/routesModel";
 import ErrorModel from "../../model/errorModel";
 import { Guid } from "guid-typescript";
-import { sanitizeFares } from "../../utils/fares";
+import { sanitizeFares, sanitizeLuggagePrice } from "../../utils/fares";
+import { LUGGAGE_PRICE } from "../../constants";
 
 export default class RoutesServices {
   private routeDao: RouteDAO;
@@ -52,10 +53,23 @@ export default class RoutesServices {
   insertSchedule(schedule: Partial<Schedule>, routeId: string) {
     schedule.id = Guid.create().toString();
     schedule.status = "active";
+    schedule.luggagePrice = this.checkLuggagePrice(schedule.luggagePrice) ?? LUGGAGE_PRICE;
     return this.routeDao.insertSchedule(schedule, routeId);
   }
   updateSchedule(scheduleId: string, schedule: Partial<Schedule>, routeId: string) {
+    if (schedule && "luggagePrice" in schedule) {
+      const price = this.checkLuggagePrice(schedule.luggagePrice);
+      if (price === undefined) delete schedule.luggagePrice;
+      else schedule.luggagePrice = price;
+    }
     return this.routeDao.updateSchedule(scheduleId, schedule, routeId);
+  }
+  /** undefined se non indicato; errore 400 se indicato ma non valido. */
+  private checkLuggagePrice(value: any): number | undefined {
+    if (value === undefined || value === null || value === "") return undefined;
+    const price = sanitizeLuggagePrice(value);
+    if (price === null) throw new ErrorModel(400, "Prezzo bagaglio non valido");
+    return price;
   }
   getRoutesToDay() {
     return this.routeDao.routesToDay();

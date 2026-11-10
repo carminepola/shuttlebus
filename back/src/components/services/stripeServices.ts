@@ -2,7 +2,7 @@ import { env, logger } from "../../index";
 import { TicketType } from "../../model/bookFromSiteModel";
 import booking from "../../model/bookFromSiteModel";
 import StripeInstance from "../../stripe";
-import { LUGGAGE_PRICE } from "../../constants";
+import { LUGGAGE_PRICE_KEY } from "../../constants";
 
 type SupportedLng = "it" | "en" | "fr" | "de" | "es" | "jp";
 
@@ -63,6 +63,10 @@ class StripeServices {
         }
 
         if (leg.luggage > 0) {
+          const luggagePrice = dbPrices?.[legIndex]?.[LUGGAGE_PRICE_KEY];
+          if (luggagePrice === undefined || luggagePrice === null) {
+            throw new Error("Prezzo bagaglio assente: sessione di pagamento bloccata");
+          }
           items.push({
             price_data: {
               currency: "eur",
@@ -70,7 +74,7 @@ class StripeServices {
                 name: getStripeLabel("extraLuggage", leg.lng),
                 description: tickets.length > 1 ? `${getStripeLabel("extraLuggageDesc", leg.lng)} • ${name}` : getStripeLabel("extraLuggageDesc", leg.lng),
               },
-              unit_amount: Math.round(LUGGAGE_PRICE * 100),
+              unit_amount: Math.round(luggagePrice * 100),
             },
             quantity: leg.luggage,
           });

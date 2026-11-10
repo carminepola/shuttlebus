@@ -16,6 +16,7 @@ import { StripeService } from '../../services/stripe/stripe.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { FilterPipe } from '../../pipe/filter.pipe';
 import Swal from 'sweetalert2';
+import { LUGGAGE_PRICE as DEFAULT_LUGGAGE_PRICE } from '../../constants/app.constants';
 @Component({
   selector: 'app-reservation',
   imports: [
@@ -73,8 +74,8 @@ export class ReservationComponent implements OnInit {
 
     this.filterButton();
   }
-  rimborsa(numberOfTickets: number, ticket: any[], bagagli: number, total: number) {
-    const LUGGAGE_PRICE = 2;
+  rimborsa(numberOfTickets: number, ticket: any[], bagagli: number, total: number, luggagePrice?: number) {
+    const LUGGAGE_PRICE = typeof luggagePrice === 'number' ? luggagePrice : DEFAULT_LUGGAGE_PRICE;
 
     let ticketRows = '';
     for (const t of ticket) {
@@ -305,6 +306,7 @@ export class ReservationComponent implements OnInit {
         mail: t.user.mail,
         phone: t.user.phone,
         bagagli: t.luggage,
+        luggagePrice: t.luggagePrice,
         refundedAmount: t.refundedAmount || 0,
         refunds: t.refunds || [],
       };

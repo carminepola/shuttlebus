@@ -13,7 +13,7 @@ const router = express.Router();
 import { role } from "../enum/role";
 
 const stripe = StripeInstance.getInstance();
-const LUGGAGE_PRICE = 2;
+import { LUGGAGE_PRICE } from "../constants";
 
 /**
  * Voci rimborsate e testo leggibile ("Ritorno SB... · 2x Adulto, 1x Bagaglio extra"):
@@ -125,7 +125,8 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
           if (refundLuggageCount < 0 || refundLuggageCount > book.luggage) {
             throw new ErrorModel(400, "str_refund_exceeds_luggage");
           }
-          requestedAmount += refundLuggageCount * LUGGAGE_PRICE;
+          // prezzo pagato all'acquisto (booking vecchi: prezzo di default)
+          requestedAmount += refundLuggageCount * (typeof book.luggagePrice === "number" ? book.luggagePrice : LUGGAGE_PRICE);
 
           if (requestedAmount <= 0) {
             throw new ErrorModel(400, "str_refund_no_items");

@@ -71,6 +71,10 @@ export class RiepilogoComponent implements OnInit {
   public hasDuplicateTicket: boolean = false;
   public loading: boolean = true;
   public luggagePrice = LUGGAGE_PRICE;
+  /** Prezzo bagaglio della corsa scelta (lo ricalcola comunque il server). */
+  luggagePriceOf(leg: any): number {
+    return typeof leg?.luggagePrice === 'number' ? leg.luggagePrice : LUGGAGE_PRICE;
+  }
   public funnelSteps = ['str_step_search', 'str_step_select', 'str_step_review', 'str_step_pay'];
   public param: any = {};
   public errorMessage: string = '';

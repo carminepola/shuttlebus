@@ -8,6 +8,8 @@ export default class booking {
   scheduleId: string;
   total: number;
   luggage: number;
+  // Prezzo unitario del bagaglio al momento dell'acquisto (deciso dal server; assente nei booking vecchi)
+  luggagePrice?: number;
   seats: number;
   name: Name;
   from: From;
@@ -51,6 +53,7 @@ export default class booking {
       this.routeId = book.routeId;
       this.total = book.total;
       this.luggage = book.luggage;
+      if (book.luggagePrice !== undefined) this.luggagePrice = book.luggagePrice;
       this.seats = book.seats;
       this.name = book.name;
       this.from = book.from;

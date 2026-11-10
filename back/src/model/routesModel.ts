@@ -40,6 +40,7 @@ interface Schedule {
   daysOfWeek: number[]; // Giorni della settimana in cui è attiva (1 = Lunedì, 7 = Domenica)
   totalSeats: number; // Posti totali disponibili
   availableLuggage: number; // Bagagli opzionali disponibili
+  luggagePrice?: number; // Prezzo del bagaglio opzionale su questa corsa (assente: LUGGAGE_PRICE)
   stops: ScheduleStop[]; // Fermate della corsa con orari
   excludedDates: string[]; // Date in cui la corsa è disabilitata (YYYY-MM-DD)
   extraDates: string[]; // Date in cui la corsa è attiva anche se normalmente disabilitata

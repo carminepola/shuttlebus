@@ -137,7 +137,7 @@
                           <span >{{ leg.luggage }}</span>
                         </div>
                         <div class="ticket-row-price">
-                          {{ luggagePrice * leg.luggage | price }}
+                          {{ luggagePriceOf(leg) * leg.luggage | price }}
                         </div>
                       </div>
                     </div>

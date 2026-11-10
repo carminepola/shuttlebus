@@ -21,6 +21,7 @@ const ROLES = [
   { value: 9999, label: 'NO_PERMISSION' },
 ];
 
+import { bookingLuggagePrice } from '../../utils/fares';
 @Component({
   selector: 'app-clients',
   imports: [
@@ -329,7 +330,7 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   }
 
   async refundBooking(booking: any): Promise<void> {
-    const LUGGAGE_PRICE = 2;
+    const LUGGAGE_PRICE = bookingLuggagePrice(booking);
 
     let ticketRows = '';
     for (const t of booking.ticketTypes) {

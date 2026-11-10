@@ -8,6 +8,7 @@ import { RoutesService } from '../../services/routes/routes.service';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { StopsService } from '../../services/stops/stops.service';
+import { LUGGAGE_PRICE } from '../../constants/app.constants';
 @Component({
   selector: 'app-schedule',
   imports: [
@@ -41,6 +42,7 @@ export class ScheduleComponent implements OnInit {
     arrivalTime: '10:30',
     totalSeats: 50,
     availableLuggage: 20,
+    luggagePrice: LUGGAGE_PRICE,
     stops: [],
     excludedDates: [],
     extraDates: [],
@@ -132,6 +134,10 @@ export class ScheduleComponent implements OnInit {
             this.readRoute.schedules.find(
               (t: any) => t.id === this.idSchedule
             ) || this.form;
+          // corse create prima del prezzo bagaglio per corsa
+          if (typeof this.form.luggagePrice !== 'number') {
+            this.form.luggagePrice = LUGGAGE_PRICE;
+          }
         } else {
           this.readRoute.schedules = [];
         }

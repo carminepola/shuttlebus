@@ -74,3 +74,22 @@ describe("sanitizeFares", () => {
     expect(sanitizeFares(undefined, stops, types)).toEqual([]);
   });
 });
+
+import { resolveLuggagePrice, sanitizeLuggagePrice } from "../src/utils/fares";
+
+describe("prezzo bagaglio per corsa", () => {
+  it("usa il prezzo della corsa o, se assente/non valido, quello di default", () => {
+    expect(resolveLuggagePrice({ luggagePrice: 3.5 })).toBe(3.5);
+    expect(resolveLuggagePrice({ luggagePrice: 0 })).toBe(0);
+    expect(resolveLuggagePrice({})).toBe(2);
+    expect(resolveLuggagePrice({ luggagePrice: -1 })).toBe(2);
+    expect(resolveLuggagePrice(undefined)).toBe(2);
+  });
+
+  it("sanitizeLuggagePrice: numeri >= 0 arrotondati al centesimo", () => {
+    expect(sanitizeLuggagePrice("4.999")).toBe(5);
+    expect(sanitizeLuggagePrice(2.345)).toBe(2.35);
+    expect(sanitizeLuggagePrice(-1)).toBeNull();
+    expect(sanitizeLuggagePrice("abc")).toBeNull();
+  });
+});

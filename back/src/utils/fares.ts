@@ -1,4 +1,5 @@
 import { Fare } from "../model/routesModel";
+import { LUGGAGE_PRICE } from "../constants";
 
 /**
  * Tariffe per tratta (origine -> destinazione). Ogni coppia di fermate della Route
@@ -19,6 +20,17 @@ export function resolveFarePrice(route: any, fromStopId: string | undefined, toS
   const fare = fares.find((f) => f.fromStopId === fromStopId && f.toStopId === toStopId);
   const price = fare?.prices?.[ticketType.id];
   return isValidPrice(price) ? price : ticketType.cost;
+}
+
+/** Prezzo del bagaglio opzionale della corsa (schedule); senza prezzo valido vale LUGGAGE_PRICE. */
+export function resolveLuggagePrice(schedule: any): number {
+  return isValidPrice(schedule?.luggagePrice) ? schedule.luggagePrice : LUGGAGE_PRICE;
+}
+
+/** Prezzo bagaglio inserito dall'admin: numero >= 0 al centesimo, altrimenti null. */
+export function sanitizeLuggagePrice(value: any): number | null {
+  const n = typeof value === "string" && value.trim() !== "" ? Number(value) : value;
+  return isValidPrice(n) ? Math.round(n * 100) / 100 : null;
 }
 
 /**

@@ -17,9 +17,8 @@ import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
-import { LUGGAGE_PRICE } from '../../constants/app.constants';
 import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
-import { resolveFarePrice } from '../../utils/fares';
+import { resolveFarePrice, resolveLuggagePrice } from '../../utils/fares';
 import { isTicketTypeValidOn } from '../../utils/ticket-days';
 import { PricePipe } from '../../pipe/price.pipe';
 @Component({
@@ -44,7 +43,6 @@ import { PricePipe } from '../../pipe/price.pipe';
   styleUrl: './search-page.component.scss',
 })
 export class SearchPageComponent implements OnInit {
-  public luggagePrice = LUGGAGE_PRICE;
   public funnelSteps = ['str_step_search', 'str_step_select', 'str_step_review', 'str_step_pay'];
   public ticketTypes: any[] = [];
   public loading: boolean = true;
@@ -229,8 +227,9 @@ export class SearchPageComponent implements OnInit {
           date: date,
           routeId: res[i].routeId,
           scheduleId: res[i].scheduleId,
-          total: LUGGAGE_PRICE * this.ricerca.bagagli,
+          total: 0,
           luggage: this.ricerca.bagagli,
+          luggagePrice: resolveLuggagePrice(schedule),
           seats: 0,
           availableSeats: res[i].availableSeats || 0,
           availableLuggage: res[i].availableLuggage || 0,
@@ -327,7 +326,7 @@ export class SearchPageComponent implements OnInit {
   /** Totale e posti della corsa dai conteggi dei biglietti e dei bagagli. */
   private recalc(param: any) {
     const tickets = param.ticketTypes.reduce((sum: number, t: any) => sum + t.count * t.cost, 0);
-    param.total = Math.round((tickets + this.luggagePrice * param.luggage) * 100) / 100;
+    param.total = Math.round((tickets + param.luggagePrice * param.luggage) * 100) / 100;
     param.seats = param.ticketTypes.reduce((sum: number, t: any) => sum + t.count, 0);
   }
 

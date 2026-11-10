@@ -10,8 +10,7 @@ import { RoutesService } from '../../services/routes/routes.service';
 import { StopsService } from '../../services/stops/stops.service';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { UserService } from '../../services/user/user.service';
-import { LUGGAGE_PRICE } from '../../constants/app.constants';
-import { resolveFarePrice } from '../../utils/fares';
+import { resolveFarePrice, resolveLuggagePrice } from '../../utils/fares';
 import { daysLabel, isTicketTypeValidOn } from '../../utils/ticket-days';
 import { PricePipe } from '../../pipe/price.pipe';
 
@@ -197,7 +196,7 @@ export class AdminNewTicketComponent implements OnInit {
         cost: resolveFarePrice(route, this.from, this.to, t),
         count: this.selections[t.id],
       }));
-    const total = Math.round((ticketTypes.reduce((s, t) => s + t.cost * t.count, 0) + LUGGAGE_PRICE * this.luggage) * 100) / 100;
+    const total = Math.round((ticketTypes.reduce((s, t) => s + t.cost * t.count, 0) + resolveLuggagePrice(schedule) * this.luggage) * 100) / 100;
     return {
       date: this.date,
       routeId: route.id,

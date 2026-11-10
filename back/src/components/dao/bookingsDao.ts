@@ -1037,7 +1037,7 @@ export default class BookingsDAO {
         {
           $addFields: {
             bookingValue: {
-              $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }],
+              $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }],
             },
           },
         },
@@ -1211,7 +1211,7 @@ export default class BookingsDAO {
               },
             },
             bookingValue: {
-              $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }],
+              $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }],
             },
           },
         },
@@ -1261,7 +1261,7 @@ export default class BookingsDAO {
           {
             $group: {
               _id: null,
-              totalRevenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              totalRevenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
               totalTickets: { $sum: 1 },
             },
           },
@@ -1279,7 +1279,7 @@ export default class BookingsDAO {
           {
             $group: {
               _id: null,
-              totalRevenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              totalRevenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
               totalTickets: { $sum: 1 },
             },
           },
@@ -1319,7 +1319,7 @@ export default class BookingsDAO {
           {
             $group: {
               _id: { $substr: ["$date", 5, 2] },
-              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
               tickets: { $sum: 1 },
               seats: { $sum: "$seats" },
             },
@@ -1338,7 +1338,7 @@ export default class BookingsDAO {
           {
             $group: {
               _id: { $substr: ["$date", 5, 2] },
-              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
               tickets: { $sum: 1 },
               seats: { $sum: "$seats" },
             },
@@ -1426,7 +1426,7 @@ export default class BookingsDAO {
               toName: { $first: "$to.name" },
               bookings: { $sum: 1 },
               seats: { $sum: "$seats" },
-              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
             },
           },
         ])
@@ -1452,7 +1452,7 @@ export default class BookingsDAO {
               toName: { $first: "$to.name" },
               bookings: { $sum: 1 },
               seats: { $sum: "$seats" },
-              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
             },
           },
         ])
@@ -1560,7 +1560,7 @@ export default class BookingsDAO {
               },
               bookings: { $sum: 1 },
               seats: { $sum: "$seats" },
-              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
             },
           },
         ])
@@ -1678,7 +1678,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: "$paymentMethod",
-            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
             count: { $sum: 1 },
           },
         },
@@ -1730,7 +1730,7 @@ export default class BookingsDAO {
               scheduleId: "$scheduleId",
               paymentMethod: "$paymentMethod",
             },
-            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
             seats: { $sum: "$seats" },
             count: { $sum: 1 },
           },
@@ -1818,7 +1818,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: { $substr: ["$date", 0, 7] },
-            revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+            revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
             count: { $sum: 1 },
           },
         },
@@ -1832,7 +1832,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: { $substr: ["$date", 0, 7] },
-            refunds: { $sum: { $add: ["$total", { $multiply: ["$luggage", LUGGAGE_PRICE] }] } },
+            refunds: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
             count: { $sum: 1 },
           },
         },

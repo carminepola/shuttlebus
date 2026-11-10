@@ -20,6 +20,7 @@ import { RoutesService } from '../../services/routes/routes.service';
 
 import { StripeService } from '../../services/stripe/stripe.service';
 import { LUGGAGE_PRICE } from '../../constants/app.constants';
+import { bookingLuggagePrice } from '../../utils/fares';
 import { BRAND_SECONDARY, rgba } from '../../../brand';
 Chart.register(...registerables);
 
@@ -132,6 +133,9 @@ interface FasceOrarieRanking {
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public luggagePrice = LUGGAGE_PRICE;
+  luggagePriceOf(booking: any): number {
+    return bookingLuggagePrice(booking);
+  }
   @ViewChild('salesChart') salesChart!: ElementRef;
   @ViewChild('salesChartVendite') salesChartVendite!: ElementRef;
   @ViewChild('purchasesScroll') purchasesScroll!: ElementRef;

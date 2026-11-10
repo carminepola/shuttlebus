@@ -5,7 +5,7 @@ import UserServices from "./userServices";
 import { client, logger } from "../../index";
 import { ClientSession } from "mongodb";
 import TicketTypeServices from "./ticketTypeServices";
-import { resolveFarePrice } from "../../utils/fares";
+import { resolveFarePrice, resolveLuggagePrice } from "../../utils/fares";
 import { isTicketTypeValidOn } from "../../utils/ticketDays";
 import { validateBookingInput } from "../../utils/bookingValidation";
 import { isPastBookingCutoff, localDate } from "../../utils/bookingCutoff";
@@ -17,7 +17,6 @@ import RoutesServices from "./routesServices";
 import MailSenderServices from "./mailSender";
 import TelegramServices from "./telegramServices";
 import { role } from "../../enum/role";
-import { LUGGAGE_PRICE } from "../../constants";
 
 /**
  * Calcolo SERVER-SIDE del flag `paid` per un booking.
@@ -401,6 +400,7 @@ class BookingsServices {
       await this.checkPriceAndTime(leg, { skipCutoff: true });
       if (paymentMode === "free") {
         for (const t of leg.ticketTypes || []) t.cost = 0;
+        leg.luggagePrice = 0;
         leg.total = 0;
       }
     }
@@ -511,7 +511,15 @@ class BookingsServices {
         }
       }
     }
-    newTotale += ticket.luggage * LUGGAGE_PRICE;
+    // prezzo del bagaglio della corsa, sempre da DB (mai dal client)
+    const schedule = route.schedules.find((s: any) => s.id == ticket.scheduleId);
+    const luggagePrice = resolveLuggagePrice(schedule);
+    ticket.luggagePrice = luggagePrice;
+    if (ticket.luggage > 0 && !(schedule.availableLuggage > 0)) {
+      // corsa senza bagagli opzionali
+      throw new ErrorModel(400, "str_error_luggage");
+    }
+    newTotale += ticket.luggage * luggagePrice;
     newTotale = Math.round(newTotale * 100) / 100;
     if (count == ticket.seats && Math.abs(newTotale - totale) < 0.005 && totale > 0 && ticket.seats > 0) {
       // P-01: total server-side, non la copia del client
