@@ -94,6 +94,21 @@ export class ScheduleComponent implements OnInit {
     }
   }
   save() {}
+  /**
+   * daysOfWeek contiene i giorni ESCLUSI (0 = domenica), come legge la ricerca: l'editor
+   * mostra invece i giorni di servizio (spuntato = la corsa viaggia), che e' cio' che
+   * l'admin si aspetta. Prima le caselle spuntate erano i giorni esclusi e, spuntandole
+   * tutte, la corsa spariva dalla ricerca.
+   */
+  runsOn(day: number): boolean {
+    return !(this.form?.daysOfWeek || []).includes(day);
+  }
+
+  noServiceDays(): boolean {
+    return [0, 1, 2, 3, 4, 5, 6].every((d) => !this.runsOn(d));
+  }
+
+  /** Spunta/togli un giorno di servizio (= togli/aggiungi il giorno agli esclusi). */
   onDayChange(day: number) {
     if (this.form.daysOfWeek.includes(day)) {
       this.form.daysOfWeek = this.form.daysOfWeek.filter(

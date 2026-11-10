@@ -50,6 +50,9 @@ export class TicketsTypeComponent implements OnInit {
             description: pickText(t.description),
             cost: t.cost,
             days: daysLabel(t.daysOfWeek) || 'Tutti',
+            // visibile nella ricerca della home (default si'); altrimenti solo sulla corsa
+            showOnHome: t.showOnHome !== false,
+            isActive: t.isActive !== false,
           };
         });
       }

@@ -138,9 +138,41 @@
                       </div>
                     </div>
                   </div>
+                  <div class="row mt-3 g-2">
+                    <div class="col-12">
+                      <h3 class="text-muted mb-0">Giorni di servizio</h3>
+                      <div class="form-text mt-0">Spunta i giorni della settimana in cui la corsa viaggia (nel periodo indicato).</div>
+                    </div>
+                    @for (day of [1, 2, 3, 4, 5, 6, 0]; track day) {
+                      <div class="col-6 col-md-3 col-lg">
+                        <div class="form-check">
+                          <input
+                            [checked]="runsOn(day)"
+                            [value]="day"
+                            class="form-check-input"
+                            type="checkbox"
+                            [id]="'runDay' + day"
+                            [name]="'runDay' + day"
+                            (change)="onDayChange(day)"
+                            />
+                          <label class="form-check-label" [for]="'runDay' + day">
+                            {{ dayOfWeek(day) }}
+                          </label>
+                        </div>
+                      </div>
+                    }
+                    @if (noServiceDays()) {
+                      <div class="col-12">
+                        <div class="alert alert-warning border-0 py-2 mb-0">
+                          Nessun giorno selezionato: la corsa non viaggia mai, salvo i giorni extra qui sotto.
+                        </div>
+                      </div>
+                    }
+                  </div>
                   <div class="row mt-3 g-4">
                     <div class="col-12">
-                      <h3 class="text-muted mb-0">Eccezioni</h3>
+                      <h3 class="text-muted mb-0">Date escluse</h3>
+                      <div class="form-text mt-0">Giorni in cui la corsa non viaggia anche se rientrano nei giorni di servizio.</div>
                     </div>
                     @for (date of form.excludedDates; track date; let i = $index) {
                       <div
@@ -185,26 +217,6 @@
                         </button>
                       </div>
                     </div>
-                  </div>
-                  <div class="row mt-3">
-                    @for (day of [1, 2, 3, 4, 5, 6, 0]; track day) {
-                      <div class="col-12 col-lg">
-                        <div class="form-check">
-                          <input
-                            [checked]="form?.daysOfWeek?.includes(day) || false"
-                            [value]="day"
-                            class="form-check-input"
-                            type="checkbox"
-                            [id]="'someCheckbox' + day"
-                            [name]="'someCheckbox' + day"
-                            (change)="onDayChange(day)"
-                            />
-                          <label class="form-check-label" [for]="'someCheckbox' + day">
-                            {{ dayOfWeek(day) }}
-                          </label>
-                        </div>
-                      </div>
-                    }
                   </div>
                   <div class="row mt-3 g-3">
                     <div class="col-12">
