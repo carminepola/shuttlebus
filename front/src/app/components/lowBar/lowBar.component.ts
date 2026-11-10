@@ -41,6 +41,16 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
   private resizeObs: ResizeObserver | null = null;
   private tourSub: Subscription | null = null;
   showTour = false;
+  /** Posizione di evidenziazione e fumetto, calcolata dal pulsante account visibile. */
+  tour: {
+    highlight: { top: number; left: number; width: number; height: number };
+    popover: { top: number; left: number };
+    arrowLeft: number;
+    below: boolean;
+  } | null = null;
+  private readonly onResize = () => {
+    if (this.showTour) this.ngZone.run(() => (this.tour = this.computeTour()));
+  };
 
   constructor(
     private router: Router,
@@ -79,13 +89,42 @@ export class LowBarComponent implements AfterViewInit, OnDestroy {
     if (this.containerEl) {
       this.resizeObs.observe(this.containerEl);
     }
+    window.addEventListener('resize', this.onResize);
 
     this.tourSub = this.tourGuideService.getTourVisible().subscribe((v) => {
       this.showTour = v;
+      this.tour = v ? this.computeTour() : null;
+      // l'elemento puo' non essere ancora al suo posto (animazioni): ricalcolo
+      if (v) setTimeout(() => (this.tour = this.computeTour()), 300);
     });
   }
 
+  /**
+   * La guida indica il pulsante account visibile: barra in basso su mobile
+   * (#tour-account-icon), navbar in alto su desktop (#tour-account-nav). Prima era
+   * posizionata in modo fisso per il mobile e su desktop evidenziava uno spazio vuoto.
+   */
+  private computeTour() {
+    const target = ['tour-account-icon', 'tour-account-nav']
+      .map((id) => document.getElementById(id))
+      .find((el) => !!el && el.getBoundingClientRect().width > 0);
+    if (!target) return null;
+    const r = target.getBoundingClientRect();
+    const pad = 4;
+    const popoverWidth = Math.min(320, window.innerWidth - 32);
+    const center = r.left + r.width / 2;
+    const left = Math.max(16, Math.min(center - popoverWidth / 2, window.innerWidth - popoverWidth - 16));
+    const below = r.top < window.innerHeight / 2; // pulsante in alto: fumetto sotto
+    return {
+      highlight: { top: r.top - pad, left: r.left - pad, width: r.width + pad * 2, height: r.height + pad * 2 },
+      popover: { top: below ? r.bottom + 16 : r.top - 16, left },
+      arrowLeft: Math.max(20, Math.min(center - left, popoverWidth - 20)),
+      below,
+    };
+  }
+
   ngOnDestroy(): void {
+    window.removeEventListener('resize', this.onResize);
     this.resizeObs?.disconnect();
     this.tourSub?.unsubscribe();
   }

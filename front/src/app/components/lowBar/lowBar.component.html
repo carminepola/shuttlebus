@@ -39,10 +39,21 @@
   </div>
 </div>
 <div class="space-lowBar d-block d-lg-none"></div>
-@if (showTour) {
-  <div class="tour-highlight"></div>
-  <div class="tour-popover">
-    <div class="tour-popover-arrow"></div>
+@if (showTour && tour) {
+  <div
+    class="tour-highlight"
+    [style.top.px]="tour.highlight.top"
+    [style.left.px]="tour.highlight.left"
+    [style.width.px]="tour.highlight.width"
+    [style.height.px]="tour.highlight.height"
+  ></div>
+  <div
+    class="tour-popover"
+    [class.tour-popover-below]="tour.below"
+    [style.top.px]="tour.popover.top"
+    [style.left.px]="tour.popover.left"
+  >
+    <div class="tour-popover-arrow" [style.left.px]="tour.arrowLeft"></div>
     <div class="tour-popover-title">{{ "str_tour_account_title" | translate }}</div>
     <div class="tour-popover-desc">{{ "str_tour_account_desc" | translate }}</div>
     <button class="tour-popover-btn" (click)="dismissTour()">
