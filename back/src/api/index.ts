@@ -20,6 +20,7 @@ import providers from "./providers";
 import mfa from "./mfa";
 import momap from "./momap";import licensePlate from "./licensePlate";
 import depotSettings from "./depotSettings";
+import bookingSettings from "./bookingSettings";
 import attendance from "./attendance";
 
 const router = express.Router();
@@ -53,6 +54,7 @@ router.use("/providers", providers);
 router.use("/mfa", mfa);
 router.use("/licensePlate", licensePlate);
 router.use("/depotSettings", depotSettings);
+router.use("/bookingSettings", bookingSettings);
 router.use("/attendance", attendance);
 
 export default router;

@@ -30,6 +30,7 @@ import { PricePipe } from '../../pipe/price.pipe';
 
 declare var bootstrap: any;
 
+import { BookingSettingsService, DEFAULT_BOOKING_SETTINGS } from '../../services/bookingSettings/booking-settings.service';
 @Component({
   selector: 'app-riepilogo',
   imports: [PricePipe, 
@@ -64,7 +65,11 @@ export class RiepilogoComponent implements OnInit {
     private mfaService: MfaService,
     public lngService: LngService,
     private formBuilder: FormBuilder,
+    private bookingSettingsService: BookingSettingsService,
   ) {}
+
+  /** Giorni prima della corsa entro cui si puo' chiedere il rimborso (Impostazioni -> Prenotazioni). */
+  private refundCutoffDays = DEFAULT_BOOKING_SETTINGS.refundCutoffDays;
 
   public acceptTerms: boolean = false;
   public confirmDuplicateTicket: boolean = false;
@@ -96,6 +101,7 @@ export class RiepilogoComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.bookingSettingsService.get().subscribe((s) => (this.refundCutoffDays = s.refundCutoffDays));
     this.checkoutLoginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -240,10 +246,10 @@ export class RiepilogoComponent implements OnInit {
 
   isToLate() {
     const today = new Date();
-    const threeDaysFromNow = new Date(
-      today.getTime() + 3 * 24 * 60 * 60 * 1000,
+    const refundDeadline = new Date(
+      today.getTime() + this.refundCutoffDays * 24 * 60 * 60 * 1000,
     );
-    return new Date(this.param.date).getTime() < threeDaysFromNow.getTime();
+    return new Date(this.param.date).getTime() < refundDeadline.getTime();
   }
 
   get checkoutEmailField() {

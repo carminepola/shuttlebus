@@ -196,30 +196,6 @@
             </div>
           </div>
 
-          <div class="mb-4">
-            <label for="bookingCutoffMinutes" class="form-label"
-              >Chiusura vendite prima della partenza (minuti)</label
-            >
-            <input
-              type="number"
-              class="form-control"
-              id="bookingCutoffMinutes"
-              [(ngModel)]="settings.bookingCutoffMinutes"
-              name="bookingCutoffMinutes"
-              required
-              min="0"
-              max="43200"
-              step="1"
-              placeholder="es. 120"
-            />
-            <div class="form-text">
-              Una corsa non si può più acquistare online a meno di questi minuti
-              dalla partenza (120 = due ore prima, 1440 = il giorno prima alla
-              stessa ora, 0 = fino alla partenza). L'emissione dal pannello
-              admin non ha questo limite.
-            </div>
-          </div>
-
           <div class="d-flex justify-content-end gap-2">
             <button
               type="button"

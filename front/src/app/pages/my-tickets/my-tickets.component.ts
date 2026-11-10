@@ -17,6 +17,7 @@ import { BRAND, brandRgb } from '../../../brand';
 
 const PENDING_EXPIRY_MS = 30 * 60 * 1000;
 
+import { BookingSettingsService, DEFAULT_BOOKING_SETTINGS } from '../../services/bookingSettings/booking-settings.service';
 @Component({
   selector: 'app-my-tickets',
   imports: [
@@ -47,7 +48,11 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
     private lng: LngService,
     private stripeService: StripeService,
     private pendingBookingService: PendingBookingService,
+    private bookingSettingsService: BookingSettingsService,
   ) {}
+
+  /** Giorni prima della corsa entro cui si puo' chiedere il rimborso (Impostazioni -> Prenotazioni). */
+  private refundCutoffDays = DEFAULT_BOOKING_SETTINGS.refundCutoffDays;
 
   /** Andata o ritorno, per i biglietti acquistati insieme. */
   legLabel(booking: any): string {
@@ -67,6 +72,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.url = window.location.origin;
+    this.bookingSettingsService.get().subscribe((s) => (this.refundCutoffDays = s.refundCutoffDays));
     this.load();
   }
   ngOnDestroy(): void {
@@ -189,14 +195,14 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   getRefundDeadline(date: string): Date | null {
     if (!date) return null;
     const d = new Date(date);
-    d.setDate(d.getDate() - 3);
+    d.setDate(d.getDate() - this.refundCutoffDays);
     d.setHours(0, 0, 0, 0);
     return d;
   }
   checkDay(date: any) {
     if (date) {
       let dataTicket = new Date(date);
-      dataTicket.setDate(dataTicket.getDate() - 3);
+      dataTicket.setDate(dataTicket.getDate() - this.refundCutoffDays);
       let now = new Date();
 
       if (dataTicket.getTime() > now.getTime()) {

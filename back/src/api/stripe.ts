@@ -14,6 +14,8 @@ import { role } from "../enum/role";
 
 const stripe = StripeInstance.getInstance();
 import { LUGGAGE_PRICE } from "../constants";
+import BookingSettingsServices from "../components/services/bookingSettingsServices";
+import { isRefundAllowed } from "../utils/bookingSettings";
 
 /**
  * Voci rimborsate e testo leggibile ("Ritorno SB... · 2x Adulto, 1x Bagaglio extra"):
@@ -94,8 +96,9 @@ router.post("/refund", authMiddleware, async (req, res, next) => {
         logger.info("check permessi rimborso 1 " + req.body.id);
         if (res.locals.userLogged["role"] > role.ADMIN) {
           logger.info("check permessi rimborso  2" + req.body.id);
-          if (new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
-            throw new ErrorModel(400, "str_not_before_3_days");
+          // termine per il rimborso dalle impostazioni (refundCutoffDays)
+          if (!isRefundAllowed(book.date, (await new BookingSettingsServices(db).get()).refundCutoffDays)) {
+            throw new ErrorModel(400, "str_error_refund_deadline");
           }
           const today = new Date().setHours(0, 0, 0, 0);
 

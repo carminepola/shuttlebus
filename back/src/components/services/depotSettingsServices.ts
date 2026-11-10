@@ -1,7 +1,6 @@
 import { Db } from "mongodb";
 import DepotSettingsDao from "../dao/depotSettingsDao";
 import depotSettingsModel from "../../model/depotSettingsModel";
-import { sanitizeCutoffMinutes } from "../../utils/bookingCutoff";
 
 class DepotSettingsServices {
   private depotSettingsDao: DepotSettingsDao;
@@ -11,14 +10,7 @@ class DepotSettingsServices {
   }
 
   async get() {
-    const settings: any = await this.depotSettingsDao.get();
-    // documenti salvati prima del campo: valore di default
-    return { ...settings, bookingCutoffMinutes: sanitizeCutoffMinutes(settings?.bookingCutoffMinutes ?? process.env.DEFAULT_BOOKING_CUTOFF_MINUTES) };
-  }
-
-  /** Minuti prima della partenza in cui si chiudono le vendite (documenti vecchi: default). */
-  async getBookingCutoffMinutes(): Promise<number> {
-    return (await this.get()).bookingCutoffMinutes;
+    return await this.depotSettingsDao.get();
   }
 
   async update(obj: Partial<depotSettingsModel>) {

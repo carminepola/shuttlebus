@@ -1,0 +1,80 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    title="Impostazioni prenotazioni"
+    subtitle="Chiusura delle vendite e termine per i rimborsi"
+    back="true"
+  ></app-title-page>
+
+  @if (loading) {
+    <div class="text-center py-5">
+      <app-loading></app-loading>
+    </div>
+  } @else {
+    @if (mostraMessaggio) {
+      <div
+        class="alert {{ tipoMessaggio === 'success' ? 'alert-success' : 'alert-danger' }} alert-dismissible fade show mb-4"
+        role="alert"
+      >
+        {{ messaggio }}
+        <button type="button" class="btn-close" (click)="mostraMessaggio = false" aria-label="Close"></button>
+      </div>
+    }
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form (ngSubmit)="salva()">
+          <div class="mb-4">
+            <label for="bookingCutoffMinutes" class="form-label fw-bold">Chiusura vendite prima della partenza (minuti)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="bookingCutoffMinutes"
+              [(ngModel)]="settings.bookingCutoffMinutes"
+              name="bookingCutoffMinutes"
+              required
+              min="0"
+              max="43200"
+              step="1"
+            />
+            <div class="form-text">
+              Una corsa si può acquistare online <strong>{{ cutoffLabel }}</strong>.
+              Esempi: 120 = due ore prima, 1440 = il giorno prima alla stessa ora, 0 = fino alla partenza.
+              L'emissione dal pannello admin non ha questo limite.
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="refundCutoffDays" class="form-label fw-bold">Termine per il rimborso (giorni prima della corsa)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="refundCutoffDays"
+              [(ngModel)]="settings.refundCutoffDays"
+              name="refundCutoffDays"
+              required
+              min="0"
+              max="365"
+              step="1"
+            />
+            <div class="form-text">
+              Il cliente può chiedere il rimborso <strong>{{ refundLabel }}</strong>.
+              Gli admin possono rimborsare sempre.
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-secondary" (click)="router.navigate(['/admin/impostazioni'])">
+              Annulla
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="salvando">
+              @if (salvando) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              {{ salvando ? "Salvataggio..." : "Salva impostazioni" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

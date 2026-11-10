@@ -35,7 +35,6 @@ export class DepositoComponent implements OnInit {
     completedRouteTolerance: 30,
     stopDistanceThreshold: 500,
     defaultLastArrivalTime: '23:59',
-    bookingCutoffMinutes: 120,
   };
   loading: boolean = true;
   salvando: boolean = false;

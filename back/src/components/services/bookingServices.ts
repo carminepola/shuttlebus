@@ -10,7 +10,8 @@ import { isTicketTypeValidOn } from "../../utils/ticketDays";
 import { validateBookingInput } from "../../utils/bookingValidation";
 import { isPastBookingCutoff, localDate } from "../../utils/bookingCutoff";
 import { activeStopIds, addDays, isDateString, MAX_LOOKAHEAD_DAYS, scheduleRunDates, scheduleServes } from "../../utils/scheduleDates";
-import DepotSettingsServices from "./depotSettingsServices";
+import BookingSettingsServices from "./bookingSettingsServices";
+import { isRefundAllowed } from "../../utils/bookingSettings";
 import ErrorModel from "../../model/errorModel";
 import PaymentServices from "./paymentServices";
 import RoutesServices from "./routesServices";
@@ -53,10 +54,10 @@ class BookingsServices {
   private routeServices: RoutesServices;
   private mailSenderServices: MailSenderServices;
   private telegramServices: TelegramServices;
-  private depotSettingsServices: DepotSettingsServices;
+  private bookingSettingsServices: BookingSettingsServices;
 
   constructor(db: Db) {
-    this.depotSettingsServices = new DepotSettingsServices(db);
+    this.bookingSettingsServices = new BookingSettingsServices(db);
     this.bookingDao = new BookingDao(db);
     this.userServices = new UserServices(db);
     this.ticketTypeServices = new TicketTypeServices(db);
@@ -72,7 +73,7 @@ class BookingsServices {
       throw new ErrorModel(400, "str_error_time");
     }
     await this.removeExpiredPendingBookings();
-    const cutoff = opts.skipCutoff ? null : await this.depotSettingsServices.getBookingCutoffMinutes();
+    const cutoff = opts.skipCutoff ? null : (await this.bookingSettingsServices.get()).bookingCutoffMinutes;
     return await this.availableRuns(travelDate, fromStopId, toStopId, posti, bagagli, cutoff);
   }
 
@@ -92,7 +93,7 @@ class BookingsServices {
     const routes: any[] = await this.routeServices.getEnabledRoutes();
     const today = localDate();
     const horizon = addDays(today, MAX_LOOKAHEAD_DAYS);
-    const cutoff = await this.depotSettingsServices.getBookingCutoffMinutes();
+    const cutoff = (await this.bookingSettingsServices.get()).bookingCutoffMinutes;
     const sequences = new Map<string, string[]>();
     for (const route of routes) {
       const routeStops = new Set((route.stops || []).map((s: any) => s?.id));
@@ -118,7 +119,7 @@ class BookingsServices {
     const today = localDate();
     const start = isDateString(fromDate) && fromDate > today ? fromDate : today;
     const horizon = addDays(today, MAX_LOOKAHEAD_DAYS);
-    const cutoff = await this.depotSettingsServices.getBookingCutoffMinutes();
+    const cutoff = (await this.bookingSettingsServices.get()).bookingCutoffMinutes;
     const routes: any[] = await this.routeServices.getEnabledRoutes();
 
     const candidates = new Set<string>();
@@ -475,7 +476,7 @@ class BookingsServices {
     if (route && route.enabled) {
       let schedule = route.schedules.find((s: any) => s.id == ticket.scheduleId);
       // vendite chiuse N minuti prima della partenza (impostazione bookingCutoffMinutes)
-      if (!opts.skipCutoff && schedule && isPastBookingCutoff(day, schedule, await this.depotSettingsServices.getBookingCutoffMinutes())) {
+      if (!opts.skipCutoff && schedule && isPastBookingCutoff(day, schedule, (await this.bookingSettingsServices.get()).bookingCutoffMinutes)) {
         throw new ErrorModel(400, "str_error_time");
       }
     } else {
@@ -636,7 +637,7 @@ class BookingsServices {
 
   /**
    * Rimborso dal path utente.
-   * - `isAdmin:true` (staff): salta la finestra dei 3 giorni e il check di proprieta'.
+   * - `isAdmin:true` (staff): salta la finestra di rimborso (refundCutoffDays) e il check di proprieta'.
    * - Ritorna true SOLO se il record e' stato effettivamente aggiornato a refunded;
    *   prenotazioni pending/scadute/gia' rimborsate -> false (il controller risponde 400).
    * - Trail di audit: userId e bookingId vengono loggati a monte dal controller.
@@ -646,7 +647,8 @@ class BookingsServices {
     if (!book) {
       return false;
     }
-    if (!isAdmin && new Date(book.date).getTime() - 3 * 24 * 60 * 60 * 1000 < new Date().getTime()) {
+    // termine per il rimborso dalle impostazioni (refundCutoffDays)
+    if (!isAdmin && !isRefundAllowed(book.date, (await this.bookingSettingsServices.get()).refundCutoffDays)) {
       throw new ErrorModel(400, "str_error_refund");
     }
     let success = await this.bookingDao.refundBooking(numberOfTickets, userId);
