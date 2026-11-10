@@ -3,19 +3,20 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { lastValueFrom } from 'rxjs';
 import { StopsService } from '../../services/stops/stops.service';
-import { RoutesService } from '../../services/routes/routes.service';
+import { BookingsService } from '../../services/bookings/bookings.service';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
 import { LngService } from '../../services/lng/lng.service';
 import { daysLabel, isTicketTypeValidOn } from '../../utils/ticket-days';
 
 import { Router } from '@angular/router';
+import { DatePipe } from '@angular/common';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { fadeAnimation } from '../../animations/fade.animation';
 declare var bootstrap: any;
 @Component({
   selector: 'app-search',
-  imports: [TranslatePipe, TranslateNamePipe, ReactiveFormsModule, FormsModule],
+  imports: [TranslatePipe, TranslateNamePipe, ReactiveFormsModule, FormsModule, DatePipe],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -47,9 +48,15 @@ export class SearchComponent implements OnInit, AfterViewInit {
   public maxTickets = 12;
   public maxBagagli = 10;
   public andataRitorno = false;
+  /** Prima data con corse per la tratta scelta: proposta sotto il campo data, non impostata. */
+  public suggestedDate: string | null = null;
+  /** Tratta scelta senza corse prenotabili. */
+  public noRunsForStops = false;
+  private suggestionRequest = 0;
+  private suggestionTimer: any;
 
   constructor(
-    private routesService: RoutesService,
+    private bookingsService: BookingsService,
     private stopsService: StopsService,
     private ticketTypeService: TicketTypeService,
     private router: Router,
@@ -104,16 +111,20 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.selectedTickets = { ...this.ricerca.ticketSelections };
     }
 
-    let [risRoutes, risStops, risTicketTypes] = await Promise.all([
-      lastValueFrom(this.routesService.getRoutes()),
+    let [risSearchStops, risStops, risTicketTypes] = await Promise.all([
+      lastValueFrom(this.bookingsService.searchStops()).catch(() => ({ sequences: [] as string[][] })),
       lastValueFrom(this.stopsService.getAllActiveStops()),
       lastValueFrom(this.ticketTypeService.getAllActiveTicketTypes()),
     ]);
 
-    if (risStops.stops.length > 0 && risRoutes.routes.length > 0) {
+    // solo le fermate delle corse con almeno una partenza futura prenotabile;
+    // ogni sequenza e' l'ordine delle fermate di una corsa
+    const sequences: string[][] = risSearchStops.sequences || [];
+    const searchable = new Set(sequences.flat());
+    if (risStops.stops.length > 0 && sequences.length > 0) {
       this.stops = risStops.stops;
-      this.routes = risRoutes.routes;
-      this.allStop = risStops.stops.map((stop: any) => {
+      this.routes = sequences.map((seq) => ({ stops: seq.map((id) => ({ id })) })) as any;
+      this.allStop = risStops.stops.filter((stop: any) => searchable.has(stop.id)).map((stop: any) => {
         return {
           id: stop.id,
           name: stop.name,
@@ -179,6 +190,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       return;
     }
     this.selectedTickets[id] = (this.selectedTickets[id] || 0) + 1;
+    this.refreshSuggestedDate();
   }
 
   removeTicketType(id: string) {
@@ -187,6 +199,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       if (this.selectedTickets[id] === 0) {
         delete this.selectedTickets[id];
       }
+      this.refreshSuggestedDate();
     }
   }
 
@@ -195,6 +208,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     const current = this.ricerca.bagagli ?? 0;
     if (current >= this.maxBagagli) return;
     this.ricerca.bagagli = current + 1;
+    this.refreshSuggestedDate();
   }
 
   removeBagagli() {
@@ -202,6 +216,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     const current = this.ricerca.bagagli ?? 0;
     if (current <= 0) return;
     this.ricerca.bagagli = current - 1;
+    this.refreshSuggestedDate();
   }
 
   cambioPartenza() {
@@ -244,6 +259,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.ricerca!.arrivo = '';
     setTimeout(() => {
       this.ricerca!.arrivo = p;
+      this.refreshSuggestedDate();
     }, 10);
   }
   cambioArrivo() {
@@ -286,6 +302,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.ricerca!.partenza = '';
     setTimeout(() => {
       this.ricerca!.partenza = p;
+      this.refreshSuggestedDate();
     }, 10);
   }
   swapStops() {
@@ -300,6 +317,43 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.cambioPartenza();
       this.cambioArrivo();
     }, 10);
+  }
+
+  /**
+   * Con partenza e arrivo scelti chiede al server il primo giorno con una corsa
+   * prenotabile (posti e bagagli inclusi) e lo propone sotto la data, senza impostarlo.
+   */
+  refreshSuggestedDate() {
+    clearTimeout(this.suggestionTimer);
+    const from = this.ricerca?.partenza;
+    const to = this.ricerca?.arrivo;
+    const request = ++this.suggestionRequest;
+    if (!from || !to) {
+      this.suggestedDate = null;
+      this.noRunsForStops = false;
+      return;
+    }
+    this.suggestionTimer = setTimeout(async () => {
+      try {
+        const res = await lastValueFrom(
+          this.bookingsService.nextAvailableDate(from, to, {
+            posti: Math.max(this.getTotalPersone(), 1),
+            bagagli: this.ricerca?.bagagli || 0,
+          }),
+        );
+        if (request !== this.suggestionRequest) return; // risposta di una scelta precedente
+        this.suggestedDate = res.date;
+        this.noRunsForStops = !res.date;
+      } catch {
+        if (request !== this.suggestionRequest) return;
+        this.suggestedDate = null;
+        this.noRunsForStops = false;
+      }
+    }, 250);
+  }
+
+  useSuggestedDate() {
+    if (this.suggestedDate) this.updateDate(this.suggestedDate);
   }
 
   async onSubmit(f: NgForm) {

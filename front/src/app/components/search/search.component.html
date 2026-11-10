@@ -186,6 +186,24 @@
               class="form-control"
               [min]="today"
             />
+            @if (suggestedDate) {
+              <div class="date-suggestion">
+                <i class="fa-regular fa-lightbulb"></i>
+                {{ lngService.traslateOr("str_prima_data_disponibile", "Prima data disponibile") }}:
+                @if (suggestedDate === ricerca?.data) {
+                  <strong>{{ suggestedDate | date: "EEE d MMM" }}</strong>
+                } @else {
+                  <button type="button" class="date-suggestion-btn" (click)="useSuggestedDate()">
+                    {{ suggestedDate | date: "EEE d MMM" }}
+                  </button>
+                }
+              </div>
+            } @else if (noRunsForStops) {
+              <div class="date-suggestion date-suggestion-none">
+                <i class="fa-solid fa-circle-info"></i>
+                {{ lngService.traslateOr("str_nessuna_corsa_tratta", "Nessuna corsa disponibile per questa tratta") }}
+              </div>
+            }
           </div>
         </div>
 

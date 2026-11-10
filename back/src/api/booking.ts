@@ -43,6 +43,38 @@ router.post(
   validateDataMiddleware,
   findAvailableRoutesHandler({ skipCutoff: true }),
 );
+/** Fermate cercabili dalla home: sequenze delle corse con partenze future prenotabili. */
+router.get("/searchStops", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const sequences = await new BookingServices(db).searchableStopSequences();
+    res.json({ sequences });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/** Primo giorno disponibile per from -> to (da fromDate o da oggi), con posti e bagagli liberi. */
+router.get(
+  "/nextAvailableDate",
+  [
+    check("fromStopId").notEmpty().isString().withMessage("fromStopId is required"),
+    check("toStopId").notEmpty().isString().withMessage("toStopId is required"),
+    check("fromDate").optional().isISO8601().withMessage("Invalid date format"),
+    check("posti").optional().isInt({ min: 1, max: 100 }).withMessage("posti must be a number"),
+    check("bagagli").optional().isInt({ min: 0, max: 100 }).withMessage("bagagli must be a number"),
+  ],
+  validateDataMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const q: any = req.query;
+      const date = await new BookingServices(db).nextAvailableDate(String(q.fromStopId), String(q.toStopId), q.fromDate ? String(q.fromDate) : undefined, q.posti ? parseInt(q.posti) : 1, q.bagagli ? parseInt(q.bagagli) : 0);
+      res.json({ date });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
 router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let book = req.body;

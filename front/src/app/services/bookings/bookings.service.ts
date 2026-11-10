@@ -24,6 +24,22 @@ export class BookingsService {
       bagagli: bagagli,
     });
   }
+  /** Sequenze di fermate delle corse con partenze future prenotabili (ricerca della home). */
+  searchStops(): Observable<{ sequences: string[][] }> {
+    return this.http.get<{ sequences: string[][] }>(this.apiUrl + '/searchStops');
+  }
+  /** Primo giorno con una corsa partenza -> arrivo prenotabile, da `fromDate` (o da oggi). */
+  nextAvailableDate(
+    partenza: string,
+    arrivo: string,
+    opts: { fromDate?: string; posti?: number; bagagli?: number } = {},
+  ): Observable<{ date: string | null }> {
+    const params: any = { fromStopId: partenza, toStopId: arrivo };
+    if (opts.fromDate) params.fromDate = opts.fromDate;
+    if (opts.posti) params.posti = opts.posti;
+    if (opts.bagagli) params.bagagli = opts.bagagli;
+    return this.http.get<{ date: string | null }>(this.apiUrl + '/nextAvailableDate', { params });
+  }
   /** Ricerca dal pannello admin: include le corse con le vendite online gia' chiuse. */
   adminFindAvailableRoutes(
     partenza: string,

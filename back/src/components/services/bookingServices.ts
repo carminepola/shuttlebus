@@ -9,6 +9,7 @@ import { resolveFarePrice } from "../../utils/fares";
 import { isTicketTypeValidOn } from "../../utils/ticketDays";
 import { validateBookingInput } from "../../utils/bookingValidation";
 import { isPastBookingCutoff, localDate } from "../../utils/bookingCutoff";
+import { activeStopIds, addDays, isDateString, MAX_LOOKAHEAD_DAYS, scheduleRunDates, scheduleServes } from "../../utils/scheduleDates";
 import DepotSettingsServices from "./depotSettingsServices";
 import ErrorModel from "../../model/errorModel";
 import PaymentServices from "./paymentServices";
@@ -68,16 +69,76 @@ class BookingsServices {
 
   async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0, opts: { skipCutoff?: boolean } = {}) {
     // nessuna ricerca per giorni passati (data nel formato delle prenotazioni: YYYY-MM-DD)
-    if (typeof travelDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(travelDate) || travelDate < localDate()) {
+    if (!isDateString(travelDate) || travelDate < localDate()) {
       throw new ErrorModel(400, "str_error_time");
     }
     await this.removeExpiredPendingBookings();
+    const cutoff = opts.skipCutoff ? null : await this.depotSettingsServices.getBookingCutoffMinutes();
+    return await this.availableRuns(travelDate, fromStopId, toStopId, posti, bagagli, cutoff);
+  }
+
+  /** Corse con posti per il giorno; `cutoff` null = anche quelle con le vendite chiuse. */
+  private async availableRuns(travelDate: string, fromStopId: string, toStopId: string, posti: number, bagagli: number, cutoff: number | null) {
     const results = await this.bookingDao.findAvailableRoutes(travelDate, fromStopId, toStopId, posti, bagagli);
     // corse con le vendite gia' chiuse (troppo vicine alla partenza)
-    const cutoff = opts.skipCutoff ? null : await this.depotSettingsServices.getBookingCutoffMinutes();
-    return results
-      .filter((r: any) => cutoff === null || !isPastBookingCutoff(travelDate, r.schedule, cutoff))
-      .map(({ schedule, ...r }: any) => r);
+    return results.filter((r: any) => cutoff === null || !isPastBookingCutoff(travelDate, r.schedule, cutoff)).map(({ schedule, ...r }: any) => r);
+  }
+
+  /**
+   * Fermate cercabili dalla home: per ogni corsa con almeno una partenza ancora
+   * prenotabile (da oggi in poi) la sequenza delle sue fermate attive, in ordine.
+   * Il client ne ricava le partenze e, per ciascuna, gli arrivi possibili.
+   */
+  async searchableStopSequences(): Promise<string[][]> {
+    const routes: any[] = await this.routeServices.getEnabledRoutes();
+    const today = localDate();
+    const horizon = addDays(today, MAX_LOOKAHEAD_DAYS);
+    const cutoff = await this.depotSettingsServices.getBookingCutoffMinutes();
+    const sequences = new Map<string, string[]>();
+    for (const route of routes) {
+      const routeStops = new Set((route.stops || []).map((s: any) => s?.id));
+      for (const schedule of route.schedules || []) {
+        const stops = activeStopIds(schedule).filter((id) => routeStops.has(id));
+        const key = stops.join("|");
+        if (stops.length < 2 || sequences.has(key)) continue;
+        if (scheduleRunDates(schedule, today, horizon).some((d) => !isPastBookingCutoff(d, schedule, cutoff))) {
+          sequences.set(key, stops);
+        }
+      }
+    }
+    return [...sequences.values()];
+  }
+
+  private static readonly NEXT_DATE_MAX_CHECKS = 30;
+
+  /**
+   * Primo giorno, da `fromDate` (o da oggi) in poi, con una corsa from -> to
+   * prenotabile e con posti/bagagli sufficienti. null se non ce ne sono.
+   */
+  async nextAvailableDate(fromStopId: string, toStopId: string, fromDate?: string, posti: number = 1, bagagli: number = 0): Promise<string | null> {
+    const today = localDate();
+    const start = isDateString(fromDate) && fromDate > today ? fromDate : today;
+    const horizon = addDays(today, MAX_LOOKAHEAD_DAYS);
+    const cutoff = await this.depotSettingsServices.getBookingCutoffMinutes();
+    const routes: any[] = await this.routeServices.getEnabledRoutes();
+
+    const candidates = new Set<string>();
+    for (const route of routes) {
+      for (const schedule of route.schedules || []) {
+        if (!scheduleServes(route, schedule, fromStopId, toStopId)) continue;
+        for (const d of scheduleRunDates(schedule, start, horizon)) {
+          if (!isPastBookingCutoff(d, schedule, cutoff)) candidates.add(d);
+        }
+      }
+    }
+    if (candidates.size === 0) return null;
+
+    await this.removeExpiredPendingBookings();
+    // conferma con la ricerca vera (posti e bagagli liberi), sui primi giorni candidati
+    for (const d of [...candidates].sort().slice(0, BookingsServices.NEXT_DATE_MAX_CHECKS)) {
+      if ((await this.availableRuns(d, fromStopId, toStopId, posti, bagagli, cutoff)).length > 0) return d;
+    }
+    return null;
   }
 
   async availableSeats(travelDate: string, routeId: string, scheduleId: string, fromStopId: string, toStopId: string, session?: ClientSession) {
