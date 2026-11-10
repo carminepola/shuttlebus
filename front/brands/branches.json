@@ -3,7 +3,7 @@
   "default": "pintour",
   "branches": {
     "main": "pintour",
-    "dev": "devmincorp",
+    "dev": "pintour",
     "test": "devmincorp"
   }
 }
