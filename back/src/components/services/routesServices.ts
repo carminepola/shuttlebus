@@ -82,7 +82,4 @@ export default class RoutesServices {
   getCurrentSchedules() {
     return this.routeDao.currentSchedules();
   }
-  getListScheduleForBusId() {
-    return this.routeDao.listScheduleForBusId();
-  }
 }

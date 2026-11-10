@@ -156,28 +156,6 @@
           </div>
 
           <div class="mb-4">
-            <label for="stopDistanceThreshold" class="form-label"
-              >Soglia distanza fermata (metri)</label
-            >
-            <input
-              type="number"
-              class="form-control"
-              id="stopDistanceThreshold"
-              [(ngModel)]="settings.stopDistanceThreshold"
-              name="stopDistanceThreshold"
-              required
-              min="1"
-              placeholder="es. 500"
-            />
-            <div class="form-text">
-              Se il bus è più lontano di questa soglia dalla fermata più vicina,
-              viene considerato averla superata e passa alla prossima fermata.
-              Se il bus è in ritardo ma ancora vicino alla fermata, viene
-              mostrato come "In ritardo".
-            </div>
-          </div>
-
-          <div class="mb-4">
             <label for="defaultLastArrivalTime" class="form-label"
               >Orario di arrivo predefinito</label
             >

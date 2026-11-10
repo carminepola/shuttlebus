@@ -10,7 +10,6 @@ export default class DepotSettingsModel {
   public depotRadius: number; // in meters
   public gpsTimeout: number; // in minutes
   public completedRouteTolerance: number; // in minutes
-  public stopDistanceThreshold: number; // in meters
   public defaultLastArrivalTime: string; // in "HH:mm" format
 
   constructor(settings?: any) {
@@ -20,7 +19,6 @@ export default class DepotSettingsModel {
     this.depotRadius = settings?.depotRadius || parseInt(process.env.DEFAULT_DEPOT_RADIUS || "500");
     this.gpsTimeout = settings?.gpsTimeout || parseInt(process.env.DEFAULT_GPS_TIMEOUT || "15");
     this.completedRouteTolerance = settings?.completedRouteTolerance || parseInt(process.env.DEFAULT_COMPLETED_ROUTE_TOLERANCE || "30");
-    this.stopDistanceThreshold = settings?.stopDistanceThreshold || parseInt(process.env.DEFAULT_STOP_DISTANCE_THRESHOLD || "500");
     this.defaultLastArrivalTime = settings?.defaultLastArrivalTime || process.env.DEFAULT_LAST_ARRIVAL_TIME || "23:59";
   }
 }

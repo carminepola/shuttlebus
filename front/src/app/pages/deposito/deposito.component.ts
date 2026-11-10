@@ -33,7 +33,6 @@ export class DepositoComponent implements OnInit {
     depotRadius: 500,
     gpsTimeout: 15,
     completedRouteTolerance: 30,
-    stopDistanceThreshold: 500,
     defaultLastArrivalTime: '23:59',
   };
   loading: boolean = true;

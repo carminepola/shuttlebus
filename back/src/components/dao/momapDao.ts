@@ -11,16 +11,6 @@ export default class MomapDao {
     this.db = db;
   }
 
-  async create(obj: any) {
-    try {
-      const result = await this.db.collection(this.schema).insertMany(obj);
-      return result.insertedCount > 0;
-    } catch (error) {
-      logger.error("Error creating ticketType:", error);
-      throw error;
-    }
-  }
-
   async get() {
     try {
       return await this.db

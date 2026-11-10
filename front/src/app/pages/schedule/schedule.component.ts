@@ -47,7 +47,6 @@ export class ScheduleComponent implements OnInit {
     excludedDates: [],
     extraDates: [],
     status: 'active',
-    busId: '',
   };
   constructor(
     private route: ActivatedRoute,

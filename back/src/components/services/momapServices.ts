@@ -25,28 +25,6 @@ class momapServices {
     this.db = db;
   }
 
-  async created() {
-    try {
-      const schedules: any[] = await this.routeServices.getListScheduleForBusId();
-      const day = localDate();
-
-      for (const schedule of schedules) {
-        schedule.day = day;
-        schedule.positions = []; // Storico posizioni
-        schedule.currentLat = null;
-        schedule.currentLng = null;
-        schedule.currentAngle = null;
-        delete schedule.stops;
-      }
-
-      if (schedules.length > 0) {
-        await this.momapDao.create(schedules);
-      }
-    } catch (error) {
-      logger.error("Errore in created momapServices:", error);
-    }
-  }
-
   async getCurrent() {
     try {
       let route = await this.routeServices.getEnabledRoutes();
@@ -244,6 +222,10 @@ class momapServices {
           logger.error(`Errore nel recupero posizione per bus ${bus.name}:`, err);
         }
       }
+
+      // con le posizioni aggiornate: assegnazioni bus -> corsa ed eventi alle fermate,
+      // usati dalla mappa (bus che hanno finito le corse, percorso verso le prossime fermate)
+      await this.getBusStatus();
     } catch (error) {
       logger.error("Errore in cron momapServices:", error);
     }
@@ -683,7 +665,9 @@ class momapServices {
   }
 
   /**
-   * Ottiene lo stato di tutti gli autobus: linea, prossima fermata e stato di ritardo
+   * Stato di tutti gli autobus (linea, fermata attuale e successiva, ritardo). Chiamata
+   * dal cron: salva le assegnazioni bus -> corsa del giorno e gli eventi di arrivo e
+   * partenza alle fermate, letti da getCurrent e getUpcomingStops per la mappa.
    */
   async getBusStatus() {
     try {

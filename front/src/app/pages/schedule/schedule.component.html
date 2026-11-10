@@ -71,16 +71,6 @@
                 required
                 />
             </div>
-            <div class="col-12 col-md-6">
-              <label>BusId</label>
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="form.busId"
-                name="busId"
-                required
-                />
-            </div>
           </div>
           @for (stop of form.stops; track stop; let i = $index) {
             <div class="row mt-3">

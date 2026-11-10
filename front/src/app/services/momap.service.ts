@@ -17,11 +17,4 @@ export class MomapService {
     );
   }
 
-  getBusStatus(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/busStatus`).pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      }),
-    );
-  }
 }
