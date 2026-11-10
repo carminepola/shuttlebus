@@ -345,7 +345,12 @@ export default class UserServices {
     return false;
   }
 
-  async updateRole(userId: string, newRole: number) {
+  /**
+   * Cambio ruolo da pannello admin. Chi non e' ROOT non puo' toccare utenti con ruolo
+   * pari o superiore al proprio (altri admin, ROOT) ne' assegnare ruoli di quel livello:
+   * prima un ADMIN poteva declassare ROOT o promuovere chiunque ad ADMIN.
+   */
+  async updateRole(userId: string, newRole: number, callerRole: number = role.ROOT) {
     const validRoles = [role.ADMIN, role.DRIVER, role.USER, role.NO_PERMISSION];
     if (!validRoles.includes(newRole)) {
       throw new ErrorModel(400, "Ruolo non valido");
@@ -353,6 +358,9 @@ export default class UserServices {
     const user = await this.userDao.getUserById(userId);
     if (!user) {
       throw new ErrorModel(404, "Utente non trovato");
+    }
+    if (callerRole !== role.ROOT && (user.role <= callerRole || newRole <= callerRole)) {
+      throw new ErrorModel(403, "Non puoi modificare il ruolo di questo utente o assegnare questo ruolo");
     }
     const oldRole = user.role;
     user.role = newRole;

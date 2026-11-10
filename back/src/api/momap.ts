@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { Router, Request, Response, NextFunction } from "express";
 import { check, validationResult } from "express-validator";
 import LicensePlateServices from "../components/services/licensePlateServices";
@@ -40,7 +41,10 @@ router.post("/cron", async (req: Request, res: Response, next: NextFunction) => 
     // Fail-closed (pentest: con MOMAP_ALLOWED_IPS vuoto l'endpoint era APERTO a tutti):
     // il cron e' invocabile SOLO da un IP nella whitelist OPPURE con il segreto corretto.
     const ipAllowed = allowedIps.length > 0 && allowedIps.includes(clientIp);
-    const secretAllowed = secret.length > 0 && providedSecret.length > 0 && providedSecret === secret;
+    // confronto a tempo costante (niente indizi sul segreto dai tempi di risposta)
+    const a = Buffer.from(providedSecret);
+    const b = Buffer.from(secret);
+    const secretAllowed = b.length > 0 && a.length === b.length && crypto.timingSafeEqual(a, b);
     if (!ipAllowed && !secretAllowed) {
       logger.warn(`Accesso momap/cron negato da IP: ${clientIp}`);
       return res.sendStatus(403);

@@ -1,3 +1,6 @@
+import { addDays, isDateString } from "./scheduleDates";
+import { localDate } from "./bookingCutoff";
+
 /**
  * Impostazioni delle prenotazioni (collection bookingSettings, documento id "default"),
  * modificabili da Impostazioni -> Prenotazioni:
@@ -39,9 +42,11 @@ export function normalizeBookingSettings(doc: any): BookingSettings {
 }
 
 /**
- * Il cliente puo' chiedere il rimborso solo fino a `days` giorni prima della corsa
- * (stessa formula usata finora con 3 giorni: data della corsa - N giorni >= adesso).
+ * Il cliente puo' chiedere il rimborso fino al giorno prima di (data della corsa - N
+ * giorni), in ora locale: con N = 3 e corsa il 14, fino alle 23:59 del 10.
+ * Il front mostra la stessa scadenza (refundDeadline).
  */
 export function isRefundAllowed(travelDate: string, days: number, now: Date = new Date()): boolean {
-  return new Date(travelDate).getTime() - days * 24 * 60 * 60 * 1000 >= now.getTime();
+  if (!isDateString(travelDate)) return false;
+  return localDate(now) < addDays(travelDate, -days);
 }

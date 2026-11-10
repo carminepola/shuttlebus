@@ -1,4 +1,5 @@
 import { Db, ObjectId } from "mongodb";
+import { localDate } from "../../utils/bookingCutoff";
 import { Guid } from "guid-typescript";
 import { logger } from "../..";
 
@@ -26,7 +27,7 @@ export default class MomapDao {
         .collection(this.schema)
         .aggregate([
           {
-            $match: { date: new Date().toISOString().split("T")[0] },
+            $match: { date: localDate() },
           },
           {
             $lookup: {
@@ -63,7 +64,7 @@ export default class MomapDao {
     try {
       return await this.db
         .collection(this.schema)
-        .find({ date: new Date().toISOString().split("T")[0] })
+        .find({ date: localDate() })
         .project({ busId: 1, plate: 1, name: 1, currentLat: "$lat", currentLng: "$lng", currentAngle: "$angle", updatedAt: "$updatedFromMomap" })
         .toArray();
     } catch (error) {
@@ -75,7 +76,7 @@ export default class MomapDao {
     try {
       let toInsert: any;
 
-      const alredyExist = await this.db.collection(this.schema).findOne({ date: new Date().toISOString().split("T")[0], imei: obj.imei });
+      const alredyExist = await this.db.collection(this.schema).findOne({ date: localDate(), imei: obj.imei });
       if (!alredyExist || alredyExist.positions.length == 0) {
         toInsert = JSON.parse(JSON.stringify(obj));
         toInsert.positions = [JSON.parse(JSON.stringify(obj))];

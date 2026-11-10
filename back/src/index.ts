@@ -1,7 +1,6 @@
 import Mongo from "./infrastructure/mongo";
 import RestServer from "./infrastructure/restServer";
 import { SeqTransport } from "@datalust/winston-seq";
-import { Console } from "console";
 
 import * as dotenv from "dotenv";
 dotenv.config({ path: ".env" });
@@ -75,7 +74,8 @@ if (process.env.EMAIL_SMTP && process.env.EMAIL_USER && process.env.EMAIL_PASS) 
   mailConfig = {
     host: process.env.EMAIL_SMTP,
     port: process.env.EMAIL_PORT || 465,
-    secure: process.env.EMAIL_SECURE || true,
+    // stringa del .env: solo "false" disattiva TLS (default attivo)
+    secure: (process.env.EMAIL_SECURE || "true").toLowerCase() !== "false",
     logger: env.EMAIL_LOG ? env.EMAIL_LOG.toLowerCase() == "true" : true,
     debug: env.LOGLEVEL ? env.LOGLEVEL : "debug",
     auth: {

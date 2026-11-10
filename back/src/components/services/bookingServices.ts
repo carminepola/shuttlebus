@@ -178,13 +178,13 @@ class BookingsServices {
       switch (paymentSession.type) {
         case "stripe":
           for (const b of books) {
-            this.bookingDao.updatePaymentInfo("stripe", paymentSession.other, b.numberOfTickets);
+            await this.bookingDao.updatePaymentInfo("stripe", paymentSession.other, b.numberOfTickets);
           }
           url = paymentSession.other.url;
           break;
         case "cash":
           for (const b of books) {
-            this.bookingDao.updatePaymentInfo("cash", { type: "cash" }, b.numberOfTickets);
+            await this.bookingDao.updatePaymentInfo("cash", { type: "cash" }, b.numberOfTickets);
             let bookObj = await this.getBooking(b.numberOfTickets);
             if (process.env.MAIL_ADMIN) {
               await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Conferma Prenotazione (Contanti)", await this.mailSenderServices.transformBookGeneric(bookObj));
@@ -200,7 +200,7 @@ class BookingsServices {
       return url;
     } catch (error) {
       for (const b of books) {
-        this.bookingDao.deleteBooking(b.numberOfTickets);
+        await this.bookingDao.deleteBooking(b.numberOfTickets);
       }
       throw error;
     }
@@ -594,7 +594,7 @@ class BookingsServices {
       return { found: false };
     }
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = localDate();
     if (bookingRaw.date !== today) {
       return { found: true, wrongDate: true, booking: bookingRaw };
     }

@@ -1,9 +1,6 @@
 import { Db } from "mongodb";
 import BookingDao from "../dao/bookingsDao";
 import booking from "../../model/bookFromSiteModel";
-import UserServices from "./userServices";
-import { client } from "../../index";
-import { ClientSession } from "mongodb";
 import PaymentsDAO from "../dao/paymentsDao";
 import stripeServices from "./stripeServices";
 import TicketTypeServices from "./ticketTypeServices";

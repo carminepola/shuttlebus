@@ -1,6 +1,8 @@
 import { Db, ClientSession } from "mongodb";
 import { Route, Stop, Fare } from "../../model/routesModel";
 import { Schedule } from "../../model/routesModel";
+import { scheduleRunsOn } from "../../utils/scheduleDates";
+import { localDate } from "../../utils/bookingCutoff";
 export class RouteDAO {
   private db: Db;
 
@@ -96,132 +98,39 @@ export class RouteDAO {
     }
   }
 
-  async routesToDay() {
-    let todayDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
-    let todayDayOfWeek = (new Date().getDay() + 6) % 7; // Converti: Lunedì = 0, Domenica = 6
+  /**
+   * Id delle corse che viaggiano nel giorno indicato (oggi di default), con la
+   * stessa regola della ricerca clienti: utils/scheduleDates.scheduleRunsOn.
+   */
+  async scheduleIdsRunningOn(date: string = localDate()): Promise<string[]> {
+    const routes = await this.db.collection("routes").find({}, { projection: { _id: 0, schedules: 1 } }).toArray();
+    const ids: string[] = [];
+    for (const r of routes) for (const sc of (r as any).schedules || []) if (scheduleRunsOn(sc, date)) ids.push(sc.id);
+    return ids;
+  }
 
+  async routesToDay() {
+    const ids = await this.scheduleIdsRunningOn();
     return this.db
       .collection("routes")
-      .aggregate([
-        // 1️⃣ Espandi le `schedules`
-        { $unwind: "$schedules" },
-
-        // 2️⃣ Filtra solo le `schedules` attive e valide per oggi
-        {
-          $match: {
-            "schedules.status": "active",
-
-            // Se la data di oggi è tra `startDate` e `endDate`
-            "schedules.startDate": { $lte: todayDate },
-            "schedules.endDate": { $gte: todayDate },
-
-            $or: [
-              {
-                // Caso in cui oggi è una extraDate
-                "schedules.extraDates": { $elemMatch: { $eq: todayDate } },
-              },
-              {
-                $and: [
-                  {
-                    "schedules.daysOfWeek": {
-                      $not: {
-                        $elemMatch: { $eq: todayDayOfWeek },
-                      },
-                    },
-                  },
-                  {
-                    // Caso in cui la travelDate non è esclusa dalle excludedDates
-
-                    "schedules.excludedDates": { $nin: [todayDate] },
-                  },
-
-                  {
-                    "schedules.startDate": { $lte: todayDate },
-                    "schedules.endDate": { $gte: todayDate },
-                  },
-                ],
-              },
-            ],
-          },
-        },
-
-        // 3️⃣ Conta il numero di corse attive oggi
-        { $count: "active_schedules_today" },
-      ])
+      .aggregate([{ $unwind: "$schedules" }, { $match: { "schedules.id": { $in: ids } } }, { $count: "active_schedules_today" }])
       .toArray();
   }
   async routesToDayList() {
-    let todayDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
-    let todayDayOfWeek = (new Date().getDay() + 6) % 7; // Converti: Lunedì = 0, Domenica = 6
-
+    const ids = await this.scheduleIdsRunningOn();
     return this.db
       .collection("routes")
-      .aggregate([
-        // 1️⃣ Espandi le `schedules`
-        { $unwind: "$schedules" },
-
-        // 2️⃣ Filtra solo le `schedules` attive e valide per oggi
-        {
-          $match: {
-            "schedules.status": "active",
-
-            // Se la data di oggi è tra `startDate` e `endDate`
-            "schedules.startDate": { $lte: todayDate },
-            "schedules.endDate": { $gte: todayDate },
-
-            $or: [
-              {
-                // Caso in cui oggi è una extraDate
-                "schedules.extraDates": { $elemMatch: { $eq: todayDate } },
-              },
-              {
-                $and: [
-                  {
-                    "schedules.daysOfWeek": {
-                      $not: {
-                        $elemMatch: { $eq: todayDayOfWeek },
-                      },
-                    },
-                  },
-                  {
-                    // Caso in cui la travelDate non è esclusa dalle excludedDates
-
-                    "schedules.excludedDates": { $nin: [todayDate] },
-                  },
-
-                  {
-                    "schedules.startDate": { $lte: todayDate },
-                    "schedules.endDate": { $gte: todayDate },
-                  },
-                ],
-              },
-            ],
-          },
-        },
-      ])
+      .aggregate([{ $unwind: "$schedules" }, { $match: { "schedules.id": { $in: ids } } }])
       .toArray();
   }
   async currentSchedules() {
     const now = new Date();
-    const todayStr = now.toISOString().split("T")[0]; // Data odierna YYYY-MM-DD
     const currentTime = now.getHours() * 60 + now.getMinutes(); // Orario in minuti
-
-    const todayIndex = now.getDay(); // 0 = Domenica, 1 = Lunedì, ..., 6 = Sabato
+    const ids = await this.scheduleIdsRunningOn();
 
     const currentSchedule = this.db.collection("routes").aggregate([
       { $unwind: "$schedules" }, // Espande l'array delle schedule
-      {
-        $match: {
-          "schedules.startDate": { $lte: todayStr }, // StartDate <= oggi
-          "schedules.endDate": { $gte: todayStr }, // EndDate >= oggi
-          "schedules.status": "active", // La schedule deve essere attiva
-          "schedules.excludedDates": { $ne: todayStr }, // Non deve essere tra le excludedDates
-          $or: [
-            { "schedules.daysOfWeek": { $size: 0 } }, // Se vuoto, la schedule è sempre valida
-            { "schedules.daysOfWeek": todayIndex }, // Altrimenti, il giorno della settimana deve combaciare
-          ],
-        },
-      },
+      { $match: { "schedules.id": { $in: ids } } }, // corse che viaggiano oggi
       {
         $addFields: {
           departureMinutes: {
@@ -246,26 +155,10 @@ export class RouteDAO {
   }
   async listScheduleForBusId(): Promise<any> {
     try {
-      const now = new Date();
-      const todayStr = now.toISOString().split("T")[0];
-      const todayIndex = now.getDay();
+      const ids = await this.scheduleIdsRunningOn();
       let q = [
         { $unwind: "$schedules" }, // Espande gli schedules
-        {
-          $match: {
-            "schedules.status": "active",
-            "schedules.startDate": { $lte: todayStr }, // startDate <= oggi
-            "schedules.endDate": { $gte: todayStr }, // endDate >= oggi
-          },
-        },
-        {
-          $match: {
-            $or: [
-              { "schedules.daysOfWeek": { $size: 0 } }, // Se `daysOfWeek` è vuoto, è sempre attivo
-              { "schedules.daysOfWeek": { $in: [todayIndex] } }, // Verifica se il giorno è incluso
-            ],
-          },
-        },
+        { $match: { "schedules.id": { $in: ids } } }, // corse che viaggiano oggi
         { $unwind: "$schedules.stops" }, // Espande le fermate
         { $match: { "schedules.stops.status": "active" } }, // Prende solo fermate attive
         {

@@ -1,11 +1,12 @@
 import { Db } from "mongodb";
+import { scheduleRunsOn } from "../../utils/scheduleDates";
+import { localDate } from "../../utils/bookingCutoff";
 import MomapDao from "../dao/momapDao";
 import RoutesServices from "./routesServices";
 import LicensePlateServices from "./licensePlateServices";
 import DepotSettingsServices from "./depotSettingsServices";
 import dotenv from "dotenv";
 import { logger } from "../..";
-import { log } from "console";
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ class momapServices {
   async created() {
     try {
       const schedules: any[] = await this.routeServices.getListScheduleForBusId();
-      const day = new Date().toISOString().split("T")[0];
+      const day = localDate();
 
       for (const schedule of schedules) {
         schedule.day = day;
@@ -66,7 +67,7 @@ class momapServices {
 
       // Filtra i bus che hanno completato le loro corse del giorno
       const now = new Date();
-      const today = now.toISOString().split("T")[0];
+      const today = localDate(now);
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
       const currentTime = now;
 
@@ -234,7 +235,7 @@ class momapServices {
             lng: parseFloat(position.lng),
             angle: parseFloat(position.angle),
             doors: position.doors,
-            date: new Date().toISOString().split("T")[0],
+            date: localDate(),
             updatedFromMomap: position.updatedAt,
           };
 
@@ -373,7 +374,7 @@ class momapServices {
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
       const assignments = await this.db
         .collection("busScheduleAssignments")
-        .find({ day: now.toISOString().split("T")[0], busId })
+        .find({ day: localDate(now), busId })
         .toArray();
 
       const active = assignments.filter((a: any) => {
@@ -488,10 +489,9 @@ class momapServices {
    * Ottiene tutte le schedule attive per oggi (senza dipendenza da busId)
    */
   private async getTodaySchedules(routes: any[]): Promise<any[]> {
-    const todayDate = new Date().toISOString().split("T")[0];
-    const todayDayOfWeek = (new Date().getDay() + 6) % 7; // Lunedì = 0, Domenica = 6
+    const todayDate = localDate();
 
-    logger.info(`Ricerca schedule per oggi: ${todayDate}, giorno della settimana: ${todayDayOfWeek}`);
+    logger.info(`Ricerca schedule per oggi: ${todayDate}`);
     logger.info(`Analisi di ${routes.length} routes`);
 
     const todaySchedules: any[] = [];
@@ -516,40 +516,9 @@ class momapServices {
         logger.debug(`  - ExcludedDates: ${JSON.stringify(schedule.excludedDates)}`);
         logger.debug(`  - DepartureTime: ${schedule.departureTime}`);
 
-        // Verifica se la schedule è attiva per oggi
-        if (schedule.status !== "active") {
-          logger.debug(`  ❌ Schedule ${schedule.id} non è attiva (stato: ${schedule.status})`);
-          continue;
-        }
-
-        // Verifica che la data di oggi sia compresa tra startDate e endDate
-        const startDateNum = this.dateToNumber(schedule.startDate);
-        const endDateNum = this.dateToNumber(schedule.endDate);
-        const todayNum = this.dateToNumber(todayDate);
-
-        if (startDateNum > todayNum || endDateNum < todayNum) {
-          logger.debug(`  ❌ Schedule ${schedule.id} non valida per oggi (${schedule.startDate} - ${schedule.endDate})`);
-          continue;
-        }
-
-        // Verifica se oggi è una data esclusa
-        if (schedule.excludedDates && schedule.excludedDates.includes(todayDate)) {
-          logger.debug(`  ❌ Schedule ${schedule.id} esclusa per oggi`);
-          continue;
-        }
-
-        // Verifica se oggi è una data extra
-        const isExtraDate = schedule.extraDates && schedule.extraDates.includes(todayDate);
-
-        // Verifica se oggi è un giorno della settimana valido
-        // Se daysOfWeek è vuoto o non definito, la schedule è valida tutti i giorni
-        let isValidDayOfWeek = true;
-        if (schedule.daysOfWeek && schedule.daysOfWeek.length > 0) {
-          isValidDayOfWeek = schedule.daysOfWeek.includes(todayDayOfWeek);
-        }
-
-        if (!isExtraDate && !isValidDayOfWeek) {
-          logger.debug(`  ❌ Schedule ${schedule.id} non valida per questo giorno della settimana (daysOfWeek: ${JSON.stringify(schedule.daysOfWeek)}, oggi: ${todayDayOfWeek})`);
+        // stessa regola della ricerca clienti: periodo, giorni esclusi, date escluse ed extra
+        if (!scheduleRunsOn(schedule, todayDate)) {
+          logger.debug(`  ❌ Schedule ${schedule.id} non viaggia oggi`);
           continue;
         }
 
@@ -574,7 +543,7 @@ class momapServices {
    * La funzione è idempotente: se esistono già assegnazioni per oggi, le riutilizza
    */
   private async generateBusScheduleTable(routes: any[], currentPositions: any[]) {
-    const today = new Date().toISOString().split("T")[0];
+    const today = localDate();
 
     logger.info(`Generazione tabella assegnazioni per ${today}`);
     logger.info(`Bus disponibili: ${currentPositions.length}`);
@@ -1060,7 +1029,7 @@ class momapServices {
           continue;
         }
 
-        const today = new Date().toISOString().split("T")[0];
+        const today = localDate();
         const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
         const routeMetrics = this.calculateRouteMetrics(activeAssignment.stops, stopsMap);

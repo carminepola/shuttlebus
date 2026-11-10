@@ -1,9 +1,8 @@
 import { Db, ClientSession } from "mongodb";
 import { Schedule, ScheduleStop, Stop } from "../../model/routesModel";
 import booking, { RefundRecord, TicketType } from "../../model/bookFromSiteModel";
-import { session } from "passport";
-import { create } from "domain";
-import { LUGGAGE_PRICE } from "../../constants";
+import { scheduleRunsOn } from "../../utils/scheduleDates";
+import { localDate } from "../../utils/bookingCutoff";
 export default class BookingsDAO {
   private db: Db;
 
@@ -13,7 +12,7 @@ export default class BookingsDAO {
   async currentDayBookingsFromScheduleId(scheduleId: string) {
     let q = {
       scheduleId: scheduleId,
-      date: new Date().toISOString().split("T")[0],
+      date: localDate(),
       status: "confirmed",
     };
     return this.db.collection("bookings").find(q).toArray();
@@ -179,7 +178,8 @@ export default class BookingsDAO {
   }
 
   async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0) {
-    let daysOfWeek = new Date(travelDate).getDay();
+    // giorno della settimana della data (0 = domenica), indipendente dal fuso del server
+    let daysOfWeek = new Date(`${travelDate}T00:00:00Z`).getUTCDay();
 
     let q = [
       // 2️⃣ Trova solo le `routes` che contengono entrambe le fermate
@@ -449,7 +449,8 @@ export default class BookingsDAO {
   }
 
   async removeExpiredPendingBookings() {
-    this.db.collection("bookings").updateMany(
+    // atteso: chi conta posti o pending subito dopo deve vedere le scadute gia' marcate
+    return await this.db.collection("bookings").updateMany(
       {
         createdAt: { $lt: new Date().getTime() - 30 * 60 * 1000 },
         status: "pending",
@@ -871,7 +872,7 @@ export default class BookingsDAO {
       .aggregate([
         {
           $match: {
-            date: new Date().toISOString().split("T")[0],
+            date: localDate(),
             status: "confirmed", // Imposta automaticamente la data di oggi in formato YYYY-MM-DD
           },
         },
@@ -890,7 +891,7 @@ export default class BookingsDAO {
       .aggregate([
         {
           $match: {
-            date: new Date().toISOString().split("T")[0],
+            date: localDate(),
             status: "confirmed", // Imposta automaticamente la data di oggi in formato YYYY-MM-DD
           },
         },
@@ -936,7 +937,7 @@ export default class BookingsDAO {
     let endDateYearAgoCurrent = new Date(today.getFullYear() - 1, today.getMonth() + 1, 0);
     endDateYearAgoCurrent.setHours(23, 59, 59, 999);
 
-    const formatDate = (date: any) => date.toISOString().split("T")[0];
+    const formatDate = (date: any) => localDate(date); // data locale, non UTC
 
     const generateDateRange = (start: any, end: any, period: any) => {
       let dates = [];
@@ -1037,7 +1038,8 @@ export default class BookingsDAO {
         {
           $addFields: {
             bookingValue: {
-              $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }],
+              // il totale include gia' i bagagli (calcolato all'acquisto)
+              $add: ["$total"],
             },
           },
         },
@@ -1152,7 +1154,7 @@ export default class BookingsDAO {
     let endDateYearAgoCurrent = new Date(today.getFullYear() - 1, today.getMonth() + 1, 0);
     endDateYearAgoCurrent.setHours(23, 59, 59, 999);
 
-    const formatDate = (date: any) => date.toISOString().split("T")[0];
+    const formatDate = (date: any) => localDate(date); // data locale, non UTC
 
     const generateDateRange = (start: any, end: any, period: any) => {
       let dates = [];
@@ -1211,7 +1213,8 @@ export default class BookingsDAO {
               },
             },
             bookingValue: {
-              $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }],
+              // il totale include gia' i bagagli (calcolato all'acquisto)
+              $add: ["$total"],
             },
           },
         },
@@ -1261,7 +1264,7 @@ export default class BookingsDAO {
           {
             $group: {
               _id: null,
-              totalRevenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+              totalRevenue: { $sum: "$total" },
               totalTickets: { $sum: 1 },
             },
           },
@@ -1279,7 +1282,7 @@ export default class BookingsDAO {
           {
             $group: {
               _id: null,
-              totalRevenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+              totalRevenue: { $sum: "$total" },
               totalTickets: { $sum: 1 },
             },
           },
@@ -1319,7 +1322,7 @@ export default class BookingsDAO {
           {
             $group: {
               _id: { $substr: ["$date", 5, 2] },
-              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+              revenue: { $sum: "$total" },
               tickets: { $sum: 1 },
               seats: { $sum: "$seats" },
             },
@@ -1338,7 +1341,7 @@ export default class BookingsDAO {
           {
             $group: {
               _id: { $substr: ["$date", 5, 2] },
-              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+              revenue: { $sum: "$total" },
               tickets: { $sum: 1 },
               seats: { $sum: "$seats" },
             },
@@ -1426,7 +1429,7 @@ export default class BookingsDAO {
               toName: { $first: "$to.name" },
               bookings: { $sum: 1 },
               seats: { $sum: "$seats" },
-              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+              revenue: { $sum: "$total" },
             },
           },
         ])
@@ -1452,7 +1455,7 @@ export default class BookingsDAO {
               toName: { $first: "$to.name" },
               bookings: { $sum: 1 },
               seats: { $sum: "$seats" },
-              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+              revenue: { $sum: "$total" },
             },
           },
         ])
@@ -1560,7 +1563,7 @@ export default class BookingsDAO {
               },
               bookings: { $sum: 1 },
               seats: { $sum: "$seats" },
-              revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+              revenue: { $sum: "$total" },
             },
           },
         ])
@@ -1678,7 +1681,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: "$paymentMethod",
-            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+            total: { $sum: "$total" },
             count: { $sum: 1 },
           },
         },
@@ -1687,26 +1690,16 @@ export default class BookingsDAO {
   }
 
   async dailyRevenueByRoute(date: string) {
-    const dateObj = new Date(date + "T00:00:00");
-    const dayOfWeek = (dateObj.getDay() + 6) % 7;
+    // corse che viaggiano quel giorno: stessa regola della ricerca clienti
+    const routesDocs = await this.db.collection("routes").find({}, { projection: { _id: 0, schedules: 1 } }).toArray();
+    const runningIds: string[] = [];
+    for (const r of routesDocs) for (const sc of (r as any).schedules || []) if (scheduleRunsOn(sc, date)) runningIds.push(sc.id);
 
     const schedules = await this.db
       .collection("routes")
       .aggregate([
         { $unwind: "$schedules" },
-        {
-          $match: {
-            "schedules.status": "active",
-            "schedules.startDate": { $lte: date },
-            "schedules.endDate": { $gte: date },
-            $or: [
-              { "schedules.extraDates": { $elemMatch: { $eq: date } } },
-              {
-                $and: [{ "schedules.daysOfWeek": { $not: { $elemMatch: { $eq: dayOfWeek } } } }, { "schedules.excludedDates": { $nin: [date] } }],
-              },
-            ],
-          },
-        },
+        { $match: { "schedules.id": { $in: runningIds } } },
         {
           $project: {
             _id: 0,
@@ -1730,7 +1723,7 @@ export default class BookingsDAO {
               scheduleId: "$scheduleId",
               paymentMethod: "$paymentMethod",
             },
-            total: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+            total: { $sum: "$total" },
             seats: { $sum: "$seats" },
             count: { $sum: 1 },
           },
@@ -1818,7 +1811,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: { $substr: ["$date", 0, 7] },
-            revenue: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+            revenue: { $sum: "$total" },
             count: { $sum: 1 },
           },
         },
@@ -1832,7 +1825,7 @@ export default class BookingsDAO {
         {
           $group: {
             _id: { $substr: ["$date", 0, 7] },
-            refunds: { $sum: { $add: ["$total", { $multiply: ["$luggage", { $ifNull: ["$luggagePrice", LUGGAGE_PRICE] }] }] } },
+            refunds: { $sum: "$total" },
             count: { $sum: 1 },
           },
         },

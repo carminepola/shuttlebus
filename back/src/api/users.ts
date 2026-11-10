@@ -238,7 +238,7 @@ router.patch(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let userServices = new UserServices(db);
-      const result = await userServices.updateRole(req.body.userId, parseInt(req.body.role));
+      const result = await userServices.updateRole(req.body.userId, parseInt(req.body.role), res.locals.userLogged?.role);
       res.json({ message: "Ruolo aggiornato con successo", ...result });
     } catch (error) {
       logger.error(error);
