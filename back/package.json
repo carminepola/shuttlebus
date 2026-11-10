@@ -17,6 +17,7 @@
     "sync:unpaidBookings": "ts-node src/scripts/sync-unpaid-bookings.ts",
     "migrate:recoverMail": "ts-node src/scripts/update-recover-password-template.ts",
     "seed:mfaLng": "ts-node src/scripts/seed-mfa-lng.ts",
+    "lng:import": "ts-node src/scripts/import-lng.ts",
     "admin:resetPassword": "ts-node src/scripts/reset-admin-password.ts",
     "version-patch": "npm version patch --no-git-tag-version",
     "version-minor": "npm version minor",
