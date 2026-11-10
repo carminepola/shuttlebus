@@ -476,6 +476,34 @@
   border-top: 1px dashed rgba(var(--bs-primary-rgb), 0.15);
 }
 
+.trip-edit-toggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(var(--bs-secondary-rgb), 1);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.trip-extra-hint {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.trip-extra-days {
+  display: block;
+  font-size: 0.7rem;
+  color: rgba(0, 0, 0, 0.45);
+  text-transform: capitalize;
+}
+
 .trip-extra-title {
   font-size: 0.72rem;
   font-weight: 600;
@@ -581,7 +609,9 @@
   .trip-duration,
   .trip-route-name,
   .trip-includes,
-  .trip-extra-title {
+  .trip-extra-title,
+  .trip-extra-hint,
+  .trip-extra-days {
     color: rgba(255, 255, 255, 0.45);
   }
 

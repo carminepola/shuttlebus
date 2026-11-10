@@ -218,39 +218,58 @@
           </span>
         }
       </div>
-      @if (extraTicketTypes(param).length > 0) {
+      <!-- biglietti cambiabili al volo: tutti quelli validi sulla corsa nel giorno scelto -->
+      @if (param.ticketTypes.length > 0) {
         <div class="trip-extra-tickets">
-          <div class="trip-extra-title">
-            {{ lngService.traslateOr("str_altri_biglietti", "Altri biglietti disponibili su questa corsa") }}
-          </div>
-          @for (ticket of extraTicketTypes(param); track ticket.id) {
-            <div class="trip-extra-row">
-              <span class="trip-extra-name">
-                {{ ticket.name | translateName }}
-                <small class="text-secondary">{{ ticket.cost | price }}</small>
-              </span>
-              <div class="trip-extra-counter">
-                <button
-                  type="button"
-                  class="counter-btn"
-                  [disabled]="ticket.count === 0"
-                  (click)="changeTicketCount(param, ticket, -1)"
-                  aria-label="-"
-                >
-                  <i class="fa fa-minus"></i>
-                </button>
-                <span class="counter-value">{{ ticket.count }}</span>
-                <button
-                  type="button"
-                  class="counter-btn"
-                  [disabled]="!canAddTicket(param)"
-                  (click)="changeTicketCount(param, ticket, 1)"
-                  aria-label="+"
-                >
-                  <i class="fa fa-plus"></i>
-                </button>
+          <button
+            type="button"
+            class="trip-edit-toggle"
+            [attr.aria-expanded]="!!param.editTickets"
+            (click)="param.editTickets = !param.editTickets"
+          >
+            <i class="fa-solid fa-ticket me-1"></i>
+            {{ lngService.traslateOr("str_cambia_biglietti", "Cambia biglietti") }}
+            <i class="fa-solid ms-1" [class.fa-chevron-down]="!param.editTickets" [class.fa-chevron-up]="param.editTickets"></i>
+          </button>
+          @if (!param.editTickets && hasUnselectedTickets(param)) {
+            <span class="trip-extra-hint">{{ lngService.traslateOr("str_altri_biglietti", "Altri biglietti disponibili su questa corsa") }}</span>
+          }
+          @if (param.editTickets) {
+            @for (ticket of param.ticketTypes; track ticket.id) {
+              <div class="trip-extra-row">
+                <span class="trip-extra-name">
+                  {{ ticket.name | translateName }}
+                  <small class="text-secondary">{{ ticket.cost | price }}</small>
+                  @if (ticketDays(ticket)) {
+                    <small class="trip-extra-days">{{ ticketDays(ticket) }}</small>
+                  }
+                </span>
+                <div class="trip-extra-counter">
+                  <button
+                    type="button"
+                    class="counter-btn"
+                    [disabled]="ticket.count === 0"
+                    (click)="changeTicketCount(param, ticket, -1)"
+                    aria-label="-"
+                  >
+                    <i class="fa fa-minus"></i>
+                  </button>
+                  <span class="counter-value">{{ ticket.count }}</span>
+                  <button
+                    type="button"
+                    class="counter-btn"
+                    [disabled]="!canAddTicket(param)"
+                    (click)="changeTicketCount(param, ticket, 1)"
+                    aria-label="+"
+                  >
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
               </div>
-            </div>
+            }
+            @if (param.seats === 0) {
+              <div class="trip-extra-hint text-danger">{{ lngService.traslateOr("str_almeno_un_biglietto", "Scegli almeno un biglietto") }}</div>
+            }
           }
         </div>
       }

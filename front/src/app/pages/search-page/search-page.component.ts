@@ -19,7 +19,7 @@ import { TitlePageComponent } from '../../components/title-page/title-page.compo
 import { PendingBookingService } from '../../services/pending-booking/pending-booking.service';
 import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
 import { resolveFarePrice, resolveLuggagePrice } from '../../utils/fares';
-import { isTicketTypeValidOn } from '../../utils/ticket-days';
+import { daysLabel, isTicketTypeValidOn } from '../../utils/ticket-days';
 import { PricePipe } from '../../pipe/price.pipe';
 import { localToday } from '../../utils/dates';
 @Component({
@@ -339,8 +339,14 @@ export class SearchPageComponent implements OnInit {
   }
 
   /** Biglietti non mostrati nella ricerca della home: si scelgono qui, sulla corsa. */
-  extraTicketTypes(param: any): any[] {
-    return param.ticketTypes.filter((t: any) => t.showOnHome === false);
+  /** Ci sono biglietti validi sulla corsa non ancora scelti (es. Over 60 non mostrato in home). */
+  hasUnselectedTickets(param: any): boolean {
+    return param.ticketTypes.some((t: any) => !t.count);
+  }
+
+  /** Giorni di validita' del biglietto ("mar, mer"), vuoto se vale sempre. */
+  ticketDays(ticket: any): string {
+    return daysLabel(ticket.daysOfWeek, this.lngService.getLng());
   }
 
   canAddTicket(param: any): boolean {
@@ -433,6 +439,7 @@ export class SearchPageComponent implements OnInit {
     delete param['availableSeats'];
     delete param['availableLuggage'];
     delete param['durationMin'];
+    delete param['editTickets'];
     return param;
   }
 

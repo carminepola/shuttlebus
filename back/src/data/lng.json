@@ -639,6 +639,14 @@
     "es": "Atención: debido al tráfico, los horarios pueden sufrir retrasos. {{company}} no se hace responsable.",
     "jp": "注意：交通状況により、時刻が遅延する場合があります。{{company}}は一切の責任を負いません。"
   },
+  "str_almeno_un_biglietto": {
+    "it": "Scegli almeno un biglietto",
+    "en": "Choose at least one ticket",
+    "fr": "Choisissez au moins un billet",
+    "de": "Wähle mindestens ein Ticket",
+    "es": "Elige al menos un billete",
+    "jp": "チケットを1枚以上選択してください"
+  },
   "str_altri_biglietti": {
     "it": "Altri biglietti disponibili su questa corsa",
     "en": "Other tickets available on this trip",
@@ -806,6 +814,14 @@
     "de": "Alle Haltestellendetails für jede Verbindung",
     "es": "Todos los detalles de las paradas para cada ruta",
     "jp": "各運行便の停留所の詳細情報"
+  },
+  "str_cambia_biglietti": {
+    "it": "Cambia biglietti",
+    "en": "Change tickets",
+    "fr": "Modifier les billets",
+    "de": "Tickets ändern",
+    "es": "Cambiar billetes",
+    "jp": "チケットを変更"
   },
   "str_cambia_password": {
     "it": "Cambia password",
