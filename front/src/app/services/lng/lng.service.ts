@@ -13,8 +13,9 @@ export class LngService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  get(): Observable<any> {
-    return this.http.get(this.apiUrl).pipe(
+  /** `raw`: testi con i segnaposto ({{company}}, ...) per la pagina admin Traduzioni. */
+  get(raw = false): Observable<any> {
+    return this.http.get(this.apiUrl, raw ? { params: { raw: 'true' } } : {}).pipe(
       catchError((error) => {
         return throwError(() => error);
       })

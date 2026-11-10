@@ -10,6 +10,7 @@ import checkPermissionMiddleware from "../middlewares/checkPermissionMiddleware"
 import { role } from "../enum/role";
 import ErrorModel from "../model/errorModel";
 import ticketTypeModel from "../model/ticketTypeModel";
+import { applyCompanyToText } from "../utils/company";
 const router = Router();
 
 router.post(
@@ -66,8 +67,14 @@ router.patch(
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     let lngServices = new LngServices(db);
-    const lng = await lngServices.getAll();
-    res.json({ lng });
+    const lng: any[] = await lngServices.getAll();
+    // ?raw=true (pagina admin Traduzioni): testi con i segnaposto {{company}}, da modificare cosi'
+    if (req.query.raw === "true") {
+      res.json({ lng });
+      return;
+    }
+    // app: nome e ragione sociale dell'azienda dal .env (COMPANY_NAME, COMPANY_LEGAL_NAME)
+    res.json({ lng: lng.map((row: any) => Object.fromEntries(Object.entries(row).map(([k, v]) => [k, k === "txt" || k === "id" ? v : applyCompanyToText(v as string)]))) });
   } catch (error) {
     next(error);
   }

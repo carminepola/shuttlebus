@@ -34,10 +34,16 @@ export class TraduzioniComponent implements OnInit {
     return this.lngService.traslate(id);
   }
   caricaTraduzioni() {
-    this.lngService.get().subscribe((res) => {
+    // elenco da modificare con i segnaposto ({{company}}): salvando restano tali
+    this.lngService.get(true).subscribe((res) => {
       if (res && res.lng) {
         this.loading = false;
         this.traduzioni = res.lng;
+      }
+    });
+    // traduzioni in uso nell'app, con il nome dell'azienda gia' sostituito
+    this.lngService.get().subscribe((res) => {
+      if (res && res.lng) {
         sessionStorage['lng'] = JSON.stringify(res.lng);
       }
     });
