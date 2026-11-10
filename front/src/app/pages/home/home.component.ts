@@ -412,8 +412,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           {
             label: 'Mese Precedente',
             data: previousMonthData,
-            borderColor: '#8b5cf6',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            // grigio neutro: distinguibile dal mese corrente (colore del brand) con ogni brand
+            borderColor: '#94a3b8',
+            backgroundColor: 'rgba(148, 163, 184, 0.1)',
             tension: 0.4,
             fill: true,
             pointRadius: 0,
@@ -532,8 +533,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           {
             label: 'Mese Precedente',
             data: previousMonthData,
-            borderColor: '#8b5cf6',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            // grigio neutro: distinguibile dal mese corrente (colore del brand) con ogni brand
+            borderColor: '#94a3b8',
+            backgroundColor: 'rgba(148, 163, 184, 0.1)',
             tension: 0.4,
             fill: true,
             pointRadius: 0,

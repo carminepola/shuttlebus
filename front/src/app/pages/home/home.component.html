@@ -149,7 +149,7 @@
                 </div>
               }
               @if (!loadYearlyComparison && yearlyComparison) {
-                <div class="stat-value" style="color: #8b5cf6;">
+                <div class="stat-value" style="color: #a855f7;">
                   {{ yearlyComparison.currentTotal.seats | number:'1.0-0':'it' }}
                 </div>
                 <div class="yoy-change" [class.text-success]="yearlyComparison.seatsChange >= 0" [class.text-danger]="yearlyComparison.seatsChange < 0">
@@ -159,7 +159,7 @@
                 </div>
               }
             </div>
-            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+            <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
               <i class="fas fa-users"></i>
             </div>
           </div>

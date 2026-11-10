@@ -89,3 +89,20 @@ describe("dati di base versionati", () => {
     expect(db.data.lng.find((r: any) => r.txt === key).it).toBe((lngData as any)[key].it);
   });
 });
+
+import { neutralizeCompanyText, hasCompanyData } from "../src/i18n/neutralizeCompany";
+
+describe("rimozione dati aziendali dai testi", () => {
+  it("nome -> segnaposto senza toccare i domini, contatti rimossi", () => {
+    const it =
+      'servizio di <strong>Pintour Scarl</strong>, con sede legale in Pimonte alla Via Castellammare 18 - 80050. <br>Tel: <a href="tel:+39081">081</a> – Cell: <a href="tel:+39335">335</a> <br>Email: <a href="mailto:ordini@pintourbus.com">ordini@pintourbus.com</a> ' +
+      '<ul><li>Online: <a href="https://www.amalfiairportlink.com" target="_blank">a</a>, <a href="https://www.pintourbus.com" target="_blank">b</a></li><li>Call center: <a href="tel:+1">1</a> / <a href="tel:+2">2</a></li></ul> pintour non risponde';
+    const out = neutralizeCompanyText(it, "it");
+    expect(out).toBe("servizio di <strong>{{companyLegalName}}</strong>. <ul><li>Online: questo sito</li></ul> {{company}} non risponde");
+    expect(hasCompanyData(out)).toBe(false);
+  });
+
+  it("email di contatto -> {{companyEmail}}", () => {
+    expect(neutralizeCompanyText('scrivi a: <a href="mailto:x@y.it">x@y.it</a>.', "en")).toBe("scrivi a: {{companyEmail}}.");
+  });
+});

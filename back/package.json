@@ -17,6 +17,7 @@
     "sync:unpaidBookings": "ts-node src/scripts/sync-unpaid-bookings.ts",
     "lng:import": "ts-node src/scripts/import-lng.ts",
     "data:sync": "ts-node src/scripts/sync-default-data.ts",
+    "lng:neutralize": "ts-node src/scripts/neutralize-company-lng.ts",
     "admin:resetPassword": "ts-node src/scripts/reset-admin-password.ts",
     "version-patch": "npm version patch --no-git-tag-version",
     "version-minor": "npm version minor",

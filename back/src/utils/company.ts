@@ -69,9 +69,14 @@ export function companyFooterHtml(lng: string = "it"): string {
 }
 
 
-/** Sostituisce {{company}} e {{companyLegalName}} nei testi delle traduzioni. */
+/** Sostituisce {{company}}, {{companyLegalName}} e {{companyEmail}} nei testi delle traduzioni. */
 export function applyCompanyToText(text: string): string {
   if (typeof text !== "string" || !text.includes("{{")) return text;
   const c = companyInfo();
-  return text.replace(/\{\{companyLegalName\}\}/g, c.legalName).replace(/\{\{company\}\}/g, c.name);
+  // email di contatto (COMPANY_EMAIL) come link; senza email resta vuota
+  const email = c.email ? `<a href="mailto:${escapeHtml(c.email)}">${escapeHtml(c.email)}</a>` : "";
+  return text
+    .replace(/\{\{companyLegalName\}\}/g, c.legalName)
+    .replace(/\{\{companyEmail\}\}/g, email)
+    .replace(/\{\{company\}\}/g, c.name);
 }
