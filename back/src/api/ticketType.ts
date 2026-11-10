@@ -41,7 +41,8 @@ router.post(
   },
 );
 
-router.get("/", authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+// anche i biglietti disattivati: solo per la gestione admin (gli utenti usano /all)
+router.get("/", authMiddleware, checkPermissionMiddleware(role.ADMIN, ["MANAGE_TICKET"]), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let ticketTypeServices = new TicketTypeServices(db);
     const ticketType = await ticketTypeServices.getAllTicketTypes();

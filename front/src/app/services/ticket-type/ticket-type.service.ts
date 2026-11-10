@@ -36,8 +36,9 @@ export class TicketTypeService {
     );
   }
 
+  /** Tutti i tipi di biglietto, anche disattivati (pannello admin). /all restituisce solo gli attivi. */
   getAllTicketTypes(): Observable<any> {
-    return this.http.get<any[]>(`${this.apiUrl}/all`).pipe(
+    return this.http.get<any[]>(`${this.apiUrl}`).pipe(
       catchError((error) => {
         return throwError(() => error);
       })
