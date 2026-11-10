@@ -9,7 +9,8 @@ dotenv.config({ path: ".env" });
  * Importa traduzioni da un file JSON nella collection 'lng'.
  *
  * Formato del file: { "<chiave>": { "it": "...", "en": "...", "fr": "...", "de": "...", "es": "...", "jp": "..." }, ... }
- * (i file delle varie funzionalita' stanno in src/scripts/lng/).
+ * Il file completo e' src/data/lng.json (caricato anche all'avvio del back, solo le chiavi
+ * mancanti): questo script serve ad aggiornare le chiavi gia' presenti.
  *
  * - Chiave assente: inserita con un `id` (la pagina admin "Traduzioni" lavora per id).
  * - Chiave presente: le lingue del file sovrascrivono quelle salvate; con
@@ -17,9 +18,9 @@ dotenv.config({ path: ".env" });
  *   dalla pagina admin restano).
  *
  * Uso:
- *   npm run lng:import -- src/scripts/lng/<file>.json [--dry-run] [--only-missing] [--uri=<conn>]
- *   Nel container (contiene solo dist/src, il JSON arriva da stdin):
- *   docker exec -i <container-back> node scripts/import-lng.js - < src/scripts/lng/<file>.json
+ *   npm run lng:import -- src/data/lng.json [--dry-run] [--only-missing] [--uri=<conn>]
+ *   Nel container: node scripts/import-lng.js data/lng.json [opzioni]
+ *   (o un altro file da stdin: docker exec -i <container-back> node scripts/import-lng.js - < file.json)
  */
 
 const LANGS = ["it", "en", "fr", "de", "es", "jp"] as const;

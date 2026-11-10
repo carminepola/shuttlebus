@@ -96,6 +96,22 @@ let dbStarted = false;
 const restServer = new RestServer(parseInt(env.PORT || "1800"));
 //Db default
 
+/**
+ * Traduzioni e template mail di base (src/data): un DB nuovo li riceve tutti,
+ * uno esistente solo quelli mancanti. SEED_DEFAULT_DATA=false per disattivare.
+ * Un errore qui non blocca l'avvio.
+ */
+const seedDefaults = async (database: any) => {
+  if (env.SEED_DEFAULT_DATA?.toLowerCase() === "false") return;
+  try {
+    const { seedDefaultData } = await import("./components/services/defaultDataServices");
+    const res = await seedDefaultData(database);
+    logger.info(`Dati di base: traduzioni +${res.lng.inserted} ~${res.lng.updated}, template mail +${res.templates.inserted}`);
+  } catch (error) {
+    logger.error("Caricamento dei dati di base (traduzioni, template mail) non riuscito", error);
+  }
+};
+
 const startServer = async () => {
   try {
     // Validazione variabili d'ambiente critiche per la sicurezza
@@ -118,6 +134,7 @@ const startServer = async () => {
             dbStarted = true;
             db = res.db;
             client = res.client;
+            await seedDefaults(res.db);
           }
         }
 

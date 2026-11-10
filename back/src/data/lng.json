@@ -1,0 +1,2866 @@
+{
+  "cancelled": {
+    "it": "Cancellato",
+    "en": "Cancelled",
+    "fr": "Annulé",
+    "de": "Storniert",
+    "es": "Cancelado",
+    "jp": "キャンセル済み"
+  },
+  "confirmed": {
+    "it": "Confermato",
+    "en": "Confirmed",
+    "fr": "Confirmé",
+    "de": "Bestätigt",
+    "es": "Confirmado",
+    "jp": "確認済み"
+  },
+  "insert_new_password": {
+    "it": "Inserisci la nuova password",
+    "en": "Enter new password",
+    "fr": "Entrez le nouveau mot de passe",
+    "de": "Neues Passwort eingeben",
+    "es": "Introduzca la nueva contraseña",
+    "jp": "新しいパスワードを入力してください"
+  },
+  "insert_old_password": {
+    "it": "Inserisci la vecchia password",
+    "en": "Enter old password",
+    "fr": "Entrez l'ancien mot de passe",
+    "de": "Altes Passwort eingeben",
+    "es": "Introduzca la contraseña anterior",
+    "jp": "古いパスワードを入力してください"
+  },
+  "pending": {
+    "it": "Attesa",
+    "en": "Pending",
+    "fr": "En attente",
+    "de": "Ausstehend",
+    "es": "Pendiente",
+    "jp": "保留中"
+  },
+  "refunded": {
+    "it": "Rimborsato",
+    "en": "Refunded",
+    "fr": "Remboursé",
+    "de": "Erstattet",
+    "es": "Reembolsado",
+    "jp": "返金済み"
+  },
+  "search_not_found": {
+    "it": "Nessuna linea con posti disponibili è stata trovata, prova a cambiare la data",
+    "en": "No available routes were found, try changing the date",
+    "fr": "Aucune ligne disponible n'a été trouvée, essayez de changer la date",
+    "de": "Es wurden keine verfügbaren Routen gefunden. Versuchen Sie, das Datum zu ändern",
+    "es": "No se encontraron rutas disponibles, intente cambiar la fecha",
+    "jp": "利用可能な路線が見つかりませんでした。日付を変更してお試しください"
+  },
+  "ste_vuoi_uscire": {
+    "it": "Vuoi effettuare il logout?",
+    "en": "Do you want to log out?",
+    "fr": "Voulez-vous vous déconnecter ?",
+    "de": "Möchten Sie sich abmelden?",
+    "es": "¿Quiere cerrar sesión?",
+    "jp": "ログアウトしますか？"
+  },
+  "str_accendi_account": {
+    "it": "Accedi al tuo account",
+    "en": "Log in to your account",
+    "fr": "Connectez-vous à votre compte",
+    "de": "In Ihr Konto einloggen",
+    "es": "Inicie sesión en su cuenta",
+    "jp": "アカウントにログイン"
+  },
+  "str_accept": {
+    "it": "Accetto",
+    "en": "Accept",
+    "fr": "J'accepte",
+    "de": "Akzeptieren",
+    "es": "Aceptar",
+    "jp": "承認"
+  },
+  "str_account": {
+    "it": "Account",
+    "en": "Account",
+    "fr": "Compte",
+    "de": "Konto",
+    "es": "Cuenta",
+    "jp": "アカウント"
+  },
+  "str_account_delete": {
+    "it": "Elimina account",
+    "en": "Delete account",
+    "fr": "Supprimer le compte",
+    "de": "Konto löschen",
+    "es": "Eliminar cuenta",
+    "jp": "アカウントを削除"
+  },
+  "str_account_delete_active_tickets": {
+    "it": "Hai biglietti confermati per oggi o per i prossimi giorni: annullali o attendi il viaggio prima di eliminare l'account.",
+    "en": "You have confirmed tickets for today or upcoming days: cancel them or wait until after your trip before deleting your account.",
+    "fr": "Vous avez des billets confirmés pour aujourd'hui ou les prochains jours : annulez-les ou attendez la fin de votre voyage avant de supprimer votre compte.",
+    "de": "Du hast bestätigte Tickets für heute oder die nächsten Tage: Storniere sie oder warte deine Fahrt ab, bevor du dein Konto löschst.",
+    "es": "Tienes billetes confirmados para hoy o los próximos días: cancélalos o espera a después del viaje antes de eliminar la cuenta.",
+    "jp": "本日または今後の日付の確定済みチケットがあります。アカウントを削除する前に、キャンセルするか乗車後までお待ちください。"
+  },
+  "str_account_delete_confirm": {
+    "it": "Elimina definitivamente",
+    "en": "Delete permanently",
+    "fr": "Supprimer définitivement",
+    "de": "Endgültig löschen",
+    "es": "Eliminar definitivamente",
+    "jp": "完全に削除"
+  },
+  "str_account_delete_desc": {
+    "it": "Elimina definitivamente l'account, i dati personali e le carte salvate. Le prenotazioni passate restano in forma anonima per obblighi contabili.",
+    "en": "Permanently delete your account, personal data and saved cards. Past bookings are kept in anonymous form for accounting purposes.",
+    "fr": "Supprime définitivement votre compte, vos données personnelles et vos cartes enregistrées. Les réservations passées sont conservées sous forme anonyme pour des raisons comptables.",
+    "de": "Löscht dein Konto, deine persönlichen Daten und gespeicherten Karten endgültig. Frühere Buchungen bleiben aus buchhalterischen Gründen anonymisiert erhalten.",
+    "es": "Elimina definitivamente tu cuenta, tus datos personales y las tarjetas guardadas. Las reservas anteriores se conservan de forma anónima por obligaciones contables.",
+    "jp": "アカウント、個人データ、保存済みカードを完全に削除します。過去の予約は会計上の義務により匿名の形で保管されます。"
+  },
+  "str_account_delete_email_hint": {
+    "it": "Inserisci il codice che ti abbiamo inviato via email.",
+    "en": "Enter the code we sent you by email.",
+    "fr": "Saisissez le code que nous vous avons envoyé par e-mail.",
+    "de": "Gib den Code ein, den wir dir per E-Mail gesendet haben.",
+    "es": "Introduce el código que te hemos enviado por correo electrónico.",
+    "jp": "メールでお送りしたコードを入力してください。"
+  },
+  "str_account_delete_staff": {
+    "it": "Gli account dello staff possono essere eliminati solo da un amministratore.",
+    "en": "Staff accounts can only be deleted by an administrator.",
+    "fr": "Les comptes du personnel ne peuvent être supprimés que par un administrateur.",
+    "de": "Mitarbeiterkonten können nur von einem Administrator gelöscht werden.",
+    "es": "Las cuentas del personal solo puede eliminarlas un administrador.",
+    "jp": "スタッフのアカウントは管理者のみが削除できます。"
+  },
+  "str_account_delete_totp_hint": {
+    "it": "Inserisci il codice dell'app di autenticazione o un codice di recupero.",
+    "en": "Enter the code from your authenticator app or a recovery code.",
+    "fr": "Saisissez le code de votre application d'authentification ou un code de récupération.",
+    "de": "Gib den Code aus deiner Authentifizierungs-App oder einen Wiederherstellungscode ein.",
+    "es": "Introduce el código de tu app de autenticación o un código de recuperación.",
+    "jp": "認証アプリのコードまたはリカバリーコードを入力してください。"
+  },
+  "str_account_delete_understood": {
+    "it": "Ho capito che l'eliminazione è immediata e non può essere annullata.",
+    "en": "I understand that deletion is immediate and cannot be undone.",
+    "fr": "Je comprends que la suppression est immédiate et irréversible.",
+    "de": "Mir ist bewusst, dass die Löschung sofort erfolgt und nicht rückgängig gemacht werden kann.",
+    "es": "Entiendo que la eliminación es inmediata y no se puede deshacer.",
+    "jp": "削除はすぐに実行され、取り消せないことを理解しました。"
+  },
+  "str_acquista": {
+    "it": "Acquista",
+    "en": "Buy",
+    "fr": "Acheter",
+    "de": "Kaufen",
+    "es": "Comprar",
+    "jp": "購入"
+  },
+  "str_acquista_per": {
+    "it": "Acquista per",
+    "en": "Buy for",
+    "fr": "Acheter pour",
+    "de": "Kaufen für",
+    "es": "Comprar para",
+    "jp": "購入先："
+  },
+  "str_alert": {
+    "it": "",
+    "en": "",
+    "fr": "",
+    "de": "",
+    "es": "",
+    "jp": ""
+  },
+  "str_alert_orari": {
+    "it": "Attenzione: per motivi di traffico gli orari potrebbero subire ritardi, {{company}} non si assume nessuna responsabilità",
+    "en": "Warning: due to traffic, schedules may be delayed. {{company}} takes no responsibility.",
+    "fr": "Attention : en raison du trafic, les horaires peuvent être retardés. {{company}} ne saurait être tenu responsable.",
+    "de": "Achtung: Aufgrund von Verkehrsstörungen können Zeitpläne verzögert werden. {{company}} übernimmt keine Haftung.",
+    "es": "Atención: debido al tráfico, los horarios pueden sufrir retrasos. {{company}} no se hace responsable.",
+    "jp": "注意：交通状況により、時刻が遅延する場合があります。{{company}}は一切の責任を負いません。"
+  },
+  "str_altri_biglietti": {
+    "it": "Altri biglietti disponibili su questa corsa",
+    "en": "Other tickets available on this trip",
+    "fr": "Autres billets disponibles pour ce trajet",
+    "de": "Weitere verfügbare Tickets für diese Fahrt",
+    "es": "Otros billetes disponibles en este viaje",
+    "jp": "この便で利用できるその他のチケット"
+  },
+  "str_andata": {
+    "it": "Andata",
+    "en": "Outbound",
+    "fr": "Aller",
+    "de": "Hinfahrt",
+    "es": "Ida",
+    "jp": "往路"
+  },
+  "str_andata_ritorno": {
+    "it": "Andata e ritorno",
+    "en": "Round trip",
+    "fr": "Aller-retour",
+    "de": "Hin- und Rückfahrt",
+    "es": "Ida y vuelta",
+    "jp": "往復"
+  },
+  "str_annulla": {
+    "it": "Annulla",
+    "en": "Cancel",
+    "fr": "Annuler",
+    "de": "Stornieren",
+    "es": "Cancelar",
+    "jp": "キャンセル"
+  },
+  "str_arrivo": {
+    "it": "Arrivo",
+    "en": "Arrive",
+    "fr": "Arrivée",
+    "de": "Ankunft",
+    "es": "Llegada",
+    "jp": "到着"
+  },
+  "str_arrivo_a": {
+    "it": "Arrivo a:",
+    "en": "Arrival at:",
+    "fr": "Arrivée à :",
+    "de": "Ankunft in:",
+    "es": "Llegada a:",
+    "jp": "到着地："
+  },
+  "str_arrivo_placeholder": {
+    "it": "Scegli un punto di arrivo",
+    "en": "Point of arrive",
+    "fr": "Choisissez un point d'arrivée",
+    "de": "Wählen Sie einen Ankunftsort",
+    "es": "Elija un punto de llegada",
+    "jp": "到着地を選択してください"
+  },
+  "str_arrivstr_seleziona_biglietti_per_acquistoo_a": {
+    "it": "Seleziona i tipi di biglietti per poter completare l'acquisto",
+    "en": "Select the ticket types to complete the purchase",
+    "fr": "Sélectionnez les types de billets pour finaliser l'achat",
+    "de": "Wählen Sie die Tickettypen aus, um den Kauf abzuschließen",
+    "es": "Seleccione los tipos de entradas para completar la compra",
+    "jp": "購入を完了するためにチケットの種類を選択してください"
+  },
+  "str_attenzione_biglietto_non_rimborsabile": {
+    "it": "Attenzione stai acquistando un biglietto che non è più rimborsabile",
+    "en": "Warning: you are purchasing a non-refundable ticket",
+    "fr": "Attention : vous achetez un billet non remboursable",
+    "de": "Achtung: Sie erwerben ein nicht erstattungsfähiges Ticket",
+    "es": "Atención: está adquiriendo un billete no reembolsable",
+    "jp": "注意：返金不可のチケットを購入しています"
+  },
+  "str_autobus": {
+    "it": "Autobus",
+    "en": "Autobus",
+    "fr": "Bus",
+    "de": "Bus",
+    "es": "Autobús",
+    "jp": "バス"
+  },
+  "str_awaiting_payment_confirmation": {
+    "it": "In attesa di conferma pagamento",
+    "en": "Awaiting payment confirmation",
+    "fr": "En attente de confirmation du paiement",
+    "de": "Warten auf Zahlungsbestätigung",
+    "es": "Pendiente de confirmación del pago",
+    "jp": "決済確認待ち"
+  },
+  "str_bagagli": {
+    "it": "N.Bagagli extra",
+    "en": "N. Extra luggage",
+    "fr": "N. Bagages supplémentaires",
+    "de": "N. Zusätzliches Gepäck",
+    "es": "N. Equipaje extra",
+    "jp": "追加荷物数"
+  },
+  "str_bagagli_aggiuntivi": {
+    "it": "Bagaglio extra",
+    "en": "Extra luggage",
+    "fr": "Bagage supplémentaire",
+    "de": "Zusätzliches Gepäck",
+    "es": "Equipaje extra",
+    "jp": "追加荷物"
+  },
+  "str_bagagli_aggiuntivi_descrizione": {
+    "it": "Bagaglio aggiuntivo oltre a quello incluso",
+    "en": "Additional luggage beyond the included one",
+    "fr": "Bagage supplémentaire au-delà de celui inclus",
+    "de": "Zusätzliches Gepäck über das Inklusive hinaus",
+    "es": "Equipaje adicional más allá del incluido",
+    "jp": "含まれている分を超える追加の荷物"
+  },
+  "str_bagagli_placeholder": {
+    "it": "Seleziona il numero di bagagli extra",
+    "en": "Select the number of extra luggage",
+    "fr": "Sélectionnez le nombre de bagages supplémentaires",
+    "de": "Wählen Sie die Anzahl der zusätzlichen Gepäckstücke",
+    "es": "Seleccione el número de equipaje extra",
+    "jp": "追加荷物の数を選択してください"
+  },
+  "str_bagagli_tooltip": {
+    "it": "Solo bagagli extra a persona",
+    "en": "Only extra luggage per person",
+    "fr": "Uniquement des bagages supplémentaires par personne",
+    "de": "Nur zusätzliches Gepäck pro Person",
+    "es": "Solo equipaje extra por persona",
+    "jp": "1人あたりの追加荷物のみ"
+  },
+  "str_baggage": {
+    "it": "Bagagli",
+    "en": "Luggage",
+    "fr": "Bagages",
+    "de": "Gepäck",
+    "es": "Equipaje",
+    "jp": "荷物"
+  },
+  "str_biglietto": {
+    "it": "Biglietto",
+    "en": "Ticket",
+    "fr": "Billet",
+    "de": "Ticket",
+    "es": "Billete",
+    "jp": "チケット"
+  },
+  "str_biglietto_gia_acquistato": {
+    "it": "Hai già acquistato un biglietto per questa tratta nello stesso giorno",
+    "en": "You have already purchased a ticket for this route on the same day",
+    "fr": "Vous avez déjà acheté un billet pour ce trajet le même jour",
+    "de": "Sie haben bereits ein Ticket für diese Route am selben Tag gekauft",
+    "es": "Ya has comprado un billete para esta ruta el mismo día",
+    "jp": "同じ日の同じ路線で既にチケットを購入しています"
+  },
+  "str_bus_line": {
+    "it": "Orari e corse",
+    "en": "Schedules and routes",
+    "fr": "Horaires et trajets",
+    "de": "Fahrpläne und Verbindungen",
+    "es": "Horarios y rutas",
+    "jp": "時刻表と運行便"
+  },
+  "str_bus_line_desc": {
+    "it": "Tutti i dettagli delle fermate per ogni corsa",
+    "en": "All stop details for each route",
+    "fr": "Tous les détails des arrêts pour chaque trajet",
+    "de": "Alle Haltestellendetails für jede Verbindung",
+    "es": "Todos los detalles de las paradas para cada ruta",
+    "jp": "各運行便の停留所の詳細情報"
+  },
+  "str_cambia_password": {
+    "it": "Cambia password",
+    "en": "Change password",
+    "fr": "Changer le mot de passe",
+    "de": "Passwort ändern",
+    "es": "Cambiar contraseña",
+    "jp": "パスワード変更"
+  },
+  "str_campo_obbligatorio": {
+    "it": "Campo obbligatorio",
+    "en": "Required field",
+    "fr": "Champ obligatoire",
+    "de": "Pflichtfeld",
+    "es": "Campo obligatorio",
+    "jp": "必須項目"
+  },
+  "str_card": {
+    "it": "Carta",
+    "en": "Card",
+    "fr": "Carte",
+    "de": "Karte",
+    "es": "Tarjeta",
+    "jp": "カード"
+  },
+  "str_card_expired": {
+    "it": "Scaduta",
+    "en": "Expired",
+    "fr": "Expirée",
+    "de": "Abgelaufen",
+    "es": "Caducada",
+    "jp": "期限切れ"
+  },
+  "str_card_expires": {
+    "it": "Scadenza",
+    "en": "Expires",
+    "fr": "Expiration",
+    "de": "Gültig bis",
+    "es": "Caducidad",
+    "jp": "有効期限"
+  },
+  "str_card_remove": {
+    "it": "Rimuovi carta",
+    "en": "Remove card",
+    "fr": "Supprimer la carte",
+    "de": "Karte entfernen",
+    "es": "Eliminar tarjeta",
+    "jp": "カードを削除"
+  },
+  "str_card_removed": {
+    "it": "Carta rimossa",
+    "en": "Card removed",
+    "fr": "Carte supprimée",
+    "de": "Karte entfernt",
+    "es": "Tarjeta eliminada",
+    "jp": "カードを削除しました"
+  },
+  "str_cards_load_error": {
+    "it": "Impossibile caricare le carte salvate.",
+    "en": "Unable to load saved cards.",
+    "fr": "Impossible de charger les cartes enregistrées.",
+    "de": "Die gespeicherten Karten konnten nicht geladen werden.",
+    "es": "No se pueden cargar las tarjetas guardadas.",
+    "jp": "保存済みカードを読み込めませんでした。"
+  },
+  "str_cards_none": {
+    "it": "Nessuna carta salvata.",
+    "en": "No saved cards.",
+    "fr": "Aucune carte enregistrée.",
+    "de": "Keine gespeicherten Karten.",
+    "es": "No hay tarjetas guardadas.",
+    "jp": "保存済みのカードはありません。"
+  },
+  "str_carta_di_credito": {
+    "it": "Carta di credito",
+    "en": "Credit card",
+    "fr": "Carte de crédit",
+    "de": "Kreditkarte",
+    "es": "Tarjeta de crédito",
+    "jp": "クレジットカード"
+  },
+  "str_cerca_in_questa_data": {
+    "it": "Cerca in questa data",
+    "en": "Search this date",
+    "fr": "Rechercher à cette date",
+    "de": "An diesem Datum suchen",
+    "es": "Buscar en esta fecha",
+    "jp": "この日付で検索"
+  },
+  "str_complete_all_fields_and_terms": {
+    "it": "Completa tutti i campi e accetta i termini e condizioni",
+    "en": "Complete all fields and accept the terms and conditions",
+    "fr": "Remplissez tous les champs et acceptez les conditions générales",
+    "de": "Füllen Sie alle Felder aus und akzeptieren Sie die Bedingungen",
+    "es": "Completa todos los campos y acepta los términos y condiciones",
+    "jp": "すべての項目を入力し、利用規約に同意してください"
+  },
+  "str_conferma_acquisto_duplicato": {
+    "it": "Confermo di voler acquistare un secondo biglietto per questa tratta",
+    "en": "I confirm I want to purchase a second ticket for this route",
+    "fr": "Je confirme vouloir acheter un second billet pour ce trajet",
+    "de": "Ich bestätige, dass ich ein zweites Ticket für diese Route kaufen möchte",
+    "es": "Confirmo que quiero comprar un segundo billete para esta ruta",
+    "jp": "同じ路線の2枚目のチケットを購入することを確認します"
+  },
+  "str_confermo": {
+    "it": "Confermo",
+    "en": "Confirm",
+    "fr": "Confirmer",
+    "de": "Bestätigen",
+    "es": "Confirmar",
+    "jp": "確認"
+  },
+  "str_consulta_tratte": {
+    "it": "Consulta le nostre tratte",
+    "en": "Check our routes",
+    "fr": "Consultez nos itinéraires",
+    "de": "Sehen Sie unsere Routen",
+    "es": "Consulte nuestras rutas",
+    "jp": "路線を確認する"
+  },
+  "str_consulta_tutte_le_tratte": {
+    "it": "Tutte le tratte disponibili",
+    "en": "All available routes.",
+    "fr": "Toutes les routes disponibles.",
+    "de": "Alle verfügbaren Routen.",
+    "es": "Todas las rutas disponibles.",
+    "jp": "すべての利用可能な路線"
+  },
+  "str_contact": {
+    "it": "Contatti",
+    "en": "Contact",
+    "fr": "Contact",
+    "de": "Kontakt",
+    "es": "Contacto",
+    "jp": "お問い合わせ"
+  },
+  "str_contanti": {
+    "it": "Contanti",
+    "en": "Cash",
+    "fr": "Espèces",
+    "de": "Bar",
+    "es": "Efectivo",
+    "jp": "現金"
+  },
+  "str_continue": {
+    "it": "Continua",
+    "en": "Continue",
+    "fr": "Continuer",
+    "de": "Weiter",
+    "es": "Continuar",
+    "jp": "続ける"
+  },
+  "str_cookie_policy": {
+    "it": "{{company}} utilizza esclusivamente cookie tecnici necessari al corretto funzionamento del sito, non effettua profilazione degli utenti e non condivide dati con terze parti.",
+    "en": "{{company}} uses only technical cookies necessary for the optimal functioning of the website, does not perform user profiling, and does not share data with third parties.",
+    "fr": "{{company}} utilise uniquement des cookies techniques nécessaires au bon fonctionnement du site. Il ne procède à aucun profilage des utilisateurs et ne partage aucune donnée avec des tiers.",
+    "de": "{{company}} verwendet ausschließlich technische Cookies, die für den ordnungsgemäßen Betrieb der Website erforderlich sind. Es führt keine Benutzerprofilierung durch und gibt keine Daten an Dritte weiter.",
+    "es": "{{company}} utiliza únicamente cookies técnicos necesarios para el correcto funcionamiento del sitio web, no realiza perfiles de usuarios y no comparte datos con terceros.",
+    "jp": "{{company}}は、ウェブサイトの正常な機能に必要な技術的Cookieのみを使用しており、ユーザーのプロファイリングを行わず、第三者とデータを共有することはありません。"
+  },
+  "str_copied": {
+    "it": "Copiati",
+    "en": "Copied",
+    "fr": "Copiés",
+    "de": "Kopiert",
+    "es": "Copiados",
+    "jp": "コピーしました"
+  },
+  "str_copy": {
+    "it": "Copia",
+    "en": "Copy",
+    "fr": "Copier",
+    "de": "Kopieren",
+    "es": "Copiar",
+    "jp": "コピー"
+  },
+  "str_corsa": {
+    "it": "Corsa",
+    "en": "Trip",
+    "fr": "Trajet",
+    "de": "Fahrt",
+    "es": "Viaje",
+    "jp": "便"
+  },
+  "str_corsa_disponibile": {
+    "it": "Corsa disponibile",
+    "en": "Available ride",
+    "fr": "Trajet disponible",
+    "de": "Verfügbare Fahrt",
+    "es": "Viaje disponible",
+    "jp": "利用可能な便"
+  },
+  "str_corse_disponibili": {
+    "it": "Corse disponibili",
+    "en": "Available rides",
+    "fr": "Trajets disponibles",
+    "de": "Verfügbare Fahrten",
+    "es": "Viajes disponibles",
+    "jp": "利用可能な便"
+  },
+  "str_data_andata": {
+    "it": "Data andata",
+    "en": "Departure date",
+    "fr": "Date aller",
+    "de": "Hinfahrtdatum",
+    "es": "Fecha de ida",
+    "jp": "往路の日付"
+  },
+  "str_data_ritorno": {
+    "it": "Data ritorno",
+    "en": "Return date",
+    "fr": "Date retour",
+    "de": "Rückfahrtdatum",
+    "es": "Fecha de vuelta",
+    "jp": "復路の日付"
+  },
+  "str_day": {
+    "it": "Giorno",
+    "en": "Day",
+    "fr": "Jour",
+    "de": "Tag",
+    "es": "Día",
+    "jp": "日"
+  },
+  "str_details_personal": {
+    "it": "Dettagli Personali",
+    "en": "Personal details",
+    "fr": "Informations personnelles",
+    "de": "Persönliche Angaben",
+    "es": "Datos personales",
+    "jp": "個人情報"
+  },
+  "str_email": {
+    "it": "Email",
+    "en": "Email",
+    "fr": "E-mail",
+    "de": "E-Mail",
+    "es": "Correo electrónico",
+    "jp": "メール"
+  },
+  "str_email_invalid_format": {
+    "it": "Formato email non valido",
+    "en": "Invalid email format",
+    "fr": "Format d'e-mail invalide",
+    "de": "Ungültiges E-Mail-Format",
+    "es": "Formato de correo electrónico no válido",
+    "jp": "メールアドレスの形式が正しくありません"
+  },
+  "str_email_non_uguali": {
+    "it": "Le email non corrispondono",
+    "en": "The emails do not match.",
+    "fr": "Les adresses e-mail ne correspondent pas",
+    "de": "Die E-Mail-Adressen stimmen nicht überein",
+    "es": "Los correos electrónicos no coinciden",
+    "jp": "メールアドレスが一致しません"
+  },
+  "str_email_non_valida": {
+    "it": "Email non valida",
+    "en": "Not valid email",
+    "fr": "E-mail non valide",
+    "de": "Ungültige E-Mail",
+    "es": "Correo electrónico no válido",
+    "jp": "無効なメールアドレス"
+  },
+  "str_email_not_match": {
+    "it": "Le email non corrispondono",
+    "en": "The emails do not match.",
+    "fr": "Les adresses e-mail ne correspondent pas",
+    "de": "Die E-Mail-Adressen stimmen nicht überein",
+    "es": "Los correos electrónicos no coinciden",
+    "jp": "メールアドレスが一致しません"
+  },
+  "str_email_obbligatoria": {
+    "it": "Il campo email è obbligatorio",
+    "en": "The email field is required",
+    "fr": "Le champ e-mail est obligatoire",
+    "de": "Das E-Mail-Feld ist erforderlich",
+    "es": "El campo de correo electrónico es obligatorio",
+    "jp": "メールアドレスは必須です"
+  },
+  "str_email_rule_at": {
+    "it": "Contiene @",
+    "en": "Contains @",
+    "fr": "Contient %@",
+    "de": "Enthält %@",
+    "es": "Contiene %@",
+    "jp": "@を含む"
+  },
+  "str_email_rule_domain": {
+    "it": "Dominio valido",
+    "en": "Valid domain",
+    "fr": "Domaine valide",
+    "de": "Gültige Domain",
+    "es": "Dominio válido",
+    "jp": "有効なドメイン"
+  },
+  "str_email_rule_local": {
+    "it": "Parte locale prima di @",
+    "en": "Local part before @",
+    "fr": "Partie locale avant le @",
+    "de": "Lokaler Teil vor dem @",
+    "es": "Parte local antes del @",
+    "jp": "@の前のローカル部分"
+  },
+  "str_email_rule_tld": {
+    "it": "Estensione valida (es. .it, .com)",
+    "en": "Valid extension (e.g. .it, .com)",
+    "fr": "Extension valide (ex. .fr, .com)",
+    "de": "Gültige Endung (z. B. .de, .com)",
+    "es": "Extensión válida (ej. .es, .com)",
+    "jp": "有効な拡張子（例: .jp, .com）"
+  },
+  "str_email_with_new_password_sent": {
+    "it": "La nuova password è stata inviata alla mail indicata",
+    "en": "The new password has been sent to the provided email.",
+    "fr": "Le nouveau mot de passe a été envoyé à l'adresse e-mail indiquée.",
+    "de": "Das neue Passwort wurde an die angegebene E-Mail-Adresse gesendet.",
+    "es": "Se ha enviado la nueva contraseña al correo electrónico indicado.",
+    "jp": "新しいパスワードが指定のメールアドレスに送信されました。"
+  },
+  "str_err_arrivo": {
+    "it": "Seleziona un punto di arrivo",
+    "en": "Select a destination point",
+    "fr": "Sélectionnez un point d'arrivée",
+    "de": "Bitte wählen Sie einen Zielort",
+    "es": "Seleccione un punto de destino",
+    "jp": "到着地を選択してください"
+  },
+  "str_err_bagagli": {
+    "it": "Seleziona il numero di bagagli",
+    "en": "Select the number of luggage",
+    "fr": "Sélectionnez le nombre de bagages",
+    "de": "Bitte wählen Sie die Anzahl des Gepäcks",
+    "es": "Seleccione el número de equipajes",
+    "jp": "荷物の数を選択してください"
+  },
+  "str_err_biglietti": {
+    "it": "Seleziona almeno un biglietto",
+    "en": "Select at least one ticket",
+    "fr": "Sélectionnez au moins un billet",
+    "de": "Bitte wählen Sie mindestens ein Ticket",
+    "es": "Seleccione al menos un billete",
+    "jp": "チケットを1枚以上選択してください"
+  },
+  "str_err_data": {
+    "it": "Seleziona una data",
+    "en": "Select a date",
+    "fr": "Sélectionnez une date",
+    "de": "Wähle ein Datum",
+    "es": "Selecciona una fecha",
+    "jp": "日付を選択してください"
+  },
+  "str_err_data_ritorno": {
+    "it": "Scegli una data di ritorno uguale o successiva all'andata",
+    "en": "Choose a return date on or after the departure date",
+    "fr": "Choisissez une date de retour identique ou postérieure à la date aller",
+    "de": "Wähle ein Rückfahrtdatum am oder nach dem Hinfahrtdatum",
+    "es": "Elige una fecha de vuelta igual o posterior a la de ida",
+    "jp": "復路の日付は往路と同じ日かそれ以降を選択してください"
+  },
+  "str_err_partenza": {
+    "it": "Seleziona un punto di partenza",
+    "en": "Select a starting point",
+    "fr": "Sélectionnez un point de départ",
+    "de": "Bitte wählen Sie einen Abfahrtsort",
+    "es": "Seleccione un punto de salida",
+    "jp": "出発地を選択してください"
+  },
+  "str_error_bad_request": {
+    "it": "Richiesta non valida",
+    "en": "Invalid request",
+    "fr": "Requête invalide",
+    "de": "Ungültige Anfrage",
+    "es": "Solicitud no válida",
+    "jp": "リクエストが無効です"
+  },
+  "str_error_cash_not_allowed": {
+    "it": "Pagamento in contanti non consentito",
+    "en": "Cash payment not allowed",
+    "fr": "Paiement en espèces non autorisé",
+    "de": "Barzahlung nicht erlaubt",
+    "es": "Pago en efectivo no permitido",
+    "jp": "現金支払いは許可されていません"
+  },
+  "str_error_check_price": {
+    "it": "Impossibile completare l'acquisto per qualche manipolazione",
+    "en": "Error, the price has been tampered with",
+    "fr": "Erreur, le prix a été altéré",
+    "de": "Fehler, der Preis wurde manipuliert",
+    "es": "Error, el precio ha sido alterado",
+    "jp": "エラー：価格が不正に変更されています"
+  },
+  "str_error_confirm_duplicate_ticket": {
+    "it": "Devi confermare l'acquisto di un biglietto duplicato",
+    "en": "You must confirm the purchase of a duplicate ticket",
+    "fr": "Vous devez confirmer l'achat d'un billet en double",
+    "de": "Sie müssen den Kauf eines doppelten Tickets bestätigen",
+    "es": "Debes confirmar la compra de un billete duplicado",
+    "jp": "重複するチケットの購入を確認してください"
+  },
+  "str_error_luggage": {
+    "it": "Siamo spiacente non c'è più posto per i tuoi bagagli",
+    "en": "Sorry, there is no more space for your luggage",
+    "fr": "Désolé, il n'y a plus de place pour vos bagages",
+    "de": "Leider ist kein Platz mehr für Ihr Gepäck vorhanden",
+    "es": "Lo sentimos, ya no hay espacio para su equipaje",
+    "jp": "申し訳ございませんが、荷物を積むスペースがありません"
+  },
+  "str_error_payload_too_large": {
+    "it": "Dati inviati troppo grandi",
+    "en": "Submitted data too large",
+    "fr": "Données envoyées trop volumineuses",
+    "de": "Gesendete Daten zu groß",
+    "es": "Datos enviados demasiado grandes",
+    "jp": "送信データが大きすぎます"
+  },
+  "str_error_payment": {
+    "it": "Errore nel gestore dei pagamenti",
+    "en": "Error with the payment processor",
+    "fr": "Erreur avec le prestataire de paiement",
+    "de": "Fehler beim Zahlungsanbieter",
+    "es": "Error con el procesador de pago",
+    "jp": "決済処理でエラーが発生しました"
+  },
+  "str_error_pending_booking": {
+    "it": "Non c'è più posto per i tuoi bagagli",
+    "en": "No more space available for your luggage",
+    "fr": "Plus de place disponible pour vos bagages",
+    "de": "Kein Platz mehr für Ihr Gepäck verfügbar",
+    "es": "Ya no hay espacio disponible para su equipaje",
+    "jp": "荷物を積むスペースがありません"
+  },
+  "str_error_permission": {
+    "it": "Non hai i permessi per questa operazione",
+    "en": "You do not have permission to perform this operation",
+    "fr": "Vous n'avez pas les droits pour cette opération",
+    "de": "Du hast keine Berechtigung für diesen Vorgang",
+    "es": "No tienes permisos para esta operación",
+    "jp": "この操作を行う権限がありません"
+  },
+  "str_error_refund": {
+    "it": "Impossibile elaborare il rimborso",
+    "en": "Unable to process the refund",
+    "fr": "Impossible de traiter le remboursement",
+    "de": "Rückerstattung kann nicht verarbeitet werden",
+    "es": "No se puede procesar el reembolso",
+    "jp": "返金を処理できません"
+  },
+  "str_error_refund_deadline": {
+    "it": "Il termine per chiedere il rimborso di questo biglietto è scaduto",
+    "en": "The deadline to request a refund for this ticket has passed",
+    "fr": "Le délai pour demander le remboursement de ce billet est dépassé",
+    "de": "Die Frist für die Erstattung dieses Tickets ist abgelaufen",
+    "es": "El plazo para solicitar el reembolso de este billete ha vencido",
+    "jp": "このチケットの払い戻し期限は過ぎています"
+  },
+  "str_error_seats": {
+    "it": "Siamo spiacenti ma non ci sono più  posti per la linea selezionata",
+    "en": "Sorry, there are no more seats available for the selected route",
+    "fr": "Désolé, il n'y a plus de places disponibles pour la ligne sélectionnée",
+    "de": "Leider sind keine Sitzplätze mehr für die ausgewählte Linie verfügbar",
+    "es": "Lo sentimos, no hay más plazas disponibles para la ruta seleccionada",
+    "jp": "申し訳ございませんが、選択した路線の座席は満席です"
+  },
+  "str_error_time": {
+    "it": "Impossibile acquistare questo biglietto a causa di un cambiamento nella data o dell attivazione di qualche linea",
+    "en": "Date error, something went wrong",
+    "fr": "Erreur de date, un problème est survenu",
+    "de": "Fehler bei den Daten, etwas ist schiefgelaufen",
+    "es": "Error en las fechas, algo salió mal",
+    "jp": "日付エラー：問題が発生しました"
+  },
+  "str_fermate": {
+    "it": "Fermate",
+    "en": "Stops",
+    "fr": "Arrêts",
+    "de": "Haltestellen",
+    "es": "Paradas",
+    "jp": "バス停"
+  },
+  "str_fermate_attive_tempo_reale": {
+    "it": "Fermate attive in tempo reale",
+    "en": "Active stops in real time.",
+    "fr": "Arrêts actifs en temps réel.",
+    "de": "Aktive Haltestellen in Echtzeit.",
+    "es": "Paradas activas en tiempo real.",
+    "jp": "リアルタイムの運行中バス停"
+  },
+  "str_footer_description": {
+    "it": "  L’esperienza ventennale fa sì che la nostra azienda sia oggi molto apprezzata nel settore e possa vantare di una notevole e continua presenza sui principali circuiti turistici Italiani ed Europei.",
+    "en": "With over twenty years of experience, our company is now highly regarded in the industry and boasts a strong and continuous presence across the main Italian and European tourism networks.",
+    "fr": "Avec plus de vingt ans d'expérience, notre entreprise est aujourd'hui très appréciée dans le secteur et peut s'enorgueillir d'une forte présence continue sur les principaux réseaux touristiques italiens et européens.",
+    "de": "Mit über zwanzig Jahren Erfahrung ist unser Unternehmen heute in der Branche sehr angesehen und kann auf eine starke und kontinuierliche Präsenz in den wichtigsten italienischen und europäischen Touristiknetzwerken verweisen.",
+    "es": "Con más de veinte años de experiencia, nuestra empresa es hoy muy valorada en el sector y cuenta con una fuerte presencia continua en las principales redes turísticas italianas y europeas.",
+    "jp": "20年以上の経験を持ち、当社は業界で高い評価を得ており、イタリアおよびヨーロッパの主要な観光ネットワークで確固たる地位を築いております。"
+  },
+  "str_generic_error": {
+    "it": "Si è verificato un errore. Riprova.",
+    "en": "Something went wrong. Please try again.",
+    "fr": "Une erreur s'est produite. Veuillez réessayer.",
+    "de": "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.",
+    "es": "Se ha producido un error. Inténtalo de nuevo.",
+    "jp": "エラーが発生しました。もう一度お試しください。"
+  },
+  "str_giorno": {
+    "it": "Giorno",
+    "en": "Day",
+    "fr": "Jour",
+    "de": "Tag",
+    "es": "Día",
+    "jp": "日"
+  },
+  "str_go_back": {
+    "it": "Torna indietro",
+    "en": "Go back",
+    "fr": "Retour",
+    "de": "Zurück",
+    "es": "Volver",
+    "jp": "戻る"
+  },
+  "str_ho_letto_e_accetto": {
+    "it": "Dichiaro di aver letto e accetto le politiche di reso",
+    "en": "I declare that I have read and accept the refund policies",
+    "fr": "Je déclare avoir lu et accepté les politiques de remboursement",
+    "de": "Ich bestätige, die Stornierungsbedingungen gelesen und akzeptiert zu haben",
+    "es": "Declaro haber leído y aceptado las políticas de reembolso",
+    "jp": "返金ポリシーを読み、同意しました"
+  },
+  "str_home": {
+    "it": "Home",
+    "en": "Home",
+    "fr": "Accueil",
+    "de": "Startseite",
+    "es": "Inicio",
+    "jp": "ホーム"
+  },
+  "str_indirizzo_placeholder": {
+    "it": "Indirizzo",
+    "en": "Address",
+    "fr": "Adresse",
+    "de": "Adresse",
+    "es": "Dirección",
+    "jp": "住所"
+  },
+  "str_info": {
+    "it": "Informazioni",
+    "en": "Information",
+    "fr": "Informations",
+    "de": "Informationen",
+    "es": "Información",
+    "jp": "お知らせ"
+  },
+  "str_info_desc": {
+    "it": "Tutto quello che c'è da sapere",
+    "en": "Everything you need to know",
+    "fr": "Tout ce que vous devez savoir",
+    "de": "Alles, was Sie wissen müssen",
+    "es": "Todo lo que necesitas saber",
+    "jp": "知っておくべきこと"
+  },
+  "str_informativa_privacy": {
+    "it": "Privacy & Policy",
+    "en": "Privacy & Policy",
+    "fr": "Vie privée & Politique",
+    "de": "Datenschutz & Richtlinien",
+    "es": "Privacidad y Política",
+    "jp": "プライバシーポリシー"
+  },
+  "str_informativa_privacy_desc": {
+    "it": "Informativa sul trattamento dei dati personali",
+    "en": "Information on personal data processing",
+    "fr": "Informations sur le traitement des données personnelles",
+    "de": "Informationen zur Verarbeitung personenbezogener Daten",
+    "es": "Información sobre el tratamiento de datos personales",
+    "jp": "個人情報の取扱いについて"
+  },
+  "str_insert_email_to_receive_new_password": {
+    "it": "Inserisci un email per ricevere la nuova password",
+    "en": "Enter an email address to receive the new password.",
+    "fr": "Entrez une adresse e-mail pour recevoir le nouveau mot de passe.",
+    "de": "Geben Sie eine E-Mail-Adresse ein, um das neue Passwort zu erhalten.",
+    "es": "Introduzca un correo electrónico para recibir la nueva contraseña.",
+    "jp": "新しいパスワードを受け取るメールアドレスを入力してください。"
+  },
+  "str_insert_email_to_receive_reset_link": {
+    "it": "Inserisci la tua email per ricevere il link di reimpostazione",
+    "en": "Enter your email to receive the reset link",
+    "fr": "Saisissez votre e-mail pour recevoir le lien de réinitialisation",
+    "de": "Gib deine E-Mail-Adresse ein, um den Reset-Link zu erhalten",
+    "es": "Introduce tu correo para recibir el enlace de restablecimiento",
+    "jp": "再設定リンクを受け取るにはメールアドレスを入力してください"
+  },
+  "str_insert_valid_email": {
+    "it": "Mail non valida",
+    "en": "Invalid mail",
+    "fr": "E-mail non valide",
+    "de": "Ungültige E-Mail",
+    "es": "Correo no válido",
+    "jp": "無効なメールアドレス"
+  },
+  "str_limite_raggiunto": {
+    "it": "Hai raggiunto il limite riprova più tardi",
+    "en": "You have reached the limit, please try again later",
+    "fr": "Vous avez atteint la limite, veuillez réessayer plus tard",
+    "de": "Sie haben das Limit erreicht, bitte versuchen Sie es später erneut",
+    "es": "Has alcanzado el límite, por favor inténtalo más tarde",
+    "jp": "制限に達しました。しばらくしてからお試しください"
+  },
+  "str_live_tracking": {
+    "it": "Posizione autobus live",
+    "en": "Live bus location.",
+    "fr": "Position du bus en direct.",
+    "de": "Live-Busstandort.",
+    "es": "Ubicación del autobús en directo.",
+    "jp": "バスのリアルタイム位置情報"
+  },
+  "str_lng_password": {
+    "it": "La password deve essere di almeno 8 caratteri",
+    "en": "Password must be at least 8 characters",
+    "fr": "Le mot de passe doit comporter au moins 8 caractères",
+    "de": "Das Passwort muss mindestens 8 Zeichen lang sein",
+    "es": "La contraseña debe tener al menos 8 caracteres",
+    "jp": "パスワードは8文字以上でなければなりません"
+  },
+  "str_login": {
+    "it": "Accedi",
+    "en": "Login",
+    "fr": "Connexion",
+    "de": "Anmelden",
+    "es": "Iniciar sesión",
+    "jp": "ログイン"
+  },
+  "str_login_error": {
+    "it": "Credenziali errate riprovare",
+    "en": "Invalid credentials, please try again",
+    "fr": "Identifiants incorrects, veuillez réessayer",
+    "de": "Ungültige Anmeldedaten, bitte versuchen Sie es erneut",
+    "es": "Credenciales incorrectas, por favor inténtalo de nuevo",
+    "jp": "認証情報が間違っています。もう一度お試しください"
+  },
+  "str_login_google": {
+    "it": "Accedi con google",
+    "en": "Login with google",
+    "fr": "Se connecter avec Google",
+    "de": "Mit Google anmelden",
+    "es": "Iniciar sesión con Google",
+    "jp": "Googleでログイン"
+  },
+  "str_login_success": {
+    "it": "Login riuscito!",
+    "en": "Signed in successfully!",
+    "fr": "Connexion réussie !",
+    "de": "Anmeldung erfolgreich!",
+    "es": "¡Sesión iniciada correctamente!",
+    "jp": "ログインしました!"
+  },
+  "str_logout": {
+    "it": "Disconnetti",
+    "en": "Logout",
+    "fr": "Déconnexion",
+    "de": "Abmelden",
+    "es": "Cerrar sesión",
+    "jp": "ログアウト"
+  },
+  "str_logout_desc": {
+    "it": "Disconnetti utente",
+    "en": "Logout user",
+    "fr": "Déconnecter l'utilisateur",
+    "de": "Benutzer abmelden",
+    "es": "Cerrar sesión del usuario",
+    "jp": "ユーザーをログアウト"
+  },
+  "str_lost_password": {
+    "it": "Ho dimenticato la password",
+    "en": "I forgot my password",
+    "fr": "J'ai oublié mon mot de passe",
+    "de": "Ich habe mein Passwort vergessen",
+    "es": "He olvidado mi contraseña",
+    "jp": "パスワードを忘れた場合"
+  },
+  "str_lost_password_feature1": {
+    "it": "Ricevi una nuova password via email",
+    "en": "Receive a new password via email",
+    "fr": "Recevez un nouveau mot de passe par e-mail",
+    "de": "Erhalten Sie ein neues Passwort per E-Mail",
+    "es": "Recibe una nueva contraseña por correo electrónico",
+    "jp": "メールで新しいパスワードを受け取る"
+  },
+  "str_lost_password_feature2": {
+    "it": "Processo sicuro e protetto",
+    "en": "Safe and secure process",
+    "fr": "Processus sûr et sécurisé",
+    "de": "Sicherer und geschützter Vorgang",
+    "es": "Proceso seguro y protegido",
+    "jp": "安全で保護されたプロセス"
+  },
+  "str_lost_password_feature3": {
+    "it": "Rapido e semplice",
+    "en": "Quick and easy",
+    "fr": "Rapide et simple",
+    "de": "Schnell und einfach",
+    "es": "Rápido y sencillo",
+    "jp": "迅速で簡単"
+  },
+  "str_lost_password_title": {
+    "it": "Recupero Password",
+    "en": "Password Recovery",
+    "fr": "Récupération de mot de passe",
+    "de": "Passwort wiederherstellen",
+    "es": "Recuperación de contraseña",
+    "jp": "パスワードリセット"
+  },
+  "str_main_title": {
+    "it": "Autobus giornalieri da e per Napoli Aeroporto, Amalfi e altre destinazioni della regione Campania ",
+    "en": "Daily bus lines from and to Naples Airport, Amalfi Coast and other destinations in the Campania region",
+    "fr": "Lignes de bus quotidiennes vers et depuis l'aéroport de Naples, la côte d'Amalfi et d'autres destinations de la région de Campanie",
+    "de": "Tägliche Busverbindungen zum und vom Flughafen Neapel, der Amalfiküste und anderen Zielen in der Region Kampanien",
+    "es": "Líneas de autobús diarias desde y hacia el aeropuerto de Nápoles, la costa de Amalfi y otros destinos de la región de Campania",
+    "jp": "ナポリ空港、アマルフィ海岸、カンパニア地方の各地への毎日運行シャトルバス"
+  },
+  "str_metodo_pagamento": {
+    "it": "Metodo di pagamento",
+    "en": "Payment method",
+    "fr": "Mode de paiement",
+    "de": "Zahlungsmethode",
+    "es": "Método de pago",
+    "jp": "支払い方法"
+  },
+  "str_mfa_app": {
+    "it": "App di autenticazione",
+    "en": "Authenticator app",
+    "fr": "Application d'authentification",
+    "de": "Authentifizierungs-App",
+    "es": "App de autenticación",
+    "jp": "認証アプリ"
+  },
+  "str_mfa_app_desc": {
+    "it": "Codici generati da un'app come Google Authenticator, Microsoft Authenticator o 1Password.",
+    "en": "Codes generated by an app such as Google Authenticator, Microsoft Authenticator or 1Password.",
+    "fr": "Codes générés par une application comme Google Authenticator, Microsoft Authenticator ou 1Password.",
+    "de": "Codes, die von einer App wie Google Authenticator, Microsoft Authenticator oder 1Password erzeugt werden.",
+    "es": "Códigos generados por una app como Google Authenticator, Microsoft Authenticator o 1Password.",
+    "jp": "Google Authenticator、Microsoft Authenticator、1Password などのアプリで生成されるコードです。"
+  },
+  "str_mfa_app_hint": {
+    "it": "Inserisci il codice a 6 cifre generato dalla tua app di autenticazione.",
+    "en": "Enter the 6-digit code from your authenticator app.",
+    "fr": "Saisissez le code à 6 chiffres généré par votre application d'authentification.",
+    "de": "Gib den 6-stelligen Code aus deiner Authentifizierungs-App ein.",
+    "es": "Introduce el código de 6 dígitos generado por tu app de autenticación.",
+    "jp": "認証アプリに表示された6桁のコードを入力してください。"
+  },
+  "str_mfa_code": {
+    "it": "Codice di verifica",
+    "en": "Verification code",
+    "fr": "Code de vérification",
+    "de": "Bestätigungscode",
+    "es": "Código de verificación",
+    "jp": "確認コード"
+  },
+  "str_mfa_code_sent": {
+    "it": "Codice inviato",
+    "en": "Code sent",
+    "fr": "Code envoyé",
+    "de": "Code gesendet",
+    "es": "Código enviado",
+    "jp": "コードを送信しました"
+  },
+  "str_mfa_confirm_app": {
+    "it": "Inserisci un codice dell'app per confermare.",
+    "en": "Enter a code from the app to confirm.",
+    "fr": "Saisissez un code de l'application pour confirmer.",
+    "de": "Gib zur Bestätigung einen Code aus der App ein.",
+    "es": "Introduce un código de la app para confirmar.",
+    "jp": "確認のため、アプリのコードを入力してください。"
+  },
+  "str_mfa_confirm_email": {
+    "it": "Inserisci il codice che ti abbiamo inviato via email.",
+    "en": "Enter the code we sent to your email.",
+    "fr": "Saisissez le code que nous vous avons envoyé par e-mail.",
+    "de": "Gib den Code ein, den wir dir per E-Mail gesendet haben.",
+    "es": "Introduce el código que te hemos enviado por correo electrónico.",
+    "jp": "メールでお送りしたコードを入力してください。"
+  },
+  "str_mfa_disable": {
+    "it": "Disattiva",
+    "en": "Disable",
+    "fr": "Désactiver",
+    "de": "Deaktivieren",
+    "es": "Desactivar",
+    "jp": "無効にする"
+  },
+  "str_mfa_disabled_ok": {
+    "it": "Verifica in due passaggi disattivata",
+    "en": "Two-step verification disabled",
+    "fr": "Validation en deux étapes désactivée",
+    "de": "Bestätigung in zwei Schritten deaktiviert",
+    "es": "Verificación en dos pasos desactivada",
+    "jp": "2段階認証を無効にしました"
+  },
+  "str_mfa_email": {
+    "it": "Email",
+    "en": "Email",
+    "fr": "E-mail",
+    "de": "E-Mail",
+    "es": "Correo electrónico",
+    "jp": "メール"
+  },
+  "str_mfa_email_desc": {
+    "it": "A ogni accesso ricevi un codice all'indirizzo email dell'account.",
+    "en": "Each time you sign in you receive a code at your account email address.",
+    "fr": "À chaque connexion, vous recevez un code à l'adresse e-mail de votre compte.",
+    "de": "Bei jeder Anmeldung erhältst du einen Code an die E-Mail-Adresse deines Kontos.",
+    "es": "Cada vez que inicias sesión recibes un código en el correo electrónico de tu cuenta.",
+    "jp": "ログインのたびに、アカウントのメールアドレスにコードが届きます。"
+  },
+  "str_mfa_email_hint": {
+    "it": "Abbiamo inviato un codice a 6 cifre alla tua email.",
+    "en": "We sent a 6-digit code to your email.",
+    "fr": "Nous avons envoyé un code à 6 chiffres à votre adresse e-mail.",
+    "de": "Wir haben einen 6-stelligen Code an deine E-Mail-Adresse gesendet.",
+    "es": "Hemos enviado un código de 6 dígitos a tu correo electrónico.",
+    "jp": "6桁のコードをメールでお送りしました。"
+  },
+  "str_mfa_enable": {
+    "it": "Attiva",
+    "en": "Enable",
+    "fr": "Activer",
+    "de": "Aktivieren",
+    "es": "Activar",
+    "jp": "有効にする"
+  },
+  "str_mfa_enabled_ok": {
+    "it": "Verifica in due passaggi attivata",
+    "en": "Two-step verification enabled",
+    "fr": "Validation en deux étapes activée",
+    "de": "Bestätigung in zwei Schritten aktiviert",
+    "es": "Verificación en dos pasos activada",
+    "jp": "2段階認証を有効にしました"
+  },
+  "str_mfa_expired": {
+    "it": "Verifica scaduta: effettua di nuovo l'accesso.",
+    "en": "Verification expired: please sign in again.",
+    "fr": "Vérification expirée : veuillez vous reconnecter.",
+    "de": "Bestätigung abgelaufen: Bitte melde dich erneut an.",
+    "es": "La verificación ha caducado: vuelve a iniciar sesión.",
+    "jp": "確認の有効期限が切れました。もう一度ログインしてください。"
+  },
+  "str_mfa_invalid_code": {
+    "it": "Codice non valido",
+    "en": "Invalid code",
+    "fr": "Code non valide",
+    "de": "Ungültiger Code",
+    "es": "Código no válido",
+    "jp": "コードが正しくありません"
+  },
+  "str_mfa_manual_key": {
+    "it": "Oppure inserisci manualmente la chiave:",
+    "en": "Or enter the key manually:",
+    "fr": "Ou saisissez la clé manuellement :",
+    "de": "Oder gib den Schlüssel manuell ein:",
+    "es": "O introduce la clave manualmente:",
+    "jp": "またはキーを手動で入力してください:"
+  },
+  "str_mfa_off": {
+    "it": "Non attiva",
+    "en": "Off",
+    "fr": "Désactivée",
+    "de": "Nicht aktiv",
+    "es": "Desactivada",
+    "jp": "無効"
+  },
+  "str_mfa_on": {
+    "it": "Attiva",
+    "en": "On",
+    "fr": "Activée",
+    "de": "Aktiv",
+    "es": "Activada",
+    "jp": "有効"
+  },
+  "str_mfa_recovery_hint": {
+    "it": "Inserisci uno dei codici di recupero che hai salvato. Ogni codice vale una sola volta.",
+    "en": "Enter one of the recovery codes you saved. Each code works only once.",
+    "fr": "Saisissez l'un des codes de récupération que vous avez enregistrés. Chaque code n'est valable qu'une seule fois.",
+    "de": "Gib einen deiner gespeicherten Wiederherstellungscodes ein. Jeder Code gilt nur einmal.",
+    "es": "Introduce uno de los códigos de recuperación que guardaste. Cada código solo sirve una vez.",
+    "jp": "保存したリカバリーコードのいずれかを入力してください。各コードは1回のみ使用できます。"
+  },
+  "str_mfa_resend": {
+    "it": "Invia di nuovo il codice",
+    "en": "Resend code",
+    "fr": "Renvoyer le code",
+    "de": "Code erneut senden",
+    "es": "Reenviar el código",
+    "jp": "コードを再送信"
+  },
+  "str_mfa_scan_qr": {
+    "it": "Scansiona il QR code con l'app di autenticazione, poi inserisci il codice a 6 cifre che mostra.",
+    "en": "Scan the QR code with your authenticator app, then enter the 6-digit code it shows.",
+    "fr": "Scannez le QR code avec votre application d'authentification, puis saisissez le code à 6 chiffres affiché.",
+    "de": "Scanne den QR-Code mit deiner Authentifizierungs-App und gib dann den angezeigten 6-stelligen Code ein.",
+    "es": "Escanea el código QR con tu app de autenticación y luego introduce el código de 6 dígitos que muestra.",
+    "jp": "認証アプリでQRコードを読み取り、表示された6桁のコードを入力してください。"
+  },
+  "str_mfa_title": {
+    "it": "Verifica in due passaggi",
+    "en": "Two-step verification",
+    "fr": "Validation en deux étapes",
+    "de": "Bestätigung in zwei Schritten",
+    "es": "Verificación en dos pasos",
+    "jp": "2段階認証"
+  },
+  "str_mfa_too_many": {
+    "it": "Troppi tentativi. Riprova più tardi.",
+    "en": "Too many attempts. Try again later.",
+    "fr": "Trop de tentatives. Réessayez plus tard.",
+    "de": "Zu viele Versuche. Bitte versuche es später erneut.",
+    "es": "Demasiados intentos. Inténtalo de nuevo más tarde.",
+    "jp": "試行回数が多すぎます。しばらくしてからもう一度お試しください。"
+  },
+  "str_mfa_use_code": {
+    "it": "Usa il codice di verifica",
+    "en": "Use the verification code",
+    "fr": "Utiliser le code de vérification",
+    "de": "Bestätigungscode verwenden",
+    "es": "Usar el código de verificación",
+    "jp": "確認コードを使用"
+  },
+  "str_mfa_use_recovery": {
+    "it": "Usa un codice di recupero",
+    "en": "Use a recovery code",
+    "fr": "Utiliser un code de récupération",
+    "de": "Wiederherstellungscode verwenden",
+    "es": "Usar un código de recuperación",
+    "jp": "リカバリーコードを使用"
+  },
+  "str_mfa_verify": {
+    "it": "Verifica",
+    "en": "Verify",
+    "fr": "Vérifier",
+    "de": "Bestätigen",
+    "es": "Verificar",
+    "jp": "確認"
+  },
+  "str_my_tickets": {
+    "it": "Biglietti",
+    "en": "Tickets",
+    "fr": "Billets",
+    "de": "Tickets",
+    "es": "Billetes",
+    "jp": "チケット"
+  },
+  "str_my_tickets_desc": {
+    "it": "Visualizza lo stato dei tuoi biglietti",
+    "en": "View the status of your tickets",
+    "fr": "Consultez l'état de vos billets",
+    "de": "Status Ihrer Tickets einsehen",
+    "es": "Consulta el estado de tus billetes",
+    "jp": "チケットの状態を確認"
+  },
+  "str_my_tickets_subtitle": {
+    "it": "Elenco dei tuoi biglietti",
+    "en": "List of your tickets",
+    "fr": "Liste de vos billets",
+    "de": "Liste Ihrer Tickets",
+    "es": "Lista de tus billetes",
+    "jp": "チケット一覧"
+  },
+  "str_n_persone": {
+    "it": "N.Persone",
+    "en": "N.People",
+    "fr": "N.Personnes",
+    "de": "N.Personen",
+    "es": "N.Personas",
+    "jp": "人数"
+  },
+  "str_n_persone_placeholder": {
+    "it": "Digita il numero di persone",
+    "en": "Digit number of people",
+    "fr": "Entrez le nombre de personnes",
+    "de": "Anzahl der Personen eingeben",
+    "es": "Introduce el número de personas",
+    "jp": "人数を入力してください"
+  },
+  "str_n_tickets": {
+    "it": "Numero biglietto",
+    "en": "Ticket code",
+    "fr": "Code billet",
+    "de": "Ticketcode",
+    "es": "Código de billete",
+    "jp": "チケット番号"
+  },
+  "str_name": {
+    "it": "Nome completo",
+    "en": "Full name",
+    "fr": "Nom complet",
+    "de": "Vollständiger Name",
+    "es": "Nombre completo",
+    "jp": "氏名"
+  },
+  "str_name_obbligatorio": {
+    "it": "Il campo nome è obbligatorio",
+    "en": "The name field is required",
+    "fr": "Le champ nom est obligatoire",
+    "de": "Das Namensfeld ist erforderlich",
+    "es": "El campo de nombre es obligatorio",
+    "jp": "氏名は必須です"
+  },
+  "str_nessun_ticket": {
+    "it": "Nessun biglietto",
+    "en": "No tickets available",
+    "fr": "Aucun billet",
+    "de": "Keine Tickets verfügbar",
+    "es": "Sin billetes disponibles",
+    "jp": "チケットはありません"
+  },
+  "str_nessuna_corsa_tratta": {
+    "it": "Nessuna corsa disponibile per questa tratta",
+    "en": "No trips available for this route",
+    "fr": "Aucun trajet disponible sur cette ligne",
+    "de": "Keine Fahrten für diese Strecke verfügbar",
+    "es": "No hay viajes disponibles para esta ruta",
+    "jp": "この区間で利用できる便はありません"
+  },
+  "str_new_password": {
+    "it": "Nuova password",
+    "en": "New password",
+    "fr": "Nouveau mot de passe",
+    "de": "Neues Passwort",
+    "es": "Nueva contraseña",
+    "jp": "新しいパスワード"
+  },
+  "str_next": {
+    "it": "Avanti",
+    "en": "Next",
+    "fr": "Suivant",
+    "de": "Weiter",
+    "es": "Siguiente",
+    "jp": "次へ"
+  },
+  "str_no_results": {
+    "it": "Nessun risultato",
+    "en": "No results",
+    "fr": "Aucun résultat",
+    "de": "Keine Ergebnisse",
+    "es": "Sin resultados",
+    "jp": "結果なし"
+  },
+  "str_non_hai_account": {
+    "it": "Non hai un account?",
+    "en": "Don't have an account?",
+    "fr": "Vous n'avez pas de compte ?",
+    "de": "Noch kein Konto?",
+    "es": "¿No tienes una cuenta?",
+    "jp": "アカウントをお持ちでないですか？"
+  },
+  "str_non_ho_pin": {
+    "it": "Non ho ricevuto il codice pin",
+    "en": "I did not receive the PIN code",
+    "fr": "Je n'ai pas reçu le code PIN",
+    "de": "Ich habe den PIN-Code nicht erhalten",
+    "es": "No he recibido el código PIN",
+    "jp": "PINコードが届きませんでした"
+  },
+  "str_non_sai": {
+    "it": "Non sai quale fermata scegliere?",
+    "en": "Don't know which stop to choose?",
+    "fr": "Vous ne savez pas quel arrêt choisir ?",
+    "de": "Wissen Sie nicht, welche Haltestelle Sie wählen sollen?",
+    "es": "¿No sabes qué parada elegir?",
+    "jp": "どのバス停を選べばよいか分からないですか？"
+  },
+  "str_non_sai_text": {
+    "it": "Cerca sulla mappa la fermata più vicina a te",
+    "en": "Find the nearest stop on the map",
+    "fr": "Recherchez l'arrêt le plus proche sur la carte",
+    "de": "Suchen Sie die nächste Haltestelle auf der Karte",
+    "es": "Busca la parada más cercana en el mapa",
+    "jp": "地図で最寄りのバス停を探す"
+  },
+  "str_not_before_3_days": {
+    "it": "Il rimborso è possibile fino a 3 giorni prima della partenza",
+    "en": "Refunds are possible up to 3 days before departure",
+    "fr": "Le remboursement est possible jusqu'à 3 jours avant le départ",
+    "de": "Eine Rückerstattung ist bis 3 Tage vor Abfahrt möglich",
+    "es": "El reembolso es posible hasta 3 días antes de la salida",
+    "jp": "出発の3日前まで返金できます"
+  },
+  "str_not_driver": {
+    "it": "Solo i membri dello staff hanno accesso alle informazioni del Qrcode. Se non sei un membro dello staff visualizza le informazioni nella tua area personale.",
+    "en": "Only staff members have access to the QR code information. If you are not a staff member, please view the information in your personal area.",
+    "fr": "Seuls les membres du personnel ont accès aux informations du code QR.",
+    "de": "Nur Mitarbeiter haben Zugriff auf die QR-Code-Informationen.",
+    "es": "Solo los miembros del personal tienen acceso a la información del código QR.",
+    "jp": "QRコード情報はスタッフのみ閲覧可能です。"
+  },
+  "str_not_ticket_expired": {
+    "it": "Il viaggio è già passato: rimborso non disponibile",
+    "en": "The trip has already taken place: refund not available",
+    "fr": "Le voyage a déjà eu lieu : remboursement non disponible",
+    "de": "Die Fahrt hat bereits stattgefunden: Rückerstattung nicht möglich",
+    "es": "El viaje ya ha pasado: reembolso no disponible",
+    "jp": "すでに乗車済みのため返金できません"
+  },
+  "str_old_password": {
+    "it": "Vecchia password",
+    "en": "Old password",
+    "fr": "Ancien mot de passe",
+    "de": "Altes Passwort",
+    "es": "Contraseña anterior",
+    "jp": "現在のパスワード"
+  },
+  "str_old_ticket": {
+    "it": "Vecchi tickets",
+    "en": "Old tickets",
+    "fr": "Anciens billets",
+    "de": "Alte Tickets",
+    "es": "Billetes anteriores",
+    "jp": "過去のチケット"
+  },
+  "str_old_tickets": {
+    "it": "Mostra vecchi biglietti",
+    "en": "Show old tickets",
+    "fr": "Afficher les anciens billets",
+    "de": "Alte Tickets anzeigen",
+    "es": "Mostrar billetes antiguos",
+    "jp": "過去のチケットを表示"
+  },
+  "str_or": {
+    "it": "o",
+    "en": "or",
+    "fr": "ou",
+    "de": "oder",
+    "es": "o",
+    "jp": "または"
+  },
+  "str_pagamento_annullato": {
+    "it": "Pagamento annullato",
+    "en": "Payment canceled",
+    "fr": "Paiement annulé",
+    "de": "Zahlung abgebrochen",
+    "es": "Pago cancelado",
+    "jp": "支払いがキャンセルされました"
+  },
+  "str_pagamento_annullato_desc": {
+    "it": "Il pagamento è stato annullato i posti tornati disponibili",
+    "en": "The payment was canceled and the seats were released",
+    "fr": "Le paiement a été annulé et les places ont été libérées",
+    "de": "Die Zahlung wurde abgebrochen und die Sitze wurden freigegeben",
+    "es": "El pago fue cancelado y los asientos fueron liberados",
+    "jp": "支払いがキャンセルされ、座席が解放されました"
+  },
+  "str_pagamento_annullato_desc2": {
+    "it": "Ti preghiamo ti riprovare",
+    "en": "Please try again",
+    "fr": "Veuillez réessayer",
+    "de": "Bitte versuchen Sie es erneut",
+    "es": "Por favor, inténtalo de nuevo",
+    "jp": "もう一度お試しください"
+  },
+  "str_pagamento_in_corso_annulla": {
+    "it": "Annulla e prosegui",
+    "en": "Cancel and proceed",
+    "fr": "Annuler et continuer",
+    "de": "Abbrechen und fortfahren",
+    "es": "Cancelar y continuar",
+    "jp": "キャンセルして続行"
+  },
+  "str_pagamento_in_corso_continua": {
+    "it": "Continua con il pagamento",
+    "en": "Continue with the payment",
+    "fr": "Continuer le paiement",
+    "de": "Mit der Zahlung fortfahren",
+    "es": "Continuar con el pago",
+    "jp": "支払いを続ける"
+  },
+  "str_pagamento_in_corso_text": {
+    "it": "Hai un pagamento in sospeso. Questo blocca i posti per un tempo limitato puoi continuare a pagare o annullare ",
+    "en": "You have a pending payment. This holds the seats for a limited time. You can proceed with the payment or cancel.",
+    "fr": "Vous avez un paiement en attente. Cela bloque les places pour un temps limité. Vous pouvez poursuivre le paiement ou annuler.",
+    "de": "Sie haben eine ausstehende Zahlung. Dadurch werden die Sitze für einen begrenzten Zeitraum reserviert.",
+    "es": "Tienes un pago pendiente. Esto mantiene los asientos reservados por un tiempo limitado.",
+    "jp": "未完了の支払いがあります。座席が一定時間確保されます。"
+  },
+  "str_pagamento_in_corso_title": {
+    "it": "Attenzione",
+    "en": "Warning",
+    "fr": "Attention",
+    "de": "Warnung",
+    "es": "Advertencia",
+    "jp": "警告"
+  },
+  "str_pagamento_in_verifica": {
+    "it": "Pagamento in verifica",
+    "en": "Payment under verification",
+    "fr": "Paiement en cours de vérification",
+    "de": "Zahlung wird geprüft",
+    "es": "Pago en verificación",
+    "jp": "決済確認中"
+  },
+  "str_pagamento_in_verifica_desc": {
+    "it": "Abbiamo ricevuto il tuo pagamento e stiamo attendendo la conferma.",
+    "en": "We received your payment and are waiting for confirmation.",
+    "fr": "Nous avons reçu votre paiement et attendons la confirmation.",
+    "de": "Wir haben deine Zahlung erhalten und warten auf die Bestätigung.",
+    "es": "Hemos recibido tu pago y estamos esperando la confirmación.",
+    "jp": "お支払いを受け付けました。確認をお待ちください。"
+  },
+  "str_pagamento_in_verifica_desc2": {
+    "it": "Puoi riprovare la verifica o controllare lo stato nella sezione dei tuoi biglietti.",
+    "en": "You can retry the verification or check the status in your tickets section.",
+    "fr": "Vous pouvez relancer la vérification ou consulter le statut dans la section de vos billets.",
+    "de": "Du kannst die Prüfung wiederholen oder den Status im Bereich deiner Tickets prüfen.",
+    "es": "Puedes reintentar la verificación o consultar el estado en la sección de tus billetes.",
+    "jp": "確認を再試行するか、マイチケットで状況をご確認ください。"
+  },
+  "str_pagamento_riuscito": {
+    "it": "Pagamento riuscito",
+    "en": "Payment successful",
+    "fr": "Paiement réussi",
+    "de": "Zahlung erfolgreich",
+    "es": "Pago exitoso",
+    "jp": "支払い完了"
+  },
+  "str_pagamento_riuscito_desc": {
+    "it": "Pagamento avvenuto, grazie per l'acquisto",
+    "en": "Payment completed, thank you for your purchase",
+    "fr": "Paiement effectué, merci pour votre achat",
+    "de": "Zahlung durchgeführt, vielen Dank für Ihren Einkauf",
+    "es": "Pago completado, gracias por su compra",
+    "jp": "支払いが完了しました。ご購入ありがとうございます。"
+  },
+  "str_pagamento_riuscito_desc2": {
+    "it": "Il biglietto potrebbe restare in pending o essere annullato successivamente. Questo dipende dalla risposta della banca.",
+    "en": "The ticket may remain pending or be canceled later. This depends on the bank's response.",
+    "fr": "Le billet peut rester en attente ou être annulé ultérieurement.",
+    "de": "Das Ticket kann noch ausstehend bleiben oder später storniert werden.",
+    "es": "El billete puede permanecer pendiente o ser cancelado posteriormente.",
+    "jp": "チケットが保留状態のままになるか、後でキャンセルされる場合があります。"
+  },
+  "str_page_not_authorized": {
+    "it": "Accesso negato",
+    "en": "Access denied",
+    "fr": "Accès refusé",
+    "de": "Zugriff verweigert",
+    "es": "Acceso denegado",
+    "jp": "アクセス拒否"
+  },
+  "str_page_not_authorized_desc": {
+    "it": "Sessione scaduta o non valida",
+    "en": "Session expired or invalid",
+    "fr": "Session expirée ou invalide",
+    "de": "Sitzung abgelaufen oder ungültig",
+    "es": "Sesión expirada o no válida",
+    "jp": "セッションの有効期限が切れているか、無効です"
+  },
+  "str_page_not_found": {
+    "it": "Pagina non trovata",
+    "en": "Page not found",
+    "fr": "Page non trouvée",
+    "de": "Seite nicht gefunden",
+    "es": "Página no encontrada",
+    "jp": "ページが見つかりません"
+  },
+  "str_page_not_found_desc": {
+    "it": "La pagina che cerchi non esiste",
+    "en": "The page you are looking for does not exist",
+    "fr": "La page que vous recherchez n'existe pas",
+    "de": "Die gesuchte Seite existiert nicht",
+    "es": "La página que buscas no existe",
+    "jp": "お探しのページは存在しません"
+  },
+  "str_partenza": {
+    "it": "Partenza",
+    "en": "Departure",
+    "fr": "Départ",
+    "de": "Abfahrt",
+    "es": "Salida",
+    "jp": "出発"
+  },
+  "str_partenza_da": {
+    "it": "Partenza da:",
+    "en": "Departure from:",
+    "fr": "Départ de :",
+    "de": "Abfahrt von:",
+    "es": "Salida desde:",
+    "jp": "出発地："
+  },
+  "str_partenza_placeholder": {
+    "it": "Scegli un punto di partenza",
+    "en": "Point of departure",
+    "fr": "Point de départ",
+    "de": "Abfahrtsort",
+    "es": "Punto de salida",
+    "jp": "出発地点を選択してください"
+  },
+  "str_passkey_add": {
+    "it": "Aggiungi passkey",
+    "en": "Add passkey",
+    "fr": "Ajouter une passkey",
+    "de": "Passkey hinzufügen",
+    "es": "Añadir passkey",
+    "jp": "パスキーを追加"
+  },
+  "str_passkey_added": {
+    "it": "Passkey aggiunta",
+    "en": "Passkey added",
+    "fr": "Passkey ajoutée",
+    "de": "Passkey hinzugefügt",
+    "es": "Passkey añadida",
+    "jp": "パスキーを追加しました"
+  },
+  "str_passkey_created": {
+    "it": "Aggiunta il",
+    "en": "Added on",
+    "fr": "Ajoutée le",
+    "de": "Hinzugefügt am",
+    "es": "Añadida el",
+    "jp": "追加日"
+  },
+  "str_passkey_error": {
+    "it": "Accesso con passkey non riuscito",
+    "en": "Passkey sign-in failed",
+    "fr": "Échec de la connexion avec la passkey",
+    "de": "Anmeldung mit Passkey fehlgeschlagen",
+    "es": "No se ha podido entrar con la passkey",
+    "jp": "パスキーでのログインに失敗しました"
+  },
+  "str_passkey_exists": {
+    "it": "Questa passkey è già registrata.",
+    "en": "This passkey is already registered.",
+    "fr": "Cette passkey est déjà enregistrée.",
+    "de": "Dieser Passkey ist bereits registriert.",
+    "es": "Esta passkey ya está registrada.",
+    "jp": "このパスキーはすでに登録されています。"
+  },
+  "str_passkey_last_used": {
+    "it": "Ultimo uso",
+    "en": "Last used",
+    "fr": "Dernière utilisation",
+    "de": "Zuletzt verwendet",
+    "es": "Último uso",
+    "jp": "最終使用"
+  },
+  "str_passkey_login": {
+    "it": "Accedi con passkey",
+    "en": "Sign in with a passkey",
+    "fr": "Se connecter avec une passkey",
+    "de": "Mit Passkey anmelden",
+    "es": "Entrar con passkey",
+    "jp": "パスキーでログイン"
+  },
+  "str_passkey_name": {
+    "it": "Nome passkey",
+    "en": "Passkey name",
+    "fr": "Nom de la passkey",
+    "de": "Name des Passkeys",
+    "es": "Nombre de la passkey",
+    "jp": "パスキー名"
+  },
+  "str_passkey_name_placeholder": {
+    "it": "Nome (es. iPhone di lavoro)",
+    "en": "Name (e.g. work iPhone)",
+    "fr": "Nom (ex. iPhone pro)",
+    "de": "Name (z. B. Arbeits-iPhone)",
+    "es": "Nombre (p. ej. iPhone del trabajo)",
+    "jp": "名前(例: 仕事用iPhone)"
+  },
+  "str_passkey_none": {
+    "it": "Nessuna passkey registrata.",
+    "en": "No passkeys registered.",
+    "fr": "Aucune passkey enregistrée.",
+    "de": "Keine Passkeys registriert.",
+    "es": "No hay passkeys registradas.",
+    "jp": "登録されたパスキーはありません。"
+  },
+  "str_passkey_remove": {
+    "it": "Rimuovi",
+    "en": "Remove",
+    "fr": "Supprimer",
+    "de": "Entfernen",
+    "es": "Eliminar",
+    "jp": "削除"
+  },
+  "str_passkey_removed": {
+    "it": "Passkey rimossa",
+    "en": "Passkey removed",
+    "fr": "Passkey supprimée",
+    "de": "Passkey entfernt",
+    "es": "Passkey eliminada",
+    "jp": "パスキーを削除しました"
+  },
+  "str_passkey_unsupported": {
+    "it": "Questo browser non supporta le passkey.",
+    "en": "This browser does not support passkeys.",
+    "fr": "Ce navigateur ne prend pas en charge les passkeys.",
+    "de": "Dieser Browser unterstützt keine Passkeys.",
+    "es": "Este navegador no admite passkeys.",
+    "jp": "このブラウザはパスキーに対応していません。"
+  },
+  "str_passkeys": {
+    "it": "Passkey",
+    "en": "Passkeys",
+    "fr": "Passkeys",
+    "de": "Passkeys",
+    "es": "Passkeys",
+    "jp": "パスキー"
+  },
+  "str_passkeys_desc": {
+    "it": "Accedi senza password con impronta, volto o PIN del dispositivo.",
+    "en": "Sign in without a password using your fingerprint, face or device PIN.",
+    "fr": "Connectez-vous sans mot de passe avec votre empreinte, votre visage ou le code PIN de l'appareil.",
+    "de": "Melde dich ohne Passwort mit Fingerabdruck, Gesicht oder Geräte-PIN an.",
+    "es": "Entra sin contraseña con tu huella, tu cara o el PIN del dispositivo.",
+    "jp": "指紋、顔認証、またはデバイスのPINでパスワードなしでログインできます。"
+  },
+  "str_password": {
+    "it": "Password",
+    "en": "Password",
+    "fr": "Mot de passe",
+    "de": "Passwort",
+    "es": "Contraseña",
+    "jp": "パスワード"
+  },
+  "str_password_confirm": {
+    "it": "Ripeti password",
+    "en": "Repeat password",
+    "fr": "Répéter le mot de passe",
+    "de": "Passwort wiederholen",
+    "es": "Repite la contraseña",
+    "jp": "パスワード（確認用）"
+  },
+  "str_password_lunghezza_minima": {
+    "it": "La password deve avere almeno 6 caratteri",
+    "en": "The password must be at least 6 characters long.",
+    "fr": "Le mot de passe doit comporter au moins 6 caractères.",
+    "de": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+    "es": "La contraseña debe tener al menos 6 caracteres.",
+    "jp": "パスワードは6文字以上でなければなりません。"
+  },
+  "str_password_min8": {
+    "it": "La password deve avere almeno 8 caratteri",
+    "en": "Password must be at least 8 characters",
+    "fr": "Le mot de passe doit contenir au moins 8 caractères",
+    "de": "Das Passwort muss mindestens 8 Zeichen haben",
+    "es": "La contraseña debe tener al menos 8 caracteres",
+    "jp": "パスワードは8文字以上で入力してください"
+  },
+  "str_password_mismatch": {
+    "it": "Le password non coincidono",
+    "en": "Passwords do not match",
+    "fr": "Les mots de passe ne correspondent pas",
+    "de": "Die Passwörter stimmen nicht überein",
+    "es": "Las contraseñas no coinciden",
+    "jp": "パスワードが一致しません"
+  },
+  "str_password_must_match": {
+    "it": "Le password non coincidono",
+    "en": "Passwords do not match",
+    "fr": "Les mots de passe ne correspondent pas",
+    "de": "Passwörter stimmen nicht überein",
+    "es": "Las contraseñas no coinciden",
+    "jp": "パスワードが一致しません"
+  },
+  "str_password_non_uguali": {
+    "it": "Le password non corrispondono",
+    "en": "The password do not match.",
+    "fr": "Les mots de passe ne correspondent pas.",
+    "de": "Die Passwörter stimmen nicht überein.",
+    "es": "Las contraseñas no coinciden.",
+    "jp": "パスワードが一致しません。"
+  },
+  "str_password_not_match": {
+    "it": "Le password non corrispondono",
+    "en": "The password do not match.",
+    "fr": "Les mots de passe ne correspondent pas.",
+    "de": "Die Passwörter stimmen nicht überein.",
+    "es": "Las contraseñas no coinciden.",
+    "jp": "パスワードが一致しません。"
+  },
+  "str_password_obbligatoria": {
+    "it": "Il campo è obbligatorio",
+    "en": "The password field is required",
+    "fr": "Le champ du mot de passe est obligatoire",
+    "de": "Das Passwortfeld ist erforderlich",
+    "es": "El campo de contraseña es obligatorio",
+    "jp": "パスワードは必須です"
+  },
+  "str_password_requirements_not_met": {
+    "it": "La password non soddisfa i requisiti minimi",
+    "en": "The password does not meet the minimum requirements",
+    "fr": "Le mot de passe ne répond pas aux exigences minimales",
+    "de": "Das Passwort erfüllt nicht die Mindestanforderungen",
+    "es": "La contraseña no cumple con los requisitos mínimos",
+    "jp": "パスワードが最小要件を満たしていません"
+  },
+  "str_pay": {
+    "it": "Paga ora",
+    "en": "Pay now",
+    "fr": "Payer maintenant",
+    "de": "Jetzt bezahlen",
+    "es": "Pagar ahora",
+    "jp": "今すぐ支払う"
+  },
+  "str_payment_failed": {
+    "it": "Pagamento non riuscito",
+    "en": "Payment failed",
+    "fr": "Paiement échoué",
+    "de": "Zahlung fehlgeschlagen",
+    "es": "Pago fallido",
+    "jp": "決済に失敗しました"
+  },
+  "str_pending_payment": {
+    "it": "In attesa di pagamento",
+    "en": "Awaiting payment",
+    "fr": "En attente de paiement",
+    "de": "Zahlung ausstehend",
+    "es": "Pendiente de pago",
+    "jp": "お支払い待ち"
+  },
+  "str_personal_area": {
+    "it": "Area personale",
+    "en": "Personal area",
+    "fr": "Espace personnel",
+    "de": "Persönlicher Bereich",
+    "es": "Área personal",
+    "jp": "マイページ"
+  },
+  "str_phone": {
+    "it": "Numero di telefono",
+    "en": "Phone number",
+    "fr": "Numéro de téléphone",
+    "de": "Telefonnummer",
+    "es": "Número de teléfono",
+    "jp": "電話番号"
+  },
+  "str_phone_number": {
+    "it": "Numero di telefono",
+    "en": "Phone number",
+    "fr": "Numéro de téléphone",
+    "de": "Telefonnummer",
+    "es": "Número de teléfono",
+    "jp": "電話番号"
+  },
+  "str_phone_number_is_required": {
+    "it": "Il numero di telefono è obbligatorio",
+    "en": "Phone number is required",
+    "fr": "Le numéro de téléphone est obligatoire",
+    "de": "Telefonnummer ist erforderlich",
+    "es": "El número de teléfono es obligatorio",
+    "jp": "電話番号は必須です"
+  },
+  "str_pin_not_valid": {
+    "it": "Pin non valido",
+    "en": "Pin not valid",
+    "fr": "Code PIN invalide",
+    "de": "PIN ungültig",
+    "es": "PIN no válido",
+    "jp": "PINが無効です"
+  },
+  "str_pin_obbligatorio": {
+    "it": "Il pin è obbligatorio",
+    "en": "The PIN is required",
+    "fr": "Le code PIN est obligatoire",
+    "de": "Der PIN ist erforderlich",
+    "es": "El PIN es obligatorio",
+    "jp": "PINは必須です"
+  },
+  "str_policy_subtitle": {
+    "it": "Regole, termini e procedure per ottenere un rimborso del tuo biglietto",
+    "en": "Rules, terms, and procedures for obtaining a ticket refund",
+    "fr": "Règles, conditions et procédures pour obtenir un remboursement de billet",
+    "de": "Regeln, Bedingungen und Verfahren zur Erstattung eines Tickets",
+    "es": "Reglas, términos y procedimientos para obtener el reembolso de un billete",
+    "jp": "チケットの返金に関するルール、条件、手続き"
+  },
+  "str_politiche_acquisto_restituzione": {
+    "it": "Richiesta di Rimborso",
+    "en": "Refund request",
+    "fr": "Demande de remboursement",
+    "de": "Rückerstattungsanfrage",
+    "es": "Solicitud de reembolso",
+    "jp": "返金リクエスト"
+  },
+  "str_politiche_acquisto_restituzione_desc": {
+    "it": "Come richiedere un rimborso e quando è possibile",
+    "en": "How to request a refund and when it is possible",
+    "fr": "Comment demander un remboursement et quand c'est possible",
+    "de": "Wie Sie eine Rückerstattung beantragen und wann diese möglich ist",
+    "es": "Cómo solicitar un reembolso y cuándo es posible",
+    "jp": "返金の申し込み方法と条件"
+  },
+  "str_position": {
+    "it": "Posizione",
+    "en": "Position",
+    "fr": "Position",
+    "de": "Position",
+    "es": "Posición",
+    "jp": "位置"
+  },
+  "str_prefix_is_required": {
+    "it": "Il prefisso è obbligatorio",
+    "en": "Prefix is required",
+    "fr": "Le préfixe est obligatoire",
+    "de": "Die Vorwahl ist erforderlich",
+    "es": "El prefijo es obligatorio",
+    "jp": "国番号は必須です"
+  },
+  "str_prefix_phone": {
+    "it": "Prefisso",
+    "en": "Prefix",
+    "fr": "Préfixe",
+    "de": "Vorwahl",
+    "es": "Prefijo",
+    "jp": "国番号"
+  },
+  "str_prenotazione_cash_desc": {
+    "it": "La prenotazione è stata registrata con pagamento in contanti.",
+    "en": "The booking has been registered with cash payment.",
+    "fr": "La réservation a été enregistrée avec un paiement en espèces.",
+    "de": "Die Buchung wurde mit Barzahlung registriert.",
+    "es": "La reserva ha sido registrada con pago en efectivo.",
+    "jp": "予約は現金支払いで登録されました。"
+  },
+  "str_prenotazione_cash_desc2": {
+    "it": "Il pagamento verrà raccolto alla salita sul bus.",
+    "en": "Payment will be collected upon boarding the bus.",
+    "fr": "Le paiement sera collecté lors de la montée dans le bus.",
+    "de": "Die Bezahlung erfolgt beim Einsteigen in den Bus.",
+    "es": "El pago se recogerá al subir al autobús.",
+    "jp": "バス乗車時に支払いを集金します。"
+  },
+  "str_prenotazione_confermata": {
+    "it": "Prenotazione confermata",
+    "en": "Booking confirmed",
+    "fr": "Réservation confirmée",
+    "de": "Buchung bestätigt",
+    "es": "Reserva confirmada",
+    "jp": "予約確認済み"
+  },
+  "str_prima_data_disponibile": {
+    "it": "Prima data disponibile",
+    "en": "First available date",
+    "fr": "Première date disponible",
+    "de": "Erstes verfügbares Datum",
+    "es": "Primera fecha disponible",
+    "jp": "最短の空き日"
+  },
+  "str_privacy-policy_content": {
+    "it": "    <h4 class=\"fw-bold\">1. Introduzione</h4>             <p>                 La presente informativa descrive le modalità di raccolta, utilizzo e protezione dei dati personali degli utenti che utilizzano i servizi offerti da <strong>{{companyLegalName}}</strong>.                 L’azienda si impegna a garantire la massima protezione e riservatezza delle informazioni personali, nel rispetto del <strong>Regolamento UE 2016/679 (GDPR)</strong>.             </p>              <h4 class=\"fw-bold mt-4\">2. Dati Raccolti</h4>             <p><strong>I dati raccolti includono:</strong></p>             <ul>                 <li>Dati anagrafici (nome, cognome, data di nascita)</li>                 <li>Informazioni di contatto (email, numero di telefono)</li>                 <li>Dettagli della prenotazione e storico viaggi</li>                 <li>Informazioni di pagamento (solo per la gestione delle transazioni, senza memorizzazione delle credenziali di pagamento)</li>                 <li>Dati di localizzazione per il monitoraggio delle corse</li>             </ul>              <h4 class=\"fw-bold mt-4\">3. Finalità del Trattamento</h4>             <p>I dati vengono raccolti e trattati per i seguenti scopi:</p>             <ul>                 <li>Gestione delle prenotazioni e dell'erogazione del servizio di trasporto</li>                 <li>Fatturazione e gestione dei pagamenti</li>                 <li>Assistenza clienti e comunicazioni relative al servizio</li>                 <li>Miglioramento dell’esperienza utente e analisi statistiche</li>                 <li>Adempimenti di obblighi legali</li>             </ul>              <h4 class=\"fw-bold mt-4\">4. Conservazione dei Dati</h4>             <p>                 I dati personali vengono conservati per il tempo necessario all’erogazione dei servizi e in conformità agli obblighi di legge.                   Dopo tale periodo, i dati saranno eliminati o anonimizzati.             </p>              <h4 class=\"fw-bold mt-4\">5. Condivisione dei Dati</h4>             <p>                 {{company}} non vende né condivide i dati personali con terze parti per scopi commerciali.                   I dati possono essere comunicati esclusivamente a:             </p>             <ul>                 <li>Enti pubblici o autorità in caso di obblighi legali</li>                 <li>Fornitori di servizi di pagamento (Stripe) per la gestione delle transazioni</li>                 <li>Partner tecnici per la manutenzione della piattaforma</li>             </ul>              <h4 class=\"fw-bold mt-4\">6. Sicurezza dei Dati</h4>             <p>                 {{company}} adotta misure di sicurezza avanzate per proteggere i dati da accessi non autorizzati, perdite o alterazioni.                 I pagamenti online vengono gestiti tramite sistemi crittografati di <strong>Stripe</strong>, garantendo la sicurezza delle transazioni.             </p>              <h4 class=\"fw-bold mt-4\">7. Diritti degli Utenti</h4>             <p>In conformità con il GDPR, gli utenti possono:</p>             <ul>                 <li>Accedere ai propri dati personali</li>                 <li>Richiedere la modifica o la cancellazione dei dati</li>                 <li>Revocare il consenso al trattamento</li>                 <li>Opporsi al trattamento per finalità di marketing</li>             </ul>             <p>Le richieste possono essere inviate a: <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>.</p>              <h4 class=\"fw-bold mt-4\">8. Cookie e Tracciamento</h4>             <p>                 Il nostro sito utilizza solo cookie essenziali per il funzionamento del servizio.                   Non vengono utilizzati strumenti di tracciamento per finalità pubblicitarie.             </p>              <h4 class=\"fw-bold mt-4\">9. Modifiche alla Privacy Policy</h4>             <p>                 {{company}} si riserva il diritto di aggiornare la presente informativa. Le modifiche verranno pubblicate su questa pagina con data di aggiornamento.             </p>              <div class=\"alert alert-info mt-4\">                 <strong>Ultimo aggiornamento:</strong> Marzo 2025             </div>",
+    "en": "<h4 class=\"fw-bold\">1. Introduction</h4> <p>     This policy describes how personal data is collected, used, and protected for users utilizing the services offered by <strong>{{companyLegalName}}</strong>.       The company is committed to ensuring maximum protection and confidentiality of personal information, in compliance with <strong>EU Regulation 2016/679 (GDPR)</strong>. </p>  <h4 class=\"fw-bold mt-4\">2. Collected Data</h4> <p><strong>The collected data includes:</strong></p> <ul>     <li>Personal details (name, surname, date of birth)</li>     <li>Contact information (email, phone number)</li>     <li>Booking details and travel history</li>     <li>Payment information (only for transaction processing, without storing payment credentials)</li>     <li>Location data for trip monitoring</li> </ul>  <h4 class=\"fw-bold mt-4\">3. Purpose of Data Processing</h4> <p>The collected data is used for the following purposes:</p> <ul>     <li>Managing bookings and providing transport services</li>     <li>Billing and payment processing</li>     <li>Customer support and service-related communications</li>     <li>Improving user experience and conducting statistical analysis</li>     <li>Compliance with legal obligations</li> </ul>  <h4 class=\"fw-bold mt-4\">4. Data Retention</h4> <p>     Personal data is stored for as long as necessary to provide the services and in compliance with legal obligations.       After this period, the data will be deleted or anonymized. </p>  <h4 class=\"fw-bold mt-4\">5. Data Sharing</h4> <p>     {{company}} does not sell or share personal data with third parties for commercial purposes.       Data may only be shared with: </p> <ul>     <li>Public authorities or government bodies in case of legal obligations</li>     <li>Payment service providers (Stripe) for transaction processing</li>     <li>Technical partners for platform maintenance</li> </ul>  <h4 class=\"fw-bold mt-4\">6. Data Security</h4> <p>     {{company}} implements advanced security measures to protect data from unauthorized access, loss, or alteration.       Online payments are processed through <strong>Stripe</strong>'s encrypted systems, ensuring secure transactions. </p>  <h4 class=\"fw-bold mt-4\">7. User Rights</h4> <p>In compliance with the GDPR, users have the right to:</p> <ul>     <li>Access their personal data</li>     <li>Request modifications or deletion of data</li>     <li>Withdraw consent for data processing</li>     <li>Object to data processing for marketing purposes</li> </ul> <p>Requests can be sent to: <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>.</p>  <h4 class=\"fw-bold mt-4\">8. Cookies and Tracking</h4> <p>     Our website only uses essential cookies necessary for service operation.       No tracking tools are used for advertising purposes. </p>  <h4 class=\"fw-bold mt-4\">9. Privacy Policy Updates</h4> <p>     {{company}} reserves the right to update this policy. Any changes will be published on this page with the update date. </p>  <div class=\"alert alert-info mt-4\">     <strong>Last update:</strong> March 2025 </div>",
+    "fr": "    <h4 class=\"fw-bold\">1. Introduction</h4>\n            <p>\n                La présente politique décrit les modalités de collecte, d'utilisation et de protection des données personnelles des utilisateurs qui utilisent les services offerts par <strong>{{companyLegalName}}</strong>.\n                L'entreprise s'engage à garantir la protection et la confidentialité maximales des informations personnelles, conformément au <strong>Règlement UE 2016/679 (RGPD)</strong>.\n            </p>\n             <h4 class=\"fw-bold mt-4\">2. Données Collectées</h4>\n            <p><strong>Les données collectées incluent :</strong></p>\n            <ul>\n                <li>Données personnelles (nom, prénom, date de naissance)</li>\n                <li>Coordonnées (email, numéro de téléphone)</li>\n                <li>Détails de réservation et historique de voyages</li>\n                <li>Informations de paiement (uniquement pour le traitement des transactions, sans stockage des informations de paiement)</li>\n                <li>Données de localisation pour le suivi des courses</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">3. Finalités du Traitement</h4>\n            <p>Les données sont collectées et traitées pour les objectifs suivants :</p>\n            <ul>\n                <li>Gestion des réservations et fourniture du service de transport</li>\n                <li>Facturation et gestion des paiements</li>\n                <li>Service client et communications liées au service</li>\n                <li>Amélioration de l'expérience utilisateur et analyses statistiques</li>\n                <li>Conformité aux obligations légales</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">4. Conservation des Données</h4>\n            <p>\n                Les données personnelles sont conservées pendant la durée nécessaire à la fourniture des services et conformément aux obligations légales.\n                  Après cette période, les données seront supprimées ou anonymisées.\n            </p>\n             <h4 class=\"fw-bold mt-4\">5. Partage des Données</h4>\n            <p>\n                {{company}} ne vend ni ne partage les données personnelles avec des tiers à des fins commerciales.\n                  Les données peuvent être communiquées exclusivement à :\n            </p>\n            <ul>\n                <li>Organismes publics ou autorités en cas d'obligations légales</li>\n                <li>Fournisseurs de services de paiement (Stripe) pour le traitement des transactions</li>\n                <li>Partenaires techniques pour la maintenance de la plateforme</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">6. Sécurité des Données</h4>\n            <p>\n                {{company}} met en œuvre des mesures de sécurité avancées pour protéger les données contre les accès non autorisés, les pertes ou les altérations.\n                Les paiements en ligne sont traités via les systèmes cryptographiques de <strong>Stripe</strong>, garantissant la sécurité des transactions.\n            </p>\n             <h4 class=\"fw-bold mt-4\">7. Droits des Utilisateurs</h4>\n            <p>Conformément au RGPD, les utilisateurs ont le droit de :</p>\n            <ul>\n                <li>Accéder à leurs données personnelles</li>\n                <li>Demander la modification ou la suppression de leurs données</li>\n                <li>Révoquer le consentement au traitement</li>\n                <li>S'opposer au traitement à des fins de marketing</li>\n            </ul>\n            <p>Les demandes peuvent être envoyées à : <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>.</p>\n             <h4 class=\"fw-bold mt-4\">8. Cookies et Suivi</h4>\n            <p>\n                Notre site utilise uniquement des cookies essentiels au fonctionnement du service.\n                  Aucun outil de suivi n'est utilisé à des fins publicitaires.\n            </p>\n             <h4 class=\"fw-bold mt-4\">9. Modifications de la Politique de Confidentialité</h4>\n            <p>\n                {{company}} se réserve le droit de mettre à jour la présente politique. Les modifications seront publiées sur cette page avec la date de mise à jour.\n            </p>\n             <div class=\"alert alert-info mt-4\">\n                <strong>Dernière mise à jour :</strong> Mars 2025\n            </div>",
+    "de": "    <h4 class=\"fw-bold\">1. Einleitung</h4>\n            <p>\n                Diese Richtlinie beschreibt, wie personenbezogene Daten von Benutzern, die die von <strong>{{companyLegalName}}</strong> angebotenen Dienste nutzen, gesammelt, verwendet und geschützt werden.\n                Das Unternehmen verpflichtet sich, maximalen Schutz und Vertraulichkeit personenbezogener Informationen gemäß der <strong>EU-Verordnung 2016/679 (DSGVO)</strong> zu gewährleisten.\n            </p>\n             <h4 class=\"fw-bold mt-4\">2. Erhobene Daten</h4>\n            <p><strong>Die erhobenen Daten umfassen:</strong></p>\n            <ul>\n                <li>Personenbezogene Daten (Name, Vorname, Geburtsdatum)</li>\n                <li>Kontaktinformationen (E-Mail, Telefonnummer)</li>\n                <li>Buchungsdetails und Reiseverlauf</li>\n                <li>Zahlungsinformationen (nur zur Transaktionsabwicklung, ohne Speicherung von Zahlungsinformationen)</li>\n                <li>Standortdaten zur Fahrtüberwachung</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">3. Zweck der Datenverarbeitung</h4>\n            <p>Die erhobenen Daten werden für folgende Zwecke verarbeitet:</p>\n            <ul>\n                <li>Verwaltung von Buchungen und Erbringung von Transportdienstleistungen</li>\n                <li>Rechnungsstellung und Zahlungsabwicklung</li>\n                <li>Kundenservice und servicebezogene Kommunikation</li>\n                <li>Verbesserung der Nutzererfahrung und statistische Analysen</li>\n                <li>Einhaltung gesetzlicher Verpflichtungen</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">4. Datenspeicherung</h4>\n            <p>\n                Personenbezogene Daten werden so lange gespeichert, wie es zur Erbringung der Dienste erforderlich ist und im Einklang mit den gesetzlichen Verpflichtungen steht.\n                Nach dieser Frist werden die Daten gelöscht oder anonymisiert.\n            </p>\n             <h4 class=\"fw-bold mt-4\">5. Datenweitergabe</h4>\n            <p>\n                {{company}} verkauft oder teilt personenbezogene Daten nicht mit Dritten für kommerzielle Zwecke.\n                Daten können ausschließlich an folgende Parteien weitergegeben werden:\n            </p>\n            <ul>\n                <li>Behörden im Fall gesetzlicher Verpflichtungen</li>\n                <li>Zahlungsdienstleister (Stripe) zur Transaktionsabwicklung</li>\n                <li>Technische Partner zur Plattformwartung</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">6. Datensicherheit</h4>\n            <p>\n                {{company}} implementiert fortschrittliche Sicherheitsmaßnahmen, um Daten vor unbefugtem Zugriff, Verlust oder Veränderung zu schützen.\n                Online-Zahlungen werden über die verschlüsselten Systeme von <strong>Stripe</strong> abgewickelt, was sichere Transaktionen gewährleistet.\n            </p>\n             <h4 class=\"fw-bold mt-4\">7. Benutzerrechte</h4>\n            <p>Gemäß der DSGVO haben Benutzer das Recht auf:</p>\n            <ul>\n                <li>Zugriff auf ihre personenbezogenen Daten</li>\n                <li>Anfrage zur Änderung oder Löschung ihrer Daten</li>\n                <li>Widerruf der Einwilligung zur Datenverarbeitung</li>\n                <li>Widerspruch gegen die Datenverarbeitung für Marketingzwecke</li>\n            </ul>\n            <p>Anfragen können gesendet werden an: <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>.</p>\n             <h4 class=\"fw-bold mt-4\">8. Cookies und Tracking</h4>\n            <p>\n                Unsere Website verwendet nur notwendige Cookies für den Betrieb des Dienstes.\n                Es werden keine Tracking-Tools für Werbezwecke eingesetzt.\n            </p>\n             <h4 class=\"fw-bold mt-4\">9. Änderungen der Datenschutzrichtlinie</h4>\n            <p>\n                {{company}} behält sich das Recht vor, diese Richtlinie zu aktualisieren. Änderungen werden auf dieser Seite mit dem Aktualisierungsdatum veröffentlicht.\n            </p>\n             <div class=\"alert alert-info mt-4\">\n                <strong>Letzte Aktualisierung:</strong> März 2025\n            </div>",
+    "es": "    <h4 class=\"fw-bold\">1. Introducción</h4>\n            <p>\n                La presente política describe cómo se recopilan, utilizan y protegen los datos personales de los usuarios que utilizan los servicios ofrecidos por <strong>{{companyLegalName}}</strong>.\n                La empresa se compromete a garantizar la máxima protección y confidencialidad de la información personal, de conformidad con el <strong>Reglamento UE 2016/679 (RGPD)</strong>.\n            </p>\n             <h4 class=\"fw-bold mt-4\">2. Datos Recopilados</h4>\n            <p><strong>Los datos recopilados incluyen:</strong></p>\n            <ul>\n                <li>Datos personales (nombre, apellidos, fecha de nacimiento)</li>\n                <li>Información de contacto (email, número de teléfono)</li>\n                <li>Detalles de reserva e historial de viajes</li>\n                <li>Información de pago (solo para el procesamiento de transacciones, sin almacenar credenciales de pago)</li>\n                <li>Datos de ubicación para el seguimiento de los servicios</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">3. Finalidad del Tratamiento</h4>\n            <p>Los datos se recopilan y tratan para los siguientes fines:</p>\n            <ul>\n                <li>Gestión de reservas y prestación del servicio de transporte</li>\n                <li>Facturación y gestión de pagos</li>\n                <li>Atención al cliente y comunicaciones relacionadas con el servicio</li>\n                <li>Mejora de la experiencia del usuario y análisis estadísticos</li>\n                <li>Cumplimiento de obligaciones legales</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">4. Conservación de los Datos</h4>\n            <p>\n                Los datos personales se conservan durante el tiempo necesario para la prestación de los servicios y de conformidad con las obligaciones legales.\n                  Después de este período, los datos serán eliminados o anonimizados.\n            </p>\n             <h4 class=\"fw-bold mt-4\">5. Compartir Datos</h4>\n            <p>\n                {{company}} no vende ni comparte datos personales con terceros con fines comerciales.\n                  Los datos solo pueden ser comunicados a:\n            </p>\n            <ul>\n                <li>Organismos públicos o autoridades en caso de obligaciones legales</li>\n                <li>Proveedores de servicios de pago (Stripe) para el procesamiento de transacciones</li>\n                <li>Socios técnicos para el mantenimiento de la plataforma</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">6. Seguridad de los Datos</h4>\n            <p>\n                {{company}} aplica medidas de seguridad avanzadas para proteger los datos contra accesos no autorizados, pérdidas o alteraciones.\n                Los pagos online se procesan a través de los sistemas cifrados de <strong>Stripe</strong>, garantizando transacciones seguras.\n            </p>\n             <h4 class=\"fw-bold mt-4\">7. Derechos de los Usuarios</h4>\n            <p>De conformidad con el RGPD, los usuarios tienen derecho a:</p>\n            <ul>\n                <li>Acceder a sus datos personales</li>\n                <li>Solicitar la modificación o supresión de sus datos</li>\n                <li>Revocar el consentimiento al tratamiento</li>\n                <li>Oponerse al tratamiento con fines de marketing</li>\n            </ul>\n            <p>Las solicitudes pueden enviarse a: <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>.</p>\n             <h4 class=\"fw-bold mt-4\">8. Cookies y Seguimiento</h4>\n            <p>\n                Nuestro sitio web utiliza únicamente cookies esenciales para el funcionamiento del servicio.\n                  No se utilizan herramientas de seguimiento con fines publicitarios.\n            </p>\n             <h4 class=\"fw-bold mt-4\">9. Modificaciones de la Política de Privacidad</h4>\n            <p>\n                {{company}} se reserva el derecho de actualizar esta política. Las modificaciones se publicarán en esta página con la fecha de actualización.\n            </p>\n             <div class=\"alert alert-info mt-4\">\n                <strong>Última actualización:</strong> Marzo 2025\n            </div>",
+    "jp": "    <h4 class=\"fw-bold\">1. はじめに</h4>\n            <p>\n                本ポリシーは、<strong>{{companyLegalName}}</strong>が提供するサービスを利用するユーザーの個人データの収集、使用、保護の方法について説明します。\n                会社は、<strong>EU規則2016/679（GDPR）</strong>に準拠し、個人情報の最大限の保護と機密性を保証することに尽力しています。\n            </p>\n             <h4 class=\"fw-bold mt-4\">2. 収集データ</h4>\n            <p><strong>収集されるデータには以下のものが含まれます：</strong></p>\n            <ul>\n                <li>個人情報（名前、姓、生年月日）</li>\n                <li>連絡先情報（メール、電話番号）</li>\n                <li>予約詳細と旅行履歴</li>\n                <li>支払い情報（取引処理のみ、支払い認証情報は保存しません）</li>\n                <li>運行監視のための位置情報</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">3. データ処理の目的</h4>\n            <p>収集されたデータは以下の目的で処理されます：</p>\n            <ul>\n                <li>予約の管理と輸送サービスの提供</li>\n                <li>請求と支払い処理</li>\n                <li>カスタマーサポートとサービス関連の通信</li>\n                <li>ユーザーエクスペリエンスの向上と統計分析</li>\n                <li>法的義務の遵守</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">4. データの保存</h4>\n            <p>\n                個人データは、サービスの提供に必要な期間、および法的義務に準拠して保存されます。\n                  この期間を過ぎたデータは削除または匿名化されます。\n            </p>\n             <h4 class=\"fw-bold mt-4\">5. データの共有</h4>\n            <p>\n                {{company}}は、商業目的で第三者に個人データを販売または共有することはありません。\n                  データは以下の場合にのみ提供されます：\n            </p>\n            <ul>\n                <li>法的義務がある場合の公的機関または当局</li>\n                <li>取引処理のための決済サービスプロバイダー（Stripe）</li>\n                <li>プラットフォーム保守のための技術パートナー</li>\n            </ul>\n             <h4 class=\"fw-bold mt-4\">6. データセキュリティ</h4>\n            <p>\n                {{company}}は、不正アクセス、損失、または改ざんからデータを保護するための高度なセキュリティ対策を実施しています。\n                オンライン決済は<strong>Stripe</strong>の暗号化システムを通じて処理され、安全な取引を保証します。\n            </p>\n             <h4 class=\"fw-bold mt-4\">7. ユーザーの権利</h4>\n            <p>GDPRに準拠し、ユーザーには以下の権利があります：</p>\n            <ul>\n                <li>個人データへのアクセス</li>\n                <li>データの変更または削除の要求</li>\n                <li>データ処理への同意の撤回</li>\n                <li>マーケティング目的でのデータ処理への異議申し立て</li>\n            </ul>\n            <p>リクエストはこちらに送信してください：<a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a></p>\n             <h4 class=\"fw-bold mt-4\">8. Cookieと追跡</h4>\n            <p>\n                当サイトでは、サービスの運営に必要な必須Cookieのみを使用しています。\n                  広告目的の追跡ツールは使用していません。\n            </p>\n             <h4 class=\"fw-bold mt-4\">9. プライバシーポリシーの変更</h4>\n            <p>\n                {{company}}は、本ポリシーを更新する権利を留保します。変更は更新日とともにこのページに公開されます。\n            </p>\n             <div class=\"alert alert-info mt-4\">\n                <strong>最終更新：</strong>2025年3月\n            </div>"
+  },
+  "str_privacy-policy_subtitle": {
+    "it": "Informativa sul trattamento dei dati personali",
+    "en": "Information on personal data processing",
+    "fr": "Informations sur le traitement des données personnelles",
+    "de": "Informationen zur Verarbeitung personenbezogener Daten",
+    "es": "Información sobre el tratamiento de datos personales",
+    "jp": "個人情報の取扱いについて"
+  },
+  "str_privacy-policy_title": {
+    "it": "Privacy & Policy",
+    "en": "Privacy & Policy",
+    "fr": "Confidentialité & Politique",
+    "de": "Datenschutz & Richtlinien",
+    "es": "Privacidad & Política",
+    "jp": "プライバシー & ポリシー"
+  },
+  "str_privacy_policy": {
+    "it": "Il papiello per privacy",
+    "en": "Privacy policy statement",
+    "fr": "Déclaration de politique de confidentialité",
+    "de": "Datenschutzerklärung",
+    "es": "Declaración de política de privacidad",
+    "jp": "プライバシーポリシー"
+  },
+  "str_profile": {
+    "it": "Profilo",
+    "en": "Profile",
+    "fr": "Profil",
+    "de": "Profil",
+    "es": "Perfil",
+    "jp": "プロフィール"
+  },
+  "str_profile_desc": {
+    "it": "Visualizza i dati del tuo profilo",
+    "en": "View your profile details",
+    "fr": "Consultez les détails de votre profil",
+    "de": "Profildetails anzeigen",
+    "es": "Ver los detalles de tu perfil",
+    "jp": "プロフィール詳細を表示"
+  },
+  "str_pwa_update_later": {
+    "it": "Più tardi",
+    "en": "Later",
+    "fr": "Plus tard",
+    "de": "Später",
+    "es": "Más tarde",
+    "jp": "後で"
+  },
+  "str_pwa_update_reload": {
+    "it": "Ricarica",
+    "en": "Reload",
+    "fr": "Recharger",
+    "de": "Neu laden",
+    "es": "Recargar",
+    "jp": "再読み込み"
+  },
+  "str_pwa_update_text": {
+    "it": "Ricarica per usare l'ultima versione dell'app.",
+    "en": "Reload to use the latest version of the app.",
+    "fr": "Rechargez pour utiliser la dernière version de l'application.",
+    "de": "Lade neu, um die neueste Version der App zu verwenden.",
+    "es": "Recarga para usar la última versión de la app.",
+    "jp": "再読み込みすると最新バージョンのアプリを利用できます。"
+  },
+  "str_pwa_update_title": {
+    "it": "Nuova versione disponibile",
+    "en": "New version available",
+    "fr": "Nouvelle version disponible",
+    "de": "Neue Version verfügbar",
+    "es": "Nueva versión disponible",
+    "jp": "新しいバージョンがあります"
+  },
+  "str_pwd_rule_lower": {
+    "it": "Una lettera minuscola",
+    "en": "A lowercase letter",
+    "fr": "Une lettre minuscule",
+    "de": "Ein Kleinbuchstabe",
+    "es": "Una letra minúscula",
+    "jp": "小文字を1つ"
+  },
+  "str_pwd_rule_min_length": {
+    "it": "Almeno 6 caratteri",
+    "en": "At least 6 characters",
+    "fr": "Au moins 6 caractères",
+    "de": "Mindestens 6 Zeichen",
+    "es": "Al menos 6 caracteres",
+    "jp": "6文字以上"
+  },
+  "str_pwd_rule_number": {
+    "it": "Un numero",
+    "en": "A number",
+    "fr": "Un chiffre",
+    "de": "Eine Zahl",
+    "es": "Un número",
+    "jp": "数字を1つ"
+  },
+  "str_pwd_rule_special": {
+    "it": "Un carattere speciale (!@#$...)",
+    "en": "A special character (!@#$...)",
+    "fr": "Un caractère spécial (!@#$...)",
+    "de": "Ein Sonderzeichen (!@#$...)",
+    "es": "Un carácter especial (!@#$...)",
+    "jp": "特殊文字を1つ (!@#$...)"
+  },
+  "str_pwd_rule_upper": {
+    "it": "Una lettera maiuscola",
+    "en": "An uppercase letter",
+    "fr": "Une lettre majuscule",
+    "de": "Ein Großbuchstabe",
+    "es": "Una letra mayúscula",
+    "jp": "大文字を1つ"
+  },
+  "str_pwd_strength_medium": {
+    "it": "Media",
+    "en": "Medium",
+    "fr": "Moyen",
+    "de": "Mittel",
+    "es": "Medio",
+    "jp": "普通"
+  },
+  "str_pwd_strength_strong": {
+    "it": "Forte",
+    "en": "Strong",
+    "fr": "Fort",
+    "de": "Stark",
+    "es": "Fuerte",
+    "jp": "強い"
+  },
+  "str_pwd_strength_weak": {
+    "it": "Debole",
+    "en": "Weak",
+    "fr": "Faible",
+    "de": "Schwach",
+    "es": "Débil",
+    "jp": "弱い"
+  },
+  "str_qui_riportati": {
+    "it": "qui riportati",
+    "en": "listed here",
+    "fr": "listés ici",
+    "de": "hier aufgelistet",
+    "es": "listados aquí",
+    "jp": "こちらに記載"
+  },
+  "str_recovery_codes": {
+    "it": "Codici di recupero",
+    "en": "Recovery codes",
+    "fr": "Codes de récupération",
+    "de": "Wiederherstellungscodes",
+    "es": "Códigos de recuperación",
+    "jp": "リカバリーコード"
+  },
+  "str_recovery_desc": {
+    "it": "Da usare al posto del codice se perdi l'accesso all'app o all'email.",
+    "en": "Use them instead of the code if you lose access to the app or your email.",
+    "fr": "À utiliser à la place du code si vous perdez l'accès à l'application ou à votre e-mail.",
+    "de": "Verwende sie anstelle des Codes, wenn du keinen Zugriff mehr auf die App oder deine E-Mail hast.",
+    "es": "Úsalos en lugar del código si pierdes el acceso a la app o a tu correo electrónico.",
+    "jp": "アプリやメールにアクセスできなくなった場合に、コードの代わりに使用します。"
+  },
+  "str_recovery_left": {
+    "it": "rimasti",
+    "en": "left",
+    "fr": "restants",
+    "de": "übrig",
+    "es": "restantes",
+    "jp": "残り"
+  },
+  "str_recovery_regenerate": {
+    "it": "Genera nuovi",
+    "en": "Generate new",
+    "fr": "En générer de nouveaux",
+    "de": "Neue erzeugen",
+    "es": "Generar nuevos",
+    "jp": "新しく生成"
+  },
+  "str_recovery_regenerated": {
+    "it": "Nuovi codici di recupero generati: i precedenti non sono più validi.",
+    "en": "New recovery codes generated: the previous ones no longer work.",
+    "fr": "Nouveaux codes de récupération générés : les précédents ne sont plus valables.",
+    "de": "Neue Wiederherstellungscodes erzeugt: Die bisherigen sind nicht mehr gültig.",
+    "es": "Se han generado nuevos códigos de recuperación: los anteriores ya no son válidos.",
+    "jp": "新しいリカバリーコードを生成しました。以前のコードは使用できなくなりました。"
+  },
+  "str_recovery_save_desc": {
+    "it": "Se perdi l'accesso all'app o all'email puoi entrare con uno di questi codici. Ognuno vale una sola volta e non verranno più mostrati.",
+    "en": "If you lose access to the app or your email you can sign in with one of these codes. Each works once and they won't be shown again.",
+    "fr": "Si vous perdez l'accès à l'application ou à votre e-mail, vous pourrez vous connecter avec l'un de ces codes. Chacun n'est valable qu'une fois et ils ne seront plus affichés.",
+    "de": "Wenn du keinen Zugriff mehr auf die App oder deine E-Mail hast, kannst du dich mit einem dieser Codes anmelden. Jeder gilt nur einmal und sie werden nicht erneut angezeigt.",
+    "es": "Si pierdes el acceso a la app o a tu correo electrónico, podrás entrar con uno de estos códigos. Cada uno sirve una sola vez y no se volverán a mostrar.",
+    "jp": "アプリやメールにアクセスできなくなった場合、これらのコードでログインできます。各コードは1回のみ有効で、再表示されません。"
+  },
+  "str_recovery_save_title": {
+    "it": "Salva i codici di recupero",
+    "en": "Save your recovery codes",
+    "fr": "Enregistrez vos codes de récupération",
+    "de": "Speichere deine Wiederherstellungscodes",
+    "es": "Guarda tus códigos de recuperación",
+    "jp": "リカバリーコードを保存してください"
+  },
+  "str_recovery_saved": {
+    "it": "Li ho salvati",
+    "en": "I've saved them",
+    "fr": "Je les ai enregistrés",
+    "de": "Ich habe sie gespeichert",
+    "es": "Ya los he guardado",
+    "jp": "保存しました"
+  },
+  "str_refund": {
+    "it": "Rimborsa",
+    "en": "Refund",
+    "fr": "Remboursement",
+    "de": "Rückerstattung",
+    "es": "Reembolso",
+    "jp": "返金"
+  },
+  "str_refund-policy_content": {
+    "it": "<h4 class=\"fw-bold\">Come richiedere un rimborso</h4> <p> Il rimborso del biglietto può essere richiesto esclusivamente tramite il proprio <strong>account personale</strong>, utilizzando l'apposito pulsante presente nella sezione \"I miei biglietti\". <br><strong>Il pulsante di rimborso è disponibile solo fino a 3 giorni prima della partenza.</strong> </p> <h5 class=\"fw-bold mt-3\">Tempistiche di rimborso</h5> <p> Una volta effettuata la richiesta, il rimborso verrà accreditato sullo stesso <strong>metodo di pagamento utilizzato</strong> per l'acquisto entro <strong>5 giorni lavorativi</strong>. <br>Si prega di <strong>non contattare l'assistenza</strong> prima che siano trascorsi i 5 giorni lavorativi. </p> <h5 class=\"fw-bold mt-3\">Casi in cui il rimborso non è previsto</h5> <ul> <li><strong>Il passeggero non trova la fermata</strong></li> <li><strong>Il passeggero perde il pullman</strong></li> <li><strong>Il pullman è in ritardo</strong></li> </ul> <p> Tutte le corse sono <strong>tracciate via GPS</strong> e dotate di <strong>telecamere di sicurezza</strong>, pertanto è possibile verificare in ogni momento la regolarità della corsa e l'orario di arrivo del bus. </p> <h5 class=\"fw-bold mt-3\">Annullamento da parte di {{company}}</h5> <p> {{company}} si riserva il diritto di annullare una prenotazione in qualsiasi momento per motivi tecnici o operativi. In tal caso, l'utente verrà tempestivamente avvisato via email e il biglietto risulterà annullato e non più valido. <br>{{company}} si impegna a garantire tutte le corse programmate e il massimo rispetto per i propri clienti, riducendo al minimo eventuali disagi. </p> <div class=\"alert alert-warning mt-3\"> <strong>Attenzione:</strong> Richieste di rimborso effettuate dopo la scadenza o per motivazioni non previste non saranno accettate. </div> ",
+    "en": "<h4 class=\"fw-bold\">How to Request a Refund</h4> <p> Ticket refunds can only be requested through your <strong>personal account</strong> using the dedicated button in the \"My Tickets\" section. <br><strong>The refund button is available only up to 3 days before departure.</strong> </p> <h5 class=\"fw-bold mt-3\">Refund Processing Time</h5> <p> Once the request is submitted, the refund will be credited to the same <strong>payment method used</strong> for the purchase within <strong>5 business days</strong>. <br>Please <strong>do not contact customer support</strong> before the 5 business days have passed. </p> <h5 class=\"fw-bold mt-3\">Cases Where Refunds Are Not Granted</h5> <ul> <li><strong>The passenger cannot find the stop</strong></li> <li><strong>The passenger misses the bus</strong></li> <li><strong>The bus is delayed</strong></li> </ul> <p> All routes are <strong>GPS-tracked</strong> and equipped with <strong>security cameras</strong>, allowing real-time verification of the bus schedule and arrival time. </p> <h5 class=\"fw-bold mt-3\">Cancellation by {{company}}</h5> <p> {{company}} reserves the right to cancel a booking at any time due to technical or operational reasons. In such cases, the user will be promptly notified via email, and the ticket will be canceled and deemed invalid. <br>{{company}} is committed to ensuring all scheduled trips and providing the best possible service to its customers, minimizing any inconvenience. </p> <div class=\"alert alert-warning mt-3\"> <strong>Attention:</strong> Refund requests made after the deadline or for reasons not covered will not be accepted. </div> ",
+    "fr": "<h4 class=\"fw-bold\">Comment demander un remboursement</h4>\n<p>\n    Le remboursement du billet peut être demandé exclusivement via votre <strong>compte personnel</strong>, en utilisant le bouton dédié dans la section « Mes billets ».\n    <br><strong>Le bouton de remboursement est disponible uniquement jusqu'à 3 jours avant le départ.</strong>\n</p>\n<h5 class=\"fw-bold mt-3\">Délais de remboursement</h5>\n<p>\n    Une fois la demande effectuée, le remboursement sera crédité sur le même <strong>méthode de paiement utilisée</strong> pour l'achat dans un délai de <strong>5 jours ouvrables</strong>.\n    <br>Veuillez <strong>ne pas contacter le support client</strong> avant l'expiration des 5 jours ouvrables.\n</p>\n<h5 class=\"fw-bold mt-3\">Cas où le remboursement n'est pas accordé</h5>\n<ul>\n    <li><strong>Le passager ne trouve pas l'arrêt</strong></li>\n    <li><strong>Le passager rate le bus</strong></li>\n    <li><strong>Le bus est en retard</strong></li>\n</ul>\n<p>\n    Tous les trajets sont <strong>suivis par GPS</strong> et équipés de <strong>caméras de sécurité</strong>, ce qui permet de vérifier à tout moment la régularité du trajet et l'heure d'arrivée du bus.\n</p>\n<h5 class=\"fw-bold mt-3\">Annulation par {{company}}</h5>\n<p>\n    {{company}} se réserve le droit d'annuler une réservation à tout moment pour des raisons techniques ou opérationnelles. Dans ce cas, l'utilisateur sera notifié rapidement par email et le billet sera annulé et ne sera plus valide.\n    <br>{{company}} s'engage à garantir tous les trajets programmés et le respect maximal de ses clients, en minimisant les éventuels désagréments.\n</p>\n<div class=\"alert alert-warning mt-3\">\n    <strong>Attention :</strong> Les demandes de remboursement effectuées après la date limite ou pour des motifs non prévus ne seront pas acceptées.\n</div>",
+    "de": "<h4 class=\"fw-bold\">So fordern Sie eine Erstattung an</h4>\n<p>\n    Die Ticketrückerstattung kann ausschließlich über Ihren <strong>persönlichen Account</strong> über die Schaltfläche im Bereich « Meine Tickets » angefordert werden.\n    <br><strong>Die Rückerstattungsschaltfläche ist nur bis zu 3 Tage vor der Abfahrt verfügbar.</strong>\n</p>\n<h5 class=\"fw-bold mt-3\">Rückerstattungsfrist</h5>\n<p>\n    Nach Einreichung der Anfrage wird die Rückerstattung auf dieselbe <strong>Zahlungsmethode</strong>, die für den Kauf verwendet wurde, innerhalb von <strong>5 Werktagen</strong> gutgeschrieben.\n    <br>Bitte <strong>kontaktieren Sie den Kundenservice nicht</strong>, bevor die 5 Werktage abgelaufen sind.\n</p>\n<h5 class=\"fw-bold mt-3\">Fälle, in denen keine Erstattung gewährt wird</h5>\n<ul>\n    <li><strong>Der Passagier findet die Haltestelle nicht</strong></li>\n    <li><strong>Der Passagier verpasst den Bus</strong></li>\n    <li><strong>Der Bus hat Verspätung</strong></li>\n</ul>\n<p>\n    Alle Fahrten werden <strong>per GPS verfolgt</strong> und mit <strong>Sicherheitskameras</strong> ausgestattet, sodass die Regelmäßigkeit der Fahrt und die Ankunftszeit des Busses jederzeit überprüft werden können.\n</p>\n<h5 class=\"fw-bold mt-3\">Stornierung durch {{company}}</h5>\n<p>\n    {{company}} behält sich das Recht vor, eine Buchung jederzeit aus technischen oder betrieblichen Gründen zu stornieren. In diesem Fall wird der Benutzer umgehend per E-Mail benachrichtigt und das Ticket wird storniert und ungültig.\n    <br>{{company}} verpflichtet sich, alle geplanten Fahrten durchzuführen und seinen Kunden größtmögliche Rücksichtnahme entgegenzubringen, um mögliche Unannehmlichkeiten zu minimieren.\n</p>\n<div class=\"alert alert-warning mt-3\">\n    <strong>Achtung:</strong> Rückerstattungsanfragen nach Ablauf der Frist oder aus nicht vorgesehenen Gründen werden nicht akzeptiert.\n</div>",
+    "es": "<h4 class=\"fw-bold\">Cómo solicitar un reembolso</h4>\n<p>\n    El reembolso del billete solo puede solicitarse a través de su <strong>cuenta personal</strong>, utilizando el botón dedicado en la sección « Mis billetes ».\n    <br><strong>El botón de reembolso está disponible solo hasta 3 días antes de la salida.</strong>\n</p>\n<h5 class=\"fw-bold mt-3\">Plazos de reembolso</h5>\n<p>\n    Una vez enviada la solicitud, el reembolso se acreditará en el mismo <strong>método de pago utilizado</strong> para la compra en un plazo de <strong>5 días hábiles</strong>.\n    <br>Por favor, <strong>no contacte con el servicio de atención al cliente</strong> antes de que hayan transcurrido los 5 días hábiles.\n</p>\n<h5 class=\"fw-bold mt-3\">Casos en los que no se concede el reembolso</h5>\n<ul>\n    <li><strong>El pasajero no encuentra la parada</strong></li>\n    <li><strong>El pasajero pierde el bus</strong></li>\n    <li><strong>El bus está retrasado</strong></li>\n</ul>\n<p>\n    Todos los viajes están <strong>rastreados por GPS</strong> y equipados con <strong>cámaras de seguridad</strong>, lo que permite verificar en todo momento la regularidad del servicio y la hora de llegada del bus.\n</p>\n<h5 class=\"fw-bold mt-3\">Cancelación por parte de {{company}}</h5>\n<p>\n    {{company}} se reserva el derecho de cancelar una reserva en cualquier momento por razones técnicas u operativas. En tal caso, el usuario será notificado rápidamente por email y el billete quedará anulado y sin validez.\n    <br>{{company}} se compromete a garantizar todos los viajes programados y el máximo respeto hacia sus clientes, minimizando cualquier inconveniente.\n</p>\n<div class=\"alert alert-warning mt-3\">\n    <strong>Atención:</strong> Las solicitudes de reembolso realizadas después del plazo o por motivos no previstos no serán aceptadas.\n</div>",
+    "jp": "<h4 class=\"fw-bold\">返金のリクエスト方法</h4>\n<p>\n    チケットの返金は、<strong>個人アカウント</strong>から「マイチケット」セクションの専用ボタンを使用してのみリクエストできます。\n    <br><strong>返金ボタンは出発の最大3日前まで利用可能です。</strong>\n</p>\n<h5 class=\"fw-bold mt-3\">返金処理期間</h5>\n<p>\n    リクエストが送信されると、購入に使用したのと同じ<strong>お支払い方法</strong>に<strong>5営業日以内</strong>に返金されます。\n    <br>5営業日が経過する前に<strong>カスタマーサポートにお問い合わせしないでください</strong>。\n</p>\n<h5 class=\"fw-bold mt-3\">返金が認められない場合</h5>\n<ul>\n    <li><strong>乗客がバス停を見つけられない</strong></li>\n    <li><strong>乗客がバスを逃した</strong></li>\n    <li><strong>バスが遅延している</strong></li>\n</ul>\n<p>\n    全ての運行は<strong>GPS追跡</strong>され、<strong>監視カメラ</strong>が装備されており、運行の規則性とバスの到着時刻をいつでも確認できます。\n</p>\n<h5 class=\"fw-bold mt-3\">{{company}}によるキャンセル</h5>\n<p>\n    {{company}}は、技術的または運用上の理由により、いつでも予約をキャンセルする権利を留保します。この場合、ユーザーには速やかにメールで通知され、チケットはキャンセルされ無効になります。\n    <br>{{company}}は、予定された全ての運行を保証し、お客様への最大限の配慮を誓約し、不便を最小限に抑えるよう努めます。\n</p>\n<div class=\"alert alert-warning mt-3\">\n    <strong>注意：</strong>期限後または対象外の理由による返金リクエストは受け付けられません。\n</div>"
+  },
+  "str_refund-policy_subtitle": {
+    "it": "Come richiedere un rimborso e quando è possibile",
+    "en": "How to request a refund and when it is possible",
+    "fr": "Comment demander un remboursement et quand c'est possible",
+    "de": "Wie Sie eine Rückerstattung anfordern können und wann diese möglich ist",
+    "es": "Cómo solicitar un reembolso y cuándo es posible",
+    "jp": "返金のリクエスト方法と対象条件"
+  },
+  "str_refund-policy_title": {
+    "it": " Richiesta di Rimborso",
+    "en": "Refund request",
+    "fr": "Demande de remboursement",
+    "de": "Rückerstattungsantrag",
+    "es": "Solicitud de reembolso",
+    "jp": "返金リクエスト"
+  },
+  "str_refund_error": {
+    "it": "Errore durante il rimborso",
+    "en": "Error during refund",
+    "fr": "Erreur lors du remboursement",
+    "de": "Fehler bei der Rückerstattung",
+    "es": "Error durante el reembolso",
+    "jp": "返金処理中にエラーが発生しました"
+  },
+  "str_refund_exceeds_count": {
+    "it": "Numero di biglietti da rimborsare non valido",
+    "en": "Invalid number of tickets to refund",
+    "fr": "Nombre de billets à rembourser non valide",
+    "de": "Ungültige Anzahl zu erstattender Tickets",
+    "es": "Número de billetes a reembolsar no válido",
+    "jp": "返金するチケットの数が無効です"
+  },
+  "str_refund_exceeds_luggage": {
+    "it": "Numero di bagagli da rimborsare non valido",
+    "en": "Invalid number of luggage items to refund",
+    "fr": "Nombre de bagages à rembourser non valide",
+    "de": "Ungültige Anzahl zu erstattender Gepäckstücke",
+    "es": "Número de equipajes a reembolsar no válido",
+    "jp": "返金する荷物の数が無効です"
+  },
+  "str_refund_invalid_booking": {
+    "it": "Prenotazione non valida per il rimborso",
+    "en": "Booking not valid for refund",
+    "fr": "Réservation non valide pour le remboursement",
+    "de": "Buchung nicht für Rückerstattung gültig",
+    "es": "Reserva no válida para el reembolso",
+    "jp": "この予約は返金できません"
+  },
+  "str_refund_invalid_ticket": {
+    "it": "Tipo di biglietto non valido per il rimborso",
+    "en": "Ticket type not valid for refund",
+    "fr": "Type de billet non valide pour le remboursement",
+    "de": "Tickettyp nicht für Rückerstattung gültig",
+    "es": "Tipo de billete no válido para el reembolso",
+    "jp": "このチケット種別は返金できません"
+  },
+  "str_refund_no_items": {
+    "it": "Seleziona almeno un biglietto o bagaglio da rimborsare",
+    "en": "Select at least one ticket or luggage item to refund",
+    "fr": "Sélectionnez au moins un billet ou bagage à rembourser",
+    "de": "Wähle mindestens ein Ticket oder Gepäckstück zur Erstattung aus",
+    "es": "Selecciona al menos un billete o equipaje para reembolsar",
+    "jp": "返金するチケットまたは荷物を1つ以上選択してください"
+  },
+  "str_registra_account": {
+    "it": "Registra il tuo account",
+    "en": "Register your account",
+    "fr": "Créez votre compte",
+    "de": "Registrieren Sie Ihr Konto",
+    "es": "Registra tu cuenta",
+    "jp": "アカウント登録"
+  },
+  "str_registra_account_desc": {
+    "it": "Il pin arriverà all'email indicata, controlla nello spam",
+    "en": "The PIN will be sent to the specified email address. Please check your spam folder.",
+    "fr": "Le code PIN sera envoyé à l'adresse e-mail indiquée. Veuillez vérifier votre dossier spam.",
+    "de": "Der PIN wird an die angegebene E-Mail-Adresse gesendet. Bitte prüfen Sie Ihren Spam-Ordner.",
+    "es": "El PIN se enviará a la dirección de correo electrónico indicada. Por favor, revisa tu carpeta de spam.",
+    "jp": "PINが指定のメールアドレスに送信されます。迷惑メールフォルダもご確認ください。"
+  },
+  "str_registrati": {
+    "it": "Registrati",
+    "en": "Register",
+    "fr": "S'inscrire",
+    "de": "Registrieren",
+    "es": "Registrarse",
+    "jp": "新規登録"
+  },
+  "str_registrati_for_continue": {
+    "it": "Accedi o Registrati per continuare l'acquisto",
+    "en": "Log in or Register to continue the purchase",
+    "fr": "Connectez-vous ou inscrivez-vous pour poursuivre l'achat",
+    "de": "Melden Sie sich an oder registrieren Sie sich, um den Kauf fortzusetzen",
+    "es": "Inicia sesión o regístrate para continuar la compra",
+    "jp": "購入を続けるにはログインまたは新規登録してください"
+  },
+  "str_reject": {
+    "it": "Rifiuta",
+    "en": "Reject",
+    "fr": "Refuser",
+    "de": "Ablehnen",
+    "es": "Rechazar",
+    "jp": "拒否"
+  },
+  "str_remember_me": {
+    "it": "Ricordami",
+    "en": "Remember me",
+    "fr": "Se souvenir de moi",
+    "de": "Angemeldet bleiben",
+    "es": "Recordarme",
+    "jp": "ログイン状態を保持する"
+  },
+  "str_reset_link_sent": {
+    "it": "Se l'email esiste, ti abbiamo inviato il link per reimpostare la password",
+    "en": "If the email exists, we have sent you the password reset link",
+    "fr": "Si l'e-mail existe, nous vous avons envoyé le lien de réinitialisation",
+    "de": "Falls die E-Mail existiert, haben wir dir den Reset-Link gesendet",
+    "es": "Si el correo existe, te hemos enviado el enlace de restablecimiento",
+    "jp": "メールアドレスが登録されている場合、再設定リンクを送信しました"
+  },
+  "str_reset_password": {
+    "it": "Resetta password",
+    "en": "Password reset",
+    "fr": "Réinitialisation du mot de passe",
+    "de": "Passwort zurücksetzen",
+    "es": "Restablecimiento de contraseña",
+    "jp": "パスワードリセット"
+  },
+  "str_reset_password_desc": {
+    "it": "Inserisci la tua email e ti invieremo un link per reimpostare la password",
+    "en": "Enter your email and we will send you a link to reset your password",
+    "fr": "Saisissez votre e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe",
+    "de": "Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen des Passworts",
+    "es": "Introduce tu correo y te enviaremos un enlace para restablecer la contraseña",
+    "jp": "メールアドレスを入力すると、パスワード再設定リンクをお送りします"
+  },
+  "str_reset_password_ok": {
+    "it": "Password reimpostata correttamente",
+    "en": "Password reset successfully",
+    "fr": "Mot de passe réinitialisé avec succès",
+    "de": "Passwort erfolgreich zurückgesetzt",
+    "es": "Contraseña restablecida correctamente",
+    "jp": "パスワードを再設定しました"
+  },
+  "str_reset_token_invalid": {
+    "it": "Token scaduto o non valido",
+    "en": "Token expired or invalid",
+    "fr": "Jeton expiré ou non valide",
+    "de": "Token abgelaufen oder ungültig",
+    "es": "Token caducado o no válido",
+    "jp": "トークンの有効期限が切れているか無効です"
+  },
+  "str_rimborsabile_fino_al": {
+    "it": "Rimborsabile fino al",
+    "en": "Refundable until",
+    "fr": "Rimborsabile fino al",
+    "de": "Rückerstattbar bis",
+    "es": "Reembolsable hasta",
+    "jp": "〇〇まで返金可能"
+  },
+  "str_rimborsi_effettuati": {
+    "it": "Rimborsato",
+    "en": "Refunded",
+    "fr": "Remboursé",
+    "de": "Erstattet",
+    "es": "Reembolsado",
+    "jp": "返金済み"
+  },
+  "str_ripeti_email": {
+    "it": "Ripeti email",
+    "en": "Repeat email",
+    "fr": "Confirmer l'e-mail",
+    "de": "E-Mail wiederholen",
+    "es": "Repetir correo electrónico",
+    "jp": "メールアドレス（確認）"
+  },
+  "str_ripeti_password": {
+    "it": "Ripeti password",
+    "en": "Repeat password",
+    "fr": "Confirmer le mot de passe",
+    "de": "Passwort wiederholen",
+    "es": "Repetir contraseña",
+    "jp": "パスワード（確認）"
+  },
+  "str_riprova": {
+    "it": "Riprova",
+    "en": "Try again",
+    "fr": "Réessayer",
+    "de": "Erneut versuchen",
+    "es": "Reintentar",
+    "jp": "再試行"
+  },
+  "str_ritorno": {
+    "it": "Ritorno",
+    "en": "Return",
+    "fr": "Retour",
+    "de": "Rückfahrt",
+    "es": "Vuelta",
+    "jp": "復路"
+  },
+  "str_save": {
+    "it": "Salva",
+    "en": "Save",
+    "fr": "Enregistrer",
+    "de": "Speichern",
+    "es": "Guardar",
+    "jp": "保存"
+  },
+  "str_saved_cards": {
+    "it": "Carte salvate",
+    "en": "Saved cards",
+    "fr": "Cartes enregistrées",
+    "de": "Gespeicherte Karten",
+    "es": "Tarjetas guardadas",
+    "jp": "保存済みカード"
+  },
+  "str_saved_cards_desc": {
+    "it": "Al pagamento spunta \"Salva\" per non reinserire la carta la volta successiva. Potrai sempre pagare con una carta diversa.",
+    "en": "At checkout tick \"Save\" so you don't have to enter your card next time. You can always pay with a different card.",
+    "fr": "Lors du paiement, cochez « Enregistrer » pour ne pas ressaisir votre carte la prochaine fois. Vous pourrez toujours payer avec une autre carte.",
+    "de": "Hake beim Bezahlen „Speichern“ an, damit du deine Karte beim nächsten Mal nicht erneut eingeben musst. Du kannst jederzeit mit einer anderen Karte bezahlen.",
+    "es": "Al pagar, marca «Guardar» para no tener que volver a introducir la tarjeta la próxima vez. Siempre podrás pagar con otra tarjeta.",
+    "jp": "お支払い時に「保存」にチェックを入れると、次回からカード情報の入力が不要になります。別のカードでのお支払いもいつでも可能です。"
+  },
+  "str_saving": {
+    "it": "salvataggio...",
+    "en": "saving...",
+    "fr": "Enregistrement...",
+    "de": "Speichern...",
+    "es": "Guardando...",
+    "jp": "保存中..."
+  },
+  "str_search": {
+    "it": "Cerca",
+    "en": "Search",
+    "fr": "Rechercher",
+    "de": "Suchen",
+    "es": "Buscar",
+    "jp": "検索"
+  },
+  "str_search_not_found_desc": {
+    "it": "Nessuna linea con posti disponibili è stata trovata, prova a cambiare la data",
+    "en": "No available routes were found, try changing the date",
+    "fr": "Aucune ligne avec des places disponibles n'a été trouvée, essayez de changer la date",
+    "de": "Es wurden keine verfügbaren Routen gefunden. Versuchen Sie, das Datum zu ändern",
+    "es": "No se encontraron rutas disponibles, intente cambiar la fecha",
+    "jp": "利用可能な路線が見つかりませんでした。日付を変更してお試しください"
+  },
+  "str_seats": {
+    "it": "Posti",
+    "en": "Seats",
+    "fr": "Places",
+    "de": "Sitzplätze",
+    "es": "Asientos",
+    "jp": "座席"
+  },
+  "str_secondary_text": {
+    "it": " Le nostre linee autobus sono la migliore soluzione per raggiungere           Sorrento, Amalfi, Ravello, Maiori e altre città della Costiera           Amalfitana.",
+    "en": "Our bus lines are the best solution to reach Sorrento, Amalfi, Ravello, Maiori, and other cities of the Amalfi Coast.",
+    "fr": "Nos lignes de bus sont la meilleure solution pour rejoindre Sorrente, Amalfi, Ravello, Maiori et autres villes de la Côte Amalfitaine.",
+    "de": "Unsere Buslinien sind die beste Lösung, um Sorrent, Amalfi, Ravello, Maiori und andere Städte der Amalfiküste zu erreichen.",
+    "es": "Nuestras líneas de autobús son la mejor solución para llegar a Sorrento, Amalfi, Ravello, Maiori y otras ciudades de la Costa Amalfitana.",
+    "jp": "当社のバス路線は、ソレント、アマルフィ、ラヴェッロ、マイオリ、アマルフィ海岸の各都市へのおすすめの移動手段です。"
+  },
+  "str_secondary_text2": {
+    "it": " Con partenze da e verso Napoli aeroporto e città, {{company}} offre           massima efficienza e comfort ai numerosi passeggeri e turisti che si           spostano nella regione Campania.",
+    "en": "With departures from and to Naples airport and city, {{company}} offers maximum efficiency and comfort to the many passengers and tourists traveling in the Campania region.",
+    "fr": "Avec des départs depuis et vers l'aéroport et la ville de Naples, {{company}} offre une efficacité et un confort maximum aux nombreux passagers et touristes voyageant dans la région de Campanie.",
+    "de": "Mit Abfahrten vom und zum Flughafen Neapel sowie der Stadt bietet {{company}} maximale Effizienz und Komfort für die vielen Fahrgäste und Touristen in der Region Kampanien.",
+    "es": "Con salidas desde y hacia el aeropuerto y la ciudad de Nápoles, {{company}} ofrece máxima eficiencia y comodidad a los pasajeros y turistas que viajan por la región de Campania.",
+    "jp": "ナポリ空港および市内からの発着便により、{{company}}はカンパニア地方を移動する多くの乗客と観光客に最高の効率と快適さを提供します。"
+  },
+  "str_secondary_title": {
+    "it": "{{company}}, la compagnia di autobus per raggiungere ogni destinazione",
+    "en": "{{company}}, the bus company to reach every destination.",
+    "fr": "{{company}}, la compagnie de bus pour rejoindre chaque destination",
+    "de": "{{company}}, das Busunternehmen für jedes Ziel",
+    "es": "{{company}}, la compañía de autobuses para llegar a cada destino",
+    "jp": "{{company}}、あらゆる目的地へ向かうバス会社"
+  },
+  "str_security": {
+    "it": "Sicurezza dell'account",
+    "en": "Account security",
+    "fr": "Sécurité du compte",
+    "de": "Kontosicherheit",
+    "es": "Seguridad de la cuenta",
+    "jp": "アカウントのセキュリティ"
+  },
+  "str_security_desc": {
+    "it": "Proteggi l'accesso con la verifica in due passaggi o accedi senza password con una passkey.",
+    "en": "Protect sign-in with two-step verification or sign in without a password using a passkey.",
+    "fr": "Protégez la connexion avec la validation en deux étapes ou connectez-vous sans mot de passe avec une passkey.",
+    "de": "Schütze die Anmeldung mit der Bestätigung in zwei Schritten oder melde dich ohne Passwort mit einem Passkey an.",
+    "es": "Protege el acceso con la verificación en dos pasos o entra sin contraseña con una passkey.",
+    "jp": "2段階認証でログインを保護するか、パスキーでパスワードなしでログインできます。"
+  },
+  "str_security_load_error": {
+    "it": "Impossibile caricare le impostazioni di sicurezza.",
+    "en": "Unable to load security settings.",
+    "fr": "Impossible de charger les paramètres de sécurité.",
+    "de": "Die Sicherheitseinstellungen konnten nicht geladen werden.",
+    "es": "No se pueden cargar los ajustes de seguridad.",
+    "jp": "セキュリティ設定を読み込めませんでした。"
+  },
+  "str_seleziona": {
+    "it": "Seleziona",
+    "en": "Select",
+    "fr": "Sélectionner",
+    "de": "Auswählen",
+    "es": "Seleccionar",
+    "jp": "選択"
+  },
+  "str_seleziona_biglietti_per_acquisto": {
+    "it": "Dettaglio biglietti",
+    "en": "Ticket details",
+    "fr": "Détails du billet",
+    "de": "Ticketdetails",
+    "es": "Detalles del billete",
+    "jp": "チケット詳細"
+  },
+  "str_selezionata": {
+    "it": "Selezionata",
+    "en": "Selected",
+    "fr": "Sélectionné",
+    "de": "Ausgewählt",
+    "es": "Seleccionado",
+    "jp": "選択済み"
+  },
+  "str_send_code": {
+    "it": "Resetta password",
+    "en": "Password reset",
+    "fr": "Réinitialiser le mot de passe",
+    "de": "Passwort zurücksetzen",
+    "es": "Restablecer contraseña",
+    "jp": "パスワードリセット"
+  },
+  "str_setting": {
+    "it": "Impostazioni",
+    "en": "Settings",
+    "fr": "Paramètres",
+    "de": "Einstellungen",
+    "es": "Configuración",
+    "jp": "設定"
+  },
+  "str_setting_desc": {
+    "it": "Impostazioni del tuo account",
+    "en": "Your account settings",
+    "fr": "Paramètres de votre compte",
+    "de": "Ihre Kontoeinstellungen",
+    "es": "Configuración de su cuenta",
+    "jp": "アカウント設定"
+  },
+  "str_skip": {
+    "it": "Salta",
+    "en": "Skip",
+    "fr": "Passer",
+    "de": "Überspringen",
+    "es": "Omitir",
+    "jp": "スキップ"
+  },
+  "str_solo_andata": {
+    "it": "Solo andata",
+    "en": "One way",
+    "fr": "Aller simple",
+    "de": "Nur Hinfahrt",
+    "es": "Solo ida",
+    "jp": "片道"
+  },
+  "str_step_pay": {
+    "it": "Pagamento",
+    "en": "Payment",
+    "fr": "Paiement",
+    "de": "Zahlung",
+    "es": "Pago",
+    "jp": "お支払い"
+  },
+  "str_step_review": {
+    "it": "Riepilogo",
+    "en": "Review",
+    "fr": "Récapitulatif",
+    "de": "Übersicht",
+    "es": "Revisión",
+    "jp": "確認"
+  },
+  "str_step_search": {
+    "it": "Ricerca",
+    "en": "Search",
+    "fr": "Recherche",
+    "de": "Suche",
+    "es": "Búsqueda",
+    "jp": "検索"
+  },
+  "str_step_select": {
+    "it": "Selezione",
+    "en": "Selection",
+    "fr": "Sélection",
+    "de": "Auswahl",
+    "es": "Selección",
+    "jp": "選択"
+  },
+  "str_stop": {
+    "it": "Fermata",
+    "en": "Stop",
+    "fr": "Arrêt",
+    "de": "Haltestelle",
+    "es": "Parada",
+    "jp": "停留所"
+  },
+  "str_tabelle_orarie": {
+    "it": "Orario delle corse",
+    "en": "Timetable",
+    "fr": "Horaires des courses",
+    "de": "Fahrplan",
+    "es": "Horarios",
+    "jp": "時刻表"
+  },
+  "str_tabelle_orarie_desc": {
+    "it": "Visualizza le nostre corse e i dettagli per ogni fermata",
+    "en": "View our routes and details for each stop",
+    "fr": "Consultez nos courses et les détails de chaque arrêt",
+    "de": "Sehen Sie unsere Routen und Details für jede Haltestelle ein",
+    "es": "Consulta nuestros recorridos y los detalles de cada parada",
+    "jp": "各停留所の路線と詳細をご覧ください"
+  },
+  "str_termini_condizioni": {
+    "it": "Termine e condizioni",
+    "en": "Terms and conditions",
+    "fr": "Conditions générales",
+    "de": "Allgemeine Geschäftsbedingungen",
+    "es": "Términos y condiciones",
+    "jp": "利用規約"
+  },
+  "str_termini_condizioni_desc": {
+    "it": "Regole e linee guida per l'uso dei nostri servizi",
+    "en": "Rules and guidelines for using our services",
+    "fr": "Règles et directives pour l'utilisation de nos services",
+    "de": "Regeln und Richtlinien für die Nutzung unserer Dienste",
+    "es": "Reglas y directrices para el uso de nuestros servicios",
+    "jp": "当社サービス利用時の規則とガイドライン"
+  },
+  "str_terms-and-conditions_content": {
+    "it": "<div class=\"container mt-4\">     <h2 class=\"text-center\">Termini e Condizioni di Viaggio</h2>      <section class=\"mt-4\">         <h4 class=\"fw-bold\">Premessa</h4>         <p>             Le presenti Condizioni di Viaggio disciplinano il servizio di trasporto passeggeri su gomma in ambito nazionale ed internazionale effettuato dalla <strong>{{companyLegalName}}</strong>, con sede legale in Pimonte alla Via Castellammare 18 - 80050.               <br>Tel: <a href=\"tel:+390818792645\">+39 081 8792645</a> – Cell: <a href=\"tel:+393356910211\">+39 335 6910211</a>             <br>Email: <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>             <br>Le Condizioni di Viaggio sono consultabili sui siti:             <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a> /              <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>.         </p>     </section>      <section class=\"mt-4\">         <h4 class=\"fw-bold\">Art. 1 - Informazioni di Viaggio</h4>         <p>             La <strong>{{company}}</strong> garantisce l’informazione sui propri servizi di linea. Gli orari delle corse pubblicate sono fissi e garantiti, salvo variazioni dovute a traffico intenso nei giorni festivi e in estate.           </p>         <p><strong>Canali di informazione:</strong></p>         <ul>             <li>Sito web: <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>             <li>Call center: <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a> (08:00 - 20:00)</li>         </ul>         <p><strong>Obblighi dei passeggeri:</strong></p>         <ul>             <li>Presentarsi almeno <strong>15 minuti prima</strong> della partenza.</li>             <li>È severamente vietato il trasporto di merci pericolose, materiali esplosivi o infiammabili.</li>         </ul>     </section>      <section class=\"mt-4\">         <h4 class=\"fw-bold\">Art. 2 - Il Documento di Viaggio</h4>         <p>             Il passeggero ha diritto al servizio solo se in possesso di un valido titolo di viaggio per la tratta, data e orario indicati. Non sono ammesse variazioni di località di salita/discesa o inversione del percorso.         </p>         <p><strong>Acquisto biglietti:</strong></p>         <ul>             <li>Presso agenzie di viaggio convenzionate</li>             <li>Online: <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>             <li>Call center: <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a></li>         </ul>         <p><strong>Metodi di pagamento:</strong></p>         <ul>             <li>Online tramite <strong>Stripe</strong>: Google Pay, Apple Pay, carte di credito e debito (Visa/Mastercard)</li>             <li>Contanti tramite prenotazione telefonica</li>         </ul>          <h5 class=\"fw-bold mt-3\">Validità del biglietto</h5>         <p>             Il biglietto è valido solo per la corsa indicata e deve essere esibito su richiesta del personale.               Non è ammessa alcuna modifica o annullamento dopo l’orario di partenza.               In caso di smarrimento o furto, è necessario fornire una denuncia o autocertificazione con documento d’identità.         </p>          <h5 class=\"fw-bold mt-3\">Rimborsi</h5>         <p>             <strong>I biglietti possono essere rimborsati al massimo 3 giorni prima della partenza.</strong>               In caso di mancata presentazione alla fermata o difficoltà nel trovare il punto di partenza, il rimborso non è previsto.               <br><strong>{{company}} non effettua rimborsi in caso di ritardo del bus.</strong> Tutte le corse sono tracciate via GPS, pertanto è dimostrabile se il passeggero ha perso il pullman.         </p>          <h5 class=\"fw-bold mt-3\">Fatturazione</h5>         <p>             Il biglietto online è già una ricevuta fiscale.               La fattura elettronica può essere richiesta al momento dell’acquisto tramite il sito o il call center.         </p>     </section> </div>",
+    "en": "<div class=\"container mt-4\">     <h2 class=\"text-center\">Terms and Conditions of Travel</h2>      <section class=\"mt-4\">         <h4 class=\"fw-bold\">Introduction</h4>         <p>             These Travel Conditions govern the passenger transport service by road, both nationally and internationally, provided by <strong>{{companyLegalName}}</strong>, with its registered office in Pimonte at Via Castellammare 18 - 80050.               <br>Tel: <a href=\"tel:+390818792645\">+39 081 8792645</a> – Cell: <a href=\"tel:+393356910211\">+39 335 6910211</a>               <br>Email: <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>               <br>The Travel Conditions can be consulted on the following websites:               <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a> /               <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>.         </p>     </section>      <section class=\"mt-4\">         <h4 class=\"fw-bold\">Art. 1 - Travel Information</h4>         <p>             <strong>{{company}}</strong> guarantees the provision of information regarding its scheduled services. The published departure schedules are fixed and guaranteed, except for changes due to heavy traffic on holidays and during the summer.         </p>         <p><strong>Information Channels:</strong></p>         <ul>             <li>Website: <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>             <li>Call center: <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a> (08:00 - 20:00)</li>         </ul>         <p><strong>Passenger Obligations:</strong></p>         <ul>             <li>Arrive at least <strong>15 minutes before</strong> departure.</li>             <li>The transportation of hazardous goods, explosive or flammable materials is strictly prohibited.</li>         </ul>     </section>      <section class=\"mt-4\">         <h4 class=\"fw-bold\">Art. 2 - Travel Document</h4>         <p>             The passenger is entitled to the service only if in possession of a valid travel ticket for the specified route, date, and departure time.               No changes to the boarding or drop-off location, nor route inversions, are allowed.         </p>         <p><strong>Ticket Purchase:</strong></p>         <ul>             <li>At authorized travel agencies</li>             <li>Online: <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>             <li>Call center: <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a></li>         </ul>         <p><strong>Payment Methods:</strong></p>         <ul>             <li>Online via <strong>Stripe</strong>: Google Pay, Apple Pay, credit and debit cards (Visa/Mastercard)</li>             <li>Cash with phone reservation</li>         </ul>          <h5 class=\"fw-bold mt-3\">Ticket Validity</h5>         <p>             The ticket is valid only for the specified journey and must be presented upon request by the staff.               No modifications or cancellations are allowed after the scheduled departure time.               In case of loss or theft, a police report or a self-certification with an identity document is required.         </p>          <h5 class=\"fw-bold mt-3\">Refunds</h5>         <p>             <strong>Tickets can be refunded only up to 3 days before departure.</strong>               If a passenger fails to show up at the bus stop or cannot find the departure location, no refund will be issued.               <br><strong>{{company}} does not provide refunds in case of bus delays.</strong>               All trips are tracked via GPS, making it possible to verify if the passenger missed the bus.         </p>          <h5 class=\"fw-bold mt-3\">Billing</h5>         <p>             The online ticket already serves as a fiscal receipt.               An electronic invoice can be requested at the time of purchase via the website or call center.         </p>     </section> </div>",
+    "fr": "<div class=\"container mt-4\">\n    <h2 class=\"text-center\">Conditions Générales de Voyage</h2>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">Introduction</h4>\n        <p>\n            Les présentes Conditions de Voyage régissent le service de transport de passagers par route, tant au niveau national qu'international, effectué par <strong>{{companyLegalName}}</strong>, dont le siège social est situé à Pimonte, Via Castellammare 18 - 80050.\n            <br>Tél : <a href=\"tel:+390818792645\">+39 081 8792645</a> – Portable : <a href=\"tel:+393356910211\">+39 335 6910211</a>\n            <br>Email : <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>\n            <br>Les Conditions de Voyage sont consultables sur les sites :\n            <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a> /\n            <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>.\n        </p>\n    </section>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">Art. 1 - Informations de Voyage</h4>\n        <p>\n            <strong>{{company}}</strong> garantit la diffusion d'informations sur ses services réguliers. Les horaires de départ publiés sont fixes et garantis, sous réserve de modifications dues à un trafic intense les jours fériés et en été.\n        </p>\n        <p><strong>Canaux d'information :</strong></p>\n        <ul>\n            <li>Site web : <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>\n            <li>Centre d'appels : <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a> (08:00 - 20:00)</li>\n        </ul>\n        <p><strong>Obligations des passagers :</strong></p>\n        <ul>\n            <li>Se présenter au moins <strong>15 minutes avant</strong> le départ.</li>\n            <li>Le transport de marchandises dangereuses, de matériaux explosifs ou inflammables est strictement interdit.</li>\n        </ul>\n    </section>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">Art. 2 - Le Document de Voyage</h4>\n        <p>\n            Le passager a droit au service uniquement s'il est en possession d'un titre de transport valide pour l'itinéraire, la date et l'heure de départ indiqués.\n            Aucune modification du lieu de montée/descente ni inversion d'itinéraire n'est autorisée.\n        </p>\n        <p><strong>Achat de billets :</strong></p>\n        <ul>\n            <li>Auprès des agences de voyage agréées</li>\n            <li>En ligne : <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>\n            <li>Centre d'appels : <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a></li>\n        </ul>\n        <p><strong>Mode de paiement :</strong></p>\n        <ul>\n            <li>En ligne via <strong>Stripe</strong> : Google Pay, Apple Pay, cartes de crédit et de débit (Visa/Mastercard)</li>\n            <li>Espèces par réservation téléphonique</li>\n        </ul>\n        <h5 class=\"fw-bold mt-3\">Validité du billet</h5>\n        <p>\n            Le billet est valable uniquement pour le trajet indiqué et doit être présenté sur demande du personnel.\n            Aucune modification ou annulation n'est autorisée après l'heure de départ prévue.\n            En cas de perte ou de vol, un dépôt de plainte ou une auto-certification avec une pièce d'identité est requis.\n        </p>\n        <h5 class=\"fw-bold mt-3\">Remboursements</h5>\n        <p>\n            <strong>Les billets peuvent être remboursés au maximum 3 jours avant le départ.</strong>\n            Si un passager ne se présente pas à l'arrêt ou ne trouve pas le lieu de départ, aucun remboursement ne sera accordé.\n            <br><strong>{{company}} n'effectue pas de remboursement en cas de retard du bus.</strong> Tous les trajets sont suivis par GPS, ce qui permet de vérifier si le passager a manqué le bus.\n        </p>\n        <h5 class=\"fw-bold mt-3\">Facturation</h5>\n        <p>\n            Le billet en ligne constitue déjà un reçu fiscal.\n            La facture électronique peut être demandée au moment de l'achat via le site web ou le centre d'appels.\n        </p>\n    </section>\n</div>",
+    "de": "<div class=\"container mt-4\">\n    <h2 class=\"text-center\">Allgemeine Reisebedingungen</h2>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">Einleitung</h4>\n        <p>\n            Diese Reisebedingungen regeln den Personentransportdienst auf der Straße im In- und Ausland, der von <strong>{{companyLegalName}}</strong> mit Sitz in Pimonte, Via Castellammare 18 - 80050, erbracht wird.\n            <br>Tel: <a href=\"tel:+390818792645\">+39 081 8792645</a> – Mobil: <a href=\"tel:+393356910211\">+39 335 6910211</a>\n            <br>Email: <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>\n            <br>Die Reisebedingungen können auf den Websites eingesehen werden:\n            <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a> /\n            <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>.\n        </p>\n    </section>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">Art. 1 - Reiseinformationen</h4>\n        <p>\n            <strong>{{company}}</strong> garantiert die Bereitstellung von Informationen über seine Linienverbindungen. Die veröffentlichten Abfahrtszeiten sind fest und garantiert, mit Ausnahme von Änderungen aufgrund von starkem Verkehr an Feiertagen und im Sommer.\n        </p>\n        <p><strong>Informationskanäle:</strong></p>\n        <ul>\n            <li>Website: <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>\n            <li>Callcenter: <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a> (08:00 - 20:00)</li>\n        </ul>\n        <p><strong>Passagierpflichten:</strong></p>\n        <ul>\n            <li>Mindestens <strong>15 Minuten vor</strong> Abfahrt erscheinen.</li>\n            <li>Der Transport von gefährlichen Gütern, explosiven oder brennbaren Materialien ist strengstens verboten.</li>\n        </ul>\n    </section>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">Art. 2 - Reisedokument</h4>\n        <p>\n            Der Passagier hat nur dann Anspruch auf den Service, wenn er im Besitz eines gültigen Fahrscheins für die angegebene Strecke, das Datum und die Abfahrtszeit ist.\n            Änderungen der Ein- oder Ausstiegsstelle sowie Streckenumkehrungen sind nicht gestattet.\n        </p>\n        <p><strong>Ticketkauf:</strong></p>\n        <ul>\n            <li>Bei autorisierten Reisebüros</li>\n            <li>Online: <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>\n            <li>Callcenter: <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a></li>\n        </ul>\n        <p><strong>Zahlungsmethoden:</strong></p>\n        <ul>\n            <li>Online über <strong>Stripe</strong>: Google Pay, Apple Pay, Kredit- und Debitkarten (Visa/Mastercard)</li>\n            <li>Barzahlung bei telefonischer Reservierung</li>\n        </ul>\n        <h5 class=\"fw-bold mt-3\">Ticketgültigkeit</h5>\n        <p>\n            Das Ticket ist nur für die angegebene Fahrt gültig und muss auf Anfrage des Personals vorgezeigt werden.\n            Nach der planmäßigen Abfahrtszeit sind keine Änderungen oder Stornierungen mehr möglich.\n            Bei Verlust oder Diebstahl ist eine polizeiliche Anzeige oder eine Eigenbescheinigung mit Ausweisdokument erforderlich.\n        </p>\n        <h5 class=\"fw-bold mt-3\">Erstattungen</h5>\n        <p>\n            <strong>Tickets können höchstens 3 Tage vor der Abfahrt erstattet werden.</strong>\n            Wenn ein Passagier nicht an der Haltestelle erscheint oder den Abfahrtsort nicht findet, wird keine Erstattung gewährt.\n            <br><strong>{{company}} leistet keine Erstattung bei Busverspätungen.</strong> Alle Fahrten werden per GPS verfolgt, sodass nachvollziehbar ist, ob der Passagier den Bus verpasst hat.\n        </p>\n        <h5 class=\"fw-bold mt-3\">Rechnungsstellung</h5>\n        <p>\n            Das Online-Ticket dient bereits als Quittung.\n            Eine elektronische Rechnung kann zum Zeitpunkt des Kaufs über die Website oder das Callcenter angefordert werden.\n        </p>\n    </section>\n</div>",
+    "es": "<div class=\"container mt-4\">\n    <h2 class=\"text-center\">Condiciones Generales de Viaje</h2>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">Introducción</h4>\n        <p>\n            Las presentes Condiciones de Viaje regulan el servicio de transporte de pasajeros por carretera, tanto a nivel nacional como internacional, prestado por <strong>{{companyLegalName}}</strong>, con domicilio social en Pimonte, Via Castellammare 18 - 80050.\n            <br>Tel: <a href=\"tel:+390818792645\">+39 081 8792645</a> – Móvil: <a href=\"tel:+393356910211\">+39 335 6910211</a>\n            <br>Email: <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>\n            <br>Las Condiciones de Viaje pueden consultarse en los sitios web:\n            <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a> /\n            <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>.\n        </p>\n    </section>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">Art. 1 - Informaciones de Viaje</h4>\n        <p>\n            <strong>{{company}}</strong> garantiza la información sobre sus servicios regulares. Los horarios de salida publicados son fijos y garantizados, salvo cambios debidos al tráfico intenso en días festivos y en verano.\n        </p>\n        <p><strong>Canales de información:</strong></p>\n        <ul>\n            <li>Sitio web: <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>\n            <li>Centro de atención telefónica: <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a> (08:00 - 20:00)</li>\n        </ul>\n        <p><strong>Obligaciones de los pasajeros:</strong></p>\n        <ul>\n            <li>Presentarse al menos <strong>15 minutos antes</strong> de la salida.</li>\n            <li>Está terminantemente prohibido el transporte de mercancías peligrosas, materiales explosivos o inflamables.</li>\n        </ul>\n    </section>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">Art. 2 - Documento de Viaje</h4>\n        <p>\n            El pasajero tiene derecho al servicio únicamente si está en posesión de un título de transporte válido para la ruta, la fecha y la hora de salida indicados.\n            No se admiten cambios en el lugar de subida/bajada ni inversión de la ruta.\n        </p>\n        <p><strong>Compra de billetes:</strong></p>\n        <ul>\n            <li>En agencias de viaje autorizadas</li>\n            <li>En línea: <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>\n            <li>Centro de atención telefónica: <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a></li>\n        </ul>\n        <p><strong>Métodos de pago:</strong></p>\n        <ul>\n            <li>En línea a través de <strong>Stripe</strong>: Google Pay, Apple Pay, tarjetas de crédito y débito (Visa/Mastercard)</li>\n            <li>Efectivo mediante reserva telefónica</li>\n        </ul>\n        <h5 class=\"fw-bold mt-3\">Validez del billete</h5>\n        <p>\n            El billete es válido únicamente para el viaje indicado y debe ser presentado a solicitud del personal.\n            No se permiten modificaciones ni cancelaciones después de la hora de salida programada.\n            En caso de pérdida o robo, se requiere una denuncia policial o una autocertificación con documento de identidad.\n        </p>\n        <h5 class=\"fw-bold mt-3\">Reembolsos</h5>\n        <p>\n            <strong>Los billetes pueden ser reembolsados como máximo 3 días antes de la salida.</strong>\n            Si un pasajero no se presenta en la parada o no encuentra el lugar de salida, no se otorgará ningún reembolso.\n            <br><strong>{{company}} no efectúa reembolsos en caso de retraso del bus.</strong> Todos los viajes son rastreados por GPS, lo que permite verificar si el pasajero ha perdido el bus.\n        </p>\n        <h5 class=\"fw-bold mt-3\">Facturación</h5>\n        <p>\n            El billete en línea ya constituye un recibo fiscal.\n            La factura electrónica puede solicitarse en el momento de la compra a través del sitio web o del centro de atención telefónica.\n        </p>\n    </section>\n</div>",
+    "jp": "<div class=\"container mt-4\">\n    <h2 class=\"text-center\">旅行条件</h2>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">はじめに</h4>\n        <p>\n            本旅行条件は、<strong>{{companyLegalName}}</strong>（本社：ピモンテ、Via Castellammare 18 - 80050）が提供する国内外の旅客道路輸送サービスを規定するものです。\n            <br>電話: <a href=\"tel:+390818792645\">+39 081 8792645</a> – 携帯: <a href=\"tel:+393356910211\">+39 335 6910211</a>\n            <br>Email: <a href=\"mailto:ordini@{{company}}bus.com\">ordini@{{company}}bus.com</a>\n            <br>旅行条件は以下のウェブサイトでご覧いただけます：\n            <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a> /\n            <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>\n        </p>\n    </section>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">第1条 - 旅行情報</h4>\n        <p>\n            <strong>{{company}}</strong>は、定期運行サービスに関する情報提供を保証します。公表された出発時刻は固定されて保証されていますが、祝日や夏季の交通渋滞による変更を除きます。\n        </p>\n        <p><strong>情報チャンネル：</strong></p>\n        <ul>\n            <li>ウェブサイト: <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>\n            <li>コールセンター: <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a> (08:00 - 20:00)</li>\n        </ul>\n        <p><strong>乗客の義務：</strong></p>\n        <ul>\n            <li>出発の<strong>15分前まで</strong>にお越しください。</li>\n            <li>危険物、爆発物、可燃物の輸送は厳禁です。</li>\n        </ul>\n    </section>\n    <section class=\"mt-4\">\n        <h4 class=\"fw-bold\">第2条 - 旅行書類</h4>\n        <p>\n            乗客は、指定された路線、日付、出発時刻の有効な乗車券所持時のみサービスを利用できます。\n            乗降場所の変更や路線の逆走は認められません。\n        </p>\n        <p><strong>チケットのご購入：</strong></p>\n        <ul>\n            <li>提携旅行代理店にて</li>\n            <li>オンライン: <a href=\"https://www.amalfiairportlink.com\" target=\"_blank\">www.amalfiairportlink.com</a>, <a href=\"https://www.{{company}}bus.com\" target=\"_blank\">www.{{company}}bus.com</a></li>\n            <li>コールセンター: <a href=\"tel:+390818792645\">+39 081 8792645</a> / <a href=\"tel:+393356910211\">+39 335 6910211</a></li>\n        </ul>\n        <p><strong>お支払い方法：</strong></p>\n        <ul>\n            <li>オンラインで<strong>Stripe</strong>経由: Google Pay、Apple Pay、クレジットカード・デビットカード（Visa/Mastercard）</li>\n            <li>電話予約時の現金支払い</li>\n        </ul>\n        <h5 class=\"fw-bold mt-3\">チケットの有効性</h5>\n        <p>\n            チケットは指定された乗車にのみ有効であり、スタッフの要求に応じて提示する必要があります。\n            定められた出発時刻以降の変更やキャンセルはできません。\n            紛失や盗難の場合は、警察への届出または身分証明書付きの自己証明書が必要です。\n        </p>\n        <h5 class=\"fw-bold mt-3\">払い戻し</h5>\n        <p>\n            <strong>チケットは出発の最大3日前まで払い戻しが可能です。</strong>\n            乗客がバス停に現れない場合や出発場所が見つからない場合、払い戻しはいたしません。\n            <br><strong>{{company}}はバスの遅延による払い戻しを行いません。</strong>全ての運行はGPSで追跡されており、乗客がバスを逃したかどうかを確認できます。\n        </p>\n        <h5 class=\"fw-bold mt-3\">請求書</h5>\n        <p>\n            オンラインチケットはすでにレシートとして機能します。\n            電子請求書は、ウェブサイトまたはコールセンターを通じて購入時にリクエストできます。\n        </p>\n    </section>\n</div>"
+  },
+  "str_terms-and-conditions_subtitle": {
+    "it": "Regole e linee guida per l'uso dei nostri servizi",
+    "en": "Rules and guidelines for using our services",
+    "fr": "Règles et directives pour l'utilisation de nos services",
+    "de": "Regeln und Richtlinien für die Nutzung unserer Dienste",
+    "es": "Reglas y directrices para el uso de nuestros servicios",
+    "jp": "当社サービス利用時の規則とガイドライン"
+  },
+  "str_terms-and-conditions_title": {
+    "it": "Termini e condizioni",
+    "en": "Terms and conditions",
+    "fr": "Conditions générales",
+    "de": "Allgemeine Geschäftsbedingungen",
+    "es": "Términos y condiciones",
+    "jp": "利用規約"
+  },
+  "str_terms_and_conditions_accept": {
+    "it": "Dichiaro di aver letto e accetto i termini e condizioni e la privacy policy",
+    "en": "I declare that I have read and accept the terms and conditions and the privacy policy",
+    "fr": "Je déclare avoir lu et accepté les conditions générales et la politique de confidentialité",
+    "de": "Ich bestätige, dass ich die AGB und die Datenschutzerklärung gelesen habe und diese akzeptiere",
+    "es": "Declaro haber leído y aceptado los términos y condiciones y la política de privacidad",
+    "jp": "利用規約およびプライバシーポリシーを読み、同意しました"
+  },
+  "str_terms_and_conditions_required": {
+    "it": "Questo campo è obbligatorio",
+    "en": "This field is required",
+    "fr": "Ce champ est obligatoire",
+    "de": "Dieses Feld ist erforderlich",
+    "es": "Este campo es obligatorio",
+    "jp": "この項目は必須です"
+  },
+  "str_terms_required": {
+    "it": "Devi accettare i termini e le condizioni",
+    "en": "You must accept the terms and conditions",
+    "fr": "Vous devez accepter les conditions générales",
+    "de": "Sie müssen die AGB akzeptieren",
+    "es": "Debe aceptar los términos y condiciones",
+    "jp": "利用規約に同意する必要があります"
+  },
+  "str_too_many_requests": {
+    "it": "Troppe richieste",
+    "en": "Too many requests",
+    "fr": "Trop de requêtes",
+    "de": "Zu viele Anfragen",
+    "es": "Demasiadas solicitudes",
+    "jp": "リクエストが多すぎます"
+  },
+  "str_too_many_requests_desc": {
+    "it": "Hai effettuato troppe richieste. Riprova tra qualche minuto.",
+    "en": "You have made too many requests. Try again in a few minutes.",
+    "fr": "Vous avez effectué trop de requêtes. Réessayez dans quelques minutes.",
+    "de": "Du hast zu viele Anfragen gestellt. Versuche es in einigen Minuten erneut.",
+    "es": "Has realizado demasiadas solicitudes. Inténtalo de nuevo en unos minutos.",
+    "jp": "リクエストが多すぎます。数分後にもう一度お試しください。"
+  },
+  "str_torna_alla_login": {
+    "it": "Torna alla login",
+    "en": "Back to login",
+    "fr": "Retour à la connexion",
+    "de": "Zurück zur Anmeldung",
+    "es": "Volver al inicio de sesión",
+    "jp": "ログインに戻る"
+  },
+  "str_torna_home": {
+    "it": "Torna alla home",
+    "en": "Return to home",
+    "fr": "Retour à l'accueil",
+    "de": "Zurück zur Startseite",
+    "es": "Volver al inicio",
+    "jp": "ホームに戻る"
+  },
+  "str_torna_indietro": {
+    "it": "Torna indietro",
+    "en": "Go back",
+    "fr": "Retour",
+    "de": "Zurück",
+    "es": "Volver",
+    "jp": "戻る"
+  },
+  "str_totale": {
+    "it": "Totale",
+    "en": "Total",
+    "fr": "Total",
+    "de": "Gesamt",
+    "es": "Total",
+    "jp": "合計"
+  },
+  "str_totale_andata_ritorno": {
+    "it": "Totale andata e ritorno",
+    "en": "Round trip total",
+    "fr": "Total aller-retour",
+    "de": "Gesamt Hin- und Rückfahrt",
+    "es": "Total ida y vuelta",
+    "jp": "往復の合計"
+  },
+  "str_tour_account_desc": {
+    "it": "Tocca questa icona per accedere alla tua area personale dove puoi trovare e gestire tutti i tuoi biglietti.",
+    "en": "Tap this icon to access your personal area where you can find and manage all your tickets.",
+    "fr": "Appuyez sur cette icone pour accéder à votre espace personnel où vous pouvez trouver et gérer tous vos billets.",
+    "de": "Tippen Sie auf dieses Icon, um auf Ihren persönlichen Bereich zuzugreifen, wo Sie alle Ihre Tickets finden und verwalten können.",
+    "es": "Toca este icono para acceder a tu área personal donde puedes encontrar y gestionar todos tus billetes.",
+    "jp": "このアイコンをタップして、チケットの管理ができるマイページにアクセスします。"
+  },
+  "str_tour_account_title": {
+    "it": "Il tuo Account",
+    "en": "Your Account",
+    "fr": "Votre Compte",
+    "de": "Dein Konto",
+    "es": "Tu Cuenta",
+    "jp": "あなたのアカウント"
+  },
+  "str_tour_got_it": {
+    "it": "Ho capito",
+    "en": "Got it",
+    "fr": "Compris",
+    "de": "Verstanden",
+    "es": "Entendido",
+    "jp": "了解しました"
+  },
+  "str_user_not_found": {
+    "it": "Utente non trovato",
+    "en": "Usert not found",
+    "fr": "Utilisateur non trouvé",
+    "de": "Benutzer nicht encontrado",
+    "es": "Usuario no encontrado",
+    "jp": "ユーザーが見つかりません"
+  },
+  "str_vai_a_account": {
+    "it": "Vai al tuo account",
+    "en": "Go to your account",
+    "fr": "Aller à votre compte",
+    "de": "Zu Ihrem Konto gehen",
+    "es": "Ir a su cuenta",
+    "jp": "アカウントへ移動"
+  },
+  "str_vai_ai_miei_biglietti": {
+    "it": "Vai ai miei biglietti",
+    "en": "Go to my tickets",
+    "fr": "Aller à mes billets",
+    "de": "Zu meinen Tickets",
+    "es": "Ir a mis billetes",
+    "jp": "マイチケットへ"
+  },
+  "str_verifica_pin": {
+    "it": "Verifica pin",
+    "en": "Verify PIN",
+    "fr": "Vérifier le PIN",
+    "de": "PIN bestätigen",
+    "es": "Verificar PIN",
+    "jp": "PINコードを確認"
+  },
+  "str_verify_email": {
+    "it": "Verifica la tua email",
+    "en": "Verify your email",
+    "fr": "Vérifiez votre e-mail",
+    "de": "E-Mail überprüfen",
+    "es": "Verifica tu correo",
+    "jp": "メールを確認してください"
+  },
+  "str_verify_email_desc": {
+    "it": "Inserisci il PIN ricevuto via email per completare la registrazione.",
+    "en": "Enter the PIN received via email to complete registration.",
+    "fr": "Entrez le PIN reçu par e-mail pour compléter l'inscription.",
+    "de": "Geben Sie die per E-Mail erhaltene PIN ein, um die Registrierung abzuschließen.",
+    "es": "Introduce el PIN recibido por correo electrónico para completar el registro.",
+    "jp": "登録を完了するためにメールで受け取ったPINを入力してください。"
+  },
+  "str_vuoi_annullare": {
+    "it": "Vuoi annullare questo viaggio e ottenere un rimborso?",
+    "en": "Do you want to cancel this trip and get a refund?",
+    "fr": "Voulez-vous annuler ce voyage et obtenir un remboursement ?",
+    "de": "Möchten Sie diese Reise stornieren und eine Rückerstattung erhalten?",
+    "es": "¿Desea cancelar este viaje y obtener un reembolso?",
+    "jp": "この旅行をキャンセルして返金を受け取りますか？"
+  },
+  "str_vuoi_cancellare": {
+    "it": "Vuoi cancellare questo pagamento?",
+    "en": "",
+    "fr": "",
+    "de": "",
+    "es": "",
+    "jp": ""
+  }
+}
