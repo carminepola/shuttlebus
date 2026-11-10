@@ -391,6 +391,46 @@
     "es": "Gracias por elegir {company}.",
     "jp": "{company}をご利用いただきありがとうございました。"
   },
+  "mail_ticket_cancelled_heading": {
+    "it": "Il tuo biglietto è stato annullato",
+    "en": "Your ticket has been cancelled",
+    "fr": "Votre billet a été annulé",
+    "de": "Ihr Ticket wurde storniert",
+    "es": "Tu billete ha sido cancelado",
+    "jp": "チケットがキャンセルされました"
+  },
+  "mail_ticket_cancelled_intro": {
+    "it": "Il biglietto <strong>{order_id}</strong> per il viaggio di <strong>{travel_date}</strong> è stato annullato. Ecco il riepilogo del viaggio annullato:",
+    "en": "Ticket <strong>{order_id}</strong> for the trip on <strong>{travel_date}</strong> has been cancelled. Here is a summary of the cancelled trip:",
+    "fr": "Le billet <strong>{order_id}</strong> pour le trajet du <strong>{travel_date}</strong> a été annulé. Voici le récapitulatif du trajet annulé :",
+    "de": "Das Ticket <strong>{order_id}</strong> für die Fahrt am <strong>{travel_date}</strong> wurde storniert. Hier die Übersicht der stornierten Fahrt:",
+    "es": "El billete <strong>{order_id}</strong> para el viaje del <strong>{travel_date}</strong> ha sido cancelado. Este es el resumen del viaje cancelado:",
+    "jp": "<strong>{travel_date}</strong>のご旅行のチケット<strong>{order_id}</strong>はキャンセルされました。キャンセルされたご旅行の概要は以下のとおりです："
+  },
+  "mail_ticket_cancelled_invalid": {
+    "it": "Il biglietto non è più valido e non può essere usato per salire a bordo.",
+    "en": "The ticket is no longer valid and cannot be used to board.",
+    "fr": "Le billet n'est plus valable et ne peut pas être utilisé pour embarquer.",
+    "de": "Das Ticket ist nicht mehr gültig und kann nicht zum Einsteigen verwendet werden.",
+    "es": "El billete ya no es válido y no puede utilizarse para subir a bordo.",
+    "jp": "このチケットは無効となり、ご乗車にはご利用いただけません。"
+  },
+  "mail_ticket_cancelled_subject": {
+    "it": "Biglietto annullato - {order_id}",
+    "en": "Ticket cancelled - {order_id}",
+    "fr": "Billet annulé - {order_id}",
+    "de": "Ticket storniert - {order_id}",
+    "es": "Billete cancelado - {order_id}",
+    "jp": "チケットキャンセル - {order_id}"
+  },
+  "mail_ticket_cancelled_support": {
+    "it": "Se non hai richiesto tu l'annullamento o vuoi informazioni su un eventuale rimborso, rispondi a questa email: il nostro supporto ti aiuterà.",
+    "en": "If you did not request this cancellation or would like information about a possible refund, reply to this email and our support team will help you.",
+    "fr": "Si vous n'êtes pas à l'origine de cette annulation ou souhaitez des informations sur un éventuel remboursement, répondez à cet e-mail : notre support vous aidera.",
+    "de": "Wenn Sie die Stornierung nicht selbst veranlasst haben oder Informationen zu einer möglichen Erstattung wünschen, antworten Sie auf diese E-Mail: Unser Support hilft Ihnen gerne.",
+    "es": "Si no has solicitado tú la cancelación o quieres información sobre un posible reembolso, responde a este correo: nuestro equipo de soporte te ayudará.",
+    "jp": "ご自身でキャンセルされていない場合や、返金についてのお問い合わせは、このメールにご返信ください。サポートチームが対応いたします。"
+  },
   "mail_welcome_code_hint": {
     "it": "Inserisci questo codice nell'app per confermare il tuo indirizzo email. Il codice è valido per un tempo limitato: ti consigliamo di utilizzarlo il prima possibile per completare la registrazione.",
     "en": "Enter this code in the app to confirm your email address. The code is valid for a limited time, so we recommend using it as soon as possible to complete your registration.",

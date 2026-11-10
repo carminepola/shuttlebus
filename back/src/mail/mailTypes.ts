@@ -84,17 +84,19 @@ export const MAIL_TYPES = {
     ],
     sample: { name: "Mario Rossi", order_id: "TEST-ORDER-0001", amount: "99", payment_method: "stripe", mytickets_url: "{siteUrl}/user/mytickets" },
   },
+  /** Biglietto annullato: quale viaggio, che non e' piu' valido e a chi rivolgersi. */
   PURCHASE_CANCELLED: {
-    subjectKey: "mail_purchase_cancelled_subject",
+    subjectKey: "mail_ticket_cancelled_subject",
     blocks: [
-      { type: "heading", key: "mail_purchase_cancelled_heading" },
+      { type: "heading", key: "mail_ticket_cancelled_heading" },
       { type: "greeting" },
-      { type: "text", key: "mail_purchase_cancelled_intro" },
-      { type: "details", rows: [{ labelKey: "mail_label_order_id", variable: "order_id" }] },
-      { type: "text", key: "mail_purchase_cancelled_support" },
+      { type: "text", key: "mail_ticket_cancelled_intro" },
+      { type: "html", variable: "route" },
+      { type: "text", key: "mail_ticket_cancelled_invalid" },
+      { type: "text", key: "mail_ticket_cancelled_support" },
       { type: "text", key: "mail_thanks_short" },
     ],
-    sample: { name: "Mario Rossi", order_id: "TEST-ORDER-0001" },
+    sample: { name: "Mario Rossi", order_id: "TEST-ORDER-0001", travel_date: "venerdì 20 novembre 2026" },
   },
   REFUND_PROCESSED: {
     subjectKey: "mail_refund_subject",

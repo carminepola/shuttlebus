@@ -80,8 +80,21 @@ class MailSenderServices {
     });
   }
 
-  async sendCancelBook(email: string, name: string, order_id: string, lng?: string) {
-    return this.send(email, "PURCHASE_CANCELLED", lng, { name, order_id });
+  /** Biglietto annullato: numero, data del viaggio e riepilogo, nella lingua del biglietto. */
+  async sendCancelBook(book: booking) {
+    const t = await Translator.for(this.db, book.lng);
+    const locale = (await getLanguageSettings(this.db)).languages.find((l) => l.code === t.lng)?.locale || t.lng;
+    const [y, m, d] = String(book.date || "").split("-").map(Number);
+    let travelDate = String(book.date);
+    try {
+      travelDate = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, d)));
+    } catch {}
+    return this.send(book.user?.mail, "PURCHASE_CANCELLED", book.lng, {
+      name: book.user?.name || "",
+      order_id: book.numberOfTickets,
+      travel_date: travelDate,
+      route: await this.bookSummaryHtml(book, book.lng),
+    });
   }
 
   async sendRecoverPassword(email: string, name: string, resetUrl: string, lng?: string) {

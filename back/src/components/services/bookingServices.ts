@@ -635,7 +635,7 @@ class BookingsServices {
       let book = await this.getBooking(numberOfTickets);
 
       if ((book.paymentMethod as any) !== "cash") {
-        await this.mailSenderServices.sendCancelBook(book.user.mail, book.user.name, numberOfTickets, book.lng);
+        await this.mailSenderServices.sendCancelBook(book);
       }
 
       if (process.env.MAIL_ADMIN) {
