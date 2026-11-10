@@ -1863,6 +1863,14 @@
     "es": "Ningún regreso sale después de la llegada de la ida",
     "jp": "往路の到着後に出発する復路はありません"
   },
+  "str_nessun_ritorno_dopo_corsa": {
+    "it": "Nessun ritorno dopo l'arrivo di questa corsa",
+    "en": "No return trip after this trip arrives",
+    "fr": "Aucun retour après l'arrivée de ce trajet",
+    "de": "Keine Rückfahrt nach Ankunft dieser Fahrt",
+    "es": "Ningún regreso después de la llegada de este viaje",
+    "jp": "この便の到着後に出発する復路はありません"
+  },
   "str_nessun_ticket": {
     "it": "Nessun biglietto",
     "en": "No tickets available",

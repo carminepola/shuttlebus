@@ -183,7 +183,10 @@ export class SearchPageComponent implements OnInit {
             this.ricerca.partenza,
             this.ricerca.ritorno > outboundFrom ? this.ricerca.ritorno : outboundFrom,
           )
-        : Promise.resolve(null),
+        : // ritorni presenti ma tutti prima dell'arrivo di ogni andata: primo giorno utile dal giorno dopo
+          this.andataRitorno && !inbound.some((r: any) => outbound.some((o: any) => this.isCompatible(o, r)))
+          ? this.findNextDate(this.ricerca.arrivo, this.ricerca.partenza, addDays(this.ricerca.ritorno, 1))
+          : Promise.resolve(null),
     ]);
 
     this.loading = false;
@@ -403,17 +406,19 @@ export class SearchPageComponent implements OnInit {
     return this.toMinutes(ret.from.stopTime) >= this.toMinutes(outbound.to.stopTime);
   }
 
-  /** Andate mostrate: con andata e ritorno solo quelle abbinabili al ritorno scelto (o ad almeno uno). */
+  /**
+   * Andate mostrate: tutte, tranne quelle incompatibili con un ritorno gia' scelto.
+   * Non si nascondono le andate senza ritorni abbinabili: sembrerebbe che manchi
+   * l'andata, mentre e' il ritorno a non essere compatibile (vedi hasCompatibleReturn).
+   */
   get visibleOutbounds(): any[] {
-    if (!this.andataRitorno || this.returnParams.length === 0) return this.params;
-    return this.params.filter((o: any) =>
-      this.selectedReturn ? this.isCompatible(o, this.selectedReturn) : this.returnParams.some((r: any) => this.isCompatible(o, r)),
-    );
+    if (!this.andataRitorno || !this.selectedReturn) return this.params;
+    return this.params.filter((o: any) => this.isCompatible(o, this.selectedReturn));
   }
 
-  /** Giorno dopo la data di ritorno cercata (proposta quando nessun ritorno e' abbinabile). */
-  get dayAfterReturn(): string | null {
-    return this.ricerca.ritorno ? addDays(this.ricerca.ritorno, 1) : null;
+  /** L'andata ha almeno un ritorno abbinabile (altrimenti la card lo segnala). */
+  hasCompatibleReturn(outbound: any): boolean {
+    return this.returnParams.some((r: any) => this.isCompatible(outbound, r));
   }
 
   /** Ritorni mostrati: solo quelli che partono dopo l'arrivo dell'andata scelta (o di almeno una). */

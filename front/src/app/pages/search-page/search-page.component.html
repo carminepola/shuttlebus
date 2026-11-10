@@ -130,7 +130,7 @@
               {{ lngService.traslateOr("str_nessun_ritorno_compatibile", "Nessun ritorno parte dopo l'arrivo dell'andata") }}
             </h5>
             <ng-container
-              *ngTemplateOutlet="nextDate; context: { $implicit: dayAfterReturn, leg: 'return' }"
+              *ngTemplateOutlet="nextDate; context: { $implicit: nextReturnDate, leg: 'return' }"
             ></ng-container>
           </div>
         }
@@ -212,6 +212,12 @@
           <span class="trip-stop">{{ param.to.name }}</span>
         </div>
       </div>
+      @if (leg === 'outbound' && returnParams.length > 0 && !hasCompatibleReturn(param)) {
+        <div class="trip-warning">
+          <i class="fa-solid fa-triangle-exclamation me-1"></i>
+          {{ lngService.traslateOr("str_nessun_ritorno_dopo_corsa", "Nessun ritorno dopo l'arrivo di questa corsa") }}
+        </div>
+      }
       <div class="trip-meta">
         <span class="trip-route-name">{{ param.name | translateName }}</span>
         @if (param.availableSeats <= lowSeats) {
