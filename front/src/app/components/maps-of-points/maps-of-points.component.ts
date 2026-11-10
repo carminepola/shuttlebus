@@ -69,7 +69,8 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef<HTMLDivElement>;
 
   private map?: L.Map;
-  private stopsLayer = L.layerGroup();
+  // featureGroup (non layerGroup) per avere getBounds e centrare la mappa sulle fermate
+  private stopsLayer = L.featureGroup();
   private busesLayer = L.layerGroup();
   private busMarkers = new Map<string, BusMarker>();
   private resizeObserver?: ResizeObserver;
@@ -184,9 +185,24 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
           marker.bindPopup(stop.name);
         }
       });
+      this.fitToStops();
     } catch (err) {
       console.error('Errore nel caricamento delle fermate', err);
     }
+  }
+
+  /**
+   * Mappa centrata e zoomata sulle fermate (prima: centro fisso scritto nel codice).
+   * Se la pagina passa un `center` esplicito si rispetta quello.
+   */
+  private fitToStops() {
+    if (!this.map || this.center) return;
+    const bounds = this.stopsLayer.getBounds();
+    if (!bounds || !bounds.isValid()) return;
+    this.zone.runOutsideAngular(() => {
+      if (this.stopCount === 1) this.map!.setView(bounds.getCenter(), this.zoom ?? 13);
+      else this.map!.fitBounds(bounds, { padding: [40, 40], maxZoom: this.zoom ?? 13 });
+    });
   }
 
   async updateBuses() {
