@@ -93,7 +93,7 @@ export class TraduzioniComponent implements OnInit {
     // traduzioni in uso nell'app, con il nome dell'azienda gia' sostituito
     this.lngService.get().subscribe((res) => {
       if (res && res.lng) {
-        sessionStorage['lng'] = JSON.stringify(res.lng);
+        this.lngService.setTranslations(res.lng);
       }
     });
   }

@@ -79,22 +79,37 @@ export class LngService {
     return pickText(value, this.fallbackChain());
   }
 
-  private cacheRaw: string | null = null;
-  private cacheMap = new Map<string, any>();
+  private cacheMap: Map<string, any> | null = null;
 
-  /** Traduzioni in sessionStorage indicizzate per chiave (parse solo quando cambiano). */
-  private rows(): Map<string, any> {
-    let raw: string | null = null;
+  /**
+   * Salva le traduzioni scaricate (sessionStorage per i reload) e aggiorna la cache.
+   * Da usare al posto di scrivere sessionStorage['lng'] a mano.
+   */
+  setTranslations(list: any[]) {
     try {
-      raw = sessionStorage.getItem('lng');
+      sessionStorage.setItem('lng', JSON.stringify(list || []));
     } catch {}
-    if (raw !== this.cacheRaw) {
-      this.cacheRaw = raw;
-      this.cacheMap = new Map();
+    this.cacheMap = this.index(list);
+  }
+
+  private index(list: any): Map<string, any> {
+    const map = new Map<string, any>();
+    if (Array.isArray(list)) for (const x of list) if (x && x.txt) map.set(x.txt, x);
+    return map;
+  }
+
+  /**
+   * Traduzioni indicizzate per chiave, in memoria. sessionStorage si legge una sola
+   * volta: prima ogni traslate rileggeva e confrontava l'intero JSON (centinaia di KB)
+   * a ogni change detection, e con molti testi la pagina si bloccava.
+   */
+  private rows(): Map<string, any> {
+    if (!this.cacheMap || this.cacheMap.size === 0) {
+      let list: any = [];
       try {
-        const list = raw ? JSON.parse(raw) : [];
-        if (Array.isArray(list)) for (const x of list) if (x && x.txt) this.cacheMap.set(x.txt, x);
+        list = JSON.parse(sessionStorage.getItem('lng') || '[]');
       } catch {}
+      this.cacheMap = this.index(list);
     }
     return this.cacheMap;
   }

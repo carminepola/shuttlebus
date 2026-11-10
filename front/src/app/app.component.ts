@@ -113,7 +113,7 @@ export class AppComponent implements OnInit {
       next: (res) => {
         if (res && res.lng) {
           this.loading = false;
-          sessionStorage['lng'] = JSON.stringify(res.lng);
+          this.lngService.setTranslations(res.lng);
         }
       },
       error: (err) => {

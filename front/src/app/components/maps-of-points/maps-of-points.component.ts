@@ -148,6 +148,8 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
     });
 
     await Promise.all([this.loadStops(), this.updateBuses()]);
+    // uscito dalla pagina durante il primo caricamento: niente timer orfano
+    if (this.destroyed) return;
     this.loading = false;
     this.intervalId = setInterval(() => this.updateBuses(), REFRESH_MS);
   }
@@ -434,7 +436,10 @@ export class MapsOfPointsComponent implements AfterViewInit, OnDestroy {
     return div.innerHTML;
   }
 
+  private destroyed = false;
+
   ngOnDestroy(): void {
+    this.destroyed = true;
     clearInterval(this.intervalId);
     this.resizeObserver?.disconnect();
     if (this.frame !== null) cancelAnimationFrame(this.frame);

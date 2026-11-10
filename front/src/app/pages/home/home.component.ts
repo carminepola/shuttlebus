@@ -232,6 +232,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private purchasePollingInterval: any;
   ngOnDestroy(): void {
     clearInterval(this.interval);
+    for (const t of this.counterTimers) clearInterval(t);
+    this.counterTimers.clear();
     if (this.purchasePollingInterval)
       clearInterval(this.purchasePollingInterval);
   }
@@ -333,42 +335,44 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {}
-  animateNumberRoutes(max: number, duration: number) {
-    if (max != this.countRoutes) {
-      let start = 0;
-      let stepTime = Math.abs(Math.floor(duration / max));
+  /** Timer delle animazioni dei contatori: fermati uscendo dalla pagina. */
+  private counterTimers = new Set<any>();
 
-      let interval = setInterval(() => {
-        start++;
-        this.countRoutes = start;
-        if (start >= max) clearInterval(interval);
-      }, stepTime);
+  /**
+   * Conta da 0 a `max` in circa `steps` passi (~0,5 s). Prima un passo per unita' con
+   * intervallo 100/max ms (0 ms sopra 100): migliaia di change detection, timer mai
+   * fermati uscendo dalla dashboard e browser bloccato tornando alla home.
+   */
+  private animateCounter(field: 'countRoutes' | 'countPrenotazioni' | 'countBiglietti', max: number, steps = 25) {
+    const target = Number(max) || 0;
+    if (target === this[field]) return;
+    if (target <= 0) {
+      this[field] = 0;
+      return;
     }
+    const increment = Math.max(1, Math.ceil(target / steps));
+    let value = 0;
+    const timer = setInterval(() => {
+      value = Math.min(value + increment, target);
+      this[field] = value;
+      if (value >= target) {
+        clearInterval(timer);
+        this.counterTimers.delete(timer);
+      }
+    }, 20);
+    this.counterTimers.add(timer);
   }
 
-  animateNumberPrenotazioni(max: number, duration: number) {
-    if (max != this.countPrenotazioni) {
-      let start = 0;
-      let stepTime = Math.abs(Math.floor(duration / max));
-
-      let interval = setInterval(() => {
-        start++;
-        this.countPrenotazioni = start;
-        if (start >= max) clearInterval(interval);
-      }, stepTime);
-    }
+  animateNumberRoutes(max: number, _duration?: number) {
+    this.animateCounter('countRoutes', max);
   }
-  animateNumberBiglietti(max: number, duration: number) {
-    if (max != this.countBiglietti) {
-      let start = 0;
-      let stepTime = Math.abs(Math.floor(duration / max));
 
-      let interval = setInterval(() => {
-        start++;
-        this.countBiglietti = start;
-        if (start >= max) clearInterval(interval);
-      }, stepTime);
-    }
+  animateNumberPrenotazioni(max: number, _duration?: number) {
+    this.animateCounter('countPrenotazioni', max);
+  }
+
+  animateNumberBiglietti(max: number, _duration?: number) {
+    this.animateCounter('countBiglietti', max);
   }
   private createSalesChart(apiData: any) {
     const ctx = this.salesChart.nativeElement.getContext('2d');
