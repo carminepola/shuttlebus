@@ -21,7 +21,7 @@ import { StepIndicatorComponent } from '../../components/step-indicator/step-ind
 import { resolveFarePrice, resolveLuggagePrice } from '../../utils/fares';
 import { daysLabel, isTicketTypeValidOn } from '../../utils/ticket-days';
 import { PricePipe } from '../../pipe/price.pipe';
-import { localToday } from '../../utils/dates';
+import { addDays, localToday } from '../../utils/dates';
 @Component({
   selector: 'app-search-page',
   imports: [PricePipe, 
@@ -388,17 +388,44 @@ export class SearchPageComponent implements OnInit {
   }
 
   /** Stesso giorno: il ritorno non puo' partire prima dell'arrivo dell'andata. */
-  isReturnBeforeOutbound(param: any): boolean {
-    return (
-      !!this.selectedOutbound &&
-      param.date === this.selectedOutbound.date &&
-      param.from.stopTime < this.selectedOutbound.to.stopTime
+  private toMinutes(t?: string): number {
+    const m = /^(\d{1,2}):(\d{2})/.exec(t || '');
+    return m ? +m[1] * 60 + +m[2] : 0;
+  }
+
+  /**
+   * Il ritorno si puo' abbinare all'andata se parte un giorno dopo, oppure lo stesso
+   * giorno non prima dell'arrivo dell'andata (confronto in minuti: "9:30" < "10:00").
+   */
+  isCompatible(outbound: any, ret: any): boolean {
+    if (!outbound || !ret) return true;
+    if (ret.date !== outbound.date) return ret.date > outbound.date;
+    return this.toMinutes(ret.from.stopTime) >= this.toMinutes(outbound.to.stopTime);
+  }
+
+  /** Andate mostrate: con andata e ritorno solo quelle abbinabili al ritorno scelto (o ad almeno uno). */
+  get visibleOutbounds(): any[] {
+    if (!this.andataRitorno || this.returnParams.length === 0) return this.params;
+    return this.params.filter((o: any) =>
+      this.selectedReturn ? this.isCompatible(o, this.selectedReturn) : this.returnParams.some((r: any) => this.isCompatible(o, r)),
+    );
+  }
+
+  /** Giorno dopo la data di ritorno cercata (proposta quando nessun ritorno e' abbinabile). */
+  get dayAfterReturn(): string | null {
+    return this.ricerca.ritorno ? addDays(this.ricerca.ritorno, 1) : null;
+  }
+
+  /** Ritorni mostrati: solo quelli che partono dopo l'arrivo dell'andata scelta (o di almeno una). */
+  get visibleReturns(): any[] {
+    return this.returnParams.filter((r: any) =>
+      this.selectedOutbound ? this.isCompatible(this.selectedOutbound, r) : this.params.some((o: any) => this.isCompatible(o, r)),
     );
   }
 
   selectOutbound(param: any) {
     this.selectedOutbound = this.selectedOutbound === param ? null : param;
-    if (this.selectedReturn && this.isReturnBeforeOutbound(this.selectedReturn)) {
+    if (this.selectedReturn && !this.isCompatible(this.selectedOutbound, this.selectedReturn)) {
       this.selectedReturn = null;
     }
     if (this.selectedOutbound && !this.selectedReturn) {
@@ -407,7 +434,7 @@ export class SearchPageComponent implements OnInit {
   }
 
   selectReturn(param: any) {
-    if (this.isReturnBeforeOutbound(param)) return;
+    if (!this.isCompatible(this.selectedOutbound, param)) return;
     this.selectedReturn = this.selectedReturn === param ? null : param;
   }
 

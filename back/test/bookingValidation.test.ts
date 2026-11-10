@@ -84,3 +84,27 @@ describe("validateBookingInput", () => {
     expect(validateBookingInput(ticket({ ticketTypes: [{ id: "senior", count: 2 }] }), { ...route, ticketTypes: [] })).toBeNull();
   });
 });
+
+import { isRoundTripCompatible } from "../src/utils/roundTrip";
+
+describe("andata e ritorno: orari compatibili", () => {
+  const route = {
+    schedules: [
+      { id: "and", stops: [{ id: "NA", stopTime: "08:00" }, { id: "MI", stopTime: "14:00" }] },
+      { id: "rit-presto", stops: [{ id: "MI", stopTime: "9:30" }, { id: "NA", stopTime: "15:30" }] },
+      { id: "rit-dopo", stops: [{ id: "MI", stopTime: "16:00" }, { id: "NA", stopTime: "22:00" }] },
+    ],
+  };
+  const out = { date: "2030-01-08", scheduleId: "and", from: { id: "NA" }, to: { id: "MI" } };
+  const ret = (scheduleId: string, date = "2030-01-08") => ({ date, scheduleId, from: { id: "MI" }, to: { id: "NA" } });
+
+  it("stesso giorno: il ritorno deve partire dopo l'arrivo dell'andata", () => {
+    expect(isRoundTripCompatible(out, route, ret("rit-presto"), route)).toBe(false); // 9:30 < 14:00 (anche se "9:30" > "14:00" come stringa)
+    expect(isRoundTripCompatible(out, route, ret("rit-dopo"), route)).toBe(true);
+  });
+
+  it("giorno dopo sempre valido, giorno prima mai", () => {
+    expect(isRoundTripCompatible(out, route, ret("rit-presto", "2030-01-09"), route)).toBe(true);
+    expect(isRoundTripCompatible(out, route, ret("rit-dopo", "2030-01-07"), route)).toBe(false);
+  });
+});

@@ -1855,6 +1855,14 @@
     "es": "Error de navegación. Inténtalo de nuevo.",
     "jp": "ページの移動中にエラーが発生しました。もう一度お試しください。"
   },
+  "str_nessun_ritorno_compatibile": {
+    "it": "Nessun ritorno parte dopo l'arrivo dell'andata",
+    "en": "No return trip departs after the outbound arrival",
+    "fr": "Aucun retour ne part après l'arrivée de l'aller",
+    "de": "Keine Rückfahrt fährt nach der Ankunft der Hinfahrt ab",
+    "es": "Ningún regreso sale después de la llegada de la ida",
+    "jp": "往路の到着後に出発する復路はありません"
+  },
   "str_nessun_ticket": {
     "it": "Nessun biglietto",
     "en": "No tickets available",

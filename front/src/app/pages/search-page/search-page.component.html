@@ -72,15 +72,15 @@
         }
         <div class="results-date">{{ ricerca.data | date: "EEEE d MMMM" }}</div>
         <span class="results-count"
-          >{{ params.length }}
+          >{{ visibleOutbounds.length }}
           {{
-            params.length === 1
+            visibleOutbounds.length === 1
               ? ("str_corsa_disponibile" | translate)
               : ("str_corse_disponibili" | translate)
           }}</span
         >
       </div>
-      @for (param of params; track param) {
+      @for (param of visibleOutbounds; track param) {
         <ng-container
           *ngTemplateOutlet="routeCard; context: { $implicit: param, leg: andataRitorno ? 'outbound' : null }"
         ></ng-container>
@@ -95,11 +95,11 @@
             {{ lngService.traslateOr("str_ritorno", "Ritorno") }}
           </h4>
           <div class="results-date">{{ ricerca.ritorno | date: "EEEE d MMMM" }}</div>
-          @if (returnParams.length > 0) {
+          @if (visibleReturns.length > 0) {
             <span class="results-count"
-              >{{ returnParams.length }}
+              >{{ visibleReturns.length }}
               {{
-                returnParams.length === 1
+                visibleReturns.length === 1
                   ? ("str_corsa_disponibile" | translate)
                   : ("str_corse_disponibili" | translate)
               }}</span
@@ -120,7 +120,21 @@
             ></ng-container>
           </div>
         }
-        @for (param of returnParams; track param) {
+        @if (returnParams.length > 0 && visibleReturns.length === 0) {
+          <!-- ci sono ritorni, ma partono tutti prima dell'arrivo dell'andata -->
+          <div class="empty-state empty-state-inline mx-auto text-center my-4">
+            <div class="empty-state-icon">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <h5 class="text-primary mt-3">
+              {{ lngService.traslateOr("str_nessun_ritorno_compatibile", "Nessun ritorno parte dopo l'arrivo dell'andata") }}
+            </h5>
+            <ng-container
+              *ngTemplateOutlet="nextDate; context: { $implicit: dayAfterReturn, leg: 'return' }"
+            ></ng-container>
+          </div>
+        }
+        @for (param of visibleReturns; track param) {
           <ng-container
             *ngTemplateOutlet="routeCard; context: { $implicit: param, leg: 'return' }"
           ></ng-container>
@@ -180,7 +194,7 @@
   <div
     class="route-card rounded-4 mb-3"
     [class.route-card-selected]="isSelected(param, leg)"
-    [class.route-card-disabled]="leg === 'return' && isReturnBeforeOutbound(param)"
+    
     @fadeInOut
   >
     <div class="trip-main">
@@ -292,7 +306,7 @@
           class="purchase-btn"
           [class.active]="param.seats > 0"
           [class.selected]="isSelected(param, leg)"
-          [disabled]="param.seats === 0 || (leg === 'return' && isReturnBeforeOutbound(param))"
+          [disabled]="param.seats === 0"
           (click)="leg === 'outbound' ? selectOutbound(param) : selectReturn(param)"
         >
           <span class="purchase-total">{{ param.total | price }}</span>

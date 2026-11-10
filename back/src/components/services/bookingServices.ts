@@ -9,6 +9,7 @@ import { resolveFarePrice, resolveLuggagePrice } from "../../utils/fares";
 import { isTicketTypeValidOn } from "../../utils/ticketDays";
 import { validateBookingInput } from "../../utils/bookingValidation";
 import { isPastBookingCutoff, localDate } from "../../utils/bookingCutoff";
+import { isRoundTripCompatible } from "../../utils/roundTrip";
 import { activeStopIds, addDays, isDateString, MAX_LOOKAHEAD_DAYS, scheduleRunDates, scheduleServes } from "../../utils/scheduleDates";
 import BookingSettingsServices from "./bookingSettingsServices";
 import { isRefundAllowed } from "../../utils/bookingSettings";
@@ -158,12 +159,10 @@ class BookingsServices {
       await this.removeExpiredPendingBookings();
       let booking = await this.removePendingBooking(userId);
       if (booking.length >= 3) throw new ErrorModel(400, "str_error_pending_booking");
-      if (returnTrip && (typeof returnTrip.date !== "string" || returnTrip.date < ticket.date)) {
-        throw new ErrorModel(400, "str_error_time");
-      }
       for (const leg of legs) {
         await this.checkPriceAndTime(leg);
       }
+      await this.checkRoundTrip(ticket, returnTrip);
     } catch (error) {
       throw error;
     }
@@ -393,9 +392,7 @@ class BookingsServices {
     const returnTrip = ticket.returnTrip;
     delete ticket.returnTrip;
     const legs: any[] = returnTrip ? [ticket, returnTrip] : [ticket];
-    if (returnTrip && (typeof returnTrip.date !== "string" || returnTrip.date < ticket.date)) {
-      throw new ErrorModel(400, "str_error_time");
-    }
+    await this.checkRoundTrip(ticket, returnTrip);
     for (const leg of legs) {
       leg.lng = typeof leg.lng === "string" && leg.lng ? leg.lng : "it";
       await this.checkPriceAndTime(leg, { skipCutoff: true });
@@ -454,6 +451,21 @@ class BookingsServices {
     // Flag `paid` sempre calcolato e garantito lato server per ogni booking
     return (list || []).map((book: any) => ({ ...book, paid: computePaid(book) }));
   }
+  /**
+   * Andata e ritorno: il ritorno non puo' partire prima dell'arrivo dell'andata
+   * (stesso giorno) ne' in un giorno precedente. Orari dalle corse su DB.
+   */
+  private async checkRoundTrip(outbound: any, ret: any) {
+    if (!ret) return;
+    const [outboundRoute, returnRoute] = await Promise.all([
+      this.routeServices.getRouteById(outbound?.routeId),
+      this.routeServices.getRouteById(ret?.routeId),
+    ]);
+    if (!isRoundTripCompatible(outbound, outboundRoute, ret, returnRoute)) {
+      throw new ErrorModel(400, "str_error_time");
+    }
+  }
+
   /** `skipCutoff`: l'admin puo' emettere biglietti anche a ridosso della partenza (mai per giorni passati). */
   async checkPriceAndTime(ticket: any, opts: { skipCutoff?: boolean } = {}) {
     let totale = ticket.total;
