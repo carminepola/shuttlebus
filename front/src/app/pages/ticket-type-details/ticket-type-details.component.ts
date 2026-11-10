@@ -35,6 +35,7 @@ export class TicketTypeDetailsComponent implements OnInit {
     name: { it: '', en: '', fr: '', de: '', es: '', jp: '' },
     cost: '0',
     isActive: true,
+    showOnHome: true,
     daysOfWeek: [],
     description: { it: '', en: '', fr: '', de: '', es: '', jp: '' },
   };
@@ -116,6 +117,7 @@ export class TicketTypeDetailsComponent implements OnInit {
       if (res && res.ticketType) {
         this.form = res.ticketType;
         this.form.daysOfWeek = this.form.daysOfWeek || [];
+        this.form.showOnHome = this.form.showOnHome !== false;
         this.cdr.detectChanges();
       }
     });

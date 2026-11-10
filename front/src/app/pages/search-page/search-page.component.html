@@ -199,6 +199,42 @@
           </span>
         }
       </div>
+      @if (extraTicketTypes(param).length > 0) {
+        <div class="trip-extra-tickets">
+          <div class="trip-extra-title">
+            {{ lngService.traslateOr("str_altri_biglietti", "Altri biglietti disponibili su questa corsa") }}
+          </div>
+          @for (ticket of extraTicketTypes(param); track ticket.id) {
+            <div class="trip-extra-row">
+              <span class="trip-extra-name">
+                {{ ticket.name | translateName }}
+                <small class="text-secondary">{{ ticket.cost | price }}</small>
+              </span>
+              <div class="trip-extra-counter">
+                <button
+                  type="button"
+                  class="counter-btn"
+                  [disabled]="ticket.count === 0"
+                  (click)="changeTicketCount(param, ticket, -1)"
+                  aria-label="-"
+                >
+                  <i class="fa fa-minus"></i>
+                </button>
+                <span class="counter-value">{{ ticket.count }}</span>
+                <button
+                  type="button"
+                  class="counter-btn"
+                  [disabled]="!canAddTicket(param)"
+                  (click)="changeTicketCount(param, ticket, 1)"
+                  aria-label="+"
+                >
+                  <i class="fa fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
     </div>
 
     <div class="trip-buy">

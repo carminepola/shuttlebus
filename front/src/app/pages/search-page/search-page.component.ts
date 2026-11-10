@@ -75,6 +75,7 @@ export class SearchPageComponent implements OnInit {
   public stops: any[] = [];
   /** Sotto questa soglia di posti liberi la corsa mostra "Ultimi N posti". */
   public readonly lowSeats = 5;
+  public readonly maxTickets = 12;
 
   constructor(
     private routesService: RoutesService,
@@ -242,24 +243,19 @@ export class SearchPageComponent implements OnInit {
           continue;
         }
 
-        info.ticketTypes = info.ticketTypes.map((t: any) => {
-          return {
-            ...t,
-            cost: resolveFarePrice(route, fromId, toId, t),
-            count: this.ticketSelections[t.id] || 0,
-          };
-        });
+        info.ticketTypes = info.ticketTypes
+          // solo i biglietti ammessi sulla corsa
+          .filter((t: any) => allowed.length === 0 || allowed.includes(t.id))
+          .map((t: any) => {
+            return {
+              ...t,
+              cost: resolveFarePrice(route, fromId, toId, t),
+              count: this.ticketSelections[t.id] || 0,
+            };
+          });
 
-        info.total += info.ticketTypes.reduce(
-          (sum: number, t: any) => sum + t.count * t.cost,
-          0,
-        );
-        info.total = Math.round(info.total * 100) / 100;
+        this.recalc(info);
         info.durationMin = this.minutesBetween(info.from.stopTime, info.to.stopTime);
-        info.seats = info.ticketTypes.reduce(
-          (sum: number, t: any) => sum + t.count,
-          0,
-        );
 
         params.push(info);
       }
@@ -296,6 +292,28 @@ export class SearchPageComponent implements OnInit {
     // corse in ordine di partenza
     params.sort((a: any, b: any) => (a.from.stopTime || '').localeCompare(b.from.stopTime || ''));
     return params;
+  }
+
+  /** Totale e posti della corsa dai conteggi dei biglietti e dei bagagli. */
+  private recalc(param: any) {
+    const tickets = param.ticketTypes.reduce((sum: number, t: any) => sum + t.count * t.cost, 0);
+    param.total = Math.round((tickets + this.luggagePrice * param.luggage) * 100) / 100;
+    param.seats = param.ticketTypes.reduce((sum: number, t: any) => sum + t.count, 0);
+  }
+
+  /** Biglietti non mostrati nella ricerca della home: si scelgono qui, sulla corsa. */
+  extraTicketTypes(param: any): any[] {
+    return param.ticketTypes.filter((t: any) => t.showOnHome === false);
+  }
+
+  canAddTicket(param: any): boolean {
+    return param.seats < Math.min(param.availableSeats, this.maxTickets);
+  }
+
+  changeTicketCount(param: any, ticket: any, delta: number) {
+    if (delta > 0 && !this.canAddTicket(param)) return;
+    ticket.count = Math.max(0, ticket.count + delta);
+    this.recalc(param);
   }
 
   private minutesBetween(from?: string, to?: string): number | null {

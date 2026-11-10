@@ -470,6 +470,68 @@
   }
 }
 
+.trip-extra-tickets {
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed rgba(var(--bs-primary-rgb), 0.15);
+}
+
+.trip-extra-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.35rem;
+}
+
+.trip-extra-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.2rem 0;
+}
+
+.trip-extra-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 0;
+
+  small {
+    margin-left: 0.35rem;
+    font-weight: 500;
+  }
+}
+
+.trip-extra-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+
+  .counter-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(var(--bs-secondary-rgb), 0.3);
+    background: rgba(var(--bs-secondary-rgb), 0.08);
+    color: rgba(var(--bs-secondary-rgb), 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+
+    &:disabled {
+      opacity: 0.35;
+    }
+  }
+
+  .counter-value {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+  }
+}
+
 @media (max-width: 767.98px) {
   .search-summary {
     padding: 0.75rem 1rem;
@@ -504,7 +566,8 @@
   .search-summary-details,
   .trip-duration,
   .trip-route-name,
-  .trip-includes {
+  .trip-includes,
+  .trip-extra-title {
     color: rgba(255, 255, 255, 0.45);
   }
 

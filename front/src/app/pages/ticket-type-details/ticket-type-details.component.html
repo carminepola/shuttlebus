@@ -188,6 +188,24 @@
                   >
                 </div>
               </div>
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input
+                  [(ngModel)]="form.showOnHome"
+                  name="showOnHome"
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="showOnHomeSwitch"
+                  />
+                <label class="form-check-label" for="showOnHomeSwitch"
+                  >Visibile nella ricerca della home</label
+                  >
+                <div class="form-text">
+                  Se disattivato il biglietto si aggiunge solo sulla corsa, dopo la ricerca.
+                </div>
+              </div>
+            </div>
               @if (errorMessage != '') {
                 <div class="col-12">
                   <div class="alert alert-danger border-0">{{ errorMessage }}</div>

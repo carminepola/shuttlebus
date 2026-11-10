@@ -31,6 +31,7 @@ router.post(
     check("description.es").optional().isString().withMessage("Description in Spanish must be a string"),
     check("description.jp").optional().isString().withMessage("Description in Japanese must be a string"),
     check("isActive").optional().isBoolean().withMessage("isActive must be a boolean"),
+    check("showOnHome").optional().isBoolean().withMessage("showOnHome must be a boolean"),
     check("daysOfWeek").optional().isArray().withMessage("daysOfWeek must be an array"),
   ],
 
@@ -105,6 +106,7 @@ router.patch(
     check("description.es").optional().isString().withMessage("Description in Spanish must be a string"),
     check("description.jp").optional().isString().withMessage("Description in Japanese must be a string"),
     check("isActive").optional().isBoolean().withMessage("isActive must be a boolean"),
+    check("showOnHome").optional().isBoolean().withMessage("showOnHome must be a boolean"),
     check("daysOfWeek").optional().isArray().withMessage("daysOfWeek must be an array"),
   ],
 

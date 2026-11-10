@@ -141,10 +141,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
-  /** Biglietti validi nella data di andata e, se presente, in quella di ritorno. */
+  /**
+   * Biglietti della ricerca: solo quelli visibili in home e validi nella data di
+   * andata (e, se presente, in quella di ritorno). Gli altri si aggiungono sulla corsa.
+   */
   availableTicketTypes(): any[] {
     return this.ticketTypes.filter(
       (tt) =>
+        tt.showOnHome !== false &&
         isTicketTypeValidOn(tt, this.ricerca?.data) &&
         (!this.andataRitorno || isTicketTypeValidOn(tt, this.ricerca?.ritorno)),
     );

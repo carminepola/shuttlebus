@@ -24,6 +24,8 @@ export default class ticketTypeModel {
   public cost: number;
   // Giorni di validita' (1 = lun ... 7 = dom); vuoto = tutti i giorni
   public daysOfWeek: number[];
+  // Mostrato nella ricerca della home; gli altri si aggiungono solo sulla corsa dopo la ricerca
+  public showOnHome: boolean;
   public isActive: boolean;
   public isDeleted: boolean;
   constructor(ticketType?: any) {
@@ -37,6 +39,7 @@ export default class ticketTypeModel {
     this.cost = ticketType?.cost || 0;
     this.daysOfWeek = sanitizeDaysOfWeek(ticketType?.daysOfWeek);
 
+    this.showOnHome = ticketType?.showOnHome === false ? false : true;
     this.isActive = ticketType?.isActive == false ? false : true;
     this.isDeleted = ticketType?.isDeleted == true ? true : false;
     if (!ticketType?.id) {
