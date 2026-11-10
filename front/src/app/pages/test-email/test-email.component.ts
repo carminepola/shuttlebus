@@ -15,14 +15,18 @@ import { LanguagesService } from '../../services/languages/languages.service';
   animations: [fadeAnimation],
 })
 export class TestEmailComponent {
-  types = [
-    { value: 'WELCOME', label: 'Benvenuto (WELCOME)' },
-    { value: 'RECOVER_PASSWORD', label: 'Recupero password' },
-    { value: 'PURCHASE_COMPLETED', label: 'Acquisto completato' },
-    { value: 'PURCHASE_CANCELLED', label: 'Acquisto annullato' },
-    { value: 'REFUND_PROCESSED', label: 'Rimborso' },
-    { value: 'GENERIC', label: 'Generica' },
-  ];
+  /** Nomi leggibili dei tipi noti; i tipi nuovi compaiono col loro codice. */
+  private readonly labels: Record<string, string> = {
+    WELCOME: 'Benvenuto (PIN di verifica)',
+    RECOVER_PASSWORD: 'Recupero password',
+    PURCHASE_COMPLETED: 'Acquisto completato',
+    PURCHASE_CANCELLED: 'Acquisto annullato',
+    REFUND_PROCESSED: 'Rimborso',
+    MFA_CODE: 'Codice di verifica (2FA)',
+    ACCOUNT_DELETED: 'Account eliminato',
+    GENERIC: 'Generica',
+  };
+  types: { value: string; label: string }[] = Object.entries(this.labels).map(([value, label]) => ({ value, label }));
   /** Tutte le lingue configurate (anche disattivate, per provarne le mail). */
   get languages(): string[] {
     return this.languagesService.all.map((l) => l.code);
@@ -42,7 +46,12 @@ export class TestEmailComponent {
   constructor(
     private testEmailService: TestEmailService,
     private languagesService: LanguagesService,
-  ) {}
+  ) {
+    this.testEmailService.getTypes().subscribe({
+      next: (res) => (this.types = (res?.types || []).map((value) => ({ value, label: this.labels[value] || value }))),
+      error: () => {},
+    });
+  }
 
   private mostra(tipo: 'success' | 'danger', msg: string) {
     this.tipoMessaggio = tipo;

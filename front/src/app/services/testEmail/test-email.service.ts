@@ -12,6 +12,11 @@ export class TestEmailService {
 
   constructor(private http: HttpClient) {}
 
+  /** Tipi di mail standard definiti nel back (mail/mailTypes.ts). */
+  getTypes(): Observable<{ types: string[] }> {
+    return this.http.get<{ types: string[] }>(this.apiUrl + '/types');
+  }
+
   sendTemplate(type: string, to: string, lng: string): Observable<any> {
     return this.http.post(this.apiUrl, { type, to, lng }).pipe(
       catchError((error) => {

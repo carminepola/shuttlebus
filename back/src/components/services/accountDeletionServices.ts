@@ -58,15 +58,8 @@ export default class AccountDeletionServices {
     await this.usersDao.deleteUserById(userId);
     logger.info(`Account ${userId} eliminato dall'utente`);
 
-    const it = user.options?.lng !== "en";
     try {
-      await new MailSenderServices(this.db).sendMfaCode(
-        user.email,
-        it ? "Account eliminato" : "Account deleted",
-        it
-          ? "Il tuo account è stato eliminato insieme ai dati personali e alle carte salvate. Le prenotazioni passate sono conservate in forma anonima per obblighi contabili."
-          : "Your account has been deleted together with your personal data and saved cards. Past bookings are kept in anonymous form for accounting purposes.",
-      );
+      await new MailSenderServices(this.db).sendAccountDeleted(user.email, user.options?.lng);
     } catch (error: any) {
       logger.error(`Email di conferma cancellazione account non inviata: ${error?.message || error}`);
     }

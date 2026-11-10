@@ -1,10 +1,8 @@
 /**
- * Dati aziendali e colori del brand, dal .env. Traduzioni (collection lng) e
- * template mail (collection templateMail) non contengono il nome dell'azienda
- * ma dei segnaposto, sostituiti qui:
- *
- *   traduzioni:   {{company}}  {{companyLegalName}}
- *   template:     {company}  {companyLegalName}  {companyFooter}  {primaryColor}  {siteUrl}
+ * Dati aziendali e colori del brand, dal .env. Le traduzioni (collection lng)
+ * non contengono il nome dell'azienda ma dei segnaposto, sostituiti qui:
+ *   {{company}}  {{companyLegalName}}   (nelle mail anche {company})
+ * Le mail (mail/renderMail.ts) usano nome, piè di pagina e colore da qui.
  *
  * Variabili d'ambiente:
  *   COMPANY_NAME          nome commerciale (default: APP_NAME)
@@ -70,23 +68,6 @@ export function companyFooterHtml(lng: string = "it"): string {
   return lines.join("<br>");
 }
 
-/** Variabili aziendali comuni a tutti i template mail. */
-export function companyMailVariables(lng: string = "it"): Record<string, string> {
-  const c = companyInfo();
-  return {
-    company: escapeHtml(c.name),
-    companyLegalName: escapeHtml(c.legalName),
-    companyFooter: companyFooterHtml(lng),
-    primaryColor: c.primaryColor,
-    siteUrl: escapeHtml(c.siteUrl),
-  };
-}
-
-/** Lingua dal tipo di template: "WELCOME_EN" -> "en", "WELCOME" -> "it". */
-export function lngFromMailType(type: string | undefined): string {
-  const m = /_(EN|FR|DE|ES|JP)$/.exec(type || "");
-  return m ? m[1].toLowerCase() : "it";
-}
 
 /** Sostituisce {{company}} e {{companyLegalName}} nei testi delle traduzioni. */
 export function applyCompanyToText(text: string): string {

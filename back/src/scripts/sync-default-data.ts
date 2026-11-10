@@ -5,17 +5,14 @@ import { seedDefaultData } from "../components/services/defaultDataServices";
 dotenv.config({ path: ".env" });
 
 /**
- * Allinea il DB ai dati versionati (src/data/lng.json e src/data/templateMail.json).
+ * Allinea il DB alle traduzioni versionate (src/data/lng.json).
  * Senza opzioni fa quello che fa gia' l'avvio del back: inserisce solo cio' che manca.
  *
  *   --overwrite-lng        sovrascrive le traduzioni con quelle del file
- *   --overwrite-templates  sovrascrive i template mail (es. per passare ai template
- *                          con colori e dati aziendali dal .env: configurare prima
- *                          COMPANY_* e BRAND_PRIMARY_COLOR)
  *   --dry-run              mostra cosa cambierebbe senza scrivere
  *   --uri=<conn>           connection string (default: CONNECTION_STRING del .env)
  *
- * Uso: npm run data:sync -- [--overwrite-lng] [--overwrite-templates] [--dry-run] [--uri=<conn>]
+ * Uso: npm run data:sync -- [--overwrite-lng] [--dry-run] [--uri=<conn>]
  * Nel container: node scripts/sync-default-data.js [opzioni]
  */
 
@@ -34,12 +31,11 @@ async function run() {
   try {
     const res = await seedDefaultData(client.db(), {
       overwriteLng: args.includes("--overwrite-lng"),
-      overwriteTemplates: args.includes("--overwrite-templates"),
       dryRun,
       log: (m) => console.log((dryRun ? "[dry-run] " : "") + m),
     });
     console.log(
-      `${dryRun ? "[dry-run] " : ""}Traduzioni: inserite ${res.lng.inserted}, aggiornate ${res.lng.updated} · Template: inseriti ${res.templates.inserted}, aggiornati ${res.templates.updated}`,
+      `${dryRun ? "[dry-run] " : ""}Traduzioni: inserite ${res.lng.inserted}, aggiornate ${res.lng.updated}`,
     );
   } finally {
     await client.close();

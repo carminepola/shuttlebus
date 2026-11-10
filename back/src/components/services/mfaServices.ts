@@ -1,3 +1,4 @@
+import { companyInfo } from "../../utils/company";
 import { Db } from "mongodb";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
@@ -70,8 +71,9 @@ export default class MfaServices {
     return `${this.secretKey()}:mfa-ticket`;
   }
 
+  /** Nome mostrato nelle app di autenticazione e nelle passkey (COMPANY_NAME). */
   private appName(): string {
-    return process.env.APP_NAME || "Pintour";
+    return companyInfo().name;
   }
 
   /** Origini ammesse per WebAuthn: WEBAUTHN_ORIGIN (lista) oppure CLIENT_URL. */
@@ -258,7 +260,7 @@ export default class MfaServices {
 
   // ---------------------------------------------------------------- codice via email
 
-  async sendEmailCode(userId: string, email: string, lng: string = "it"): Promise<void> {
+  async sendEmailCode(userId: string, email: string, lng?: string): Promise<void> {
     const mfa = await this.mfaDao.getByUserId(userId);
     if (mfa?.emailCode?.sentAt && Date.now() - mfa.emailCode.sentAt < EMAIL_CODE_RESEND_MS) {
       // codice appena inviato: non se ne genera un altro (anti-spam della casella)
@@ -268,16 +270,9 @@ export default class MfaServices {
     await this.mfaDao.set(userId, {
       emailCode: { hash: this.hashCode(code), expiresAt: Date.now() + EMAIL_CODE_TTL_MS, attempts: 0, sentAt: Date.now() },
     });
-    const it = lng !== "en";
     let sent = false;
     try {
-      sent = await this.mailSenderServices.sendMfaCode(
-        email,
-        it ? "Codice di verifica" : "Verification code",
-        it
-          ? `Il tuo codice di verifica è <b>${code}</b>.<br>Scade tra 10 minuti. Se non hai richiesto tu l'accesso, cambia la password.`
-          : `Your verification code is <b>${code}</b>.<br>It expires in 10 minutes. If you did not request it, change your password.`,
-      );
+      sent = await this.mailSenderServices.sendMfaCode(email, code, lng);
     } catch (error: any) {
       logger.error(`Invio codice 2FA a ${email} fallito: ${error?.message || error}`);
     }

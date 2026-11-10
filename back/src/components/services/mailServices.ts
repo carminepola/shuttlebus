@@ -3,23 +3,21 @@ import { Mail } from "../../model/mailModel";
 import { MailDao } from "../dao/mailDao";
 import { logger, mailConfig, env } from "../../index";
 import nodemailer from "nodemailer";
-import { TemplateMailDao } from "../dao/templateMailDao";
-import { companyInfo, companyMailVariables, lngFromMailType } from "../../utils/company";
+import { companyInfo } from "../../utils/company";
+import { renderMail } from "../../mail/renderMail";
+import { isMailType } from "../../mail/mailTypes";
 
 class MailService {
   private mailDao: MailDao;
-  private templateMailDao: TemplateMailDao;
 
-  constructor(db: Db) {
+  constructor(private db: Db) {
     this.mailDao = new MailDao(db);
-    this.templateMailDao = new TemplateMailDao(db);
   }
 
   /**
-   * Parserizza un oggetto Mail per sostituire le variabili all'interno
-   * di un template di email, se presente.
-   * @param mail Oggetto Mail da parserizzare
-   * @returns Oggetto Mail con le variabili sostituite
+   * Oggetto e corpo della mail: i tipi standard (mail/mailTypes.ts) passano dal layout
+   * unico con i testi tradotti nella lingua della mail; il tipo "default" usa
+   * titolo e HTML passati cosi' come sono (mail di prova).
    */
   private async templateParser(mail: Mail): Promise<any> {
     // mittente col nome dell'azienda (COMPANY_NAME); niente virgolette che romperebbero l'header
@@ -34,27 +32,19 @@ class MailService {
       html: "",
     };
 
-    if (mail.type && mail.type != "default") {
-      const templateMail = await this.templateMailDao.readTemplateMailType(mail.type);
-      if (!templateMail) {
-        mail.type = "default";
-      } else {
-        // variabili della mail, poi quelle aziendali comuni (nome, piè di pagina, colore del brand)
-        const variables: Record<string, any> = { ...(mail.bodyVariables || {}), ...companyMailVariables(lngFromMailType(mail.type)) };
-        for (const [key, value] of Object.entries(variables)) {
-          templateMail.title = templateMail.title.replaceAll(`{${key}}`, value);
-          templateMail.body = templateMail.body.replaceAll(`{${key}}`, value);
-        }
-        newMail.subject = templateMail.title;
-        newMail.html = templateMail.body;
-        newMail.text = this.htmlToText(templateMail.body);
-      }
+    if (isMailType(mail.type)) {
+      const rendered = await renderMail(this.db, mail.type, mail.lng, mail.bodyVariables || {});
+      newMail.subject = rendered.subject;
+      newMail.html = rendered.html;
     } else {
-      newMail.subject = mail.title || "Nessun titolo";
-      newMail.html = mail.message || "Nessun messaggio";
-      newMail.text = this.htmlToText(mail.message || "");
+      if (mail.type && mail.type !== "default") {
+        logger.warn(`Tipo di mail sconosciuto "${mail.type}": inviata con titolo e testo liberi`);
+      }
+      // salvata in DB il testo sta in `html` (Mail lo copia da `message`)
+      newMail.subject = mail.title || "";
+      newMail.html = (mail as any).message || mail.html || "";
     }
-
+    newMail.text = this.htmlToText(newMail.html);
     return newMail;
   }
 

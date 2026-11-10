@@ -1,28 +1,14 @@
-import { env, logger } from "../../index";
+import { db, env, logger } from "../../index";
+import { Translator } from "../../i18n/translate";
 import { TicketType } from "../../model/bookFromSiteModel";
 import booking from "../../model/bookFromSiteModel";
 import StripeInstance from "../../stripe";
 import { LUGGAGE_PRICE_KEY } from "../../constants";
 
-type SupportedLng = "it" | "en" | "fr" | "de" | "es" | "jp";
-
-function getLocalizedName(obj: any, lng: string): string {
-  const supported = lng as SupportedLng;
-  return (obj as any)?.[supported] ?? obj?.en ?? obj?.it ?? "";
-}
-
-const STRIPE_LABELS: Record<SupportedLng, Record<string, string>> = {
-  it: { extraLuggage: "Bagaglio extra", extraLuggageDesc: "Bagaglio aggiuntivo oltre a quello incluso" },
-  en: { extraLuggage: "Extra luggage", extraLuggageDesc: "Additional luggage beyond the one included" },
-  fr: { extraLuggage: "Bagage supplémentaire", extraLuggageDesc: "Bagage supplémentaire au-delà de celui inclus" },
-  de: { extraLuggage: "Zusätzliches Gepäck", extraLuggageDesc: "Zusätzliches Gepäck über das Inklusive hinaus" },
-  es: { extraLuggage: "Equipaje adicional", extraLuggageDesc: "Equipaje adicional más allá del incluido" },
-  jp: { extraLuggage: "追加荷物", extraLuggageDesc: "含まれる荷物を超える追加荷物" },
-};
-
-function getStripeLabel(key: string, lng: string): string {
-  const supported = lng as SupportedLng;
-  return STRIPE_LABELS[supported]?.[key] ?? STRIPE_LABELS.it[key];
+/** Testo di un oggetto multilingua nella lingua della tratta, o il primo disponibile. */
+function getLocalizedName(obj: any, t: Translator): string {
+  if (!obj || typeof obj !== "object") return String(obj ?? "");
+  return obj[t.lng] || obj.en || obj.it || Object.values(obj).find((v) => typeof v === "string" && v) || "";
 }
 
 class StripeServices {
@@ -43,7 +29,8 @@ class StripeServices {
       let items: any[] = [];
       for (const [legIndex, leg] of tickets.entries()) {
         let ticketData = leg.date.split("-").reverse().join("/");
-        let name = `${getLocalizedName(leg.name, leg.lng)} • ${leg.from.name} (${leg.from.stopTime}) - ${leg.to.name} (${leg.to.stopTime}) • ${ticketData} `;
+        const t = await Translator.for(db, leg.lng);
+        let name = `${getLocalizedName(leg.name, t)} • ${leg.from.name} (${leg.from.stopTime}) - ${leg.to.name} (${leg.to.stopTime}) • ${ticketData} `;
         for (const item of leg.ticketTypes) {
           const dbCost = dbPrices?.[legIndex]?.[item.id];
           if (dbCost === undefined || dbCost === null) {
@@ -53,7 +40,7 @@ class StripeServices {
             price_data: {
               currency: "eur",
               product_data: {
-                name: getLocalizedName(item.name, leg.lng) + " • " + getLocalizedName(item.description, leg.lng),
+                name: [getLocalizedName(item.name, t), getLocalizedName(item.description, t)].filter(Boolean).join(" • "),
                 description: name,
               },
               unit_amount: Math.round(dbCost * 100),
@@ -71,8 +58,8 @@ class StripeServices {
             price_data: {
               currency: "eur",
               product_data: {
-                name: getStripeLabel("extraLuggage", leg.lng),
-                description: tickets.length > 1 ? `${getStripeLabel("extraLuggageDesc", leg.lng)} • ${name}` : getStripeLabel("extraLuggageDesc", leg.lng),
+                name: t.t("stripe_extra_luggage"),
+                description: tickets.length > 1 ? `${t.t("stripe_extra_luggage_desc")} • ${name}` : t.t("stripe_extra_luggage_desc"),
               },
               unit_amount: Math.round(luggagePrice * 100),
             },

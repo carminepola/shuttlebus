@@ -9,6 +9,8 @@ export interface MailModel {
   lastTry?: number;
   tryNumber?: number;
   type: string;
+  /** Lingua della mail (codice configurato); assente = lingua predefinita. */
+  lng?: string;
   sended?: boolean;
   id: string;
   titleVariables?: { [key: string]: string };
@@ -34,6 +36,7 @@ export class Mail implements MailModel {
   public sended?: boolean;
   public id: string;
   public type: string;
+  public lng?: string;
   public titleVariables?: { [key: string]: string };
   public bodyVariables?: { [key: string]: string };
   public cc?: string[];
@@ -70,6 +73,7 @@ export class Mail implements MailModel {
     this.bodyVariables = mail.bodyVariables || {};
 
     this.type = mail.type || "default";
+    if (typeof mail.lng === "string" && mail.lng) this.lng = mail.lng;
     this.sended = false;
     this.html = mail.message;
     this.encoding = "base64";

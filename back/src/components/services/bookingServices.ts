@@ -187,7 +187,7 @@ class BookingsServices {
             this.bookingDao.updatePaymentInfo("cash", { type: "cash" }, b.numberOfTickets);
             let bookObj = await this.getBooking(b.numberOfTickets);
             if (process.env.MAIL_ADMIN) {
-              await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Conferma Prenotazione (Contanti)", this.mailSenderServices.transformBookGeneric(bookObj));
+              await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Conferma Prenotazione (Contanti)", await this.mailSenderServices.transformBookGeneric(bookObj));
             }
 
             await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(bookObj, "✅ *Prenotazione Confermata (Contanti)* ✅"));
@@ -627,7 +627,7 @@ class BookingsServices {
       }
 
       if (process.env.MAIL_ADMIN) {
-        await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Annullamento", this.mailSenderServices.transformBookGeneric(book));
+        await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Annullamento", await this.mailSenderServices.transformBookGeneric(book));
       }
 
       await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "🛑 *Annullo Prenotazione* 🛑"));
@@ -655,7 +655,7 @@ class BookingsServices {
     if (success) {
       //manda mail rimborsato biglietto
       await this.mailSenderServices.sendRefoundBook(book.user.mail, book.user.name, book.total.toString(), numberOfTickets, book.lng);
-      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Rimborso", this.mailSenderServices.transformBookGeneric(book));
+      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Rimborso", await this.mailSenderServices.transformBookGeneric(book));
       await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Prenotazione* 💸"));
     }
     return success;
@@ -669,7 +669,7 @@ class BookingsServices {
     let success = await this.bookingDao.refundBooking(numberOfTickets, userId);
     if (success) {
       await this.mailSenderServices.sendRefoundBook(book.user.mail, book.user.name, book.total.toString(), numberOfTickets, book.lng);
-      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Rimborso", this.mailSenderServices.transformBookGeneric(book));
+      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Rimborso", await this.mailSenderServices.transformBookGeneric(book));
       await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Prenotazione* 💸"));
     }
     return success;
@@ -679,7 +679,7 @@ class BookingsServices {
     if (success) {
       let book = await this.getBooking(numberOfTickets);
       await this.mailSenderServices.sendRefoundBook(book.user.mail, book.user.name, amount.toString(), numberOfTickets, book.lng);
-      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Rimborso Parziale", this.mailSenderServices.transformBookGeneric(book));
+      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Rimborso Parziale", await this.mailSenderServices.transformBookGeneric(book));
       await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Parziale Prenotazione* 💸"));
     }
     return success;
@@ -702,7 +702,7 @@ class BookingsServices {
         return false;
       }
       await this.mailSenderServices.sendRefoundBook(book.user.mail, book.user.name, (book.refundedAmount || book.total).toString(), numberOfTickets, book.lng);
-      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Rimborso", this.mailSenderServices.transformBookGeneric(book));
+      await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Rimborso", await this.mailSenderServices.transformBookGeneric(book));
       await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "💸 *Rimborso Prenotazione* 💸"));
       return true;
     } catch (error) {
@@ -753,10 +753,10 @@ class BookingsServices {
       numberOfTickets,
       book.total.toString(),
       typePayment || "stripe",
-      this.mailSenderServices.transformBook(book),
+      await this.mailSenderServices.bookSummaryHtml(book, book.lng),
       book.lng,
     );
-    await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN || "pintour@yopmail.com", "Conferma Prenotazione", this.mailSenderServices.transformBookGeneric(book));
+    await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Conferma Prenotazione", await this.mailSenderServices.transformBookGeneric(book));
     await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "✅ *Prenotazione Confermata* ✅"));
   }
   async deleteBooking(numberOfTickets: string, userId?: string) {

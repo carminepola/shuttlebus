@@ -2,278 +2,110 @@ import { Db } from "mongodb";
 import MailService from "./mailServices";
 import { Mail } from "../../model/mailModel";
 import booking from "../../model/bookFromSiteModel";
+import { Translator } from "../../i18n/translate";
+import { escapeHtml } from "../../utils/company";
+import { MailType } from "../../mail/mailTypes";
+import { formatAmount } from "../../mail/renderMail";
+import { getLanguageSettings } from "../../i18n/languages";
+import { logger } from "../../index";
 
-/** Logo del brand servito dal front (front/brands/<brand>/assets/logo.png). */
-export const BRAND_LOGO_PATH = "/assets/brand/logo.png";
-
-type SupportedLng = "it" | "en" | "fr" | "de" | "es" | "jp";
-
-const BOOK_LABELS: Record<SupportedLng, Record<string, string>> = {
-  it: {
-    date: "Data",
-    route: "Linea",
-    from: "Da",
-    to: "A",
-    passengers: "Passeggeri",
-    seats: "Posti",
-    extraLuggage: "Bagagli extra",
-    total: "Totale",
-  },
-  en: {
-    date: "Date",
-    route: "Route",
-    from: "From",
-    to: "To",
-    passengers: "Passengers",
-    seats: "Seats",
-    extraLuggage: "Extra luggage",
-    total: "Total",
-  },
-  fr: {
-    date: "Date",
-    route: "Ligne",
-    from: "De",
-    to: "À",
-    passengers: "Passagers",
-    seats: "Places",
-    extraLuggage: "Bagages supplémentaires",
-    total: "Total",
-  },
-  de: {
-    date: "Datum",
-    route: "Linie",
-    from: "Von",
-    to: "Nach",
-    passengers: "Fahrgäste",
-    seats: "Sitzplätze",
-    extraLuggage: "Zusätzliches Gepäck",
-    total: "Gesamt",
-  },
-  es: {
-    date: "Fecha",
-    route: "Línea",
-    from: "Desde",
-    to: "Hasta",
-    passengers: "Pasajeros",
-    seats: "Asientos",
-    extraLuggage: "Equipaje adicional",
-    total: "Total",
-  },
-  jp: {
-    date: "日付",
-    route: "路線",
-    from: "出発",
-    to: "到着",
-    passengers: "乗客",
-    seats: "座席",
-    extraLuggage: "追加荷物",
-    total: "合計",
-  },
-};
-
-function getLabel(key: string, lng: string): string {
-  const supported = lng as SupportedLng;
-  return BOOK_LABELS[supported]?.[key] ?? BOOK_LABELS.it[key];
-}
-
-function getBookName(book: booking, lng: string): string {
-  const supported = lng as SupportedLng;
-  return (book.name as any)[supported] ?? book.name.it;
-}
-
-function getTicketName(ticket: any, lng: string): string {
-  const supported = lng as SupportedLng;
-  return (ticket.name as any)[supported] ?? ticket.name.it;
-}
-
+/**
+ * Invio delle mail applicative. Ogni mail e' un tipo standard (mail/mailTypes.ts)
+ * nella lingua del destinatario: testi da Impostazioni -> Traduzioni, layout unico.
+ */
 class MailSenderServices {
   private mailService: MailService;
 
-  constructor(db: Db) {
+  constructor(private db: Db) {
     this.mailService = new MailService(db);
   }
 
-  transformBookGeneric(book: booking, lng: string = "it") {
-    let passeggeri = "";
-    for (let i = 0; i < book.ticketTypes.length; i++) {
-      passeggeri += `${book.ticketTypes[i].count}x ${getTicketName(book.ticketTypes[i], lng)}   <br>`;
+  /** Invio senza far cadere il chiamante: l'errore finisce nel log, il risultato e' true/false. */
+  private async send(to: string, type: MailType, lng: string | undefined, variables: Record<string, string>): Promise<boolean> {
+    if (!to) return false; // destinatario assente (es. prenotazione anonimizzata)
+    try {
+      return await this.mailService.sendMail(new Mail({ to, type, lng, bodyVariables: variables }));
+    } catch (error: any) {
+      logger.error(`Mail ${type} a ${to} non inviata: ${error?.message || error}`);
+      return false;
     }
-    let numBiglietto = book.numberOfTickets;
-    let data1 = book.date.split("-");
-    let data = `${data1[2]}/${data1[1]}/${data1[0]}`;
-    let linea = getBookName(book, lng);
-    let da = `${book.from.name} (${book.from.stopTime})`;
-    let a = `${book.to.name} (${book.to.stopTime})`;
-    let MESSAGE = `
-    <h3>${numBiglietto}</h3>
-    <p><strong>${getLabel("date", lng)}:</strong>${data}</p>
-    <p><strong>${getLabel("route", lng)}:</strong>${linea}</p>
-    <p><strong>${getLabel("from", lng)}:</strong>${da}</p>
-    <p><strong>${getLabel("to", lng)}:</strong>${a}</p>
-    <p><strong>${getLabel("seats", lng)}:</strong>${book.seats.toString()}</p>
-    <p>${passeggeri}</p>
-    <p><strong>${getLabel("extraLuggage", lng)}:</strong>${book.luggage.toString()}</p>
-    <p><strong>${getLabel("total", lng)}:</strong>${book.total.toString()} €</p>
-    `;
-
-    return MESSAGE;
   }
 
-  transformBook(book: booking, lng: string = "it") {
-    let passeggeri = "";
-    for (let i = 0; i < book.ticketTypes.length; i++) {
-      let name = getTicketName(book.ticketTypes[i], lng);
-      passeggeri += `${book.ticketTypes[i].count}x ${name}<br>`;
-    }
-    let numBiglietto = book.numberOfTickets;
-    let data1 = book.date.split("-");
-    let data = `${data1[2]}/${data1[1]}/${data1[0]}`;
-    let linea = getBookName(book, lng);
-    let da = `${book.from.name} (${book.from.stopTime})`;
-    let a = `${book.to.name} (${book.to.stopTime})`;
-    let MESSAGE = `
-
-    <div><strong>${getLabel("date", lng)}:</strong> ${data}  </div>
-     <div><strong>${getLabel("route", lng)}:</strong> ${linea}  </div>
-      <div><strong>${getLabel("from", lng)}:</strong> ${da}  </div>
-      <div><strong>${getLabel("to", lng)}:</strong> ${a}  </div>
-      <div> <strong>${getLabel("passengers", lng)}:</strong> <br> ${passeggeri} </div>
-      
-    
-    `;
-    if (book.luggage > 0) {
-      MESSAGE += `
-      <div><strong>${getLabel("extraLuggage", lng)}:</strong> ${book.luggage}  </div>  
-      `;
-    }
-    return MESSAGE;
+  private name(obj: any, t: Translator): string {
+    if (!obj || typeof obj !== "object") return String(obj ?? "");
+    return obj[t.lng] || Object.values(obj).find((v) => typeof v === "string" && v) || "";
   }
 
-  private getMailType(baseType: string, lng: string = "it"): string {
-    if (lng === "it") return baseType;
-    return baseType + "_" + lng.toUpperCase();
+  /** Riepilogo del biglietto (HTML escapato) nella lingua indicata. */
+  async bookSummaryHtml(book: booking, lng?: string, withHeader = false): Promise<string> {
+    const t = await Translator.for(this.db, lng);
+    const locale = (await getLanguageSettings(this.db)).languages.find((l) => l.code === t.lng)?.locale || t.lng;
+    const [y, m, d] = String(book.date || "").split("-");
+    const row = (label: string, value: string) =>
+      `<tr><td style="padding:4px 12px 4px 0;color:#666666;vertical-align:top;white-space:nowrap;">${escapeHtml(t.t(label))}</td><td style="padding:4px 0;">${value}</td></tr>`;
+    const passengers = (book.ticketTypes || [])
+      .filter((x: any) => x.count > 0)
+      .map((x: any) => `${x.count}× ${escapeHtml(this.name(x.name, t))}`)
+      .join("<br>");
+    const rows = [
+      withHeader ? row("mail_label_ticket", `<strong>${escapeHtml(book.numberOfTickets)}</strong>`) : "",
+      row("mail_label_date", escapeHtml(d ? `${d}/${m}/${y}` : String(book.date))),
+      row("mail_label_route", escapeHtml(this.name(book.name, t))),
+      row("mail_label_from", escapeHtml(`${book.from?.name ?? ""} (${book.from?.stopTime ?? ""})`)),
+      row("mail_label_to", escapeHtml(`${book.to?.name ?? ""} (${book.to?.stopTime ?? ""})`)),
+      row("mail_label_passengers", passengers),
+      book.luggage > 0 ? row("mail_label_extra_luggage", String(book.luggage)) : "",
+      withHeader ? row("mail_label_total", escapeHtml(formatAmount(String(book.total), locale))) : "",
+    ].join("");
+    return `<table role="presentation" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${rows}</table>`;
   }
 
-  async sendRefoundBook(to: string, name: string, amount: string, order_id: string, lng: string = "it") {
-    if (!to) return; // prenotazione anonimizzata (account eliminato)
-    let type = this.getMailType("REFUND_PROCESSED", lng);
-    this.mailService.sendMail(
-      new Mail({
-        to: to,
-        type: type,
-        bodyVariables: {
-          name,
-          order_id,
-          amount,
-          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
-        },
-      })
-    );
+  /** Riepilogo per le notifiche interne (MAIL_ADMIN), nella lingua predefinita. */
+  async transformBookGeneric(book: booking): Promise<string> {
+    return this.bookSummaryHtml(book, undefined, true);
   }
 
-  async sendConfirmBook(email: string, name: string, order_id: string, amount: string, payment_method: string, route: string, lng: string = "it") {
-    if (!email) return; // prenotazione anonimizzata (account eliminato)
-    let type = this.getMailType("PURCHASE_COMPLETED", lng);
-    this.mailService.sendMail(
-      new Mail({
-        to: email,
-        type: type,
-        bodyVariables: {
-          name,
-          order_id,
-          amount,
-          payment_method,
-          route,
-          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
-          url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + order_id,
-          mytickets_url: process.env.CLIENT_URL + "/user/mytickets",
-        },
-      })
-    );
+  async sendRefoundBook(to: string, name: string, amount: string, order_id: string, lng?: string) {
+    return this.send(to, "REFUND_PROCESSED", lng, { name, order_id, amount });
   }
 
-  async sendCancelBook(email: string, name: string, order_id: string, lng: string = "it") {
-    if (!email) return; // prenotazione anonimizzata (account eliminato)
-    let type = this.getMailType("PURCHASE_CANCELLED", lng);
-    this.mailService.sendMail(
-      new Mail({
-        to: email,
-        type: type,
-        bodyVariables: {
-          name,
-          order_id,
-          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
-        },
-      })
-    );
+  async sendConfirmBook(email: string, name: string, order_id: string, amount: string, payment_method: string, route: string, lng?: string) {
+    return this.send(email, "PURCHASE_COMPLETED", lng, {
+      name,
+      order_id,
+      amount,
+      payment_method,
+      route,
+      mytickets_url: (process.env.CLIENT_URL || "") + "/user/mytickets",
+    });
   }
 
-  async sendRecoverPassword(email: string, name: string, resetUrl: string, lng: string = "it") {
-    let type = this.getMailType("RECOVER_PASSWORD", lng);
-
-    this.mailService.sendMail(
-      new Mail({
-        to: email,
-        type: type,
-        bodyVariables: {
-          name: name,
-          mail: email,
-          // NESSUNA password in chiaro: solo il link temporizzato di reset.
-          // Il template RECOVER_PASSWORD deve usare la variabile {{url}}
-          // (aggiornare il template in template_mail: vecchia variabile {{password}} rimossa).
-          url: resetUrl,
-          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
-        },
-      })
-    );
-  }
-  async sendWelcomeMail(to: string, name: string, pin: string, email: string, lng: string = "it") {
-    let type = this.getMailType("WELCOME", lng);
-
-    this.mailService.sendMail(
-      new Mail({
-        to: to,
-        type: type,
-        bodyVariables: {
-          name: name,
-          pin: pin,
-          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
-        },
-      })
-    );
+  async sendCancelBook(email: string, name: string, order_id: string, lng?: string) {
+    return this.send(email, "PURCHASE_CANCELLED", lng, { name, order_id });
   }
 
-  /**
-   * Codice di verifica 2FA sul template GENERIC. A differenza di sendGenericMail
-   * restituisce la promise: il chiamante deve sapere se l'invio e' fallito
-   * (es. SMTP non configurato) invece di lasciare un rejection non gestito.
-   */
-  async sendMfaCode(to: string, title: string, body: string): Promise<boolean> {
-    return this.mailService.sendMail(
-      new Mail({
-        to: to,
-        type: "GENERIC",
-        bodyVariables: {
-          title: title,
-          body: body,
-          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
-        },
-      })
-    );
+  async sendRecoverPassword(email: string, name: string, resetUrl: string, lng?: string) {
+    // solo il link temporizzato di reset, mai una password
+    return this.send(email, "RECOVER_PASSWORD", lng, { name, mail: email, url: resetUrl });
   }
 
-  async sendGenericMail(to: string, title: string, body: string) {
-    this.mailService.sendMail(
-      new Mail({
-        to: to,
-        type: "GENERIC",
-        bodyVariables: {
-          title: title,
-          body: body,
-          img: process.env.CLIENT_URL + BRAND_LOGO_PATH,
-        },
-      })
-    );
+  async sendWelcomeMail(to: string, name: string, pin: string, _email: string, lng?: string) {
+    return this.send(to, "WELCOME", lng, { name, pin });
+  }
+
+  /** Codice di verifica (2FA, eliminazione account): true se la mail e' partita. */
+  async sendMfaCode(to: string, code: string, lng?: string): Promise<boolean> {
+    return this.send(to, "MFA_CODE", lng, { code });
+  }
+
+  async sendAccountDeleted(to: string, lng?: string) {
+    return this.send(to, "ACCOUNT_DELETED", lng, {});
+  }
+
+  /** Notifica libera (es. MAIL_ADMIN): titolo e corpo HTML gia' pronti. */
+  async sendGenericMail(to: string | undefined, title: string, body: string) {
+    if (!to) return false;
+    return this.send(to, "GENERIC", undefined, { title, body });
   }
 }
 
