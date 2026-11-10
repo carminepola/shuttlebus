@@ -8,6 +8,8 @@ import TicketTypeServices from "./ticketTypeServices";
 import { resolveFarePrice } from "../../utils/fares";
 import { isTicketTypeValidOn } from "../../utils/ticketDays";
 import { validateBookingInput } from "../../utils/bookingValidation";
+import { isPastBookingCutoff } from "../../utils/bookingCutoff";
+import DepotSettingsServices from "./depotSettingsServices";
 import ErrorModel from "../../model/errorModel";
 import PaymentServices from "./paymentServices";
 import RoutesServices from "./routesServices";
@@ -51,8 +53,10 @@ class BookingsServices {
   private routeServices: RoutesServices;
   private mailSenderServices: MailSenderServices;
   private telegramServices: TelegramServices;
+  private depotSettingsServices: DepotSettingsServices;
 
   constructor(db: Db) {
+    this.depotSettingsServices = new DepotSettingsServices(db);
     this.bookingDao = new BookingDao(db);
     this.userServices = new UserServices(db);
     this.ticketTypeServices = new TicketTypeServices(db);
@@ -62,9 +66,14 @@ class BookingsServices {
     this.telegramServices = new TelegramServices();
   }
 
-  async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0) {
+  async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0, opts: { skipCutoff?: boolean } = {}) {
     await this.removeExpiredPendingBookings();
-    return await this.bookingDao.findAvailableRoutes(travelDate, fromStopId, toStopId, posti, bagagli);
+    const results = await this.bookingDao.findAvailableRoutes(travelDate, fromStopId, toStopId, posti, bagagli);
+    // corse con le vendite gia' chiuse (troppo vicine alla partenza)
+    const cutoff = opts.skipCutoff ? null : await this.depotSettingsServices.getBookingCutoffMinutes();
+    return results
+      .filter((r: any) => cutoff === null || !isPastBookingCutoff(travelDate, r.schedule, cutoff))
+      .map(({ schedule, ...r }: any) => r);
   }
 
   async availableSeats(travelDate: string, routeId: string, scheduleId: string, fromStopId: string, toStopId: string, session?: ClientSession) {
@@ -400,17 +409,9 @@ class BookingsServices {
     }
     if (route && route.enabled) {
       let schedule = route.schedules.find((s: any) => s.id == ticket.scheduleId);
-      if (schedule && schedule.status == "active") {
-        if (!opts.skipCutoff && new Date(day).setHours(0, 0, 0, 0) == new Date().setHours(0, 0, 0, 0)) {
-          if (new Date(schedule.startDate).getTime() <= new Date(day).getTime() && new Date(schedule.endDate).getTime() >= new Date(day).getTime()) {
-            let t = schedule.departureTime.split(":");
-            let time = parseInt(t[0]) * 60 + parseInt(t[1]) - 120;
-            let now = new Date().getHours() * 60 + new Date().getMinutes();
-            if (now > time) {
-              throw new ErrorModel(400, "str_error_time");
-            }
-          }
-        }
+      // vendite chiuse N minuti prima della partenza (impostazione bookingCutoffMinutes)
+      if (!opts.skipCutoff && schedule && isPastBookingCutoff(day, schedule, await this.depotSettingsServices.getBookingCutoffMinutes())) {
+        throw new ErrorModel(400, "str_error_time");
       }
     } else {
       throw new ErrorModel(400, "str_error_time");

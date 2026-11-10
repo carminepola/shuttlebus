@@ -408,6 +408,8 @@ export default class BookingsDAO {
           routeId: "$id",
           availableSeats: 1,
           availableLuggage: 1,
+          // per il controllo della chiusura vendite (rimosso dal service)
+          schedule: { departureTime: "$schedules.departureTime", stops: "$schedules.stops" },
         },
       },
     ];

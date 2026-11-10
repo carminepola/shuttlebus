@@ -1,5 +1,6 @@
 import { Guid } from "guid-typescript";
 import dotenv from "dotenv";
+import { sanitizeCutoffMinutes } from "../utils/bookingCutoff";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ export default class DepotSettingsModel {
   public completedRouteTolerance: number; // in minutes
   public stopDistanceThreshold: number; // in meters
   public defaultLastArrivalTime: string; // in "HH:mm" format
+  public bookingCutoffMinutes: number; // vendite chiuse N minuti prima della partenza
 
   constructor(settings?: any) {
     this.id = settings?.id || "default";
@@ -22,5 +24,7 @@ export default class DepotSettingsModel {
     this.completedRouteTolerance = settings?.completedRouteTolerance || parseInt(process.env.DEFAULT_COMPLETED_ROUTE_TOLERANCE || "30");
     this.stopDistanceThreshold = settings?.stopDistanceThreshold || parseInt(process.env.DEFAULT_STOP_DISTANCE_THRESHOLD || "500");
     this.defaultLastArrivalTime = settings?.defaultLastArrivalTime || process.env.DEFAULT_LAST_ARRIVAL_TIME || "23:59";
+    // ?? e non ||: 0 e' un valore valido (vendite aperte fino alla partenza)
+    this.bookingCutoffMinutes = sanitizeCutoffMinutes(settings?.bookingCutoffMinutes ?? process.env.DEFAULT_BOOKING_CUTOFF_MINUTES);
   }
 }

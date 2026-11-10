@@ -35,6 +35,7 @@ router.patch(
       .optional()
       .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
       .withMessage("Default last arrival time must be in HH:mm format"),
+    check("bookingCutoffMinutes").optional().isInt({ min: 0, max: 43200 }).withMessage("Booking cutoff must be between 0 and 43200 minutes"),
   ],
   checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
   validateDataMiddleware,

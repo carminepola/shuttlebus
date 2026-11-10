@@ -261,34 +261,7 @@ export class SearchPageComponent implements OnInit {
       }
     }
 
-    if (
-      new Date(date).toDateString() == new Date().toDateString()
-    ) {
-      params = params.filter((param: any) => {
-        let route: any = routes.find((t: any) => t.id === param.routeId);
-        if (route) {
-          let schedule = route?.schedules.find(
-            (t: any) => t.id === param.scheduleId,
-          );
-          if (!schedule) {
-            return false;
-          } else {
-            const [hour, minute] = schedule.departureTime.split(':');
-            const [nowHour, nowMinute] = new Date()
-              .toLocaleTimeString('it-IT')
-              .split(':');
-            let stopTime = parseInt(hour) * 60 + parseInt(minute);
-            let nowTime = parseInt(nowHour) * 60 + parseInt(nowMinute);
-            if (nowTime + 120 > stopTime) {
-              return false;
-            }
-          }
-        }
-
-        return true;
-      });
-    }
-
+    // le corse con le vendite chiuse (troppo vicine alla partenza) le esclude il server
     // corse in ordine di partenza
     params.sort((a: any, b: any) => (a.from.stopTime || '').localeCompare(b.from.stopTime || ''));
     return params;

@@ -165,7 +165,7 @@ export class AdminNewTicketComponent implements OnInit {
     this.searching = true;
     try {
       const res = await lastValueFrom(
-        this.bookingsService.findAvailableRoutes(this.from, this.to, this.seats(), this.date, this.luggage),
+        this.bookingsService.adminFindAvailableRoutes(this.from, this.to, this.seats(), this.date, this.luggage),
       );
       this.trips = (res.result || []).map((r: any) => this.buildTrip(r)).filter(Boolean);
       this.trips.sort((a, b) => (a.from.stopTime || '').localeCompare(b.from.stopTime || ''));

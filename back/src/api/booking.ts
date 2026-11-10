@@ -13,35 +13,35 @@ import { url } from "inspector";
 
 const router = express.Router();
 
+const findAvailableRoutesValidators = [
+  check("travelDate").notEmpty().withMessage("travelDate is required").isISO8601().withMessage("Invalid date format"),
+  check("fromStopId").notEmpty().withMessage("fromStopId is required"),
+  check("toStopId").notEmpty().withMessage("toStopId is required"),
+  check("posti").notEmpty().withMessage("posti is required").isInt().withMessage("posti must be a number"),
+  check("bagagli").notEmpty().withMessage("bagagli is required").isInt().withMessage("bagagli must be a number"),
+];
+
+/** `skipCutoff`: l'admin vede (ed emette) anche le corse con le vendite online chiuse. */
+const findAvailableRoutesHandler = (opts: { skipCutoff?: boolean } = {}) => async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let bookingServices = new BookingServices(db);
+    let result = await bookingServices.findAvailableRoutes(req.body.travelDate, req.body.fromStopId, req.body.toStopId, req.body.posti, req.body.bagagli, opts);
+    res.json({ result: result });
+  } catch (error) {
+    logger.error(error);
+    next(error);
+  }
+};
+
+router.post("/findAvailableRoutes", findAvailableRoutesValidators, validateDataMiddleware, findAvailableRoutesHandler());
+
 router.post(
-  "/findAvailableRoutes",
-  [
-    check("travelDate").notEmpty().withMessage("travelDate is required").isISO8601().withMessage("Invalid date format"),
-    check("fromStopId").notEmpty().withMessage("fromStopId is required"),
-    check("toStopId").notEmpty().withMessage("toStopId is required"),
-    check("posti").notEmpty().withMessage("posti is required").isInt().withMessage("posti must be a number"),
-    check("bagagli").notEmpty().withMessage("bagagli is required").isInt().withMessage("bagagli must be a number"),
-  ],
-
+  "/admin/findAvailableRoutes",
+  authMiddleware,
+  checkPermissionMiddleware(role.ADMIN, []),
+  findAvailableRoutesValidators,
   validateDataMiddleware,
-
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      let bookingServices = new BookingServices(db);
-      let booking = {
-        travelDate: req.body.travelDate,
-        fromStopId: req.body.fromStopId,
-        toStopId: req.body.toStopId,
-        posti: req.body.posti,
-        bagagli: req.body.bagagli,
-      };
-      let result = await bookingServices.findAvailableRoutes(booking.travelDate, booking.fromStopId, booking.toStopId, booking.posti, booking.bagagli);
-      res.json({ result: result });
-    } catch (error) {
-      logger.error(error);
-      next(error);
-    }
-  },
+  findAvailableRoutesHandler({ skipCutoff: true }),
 );
 router.post("/insertBooking", authMiddleware, checkPermissionMiddleware(role.USER, []), async (req: Request, res: Response, next: NextFunction) => {
   try {

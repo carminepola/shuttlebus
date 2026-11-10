@@ -24,6 +24,22 @@ export class BookingsService {
       bagagli: bagagli,
     });
   }
+  /** Ricerca dal pannello admin: include le corse con le vendite online gia' chiuse. */
+  adminFindAvailableRoutes(
+    partenza: string,
+    arrivo: string,
+    persone: number,
+    data: string,
+    bagagli: number,
+  ): Observable<any> {
+    return this.http.post(this.apiUrl + '/admin/findAvailableRoutes', {
+      fromStopId: partenza,
+      toStopId: arrivo,
+      posti: persone,
+      travelDate: data,
+      bagagli: bagagli,
+    });
+  }
   /** Emissione da pannello admin: customer = { userId } oppure { name, email, phone? }. */
   adminCreateBooking(data: {
     ticket: any;
