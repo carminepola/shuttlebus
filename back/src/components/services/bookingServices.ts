@@ -8,7 +8,7 @@ import TicketTypeServices from "./ticketTypeServices";
 import { resolveFarePrice } from "../../utils/fares";
 import { isTicketTypeValidOn } from "../../utils/ticketDays";
 import { validateBookingInput } from "../../utils/bookingValidation";
-import { isPastBookingCutoff } from "../../utils/bookingCutoff";
+import { isPastBookingCutoff, localDate } from "../../utils/bookingCutoff";
 import DepotSettingsServices from "./depotSettingsServices";
 import ErrorModel from "../../model/errorModel";
 import PaymentServices from "./paymentServices";
@@ -67,6 +67,10 @@ class BookingsServices {
   }
 
   async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0, opts: { skipCutoff?: boolean } = {}) {
+    // nessuna ricerca per giorni passati (data nel formato delle prenotazioni: YYYY-MM-DD)
+    if (typeof travelDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(travelDate) || travelDate < localDate()) {
+      throw new ErrorModel(400, "str_error_time");
+    }
     await this.removeExpiredPendingBookings();
     const results = await this.bookingDao.findAvailableRoutes(travelDate, fromStopId, toStopId, posti, bagagli);
     // corse con le vendite gia' chiuse (troppo vicine alla partenza)

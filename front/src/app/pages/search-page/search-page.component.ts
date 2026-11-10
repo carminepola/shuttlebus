@@ -175,17 +175,26 @@ export class SearchPageComponent implements OnInit {
     routes: any[],
   ) {
     let params = [];
-    let risBookings = await lastValueFrom(
-      this.bookingService.findAvailableRoutes(
-        fromId,
-        toId,
-        this.ricerca.persone,
-        date,
-        this.ricerca.bagagli,
-      ),
-    );
+    // niente ricerca per giorni passati (il server la rifiuta)
+    if (!date || date < this.today()) {
+      return [];
+    }
+    let risBookings: any;
+    try {
+      risBookings = await lastValueFrom(
+        this.bookingService.findAvailableRoutes(
+          fromId,
+          toId,
+          this.ricerca.persone,
+          date,
+          this.ricerca.bagagli,
+        ),
+      );
+    } catch {
+      return [];
+    }
 
-    let res = risBookings.result || [];
+    let res = risBookings?.result || [];
     for (let i = 0; i < res.length; i++) {
       let route: any = routes.find((t: any) => t.id === res[i].routeId);
       if (route && route.schedules) {
@@ -287,6 +296,11 @@ export class SearchPageComponent implements OnInit {
     if (delta > 0 && !this.canAddTicket(param)) return;
     ticket.count = Math.max(0, ticket.count + delta);
     this.recalc(param);
+  }
+
+  /** Oggi nel fuso del browser, "YYYY-MM-DD". */
+  private today(): string {
+    return new Date(Date.now() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().split('T')[0];
   }
 
   private minutesBetween(from?: string, to?: string): number | null {
