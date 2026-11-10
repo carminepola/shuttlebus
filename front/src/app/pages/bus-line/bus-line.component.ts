@@ -36,10 +36,15 @@ export class BusLineComponent implements OnInit {
   public description: string = '';
 
   async ngOnInit(): Promise<void> {
-    let stops: any = await lastValueFrom(this.stopsService.getAllActiveStops());
-    let route: any = await lastValueFrom(this.routesService.getRoutes());
+    let stops: any, route: any;
+    try {
+      [stops, route] = await Promise.all([lastValueFrom(this.stopsService.getAllActiveStops()), lastValueFrom(this.routesService.getRoutes())]);
+    } catch {
+      return; // server non raggiungibile
+    }
     this.route.params.subscribe((params) => {
-      this.lineSelected = parseInt(params['id']);
+      // indice dall'URL: non numerico -> prima linea
+      this.lineSelected = parseInt(params['id']) || 0;
     });
 
     if (route) {

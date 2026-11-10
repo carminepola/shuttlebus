@@ -1,10 +1,10 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { lastValueFrom } from 'rxjs';
 import { StopsService } from '../../services/stops/stops.service';
 import { RoutesService } from '../../services/routes/routes.service';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, NgForm, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
@@ -24,13 +24,14 @@ import { OAuthProviders, OAuthProvidersService } from '../../services/oauth-prov
 import { MfaChallenge, MfaService } from '../../services/mfa/mfa.service';
 import { MfaChallengeComponent } from '../../components/mfa-challenge/mfa-challenge.component';
 import { LngService } from '../../services/lng/lng.service';
-import { LUGGAGE_PRICE } from '../../constants/app.constants';
+import { bookingLuggagePrice } from '../../utils/fares';
 import { StepIndicatorComponent } from '../../components/step-indicator/step-indicator.component';
 import { PricePipe } from '../../pipe/price.pipe';
 
 declare var bootstrap: any;
 
 import { BookingSettingsService, DEFAULT_BOOKING_SETTINGS } from '../../services/bookingSettings/booking-settings.service';
+import { isRefundAllowed } from '../../utils/dates';
 @Component({
   selector: 'app-riepilogo',
   imports: [PricePipe, 
@@ -49,7 +50,7 @@ import { BookingSettingsService, DEFAULT_BOOKING_SETTINGS } from '../../services
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './riepilogo.component.scss',
 })
-export class RiepilogoComponent implements OnInit {
+export class RiepilogoComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -75,10 +76,9 @@ export class RiepilogoComponent implements OnInit {
   public confirmDuplicateTicket: boolean = false;
   public hasDuplicateTicket: boolean = false;
   public loading: boolean = true;
-  public luggagePrice = LUGGAGE_PRICE;
   /** Prezzo bagaglio della corsa scelta (lo ricalcola comunque il server). */
   luggagePriceOf(leg: any): number {
-    return typeof leg?.luggagePrice === 'number' ? leg.luggagePrice : LUGGAGE_PRICE;
+    return bookingLuggagePrice(leg);
   }
   public funnelSteps = ['str_step_search', 'str_step_select', 'str_step_review', 'str_step_pay'];
   public param: any = {};
@@ -100,6 +100,14 @@ export class RiepilogoComponent implements OnInit {
     return this.oauthProviders.google || this.oauthProviders.microsoft || this.oauthProviders.facebook || this.oauthProviders.spotify;
   }
 
+  ngOnDestroy(): void {
+    // prima un listener su router.events mai chiuso: si accumulava a ogni visita
+    // e cancellava authUrl subito dopo averlo impostato
+    localStorage.removeItem('authUrl');
+    localStorage.removeItem('ticket');
+    this.modalService.closeModal();
+  }
+
   async ngOnInit() {
     this.bookingSettingsService.get().subscribe((s) => (this.refundCutoffDays = s.refundCutoffDays));
     this.checkoutLoginForm = this.formBuilder.group({
@@ -116,13 +124,8 @@ export class RiepilogoComponent implements OnInit {
       },
     });
 
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        localStorage.removeItem('authUrl');
-        localStorage.removeItem('ticket');
-        this.modalService.closeModal();
-      }
-    });
+    // al ritorno da un login OAuth (pagina ricaricata) si torna qui;
+    // uscendo dal riepilogo nell'app i dati vengono puliti in ngOnDestroy
     localStorage.setItem('authUrl', '/riepilogo');
 
     this.checkCashEligibility();
@@ -245,11 +248,7 @@ export class RiepilogoComponent implements OnInit {
   }
 
   isToLate() {
-    const today = new Date();
-    const refundDeadline = new Date(
-      today.getTime() + this.refundCutoffDays * 24 * 60 * 60 * 1000,
-    );
-    return new Date(this.param.date).getTime() < refundDeadline.getTime();
+    return !isRefundAllowed(this.param?.date, this.refundCutoffDays);
   }
 
   get checkoutEmailField() {

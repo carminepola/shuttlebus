@@ -21,6 +21,7 @@ import { StepIndicatorComponent } from '../../components/step-indicator/step-ind
 import { resolveFarePrice, resolveLuggagePrice } from '../../utils/fares';
 import { isTicketTypeValidOn } from '../../utils/ticket-days';
 import { PricePipe } from '../../pipe/price.pipe';
+import { localToday } from '../../utils/dates';
 @Component({
   selector: 'app-search-page',
   imports: [PricePipe, 
@@ -143,11 +144,18 @@ export class SearchPageComponent implements OnInit {
       }
     }
 
-    let risTicketTypes = await lastValueFrom(
-      this.ticketTypeService.getAllActiveTicketTypes(),
-    );
-    let risRoutes = await lastValueFrom(this.routesService.getRoutes());
-    let risStops = await lastValueFrom(this.stopsService.getAllActiveStops());
+    let risTicketTypes: any, risRoutes: any, risStops: any;
+    try {
+      [risTicketTypes, risRoutes, risStops] = await Promise.all([
+        lastValueFrom(this.ticketTypeService.getAllActiveTicketTypes()),
+        lastValueFrom(this.routesService.getRoutes()),
+        lastValueFrom(this.stopsService.getAllActiveStops()),
+      ]);
+    } catch {
+      // server non raggiungibile: stato vuoto invece di un caricamento infinito
+      this.loading = false;
+      return;
+    }
     const ticketTypes = risTicketTypes.ticketType;
     const stops = risStops.stops;
     this.stops = stops || [];
@@ -347,7 +355,7 @@ export class SearchPageComponent implements OnInit {
 
   /** Oggi nel fuso del browser, "YYYY-MM-DD". */
   private today(): string {
-    return new Date(Date.now() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().split('T')[0];
+    return localToday();
   }
 
   private minutesBetween(from?: string, to?: string): number | null {

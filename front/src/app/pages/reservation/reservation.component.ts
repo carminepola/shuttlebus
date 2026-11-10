@@ -16,8 +16,9 @@ import { StripeService } from '../../services/stripe/stripe.service';
 import { TranslatePipe } from '../../pipe/translate.pipe';
 import { FilterPipe } from '../../pipe/filter.pipe';
 import Swal from 'sweetalert2';
-import { LUGGAGE_PRICE as DEFAULT_LUGGAGE_PRICE } from '../../constants/app.constants';
+import { bookingLuggagePrice } from '../../utils/fares';
 import { pickText } from '../../utils/i18n';
+import { localToday } from '../../utils/dates';
 @Component({
   selector: 'app-reservation',
   imports: [
@@ -43,7 +44,7 @@ export class ReservationComponent implements OnInit {
   public stops: any[] = [];
   public search: string = '';
   public filter: any = {
-    date: new Date().toISOString().split('T')[0],
+    date: localToday(),
     routeId: '',
     scheduleId: '',
     show: 'confirmed',
@@ -76,7 +77,7 @@ export class ReservationComponent implements OnInit {
     this.filterButton();
   }
   rimborsa(numberOfTickets: number, ticket: any[], bagagli: number, total: number, luggagePrice?: number) {
-    const LUGGAGE_PRICE = typeof luggagePrice === 'number' ? luggagePrice : DEFAULT_LUGGAGE_PRICE;
+    const LUGGAGE_PRICE = bookingLuggagePrice({ luggagePrice });
 
     let ticketRows = '';
     for (const t of ticket) {

@@ -9,7 +9,6 @@ import { MapsOfPointsComponent } from '../../components/maps-of-points/maps-of-p
 import { FormsModule } from '@angular/forms';
 import { SearchComponent } from '../../components/search/search.component';
 import { Router, RouterModule } from '@angular/router';
-import { BusStatusComponent } from '../../components/bus-status/bus-status.component';
 import { CommonModule } from '@angular/common';
 import { BRAND, BRAND_LOGO, BRAND_VIEW } from '../../../brand';
 @Component({
@@ -20,7 +19,6 @@ import { BRAND, BRAND_LOGO, BRAND_VIEW } from '../../../brand';
     SearchComponent,
     MapsOfPointsComponent,
     RouterModule,
-    BusStatusComponent,
     CommonModule,
   ],
   animations: [fadeAnimation],

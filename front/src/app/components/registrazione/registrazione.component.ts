@@ -264,7 +264,7 @@ export class RegistrazioneComponent implements OnInit {
     } catch (e: any) {
       this.isLoading = false;
       console.error(e);
-      this.loginError = 'Errore durante la navigazione. Riprova.';
+      this.loginError = this.lngService.traslateOr('str_navigation_error', 'Errore durante la navigazione. Riprova.');
     }
   }
   emitEvent() {
@@ -407,7 +407,7 @@ export class RegistrazioneComponent implements OnInit {
     } catch (e: any) {
       this.isLoading = false;
       console.error(e);
-      this.loginError = 'Errore durante la navigazione. Riprova.';
+      this.loginError = this.lngService.traslateOr('str_navigation_error', 'Errore durante la navigazione. Riprova.');
     }
   }
 }

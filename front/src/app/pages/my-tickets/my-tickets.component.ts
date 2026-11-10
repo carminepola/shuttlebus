@@ -23,6 +23,7 @@ import { LanguagesService } from '../../services/languages/languages.service';
 /** Locale con alfabeti che i font di jsPDF non coprono. */
 const NON_LATIN_LOCALES = new Set(['ja', 'jp', 'zh', 'ko', 'ru', 'uk', 'el', 'ar', 'he', 'th', 'hi', 'bg', 'sr', 'ka', 'hy', 'fa']);
 
+import { isRefundAllowed, localToday, refundLastDay } from '../../utils/dates';
 @Component({
   selector: 'app-my-tickets',
   imports: [
@@ -119,15 +120,11 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   }
 
   pendingPaymentLabel(): string {
-    const t = this.lng.traslate('str_pending_payment');
-    return t === 'str_pending_payment' ? 'In attesa di pagamento' : t;
+    return this.lng.traslateOr('str_pending_payment', 'In attesa di pagamento');
   }
 
   awaitingPaymentConfirmationLabel(): string {
-    const t = this.lng.traslate('str_awaiting_payment_confirmation');
-    return t === 'str_awaiting_payment_confirmation'
-      ? 'In attesa di conferma pagamento'
-      : t;
+    return this.lng.traslateOr('str_awaiting_payment_confirmation', 'In attesa di conferma pagamento');
   }
 
   statusBadgeLabel(booking: any): string {
@@ -137,20 +134,20 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
     return this.lng.traslate(booking?.status);
   }
   async load() {
-    let bookings: any = await lastValueFrom(
-      this.bookingsService.getBookingFromUser(),
-    );
-    console.log(bookings);
+    let bookings: any;
+    try {
+      bookings = await lastValueFrom(this.bookingsService.getBookingFromUser());
+    } catch {
+      // errore di rete: lista vuota invece di un caricamento infinito
+      this.loading = false;
+      return;
+    }
 
     this.bookings = bookings['booking'] || [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    this.activeBookings = this.bookings.filter(
-      (b: any) => new Date(b.date) >= today,
-    );
-    this.oldBookings = this.bookings.filter(
-      (b: any) => new Date(b.date) < today,
-    );
+    // confronto tra date locali "YYYY-MM-DD" (new Date(b.date) e' mezzanotte UTC)
+    const today = localToday();
+    this.activeBookings = this.bookings.filter((b: any) => b.date >= today);
+    this.oldBookings = this.bookings.filter((b: any) => b.date < today);
     this.loading = false;
 
     this.generateQRCodes();
@@ -204,24 +201,12 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       clearInterval(this.countdownInterval);
     }
   }
+  /** Ultimo giorno in cui si puo' chiedere il rimborso (stessa regola del back). */
   getRefundDeadline(date: string): Date | null {
-    if (!date) return null;
-    const d = new Date(date);
-    d.setDate(d.getDate() - this.refundCutoffDays);
-    d.setHours(0, 0, 0, 0);
-    return d;
+    return refundLastDay(date, this.refundCutoffDays);
   }
   checkDay(date: any) {
-    if (date) {
-      let dataTicket = new Date(date);
-      dataTicket.setDate(dataTicket.getDate() - this.refundCutoffDays);
-      let now = new Date();
-
-      if (dataTicket.getTime() > now.getTime()) {
-        return true;
-      }
-    }
-    return false;
+    return isRefundAllowed(date, this.refundCutoffDays);
   }
   annulla(numberOfTickets: number) {
     Swal.fire({
@@ -447,32 +432,6 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
         doc.setTextColor(...GRAY_DARK);
         doc.text(formatDate(booking.date), mx + 10, y + 14);
 
-        // Day of week
-        const dateObj = new Date(booking.date);
-        const days = [
-          'Domenica',
-          'Lunedì',
-          'Martedì',
-          'Mercoledì',
-          'Giovedì',
-          'Venerdì',
-          'Sabato',
-        ];
-        const months = [
-          'Gennaio',
-          'Febbraio',
-          'Marzo',
-          'Aprile',
-          'Maggio',
-          'Giugno',
-          'Luglio',
-          'Agosto',
-          'Settembre',
-          'Ottobre',
-          'Novembre',
-          'Dicembre',
-        ];
-        const dayStr = `${days[dateObj.getDay()]} ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
 
         y += 24;
 

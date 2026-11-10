@@ -19,7 +19,6 @@ import { BookingsService } from '../../services/bookings/bookings.service';
 import { RoutesService } from '../../services/routes/routes.service';
 
 import { StripeService } from '../../services/stripe/stripe.service';
-import { LUGGAGE_PRICE } from '../../constants/app.constants';
 import { bookingLuggagePrice } from '../../utils/fares';
 import { BRAND_SECONDARY, rgba } from '../../../brand';
 Chart.register(...registerables);
@@ -123,6 +122,7 @@ interface FasceOrarieRanking {
 }
 
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
+import { localToday } from '../../utils/dates';
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -133,7 +133,6 @@ import { TranslateNamePipe } from '../../pipe/translateName.pipe';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
-  public luggagePrice = LUGGAGE_PRICE;
   luggagePriceOf(booking: any): number {
     return bookingLuggagePrice(booking);
   }
@@ -167,7 +166,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public fasceOrarieRanking: FasceOrarieRanking | null = null;
   public loadFasceOrarie = true;
   public dailyRouteRevenue: any[] = [];
-  public dailyRouteDate: string = new Date().toISOString().split('T')[0];
+  public dailyRouteDate: string = localToday();
 
   public andamentoMese: any = [];
   public countRoutes: number = 0;

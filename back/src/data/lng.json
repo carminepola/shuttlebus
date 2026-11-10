@@ -1039,6 +1039,22 @@
     "es": "Datos personales",
     "jp": "個人情報"
   },
+  "str_details_update_error": {
+    "it": "Si è verificato un errore durante l'aggiornamento dei dettagli",
+    "en": "An error occurred while updating your details",
+    "fr": "Une erreur s'est produite lors de la mise à jour des informations",
+    "de": "Beim Aktualisieren der Daten ist ein Fehler aufgetreten",
+    "es": "Se ha producido un error al actualizar los datos",
+    "jp": "情報の更新中にエラーが発生しました"
+  },
+  "str_details_updated": {
+    "it": "Dettagli aggiornati con successo!",
+    "en": "Details updated successfully!",
+    "fr": "Informations mises à jour avec succès !",
+    "de": "Daten erfolgreich aktualisiert!",
+    "es": "¡Datos actualizados correctamente!",
+    "jp": "情報を更新しました。"
+  },
   "str_email": {
     "it": "Email",
     "en": "Email",
@@ -1815,6 +1831,14 @@
     "es": "El campo de nombre es obligatorio",
     "jp": "氏名は必須です"
   },
+  "str_navigation_error": {
+    "it": "Errore durante la navigazione. Riprova.",
+    "en": "Navigation error. Please try again.",
+    "fr": "Erreur de navigation. Veuillez réessayer.",
+    "de": "Navigationsfehler. Bitte versuche es erneut.",
+    "es": "Error de navegación. Inténtalo de nuevo.",
+    "jp": "ページの移動中にエラーが発生しました。もう一度お試しください。"
+  },
   "str_nessun_ticket": {
     "it": "Nessun biglietto",
     "en": "No tickets available",
@@ -1918,6 +1942,14 @@
     "de": "Altes Passwort",
     "es": "Contraseña anterior",
     "jp": "現在のパスワード"
+  },
+  "str_old_password_wrong": {
+    "it": "La vecchia password non è corretta",
+    "en": "The old password is incorrect",
+    "fr": "L'ancien mot de passe est incorrect",
+    "de": "Das alte Passwort ist falsch",
+    "es": "La contraseña anterior no es correcta",
+    "jp": "現在のパスワードが正しくありません"
   },
   "str_old_ticket": {
     "it": "Vecchi tickets",
@@ -2231,6 +2263,22 @@
     "es": "Contraseña",
     "jp": "パスワード"
   },
+  "str_password_change_error": {
+    "it": "Si è verificato un errore durante il cambio password",
+    "en": "An error occurred while changing the password",
+    "fr": "Une erreur s'est produite lors du changement de mot de passe",
+    "de": "Beim Ändern des Passworts ist ein Fehler aufgetreten",
+    "es": "Se ha producido un error al cambiar la contraseña",
+    "jp": "パスワードの変更中にエラーが発生しました"
+  },
+  "str_password_changed": {
+    "it": "Password cambiata con successo!",
+    "en": "Password changed successfully!",
+    "fr": "Mot de passe modifié avec succès !",
+    "de": "Passwort erfolgreich geändert!",
+    "es": "¡Contraseña cambiada correctamente!",
+    "jp": "パスワードを変更しました。"
+  },
   "str_password_confirm": {
     "it": "Ripeti password",
     "en": "Repeat password",
@@ -2246,6 +2294,14 @@
     "de": "Das Passwort muss mindestens 6 Zeichen lang sein.",
     "es": "La contraseña debe tener al menos 6 caracteres.",
     "jp": "パスワードは6文字以上でなければなりません。"
+  },
+  "str_password_medium": {
+    "it": "Media",
+    "en": "Medium",
+    "fr": "Moyenne",
+    "de": "Mittel",
+    "es": "Media",
+    "jp": "普通"
   },
   "str_password_min8": {
     "it": "La password deve avere almeno 8 caratteri",
@@ -2295,6 +2351,14 @@
     "es": "El campo de contraseña es obligatorio",
     "jp": "パスワードは必須です"
   },
+  "str_password_requirements": {
+    "it": "La password non soddisfa i requisiti minimi",
+    "en": "The password does not meet the minimum requirements",
+    "fr": "Le mot de passe ne respecte pas les exigences minimales",
+    "de": "Das Passwort erfüllt nicht die Mindestanforderungen",
+    "es": "La contraseña no cumple los requisitos mínimos",
+    "jp": "パスワードが最低要件を満たしていません"
+  },
   "str_password_requirements_not_met": {
     "it": "La password non soddisfa i requisiti minimi",
     "en": "The password does not meet the minimum requirements",
@@ -2302,6 +2366,22 @@
     "de": "Das Passwort erfüllt nicht die Mindestanforderungen",
     "es": "La contraseña no cumple con los requisitos mínimos",
     "jp": "パスワードが最小要件を満たしていません"
+  },
+  "str_password_strong": {
+    "it": "Forte",
+    "en": "Strong",
+    "fr": "Forte",
+    "de": "Stark",
+    "es": "Fuerte",
+    "jp": "強い"
+  },
+  "str_password_weak": {
+    "it": "Debole",
+    "en": "Weak",
+    "fr": "Faible",
+    "de": "Schwach",
+    "es": "Débil",
+    "jp": "弱い"
   },
   "str_pay": {
     "it": "Paga ora",
@@ -3254,6 +3334,14 @@
     "de": "Verstanden",
     "es": "Entendido",
     "jp": "了解しました"
+  },
+  "str_user_email_unavailable": {
+    "it": "Impossibile recuperare l'email dell'utente",
+    "en": "Unable to retrieve the user's email",
+    "fr": "Impossible de récupérer l'e-mail de l'utilisateur",
+    "de": "Die E-Mail-Adresse des Benutzers konnte nicht abgerufen werden",
+    "es": "No se ha podido obtener el correo del usuario",
+    "jp": "ユーザーのメールアドレスを取得できません"
   },
   "str_user_not_found": {
     "it": "Utente non trovato",

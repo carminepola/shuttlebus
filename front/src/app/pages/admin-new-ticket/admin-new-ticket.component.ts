@@ -19,6 +19,7 @@ import { PricePipe } from '../../pipe/price.pipe';
  * o per una persona senza account (nome + mail). Il prezzo e' ricalcolato dal server.
  */
 import { LanguagesService } from '../../services/languages/languages.service';
+import { localToday } from '../../utils/dates';
 @Component({
   selector: 'app-admin-new-ticket',
   imports: [PricePipe, TitlePageComponent, LoadingComponent, FormsModule],
@@ -50,7 +51,7 @@ export class AdminNewTicketComponent implements OnInit {
   ticketTypes: any[] = [];
   from = '';
   to = '';
-  date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+  date = localToday();
   luggage = 0;
   selections: Record<string, number> = {};
   trips: any[] = [];

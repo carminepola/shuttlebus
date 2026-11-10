@@ -14,6 +14,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { fadeAnimation } from '../../animations/fade.animation';
 declare var bootstrap: any;
+import { localToday } from '../../utils/dates';
 @Component({
   selector: 'app-search',
   imports: [TranslatePipe, TranslateNamePipe, ReactiveFormsModule, FormsModule, DatePipe],
@@ -32,11 +33,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     ticketSelections?: { [id: string]: number };
   };
 
-  public today = new Date(
-    Date.now() - new Date().getTimezoneOffset() * 60 * 1000
-  )
-    .toISOString()
-    .split('T')[0];
+  public today = localToday();
   public routes: string[] = [];
   public stops: string[] = [];
   public allStop: any = [];
@@ -81,7 +78,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       if (saved) {
         try {
           this.ricerca = JSON.parse(saved);
-          const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().split('T')[0];
+          const today = localToday();
           if (this.ricerca?.data && this.ricerca.data < today) {
             this.ricerca!.data = today;
           }
@@ -98,9 +95,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.ricerca = {
         partenza: '',
         arrivo: '',
-        data: new Date(Date.now() - new Date().getTimezoneOffset() * 60 * 1000)
-          .toISOString()
-          .split('T')[0],
+        data: localToday(),
         bagagli: 0,
       };
     }
@@ -422,9 +417,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
     });
   }
   updateDate(event: string) {
-    const dateObj = new Date(event);
-
-    this.ricerca!.data = dateObj.toISOString().split('T')[0];
+    // campo svuotato o data non valida: niente RangeError da toISOString
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(event || '')) return;
+    this.ricerca!.data = event;
     if (this.ricerca!.ritorno && this.ricerca!.ritorno < this.ricerca!.data) {
       this.ricerca!.ritorno = this.ricerca!.data;
     }

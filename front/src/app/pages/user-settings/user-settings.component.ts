@@ -15,6 +15,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 import { SecuritySettingsComponent } from '../../components/security-settings/security-settings.component';
 import { SavedCardsComponent } from '../../components/saved-cards/saved-cards.component';
 import { DeleteAccountComponent } from '../../components/delete-account/delete-account.component';
+import { LngService } from '../../services/lng/lng.service';
 @Component({
   selector: 'app-user-settings',
   imports: [
@@ -52,6 +53,7 @@ export class UserSettingsComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private userService: UserService,
+    private lngService: LngService,
   ) {
     this.changePasswordForm = new FormGroup({
       oldPassword: new FormControl('', Validators.required),
@@ -115,11 +117,15 @@ export class UserSettingsComponent implements OnInit {
     return 'strength-strong';
   }
 
+  private t(key: string, fallback: string): string {
+    return this.lngService.traslateOr(key, fallback);
+  }
+
   passwordStrengthLabel(): string {
     const met = Object.values(this.pwdRules).filter(Boolean).length;
-    if (met <= 1) return 'Debole';
-    if (met <= 3) return 'Media';
-    return 'Forte';
+    if (met <= 1) return this.t('str_password_weak', 'Debole');
+    if (met <= 3) return this.t('str_password_medium', 'Media');
+    return this.t('str_password_strong', 'Forte');
   }
 
   onSubmit(): void {
@@ -132,7 +138,7 @@ export class UserSettingsComponent implements OnInit {
     const repeatPassword = this.changePasswordForm.get('repeatPassword')?.value;
 
     if (!this.isPasswordValid()) {
-      this.errorMessage = 'La password non soddisfa i requisiti minimi';
+      this.errorMessage = this.t('str_password_requirements', 'La password non soddisfa i requisiti minimi');
       return;
     }
 
@@ -151,7 +157,7 @@ export class UserSettingsComponent implements OnInit {
     const email = decodedToken?.email;
 
     if (!email) {
-      this.errorMessage = "Impossibile recuperare l'email dell'utente";
+      this.errorMessage = this.t('str_user_email_unavailable', "Impossibile recuperare l'email dell'utente");
       this.loading = false;
       return;
     }
@@ -161,7 +167,7 @@ export class UserSettingsComponent implements OnInit {
       .subscribe(
         (res) => {
           this.loading = false;
-          this.successMessage = 'Password cambiata con successo!';
+          this.successMessage = this.t('str_password_changed', 'Password cambiata con successo!');
           this.changePasswordForm.reset();
           setTimeout(() => {
             this.successMessage = '';
@@ -173,10 +179,10 @@ export class UserSettingsComponent implements OnInit {
           if (err.error?.message) {
             this.errorMessage = err.error.message;
           } else if (err.status === 400) {
-            this.errorMessage = 'La vecchia password non è corretta';
+            this.errorMessage = this.t('str_old_password_wrong', 'La vecchia password non è corretta');
           } else {
             this.errorMessage =
-              'Si è verificato un errore durante il cambio password';
+              this.t('str_password_change_error', 'Si è verificato un errore durante il cambio password');
           }
         },
       );
@@ -197,7 +203,7 @@ export class UserSettingsComponent implements OnInit {
     this.userService.updateUserDetails(name, phone).subscribe(
       (res) => {
         this.loadingDetails = false;
-        this.successMessageDetails = 'Dettagli aggiornati con successo!';
+        this.successMessageDetails = this.t('str_details_updated', 'Dettagli aggiornati con successo!');
         setTimeout(() => {
           this.successMessageDetails = '';
         }, 3000);
@@ -209,7 +215,7 @@ export class UserSettingsComponent implements OnInit {
           this.errorMessageDetails = err.error.message;
         } else {
           this.errorMessageDetails =
-            "Si è verificato un errore durante l'aggiornamento dei dettagli";
+            this.t('str_details_update_error', "Si è verificato un errore durante l'aggiornamento dei dettagli");
         }
       },
     );
