@@ -16,164 +16,74 @@
       ></app-step-indicator>
 
       <div class="container pb-5" style="min-height: 65vh">
-        <div class="summary-title mb-4">
-          <h2 class="text-primary" [innerText]="'str_totale' | translate"></h2>
-        </div>
-
         <div class="summary-layout">
           <div class="summary-main">
-            @for (leg of legs; track leg) {
-              <div class="summary-route-card rounded-4">
-                <div class="route-card-header">
-                  <div>
+            <!-- Riepilogo compatto: una sola card per tutto il viaggio -->
+            <div class="trip-summary rounded-4">
+              @for (leg of legs; track $index) {
+                <section class="trip-leg">
+                  <header class="trip-leg-head">
                     @if (legs.length > 1) {
                       <span class="leg-badge">
                         <i class="fa-solid me-1" [class.fa-arrow-right]="$first" [class.fa-arrow-left]="!$first"></i>
                         {{ $first ? lngService.traslateOr("str_andata", "Andata") : lngService.traslateOr("str_ritorno", "Ritorno") }}
                       </span>
                     }
-                    <h5
-                      class="route-name mb-1"
-                      >{{ leg.name | translateName }}
-  </h5>
-                    <div class="route-date">
-                      <i class="fa-regular fa-calendar me-1"></i>
-                      {{ leg.date | date: "dd MMMM yyyy" }}
-                    </div>
-                  </div>
-                </div>
+                    <span class="trip-leg-date">{{ leg.date | date: "EEE d MMM yyyy" }}</span>
+                    <span class="trip-leg-route">{{ leg.name | translateName }}</span>
+                  </header>
 
-                <div class="route-card-body">
-                  <div class="route-timeline">
-                    <div class="timeline-point departure">
-                      <div class="timeline-dot"></div>
-                      <div
-                        class="timeline-time"
-                        >{{ leg.from.stopTime }}
-  </div>
-                      <div
-                        class="timeline-label"
-                        >{{ leg.from.name }}
-  </div>
-                      <div
-                        class="timeline-desc"
-                        >{{ leg.from.address }}
-  </div>
+                  <div class="trip-leg-path">
+                    <div class="trip-stop">
+                      <span class="trip-time">{{ leg.from.stopTime }}</span>
+                      <span class="trip-stop-name">{{ leg.from.name }}</span>
+                      @if (leg.from.address) {
+                        <span class="trip-stop-address" [title]="leg.from.address">{{ leg.from.address }}</span>
+                      }
                     </div>
-                    <div class="timeline-line">
-                      <div class="timeline-line-inner"></div>
-                      <i class="fa-solid fa-bus timeline-icon"></i>
+                    <div class="trip-line">
+                      <span class="trip-duration">{{ duration(leg) }}</span>
+                      <span class="trip-line-bar"><i class="fa-solid fa-bus"></i></span>
                     </div>
-                    <div class="timeline-point arrival">
-                      <div class="timeline-dot"></div>
-                      <div
-                        class="timeline-time"
-                        >{{ leg.to.stopTime }}
-  </div>
-                      <div
-                        class="timeline-label"
-                        >{{ leg.to.name }}
-  </div>
-                      <div
-                        class="timeline-desc"
-                        >{{ leg.to.address }}
-  </div>
+                    <div class="trip-stop trip-stop-end">
+                      <span class="trip-time">{{ leg.to.stopTime }}</span>
+                      <span class="trip-stop-name">{{ leg.to.name }}</span>
+                      @if (leg.to.address) {
+                        <span class="trip-stop-address" [title]="leg.to.address">{{ leg.to.address }}</span>
+                      }
                     </div>
                   </div>
-                </div>
-              </div>
 
-              <div class="summary-tickets-card rounded-4">
-                <div class="card-section-header">
-                  <i class="fa-solid fa-ticket me-1"></i>
-                  <span [innerText]="'str_totale' | translate"></span>
-                </div>
+                  <ul class="trip-items">
+                    @for (ticket of leg.ticketTypes; track ticket.id) {
+                      <li [title]="ticket.description | translateName">
+                        <span class="trip-item-name"><span class="trip-item-qty">{{ ticket.count }}×</span> {{ ticket.name | translateName }}</span>
+                        <span class="trip-item-price">{{ ticket.cost * ticket.count | price }}</span>
+                      </li>
+                    }
+                    @if (leg.luggage > 0) {
+                      <li [title]="'str_bagagli_aggiuntivi_descrizione' | translate">
+                        <span class="trip-item-name"><span class="trip-item-qty">{{ leg.luggage }}×</span> {{ "str_bagagli_aggiuntivi" | translate }}</span>
+                        <span class="trip-item-price">{{ luggagePriceOf(leg) * leg.luggage | price }}</span>
+                      </li>
+                    }
+                    @if (legs.length > 1) {
+                      <li class="trip-subtotal">
+                        <span>{{ $first ? lngService.traslateOr("str_andata", "Andata") : lngService.traslateOr("str_ritorno", "Ritorno") }}</span>
+                        <span>{{ leg.total | price }}</span>
+                      </li>
+                    }
+                  </ul>
+                </section>
+              }
 
-                <div class="tickets-list">
-                  @for (
-                    ticket of leg.ticketTypes;
-                    track ticket;
-                    let i = $index
-                  ) {
-                    <div class="ticket-row">
-                      <div class="ticket-row-info">
-                        <h6
-                          class="mb-0"
-                          >{{ ticket.name | translateName }}
-  </h6>
-                        <span
-                          class="ticket-row-desc"
-                          >{{ ticket.description | translateName }}
-  </span>
-                      </div>
-                      <div class="ticket-row-right">
-                        <div class="ticket-qty">
-                          <span class="ticket-qty-x">x</span>
-                          <span >{{ ticket.count }}</span>
-                        </div>
-                        <div class="ticket-row-price">
-                          {{ ticket.cost * ticket.count | price }}
-                        </div>
-                      </div>
-                    </div>
-                  }
-                  @if (leg.luggage > 0) {
-                    <div class="ticket-row">
-                      <div class="ticket-row-info">
-                        <h6
-                          class="mb-0"
-                          >{{ 'str_bagagli_aggiuntivi' | translate }}
-  </h6>
-                        <span
-                          class="ticket-row-desc"
-                          >{{ 
-                            'str_bagagli_aggiuntivi_descrizione' | translate
-                           }}
-  </span>
-                      </div>
-                      <div class="ticket-row-right">
-                        <div class="ticket-qty">
-                          <span class="ticket-qty-x">x</span>
-                          <span >{{ leg.luggage }}</span>
-                        </div>
-                        <div class="ticket-row-price">
-                          {{ luggagePriceOf(leg) * leg.luggage | price }}
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-
-                <div class="ticket-total-row">
-                  <div class="ticket-total-left">
-                    <span
-                      class="ticket-total-label"
-                      [innerText]="'str_totale' | translate"
-                    ></span>
-                  </div>
-                  <div class="ticket-total-right">
-                    <span class="ticket-total-value purchase-total">{{
-                      leg.total | price: false
-                    }}</span>
-                    <span class="ticket-total-currency">€</span>
-                  </div>
-                </div>
-              </div>
-            }
-
-            @if (legs.length > 1) {
-              <div class="summary-tickets-card rounded-4">
-                <div class="ticket-total-row">
-                  <div class="ticket-total-left">
-                    <span class="ticket-total-label">{{ lngService.traslateOr("str_totale_andata_ritorno", "Totale andata e ritorno") }}</span>
-                  </div>
-                  <div class="ticket-total-right">
-                    <span class="ticket-total-value purchase-total">{{ grandTotal | price: false }}</span>
-                    <span class="ticket-total-currency">€</span>
-                  </div>
-                </div>
-              </div>
-            }
+              <footer class="trip-total">
+                <span class="trip-total-label">
+                  {{ legs.length > 1 ? lngService.traslateOr("str_totale_andata_ritorno", "Totale andata e ritorno") : ("str_totale" | translate) }}
+                </span>
+                <span class="trip-total-value">{{ grandTotal | price }}</span>
+              </footer>
+            </div>
           </div>
 
           <div class="summary-sidebar">

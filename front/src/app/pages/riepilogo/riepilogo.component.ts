@@ -32,6 +32,7 @@ declare var bootstrap: any;
 
 import { BookingSettingsService, DEFAULT_BOOKING_SETTINGS } from '../../services/bookingSettings/booking-settings.service';
 import { isRefundAllowed } from '../../utils/dates';
+import { fadeAnimation } from '../../animations/fade.animation';
 @Component({
   selector: 'app-riepilogo',
   imports: [PricePipe, 
@@ -47,6 +48,8 @@ import { isRefundAllowed } from '../../utils/dates';
     MfaChallengeComponent,
   ],
   templateUrl: './riepilogo.component.html',
+  // il template usa @fadeInOut: senza dichiararla la console dava NG05105
+  animations: [fadeAnimation],
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './riepilogo.component.scss',
 })
@@ -159,6 +162,21 @@ export class RiepilogoComponent implements OnInit, OnDestroy {
     }
   }
   /** Tratte da acquistare: l'andata e, se scelto, il ritorno. */
+  /** Durata della tratta: "6 h", "2 h 40 min", "45 min" (arrivo dopo mezzanotte gestito). */
+  duration(leg: any): string {
+    const toMin = (t?: string) => {
+      const m = /^(\d{1,2}):(\d{2})/.exec(t || '');
+      return m ? +m[1] * 60 + +m[2] : null;
+    };
+    const a = toMin(leg?.from?.stopTime);
+    const b = toMin(leg?.to?.stopTime);
+    if (a === null || b === null) return '';
+    const min = b >= a ? b - a : b + 24 * 60 - a;
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return h > 0 ? `${h} h${m ? ` ${m} min` : ''}` : `${m} min`;
+  }
+
   get legs(): any[] {
     return this.param?.returnTrip ? [this.param, this.param.returnTrip] : [this.param];
   }
