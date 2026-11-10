@@ -76,6 +76,9 @@ export class SearchPageComponent implements OnInit {
   /** Sotto questa soglia di posti liberi la corsa mostra "Ultimi N posti". */
   public readonly lowSeats = 5;
   public readonly maxTickets = 12;
+  /** Nessuna corsa nel giorno cercato: primo giorno disponibile (andata / ritorno), se c'e'. */
+  public nextOutboundDate: string | null = null;
+  public nextReturnDate: string | null = null;
 
   constructor(
     private routesService: RoutesService,
@@ -123,6 +126,8 @@ export class SearchPageComponent implements OnInit {
   async load() {
     this.params = [];
     this.returnParams = [];
+    this.nextOutboundDate = null;
+    this.nextReturnDate = null;
     this.selectedOutbound = null;
     this.selectedReturn = null;
     this.loading = true;
@@ -158,6 +163,22 @@ export class SearchPageComponent implements OnInit {
     ]);
     this.params = outbound;
     this.returnParams = inbound;
+
+    // giorno senza corse: si propone il primo giorno disponibile
+    const today = this.today();
+    const outboundFrom = this.ricerca.data > today ? this.ricerca.data : today;
+    [this.nextOutboundDate, this.nextReturnDate] = await Promise.all([
+      outbound.length === 0
+        ? this.findNextDate(this.ricerca.partenza, this.ricerca.arrivo, outboundFrom)
+        : Promise.resolve(null),
+      this.andataRitorno && inbound.length === 0
+        ? this.findNextDate(
+            this.ricerca.arrivo,
+            this.ricerca.partenza,
+            this.ricerca.ritorno > outboundFrom ? this.ricerca.ritorno : outboundFrom,
+          )
+        : Promise.resolve(null),
+    ]);
 
     this.loading = false;
     const searchResult = document.getElementById('search-result');
@@ -274,6 +295,33 @@ export class SearchPageComponent implements OnInit {
     // corse in ordine di partenza
     params.sort((a: any, b: any) => (a.from.stopTime || '').localeCompare(b.from.stopTime || ''));
     return params;
+  }
+
+  private async findNextDate(fromId: string, toId: string, fromDate: string): Promise<string | null> {
+    if (!fromId || !toId) return null;
+    try {
+      const res = await lastValueFrom(
+        this.bookingService.nextAvailableDate(fromId, toId, {
+          fromDate,
+          posti: Math.max(this.ricerca.persone, 1),
+          bagagli: this.ricerca.bagagli,
+        }),
+      );
+      return res.date;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Ripete la ricerca con la data proposta (il ritorno non puo' precedere l'andata). */
+  searchOnDate(leg: 'outbound' | 'return', date: string) {
+    const data = leg === 'outbound' ? date : this.ricerca.data;
+    let ritorno = leg === 'return' ? date : this.ricerca.ritorno;
+    if (ritorno && ritorno < data) ritorno = data;
+    this.router.navigate(['/search'], {
+      queryParams: { data, ritorno: ritorno || undefined },
+      queryParamsHandling: 'merge',
+    });
   }
 
   /** Totale e posti della corsa dai conteggi dei biglietti e dei bagagli. */

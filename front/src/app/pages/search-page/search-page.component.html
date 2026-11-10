@@ -51,6 +51,9 @@
             class="text-primary mt-4 mb-2"
             [innerText]="'search_not_found' | translate"
           ></h3>
+          <ng-container
+            *ngTemplateOutlet="nextDate; context: { $implicit: nextOutboundDate, leg: 'outbound' }"
+          ></ng-container>
           <!-- <p class="text-secondary">
             {{ "str_search_not_found_desc" | translate }}
           </p> -->
@@ -112,6 +115,9 @@
               class="text-primary mt-3"
               [innerText]="'search_not_found' | translate"
             ></h5>
+            <ng-container
+              *ngTemplateOutlet="nextDate; context: { $implicit: nextReturnDate, leg: 'return' }"
+            ></ng-container>
           </div>
         }
         @for (param of returnParams; track param) {
@@ -156,6 +162,19 @@
     }
   }
 </div>
+
+<ng-template #nextDate let-date let-leg="leg">
+  @if (date) {
+    <div class="next-date">
+      <span>{{ lngService.traslateOr("str_prima_data_disponibile", "Prima data disponibile") }}:</span>
+      <strong>{{ date | date: "EEEE d MMMM" }}</strong>
+      <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" (click)="searchOnDate(leg, date)">
+        <i class="fa-solid fa-magnifying-glass me-1"></i>
+        {{ lngService.traslateOr("str_cerca_in_questa_data", "Cerca in questa data") }}
+      </button>
+    </div>
+  }
+</ng-template>
 
 <ng-template #routeCard let-param let-leg="leg">
   <div
