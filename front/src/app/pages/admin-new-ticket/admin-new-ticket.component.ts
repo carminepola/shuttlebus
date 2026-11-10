@@ -18,6 +18,7 @@ import { PricePipe } from '../../pipe/price.pipe';
  * Emissione di un biglietto dal pannello admin per un cliente registrato
  * o per una persona senza account (nome + mail). Il prezzo e' ricalcolato dal server.
  */
+import { LanguagesService } from '../../services/languages/languages.service';
 @Component({
   selector: 'app-admin-new-ticket',
   imports: [PricePipe, TitlePageComponent, LoadingComponent, FormsModule],
@@ -38,7 +39,10 @@ export class AdminNewTicketComponent implements OnInit {
   userResults: any[] = [];
   selectedUser: any = null;
   newCustomer = { name: '', email: '', phone: '' };
-  lng = 'it';
+  lng = '';
+  get languages() {
+    return this.languagesService.enabled;
+  }
 
   // Viaggio
   routes: any[] = [];
@@ -65,13 +69,16 @@ export class AdminNewTicketComponent implements OnInit {
   };
 
   constructor(
+    private languagesService: LanguagesService,
     private bookingsService: BookingsService,
     private routesService: RoutesService,
     private stopsService: StopsService,
     private ticketTypeService: TicketTypeService,
     private userService: UserService,
     private router: Router,
-  ) {}
+  ) {
+    this.lng = this.languagesService.defaultLanguage;
+  }
 
   async ngOnInit() {
     try {

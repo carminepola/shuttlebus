@@ -19,6 +19,7 @@ import { CookiePolicyComponent } from './components/cookie-policy/cookie-policy.
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { PwaUpdateService } from './services/pwa/pwa-update.service';
 import { version } from '../../package.json';
+import { LanguagesService } from './services/languages/languages.service';
 @Component({
   selector: 'app-root',
   imports: [
@@ -40,6 +41,7 @@ export class AppComponent implements OnInit {
   lowBarVisible: boolean = false;
   loading: boolean = true;
   constructor(
+    private languagesService: LanguagesService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
@@ -93,12 +95,18 @@ export class AppComponent implements OnInit {
   }
 
   loadLng() {
-    const browserLanguage = navigator.language.split('-')[0];
-    const supportedLngs = ['it', 'en', 'fr', 'de', 'es', 'jp'];
-    let lng = supportedLngs.includes(browserLanguage) ? browserLanguage : 'en';
-
-    if (!localStorage['currentLng']) {
-      this.lngService.setLng(lng);
+    // prima visita (o lingua disattivata): lingua del browser se attiva, confrontata anche
+    // col locale (il browser dice "ja", il codice puo' essere "jp"), altrimenti la predefinita
+    const saved = localStorage['currentLng'];
+    if (!saved || !this.languagesService.isEnabled(saved)) {
+      const browser = (navigator.language || '').toLowerCase();
+      const base = browser.split('-')[0];
+      const match = this.languagesService.enabled.find(
+        (l) => l.code === browser || l.code === base || l.locale.toLowerCase() === browser || l.locale.split('-')[0].toLowerCase() === base,
+      );
+      this.lngService.setLng(match?.code || this.languagesService.defaultLanguage);
+    } else {
+      this.lngService.setLng(saved);
     }
 
     this.lngService.get().subscribe({

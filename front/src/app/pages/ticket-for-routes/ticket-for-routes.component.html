@@ -63,7 +63,7 @@
             @for (ticket of booking.ticketTypes; track ticket) {
               <div class="tfr-meta-chip">
                 <i class="fa-solid fa-person"></i>
-                {{ ticket.count }} x {{ ticket.name.it }}
+                {{ ticket.count }} x {{ ticket.name | translateName }}
               </div>
             }
             @if (booking.luggage > 0) {

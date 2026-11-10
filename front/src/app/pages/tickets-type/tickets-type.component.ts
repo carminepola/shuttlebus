@@ -10,6 +10,7 @@ import { TicketTypeService } from '../../services/ticket-type/ticket-type.servic
 import { LoadingComponent } from '../../components/loading/loading/loading.component';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { daysLabel } from '../../utils/ticket-days';
+import { pickText } from '../../utils/i18n';
 @Component({
   selector: 'app-ticketsType',
   imports: [
@@ -45,8 +46,8 @@ export class TicketsTypeComponent implements OnInit {
         this.ticketsType = res.ticketType.map((t: any) => {
           return {
             id: t.id,
-            name: t.name.it,
-            description: t.description.it,
+            name: pickText(t.name),
+            description: pickText(t.description),
             cost: t.cost,
             days: daysLabel(t.daysOfWeek) || 'Tutti',
           };

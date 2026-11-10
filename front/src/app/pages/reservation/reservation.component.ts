@@ -17,6 +17,7 @@ import { TranslatePipe } from '../../pipe/translate.pipe';
 import { FilterPipe } from '../../pipe/filter.pipe';
 import Swal from 'sweetalert2';
 import { LUGGAGE_PRICE as DEFAULT_LUGGAGE_PRICE } from '../../constants/app.constants';
+import { pickText } from '../../utils/i18n';
 @Component({
   selector: 'app-reservation',
   imports: [
@@ -83,7 +84,7 @@ export class ReservationComponent implements OnInit {
         ticketRows += `
           <div class="d-flex align-items-center justify-content-between mb-2 px-2">
             <div class="text-start">
-              <div class="fw-bold" style="font-size:0.85rem">${t.name.it || t.name?.en || 'Biglietto'}</div>
+              <div class="fw-bold" style="font-size:0.85rem">${pickText(t.name) || 'Biglietto'}</div>
               <div class="text-secondary" style="font-size:0.75rem">${t.cost}€ x ${t.count}</div>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -299,7 +300,7 @@ export class ReservationComponent implements OnInit {
         status: t.status,
         paymentMethod: t.paymentMethod,
         ticket: t.ticketTypes,
-        route: t.name.it,
+        route: pickText(t.name),
         from: t.from.name + ' (' + t.from.stopTime + ')',
         to: t.to.name + ' (' + t.to.stopTime + ')',
         name: t.user.name,

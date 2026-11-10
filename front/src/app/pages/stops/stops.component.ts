@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { FilterPipe } from '../../pipe/filter.pipe';
 import Swal from 'sweetalert2';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { pickText } from '../../utils/i18n';
 @Component({
   selector: 'app-stops',
   imports: [
@@ -43,7 +44,7 @@ export class StopsComponent implements OnInit {
           return {
             id: stop.id,
             name: stop.name,
-            description: stop.description.it,
+            description: pickText(stop.description),
             latitude: stop.location.latitude,
             longitude: stop.location.longitude,
             address: stop.address,

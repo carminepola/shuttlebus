@@ -9,9 +9,12 @@ import { fadeAnimation } from '../../animations/fade.animation';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { StopsService } from '../../services/stops/stops.service';
 import { Fare } from '../../utils/fares';
+import { MultilangInputComponent } from '../../components/multilang-input/multilang-input.component';
+import { TranslateNamePipe } from '../../pipe/translateName.pipe';
+import { LngService } from '../../services/lng/lng.service';
 @Component({
   selector: 'app-route-details',
-  imports: [
+  imports: [MultilangInputComponent, TranslateNamePipe, 
     TitlePageComponent,
     FormsModule,
     LoadingComponent,
@@ -28,7 +31,7 @@ export class RouteDetailsComponent implements OnInit {
   public ticketSelected: string = '';
   public new: boolean = false;
   public routeForm: any = {
-    name: { it: '', en: '' },
+    name: {},
     stops: [],
     enabled: true,
     ticketTypes: [],
@@ -45,7 +48,8 @@ export class RouteDetailsComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private routeService: RoutesService,
     private ticketTypeService: TicketTypeService,
-    private stopsService: StopsService
+    private stopsService: StopsService,
+    private lngService: LngService,
   ) {}
 
   ngOnInit(): void {
@@ -72,7 +76,7 @@ export class RouteDetailsComponent implements OnInit {
   getTicketFromId(id: string) {
     let ticket = this.ticket.find((t: any) => t.id === id);
     if (ticket) {
-      return ticket.name.it;
+      return this.lngService.pick(ticket.name);
     }
     return 'Non trovato';
   }
@@ -231,8 +235,7 @@ export class RouteDetailsComponent implements OnInit {
     } else {
       this.routeService
         .updateRoute(
-          obj.name.it,
-          obj.name.en,
+          obj.name,
           obj.stops,
           obj.ticketTypes,
           obj.id,

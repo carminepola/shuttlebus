@@ -39,29 +39,8 @@
                 required
               />
             </div>
-            <div class="col-12 col-md-6">
-              <label for="desc_it" class="form-label"
-                >Descrizione Italiana</label
-              >
-              <textarea
-                [(ngModel)]="stopForm.description.it"
-                name="desc_it"
-                class="form-control"
-                id="desc_it"
-                required
-              ></textarea>
-            </div>
-            <div class="col-12 col-md-6">
-              <label for="desc_en" class="form-label"
-                >Descrizione Inglese</label
-              >
-              <textarea
-                [(ngModel)]="stopForm.description.en"
-                name="desc_en"
-                class="form-control"
-                id="desc_en"
-                required
-              ></textarea>
+            <div class="col-12">
+              <app-multilang-input label="Descrizione" name="desc" [(value)]="stopForm.description" multiline required></app-multilang-input>
             </div>
             <div class="col-12 col-md-6">
               <label for="latitude" class="form-label">Latitudine</label>

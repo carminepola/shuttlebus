@@ -15,8 +15,6 @@ import templateMailData from "../../data/templateMail.json";
  * Le opzioni overwrite* (script sync-default-data) sovrascrivono con i file.
  */
 
-const LANGS = ["it", "en", "fr", "de", "es", "jp"] as const;
-
 export interface SeedOptions {
   overwriteLng?: boolean;
   overwriteTemplates?: boolean;
@@ -42,17 +40,14 @@ export async function seedDefaultData(db: Db, opts: SeedOptions = {}): Promise<S
   for (const [txt, values] of Object.entries(LNG)) {
     const existing: any = existingLng.get(txt);
     if (!existing) {
-      const doc: Record<string, string> = { id: Guid.create().toString(), txt };
-      for (const l of LANGS) doc[l] = values[l] ?? "";
+      const doc: Record<string, string> = { id: Guid.create().toString(), txt, ...values };
       log(`+ lng ${txt}`);
       if (!opts.dryRun) await lngCol.insertOne(doc);
       result.lng.inserted++;
       continue;
     }
     const set: Record<string, string> = {};
-    for (const l of LANGS) {
-      const value = values[l];
-      if (value === undefined) continue;
+    for (const [l, value] of Object.entries(values)) {
       // senza overwrite solo le lingue mai inserite (una stringa vuota e' una scelta dell'admin)
       if (opts.overwriteLng ? existing[l] !== value : existing[l] === undefined) set[l] = value;
     }

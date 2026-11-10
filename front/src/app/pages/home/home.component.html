@@ -903,7 +903,7 @@
                   <div class="purchase-route flex-grow-1">
                     <div class="d-flex align-items-center gap-2">
                       <span class="fw-semibold">{{
-                        purchase.from.name || purchase.name.it || ""
+                        purchase.from.name || (purchase.name | translateName) || ""
                       }}</span>
                       <i class="fas fa-arrow-right text-muted small"></i>
                       <span class="fw-semibold">{{

@@ -40,8 +40,7 @@ router.post(
 router.put(
   "/:id",
   [
-    check("name.it").optional().isString().withMessage("name in Italian must be a string"),
-    check("name.en").optional().isString().withMessage("name in English must be a string"),
+    check("name").optional().isObject().withMessage("name must be an object { <lingua>: testo }"),
     check("stops").isArray().withMessage("stops must be an array"),
     check("ticketTypes").isArray().withMessage("ticketTypes must be an array"),
     check("enabled").isBoolean().withMessage("enabled must be a boolean"),
@@ -54,8 +53,10 @@ router.put(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let routesServices = new RoutesServices(db);
-      const { nameIt, nameEn, stops, ticketTypes, enabled, fares } = req.body;
-      const result = await routesServices.updateRoute(nameIt, nameEn, stops, ticketTypes, req.params.id, enabled, fares);
+      const { stops, ticketTypes, enabled, fares } = req.body;
+      // nome per lingua; nameIt/nameEn: client vecchi
+      const name = req.body.name || { it: req.body.nameIt, en: req.body.nameEn };
+      const result = await routesServices.updateRoute(name, stops, ticketTypes, req.params.id, enabled, fares);
       res.json(result);
     } catch (error) {
       next(error);

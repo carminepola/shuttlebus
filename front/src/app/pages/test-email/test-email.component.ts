@@ -4,6 +4,7 @@ import { UpperCasePipe } from '@angular/common';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { TestEmailService } from '../../services/testEmail/test-email.service';
+import { LanguagesService } from '../../services/languages/languages.service';
 
 @Component({
   selector: 'app-test-email',
@@ -22,7 +23,10 @@ export class TestEmailComponent {
     { value: 'REFUND_PROCESSED', label: 'Rimborso' },
     { value: 'GENERIC', label: 'Generica' },
   ];
-  languages = ['it', 'en', 'fr', 'de', 'es', 'jp'];
+  /** Tutte le lingue configurate (anche disattivate, per provarne le mail). */
+  get languages(): string[] {
+    return this.languagesService.all.map((l) => l.code);
+  }
 
   selectedType = 'WELCOME';
   selectedLng = 'it';
@@ -35,7 +39,10 @@ export class TestEmailComponent {
   tipoMessaggio: 'success' | 'danger' = 'success';
   messaggio = '';
 
-  constructor(private testEmailService: TestEmailService) {}
+  constructor(
+    private testEmailService: TestEmailService,
+    private languagesService: LanguagesService,
+  ) {}
 
   private mostra(tipo: 'success' | 'danger', msg: string) {
     this.tipoMessaggio = tipo;

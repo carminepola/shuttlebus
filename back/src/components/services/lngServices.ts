@@ -2,8 +2,9 @@ import { Db } from "mongodb";
 
 import LngDao from "../dao/lngDao";
 import LngModel from "../../model/lngModel";
+import { invalidateTranslations } from "../../i18n/translate";
 
-class TicketTypeServices {
+class LngServices {
   private lngDao: LngDao;
 
   constructor(db: Db) {
@@ -12,20 +13,26 @@ class TicketTypeServices {
 
   async create(obj: any) {
     let model = new LngModel(obj);
-    return await this.lngDao.create(model);
+    const id = await this.lngDao.create(model);
+    invalidateTranslations();
+    return id;
   }
 
   async update(obj: any) {
     let model = new LngModel(obj);
-    return await this.lngDao.update(model);
+    const id = await this.lngDao.update(model);
+    invalidateTranslations();
+    return id;
   }
 
   async getAll() {
     return await this.lngDao.getAll();
   }
   async delete(id: string) {
-    return await this.lngDao.delete(id);
+    const res = await this.lngDao.delete(id);
+    invalidateTranslations();
+    return res;
   }
 }
 
-export default TicketTypeServices;
+export default LngServices;

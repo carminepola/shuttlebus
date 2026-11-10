@@ -33,14 +33,10 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
   private containerEl: HTMLElement | null = null;
   private resizeObs: ResizeObserver | null = null;
 
-  public lng = [
-    { lng: 'it', name: '🇮🇹 Italiano' },
-    { lng: 'en', name: '🇬🇧 English' },
-    { lng: 'fr', name: '🇫🇷 Français' },
-    { lng: 'de', name: '🇩🇪 Deutsch' },
-    { lng: 'es', name: '🇪🇸 Español' },
-    { lng: 'jp', name: '🇯🇵 日本語' },
-  ];
+  /** Lingue attive (Impostazioni -> Lingue). */
+  public get lng() {
+    return this.lngService.languageOptions;
+  }
 
   constructor(
     private router: Router,
@@ -147,10 +143,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
   }
 
   setLng(lng: string) {
-    this.lngService.setLng(lng);
-    this.router.navigate([this.router.url]).then(() => {
-      window.location.reload();
-    });
+    this.lngService.changeLng(lng);
   }
 
   getSelectedLng() {

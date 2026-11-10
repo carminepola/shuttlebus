@@ -17,19 +17,12 @@ export class FooterComponent {
   currentYear = new Date().getFullYear();
 
   constructor(private router: Router, private lngService: LngService) {}
-  public lng = [
-    { lng: 'it', name: '🇮🇹 Italiano' },
-    { lng: 'en', name: '🇬🇧 English' },
-    { lng: 'fr', name: '🇫🇷 Français' },
-    { lng: 'de', name: '🇩🇪 Deutsch' },
-    { lng: 'es', name: '🇪🇸 Español' },
-    { lng: 'jp', name: '🇯🇵 日本語' },
-  ];
+  /** Lingue attive (Impostazioni -> Lingue). */
+  public get lng() {
+    return this.lngService.languageOptions;
+  }
   public setLng(lng: string) {
-    this.lngService.setLng(lng);
-    this.router.navigate([this.router.url]).then(() => {
-      window.location.reload();
-    });
+    this.lngService.changeLng(lng);
   }
   public getSelectedLng() {
     let selected = this.lngService.getLng();

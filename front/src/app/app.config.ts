@@ -1,24 +1,14 @@
 import { ApplicationConfig, LOCALE_ID, inject, isDevMode, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http'; import { routes } from './app.routes';
-import { registerLocaleData } from '@angular/common';
-import localeIt from '@angular/common/locales/it';
-import localeFr from '@angular/common/locales/fr';
-import localeDe from '@angular/common/locales/de';
-import localeEs from '@angular/common/locales/es';
-import localeJa from '@angular/common/locales/ja';
 import { appLocale } from './services/lng/locale';
+import { LanguagesService } from './services/languages/languages.service';
 import { AuthService } from './services/auth/auth.service';
 import { appBootstrapSession, MeService } from './services/auth/me.service';
 import { httpInterceptor } from './services/http-interceptor/http-interceptor.service';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideServiceWorker } from '@angular/service-worker';
 
-registerLocaleData(localeIt);
-registerLocaleData(localeFr);
-registerLocaleData(localeDe);
-registerLocaleData(localeEs);
-registerLocaleData(localeJa);
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -32,6 +22,8 @@ export const appConfig: ApplicationConfig = {
       const meService = inject(MeService);
       return appBootstrapSession(meService)();
     }),
+    // lingue attive (Impostazioni -> Lingue) prima del primo render
+    provideAppInitializer(() => inject(LanguagesService).load()),
     provideHttpClient(withXhr(), withInterceptors([httpInterceptor])),
     AuthService,
     provideAnimations(),

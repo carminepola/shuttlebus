@@ -202,8 +202,9 @@
               </div>
               <label class="form-label mt-2 mb-1 small">Lingua della mail</label>
               <select class="form-select form-select-sm" [(ngModel)]="lng" [disabled]="!sendMail">
-                <option value="it">Italiano</option>
-                <option value="en">English</option>
+                @for (l of languages; track l.code) {
+                  <option [value]="l.code">{{ l.flag }} {{ l.name }}</option>
+                }
               </select>
             </div>
             <div class="col-12 col-md-3 text-md-end">

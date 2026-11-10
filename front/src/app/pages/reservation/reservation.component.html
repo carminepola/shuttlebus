@@ -139,7 +139,7 @@
               }
               @for (t of b.ticket; track t) {
                 <p>
-                  <span >{{ t.name.it }}</span>:
+                  <span >{{ t.name | translateName }}</span>:
                   <span class="text-secondary">X</span>
                   <span >{{ t.count }}</span>
                 </p>
@@ -262,7 +262,7 @@
                           <div>
                             <span >{{ t.count }}</span>
                             <span class="text-secondary">X</span>
-                            <span >{{ t.name.it }}</span>
+                            <span >{{ t.name | translateName }}</span>
                           </div>
                         </div>
                       }

@@ -43,8 +43,7 @@ export class RoutesService {
     );
   }
   updateRoute(
-    nameIt: string,
-    nameEn: string,
+    name: Record<string, string>,
     stops: any,
     ticketTypes: any,
     id: string,
@@ -53,8 +52,7 @@ export class RoutesService {
   ): Observable<any> {
     return this.http
       .put(`${this.apiUrl}/${id}`, {
-        nameIt,
-        nameEn,
+        name,
         stops,
         ticketTypes,
         enabled,

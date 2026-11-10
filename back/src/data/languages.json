@@ -1,0 +1,11 @@
+{
+  "defaultLanguage": "it",
+  "languages": [
+    { "code": "it", "name": "Italiano", "flag": "🇮🇹", "locale": "it", "enabled": true },
+    { "code": "en", "name": "English", "flag": "🇬🇧", "locale": "en", "enabled": true },
+    { "code": "fr", "name": "Français", "flag": "🇫🇷", "locale": "fr", "enabled": true },
+    { "code": "de", "name": "Deutsch", "flag": "🇩🇪", "locale": "de", "enabled": true },
+    { "code": "es", "name": "Español", "flag": "🇪🇸", "locale": "es", "enabled": true },
+    { "code": "jp", "name": "日本語", "flag": "🇯🇵", "locale": "ja", "enabled": true }
+  ]
+}

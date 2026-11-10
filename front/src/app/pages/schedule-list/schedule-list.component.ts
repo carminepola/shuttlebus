@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RoutesService } from '../../services/routes/routes.service';
 
 import { fadeAnimation } from '../../animations/fade.animation';
+import { pickText } from '../../utils/i18n';
 @Component({
   selector: 'app-schedule-list',
   imports: [
@@ -43,7 +44,7 @@ export class ScheduleListComponent implements OnInit {
           id: s.id,
           start: s.stops[0].stopTime,
           end: s.stops[s.stops.length - 1].stopTime,
-          name: r.route.name.it,
+          name: pickText(r.route.name),
           active: s.status === 'active',
         };
       });

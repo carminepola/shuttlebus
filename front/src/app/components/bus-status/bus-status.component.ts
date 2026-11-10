@@ -31,10 +31,11 @@ interface BusStatus {
   currentLng: number;
 }
 
+import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 @Component({
   selector: 'app-bus-status',
   standalone: true,
-  imports: [CommonModule],
+  imports: [TranslateNamePipe, CommonModule],
   templateUrl: './bus-status.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bus-status.component.scss',

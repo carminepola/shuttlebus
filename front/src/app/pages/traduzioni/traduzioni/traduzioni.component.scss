@@ -1,0 +1,11 @@
+.lng-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.5rem 0.75rem;
+}
+
+textarea {
+  field-sizing: content;
+  min-height: 2rem;
+  max-height: 12rem;
+}

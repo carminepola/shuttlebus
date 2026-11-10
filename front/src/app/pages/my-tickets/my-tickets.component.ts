@@ -18,6 +18,11 @@ import { BRAND, brandRgb } from '../../../brand';
 const PENDING_EXPIRY_MS = 30 * 60 * 1000;
 
 import { BookingSettingsService, DEFAULT_BOOKING_SETTINGS } from '../../services/bookingSettings/booking-settings.service';
+import { LanguagesService } from '../../services/languages/languages.service';
+
+/** Locale con alfabeti che i font di jsPDF non coprono. */
+const NON_LATIN_LOCALES = new Set(['ja', 'jp', 'zh', 'ko', 'ru', 'uk', 'el', 'ar', 'he', 'th', 'hi', 'bg', 'sr', 'ka', 'hy', 'fa']);
+
 @Component({
   selector: 'app-my-tickets',
   imports: [
@@ -44,6 +49,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
   private countdownInterval: any;
   private expiredReloadSet = new Set<string>();
   constructor(
+    private languagesService: LanguagesService,
     private bookingsService: BookingsService,
     private lng: LngService,
     private stripeService: StripeService,
@@ -65,8 +71,14 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
     return this.lng.traslateOr('str_rimborsi_effettuati', 'Rimborsato');
   }
 
+  /**
+   * Lingua del PDF: jsPDF ha solo font latini, quindi per le lingue con altri
+   * alfabeti (giapponese, cinese, russo, greco, arabo, ...) il biglietto e' in inglese.
+   */
   private get pdfLng(): string {
-    return this.lng.getLng() === 'jp' ? 'en' : this.lng.getLng();
+    const current = this.lng.getLng();
+    const locale = (this.languagesService.find(current)?.locale || current).split('-')[0].toLowerCase();
+    return NON_LATIN_LOCALES.has(locale) || NON_LATIN_LOCALES.has(current) ? 'en' : current;
   }
   loading = true;
 
@@ -333,8 +345,9 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
       }
 
       const savedLng = localStorage.getItem('currentLng') || 'it';
-      if (savedLng === 'jp') {
-        localStorage.setItem('currentLng', 'en');
+      const swapLng = this.pdfLng !== savedLng;
+      if (swapLng) {
+        localStorage.setItem('currentLng', this.pdfLng);
         await new Promise((r) => setTimeout(r, 50));
       }
       try {
@@ -712,7 +725,7 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
 
         doc.save(`biglietto_${booking.numberOfTickets}.pdf`);
       } finally {
-        if (savedLng === 'jp') {
+        if (swapLng) {
           localStorage.setItem('currentLng', savedLng);
           await new Promise((r) => setTimeout(r, 50));
         }

@@ -21,6 +21,7 @@ interface DriverSchedule {
   departureMinutes: number;
 }
 
+import { pickText } from '../../utils/i18n';
 @Component({
   selector: 'app-driver-routes',
   imports: [TitlePageComponent, LoadingComponent, CommonModule, FilterStatusPipe],
@@ -100,11 +101,11 @@ export class DriverRoutesComponent {
           const depMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]);
 
           this.routes.push({
-            name: currentRoute.name.it,
+            name: pickText(currentRoute.name),
             departureTime: currentSchedule.departureTime,
             id: currentSchedule.id,
             routeId: currentRoute.id,
-            routeName: currentRoute.name.it,
+            routeName: pickText(currentRoute.name),
             firstStop: typeof firstStop === 'string' ? firstStop : '',
             lastStop: typeof lastStop === 'string' ? lastStop : '',
             status,

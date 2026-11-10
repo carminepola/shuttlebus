@@ -12,6 +12,7 @@ import { lastValueFrom } from 'rxjs';
 import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 import { LngService } from '../../services/lng/lng.service';
 import { Title, Meta, MetaDefinition } from '@angular/platform-browser';
+import { pickText } from '../../utils/i18n';
 @Component({
   selector: 'app-bus-line',
   imports: [
@@ -62,7 +63,7 @@ export class BusLineComponent implements OnInit {
           this.routes[j].stops[i] = {
             ...this.routes[j].stops[i],
             name: '',
-            description: { it: '', en: '' },
+            description: {},
             location: { latitude: 0, longitude: 0 },
           };
         }
@@ -70,7 +71,10 @@ export class BusLineComponent implements OnInit {
     }
     this.routes = this.routes.filter((x) => x.enabled == true);
 
-    let a = this.routes[this.lineSelected].name[this.lng.getLng()]
+    // indice dall'URL: fuori intervallo -> prima linea
+    if (!this.routes[this.lineSelected]) this.lineSelected = 0;
+    if (!this.routes[this.lineSelected]) return;
+    let a = pickText(this.routes[this.lineSelected].name)
       .replace('-', 'to')
       .replace(/[^\w\s]|[\s]+/gi, '_');
     a = a
@@ -81,8 +85,8 @@ export class BusLineComponent implements OnInit {
 
     this.changePage(this.lineSelected);
 
-    this.title = this.routes[this.lineSelected].name[this.lng.getLng()];
-    this.description = this.routes[this.lineSelected].name[this.lng.getLng()];
+    this.title = pickText(this.routes[this.lineSelected].name);
+    this.description = this.title;
     this.setMeta(this.title, this.description);
   }
 

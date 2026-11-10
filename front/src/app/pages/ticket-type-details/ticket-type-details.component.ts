@@ -7,13 +7,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TicketTypeService } from '../../services/ticket-type/ticket-type.service';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { WEEK_DAYS, weekdayName } from '../../utils/ticket-days';
+import { MultilangInputComponent } from '../../components/multilang-input/multilang-input.component';
 @Component({
   selector: 'app-ticket-type-details',
   imports: [
     TitlePageComponent,
     FormsModule,
     LoadingComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MultilangInputComponent,
 ],
   animations: [fadeAnimation],
   templateUrl: './ticket-type-details.component.html',
@@ -32,12 +34,12 @@ export class TicketTypeDetailsComponent implements OnInit {
   loading: boolean = true;
 
   form: any = {
-    name: { it: '', en: '', fr: '', de: '', es: '', jp: '' },
+    name: {},
     cost: '0',
     isActive: true,
     showOnHome: true,
     daysOfWeek: [],
-    description: { it: '', en: '', fr: '', de: '', es: '', jp: '' },
+    description: {},
   };
   errorMessage: string = '';
   weekDays = WEEK_DAYS;
@@ -117,6 +119,8 @@ export class TicketTypeDetailsComponent implements OnInit {
       if (res && res.ticketType) {
         this.form = res.ticketType;
         this.form.daysOfWeek = this.form.daysOfWeek || [];
+        this.form.name = this.form.name || {};
+        this.form.description = this.form.description || {};
         this.form.showOnHome = this.form.showOnHome !== false;
         this.cdr.detectChanges();
       }

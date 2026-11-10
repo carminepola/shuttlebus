@@ -35,7 +35,7 @@ export default class lngDao {
       if (existingLng) {
         throw new Error("existingLng with the same ID already exists");
       }
-      const result = await this.db.collection(this.schema).insertOne(obj);
+      const result = await this.db.collection(this.schema).insertOne(obj.toDocument());
       return result.insertedId ? obj.id : null;
     } catch (error) {
       logger.error("Error creating ticketType:", error);
@@ -45,15 +45,9 @@ export default class lngDao {
 
   async update(obj: lngModel) {
     try {
-      const result = await this.db.collection(this.schema).updateOne({ id: obj.id }, { $set: {
-        it: obj.it,
-        en: obj.en,
-        fr: obj.fr,
-        de: obj.de,
-        es: obj.es,
-        jp: obj.jp,
-      } });
-  
+      // solo i testi delle lingue (mai txt o altri campi)
+      const result = await this.db.collection(this.schema).updateOne({ id: obj.id }, { $set: obj.values });
+
       return result.matchedCount > 0 || result.modifiedCount > 0 ? obj.id : null;
     } catch (error) {
       logger.error("Error creating ticketType:", error);

@@ -14,29 +14,8 @@
       <div class="card-body">
         <form ngNativeValidate (ngSubmit)="onSubmit(f)" #f="ngForm">
           <div class="row g-3">
-            <div class="col-12 col-md-6">
-              <label class="form-label">Nome it</label>
-              <input
-                [(ngModel)]="routeForm.name.it"
-                name="name"
-                type="text"
-                placeholder="Nome ita"
-                class="form-control"
-                id="name"
-                required
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label">Nome En</label>
-              <input
-                [(ngModel)]="routeForm.name.en"
-                name="nameEn"
-                type="text"
-                placeholder="Nome eng"
-                class="form-control"
-                id="nameEn"
-                required
-              />
+            <div class="col-12">
+              <app-multilang-input label="Nome della tratta" name="routeName" [(value)]="routeForm.name" required></app-multilang-input>
             </div>
             <div class="col-12">
               <label class="form-label">Aggiungi biglietti</label>
@@ -51,7 +30,7 @@
                     Seleziona il tipo di biglietto
                   </option>
                   @for (t of ticket; track t) {
-                    <option [value]="t.id" >{{ t.name.it }}</option>
+                    <option [value]="t.id" >{{ t.name | translateName }}</option>
                   }
                 </select>
                 <div class="input-group-append">

@@ -40,6 +40,7 @@ import { TicketCheckComponent } from './pages/ticket-check/ticket-check.componen
 import { TicketSearchComponent } from './pages/ticket-search/ticket-search.component';
 import { TargheComponent } from './pages/targhe/targhe.component';
 import { DepositoComponent } from './pages/deposito/deposito.component';
+import { ImpostazioniLingueComponent } from './pages/impostazioni-lingue/impostazioni-lingue.component';
 import { ImpostazioniPrenotazioniComponent } from './pages/impostazioni-prenotazioni/impostazioni-prenotazioni.component';
 import { TestEmailComponent } from './pages/test-email/test-email.component';
 import { UserDetailsComponent } from './pages/user-details/user-details.component';
@@ -302,6 +303,12 @@ export const routes: Routes = [
       {
         path: 'deposito',
         component: DepositoComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'impostazioni-lingue',
+        component: ImpostazioniLingueComponent,
         canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },

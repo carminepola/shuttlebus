@@ -6,9 +6,10 @@ import { LoadingComponent } from '../../components/loading/loading/loading.compo
 import { ActivatedRoute, Router } from '@angular/router';
 import { StopsService } from '../../services/stops/stops.service';
 import { fadeAnimation } from '../../animations/fade.animation';
+import { MultilangInputComponent } from '../../components/multilang-input/multilang-input.component';
 @Component({
   selector: 'app-stop-details',
-  imports: [
+  imports: [MultilangInputComponent, 
     TitlePageComponent,
     FormsModule,
     LoadingComponent,
@@ -34,7 +35,7 @@ export class StopDetailsComponent implements OnInit {
     address: '',
     image: '',
     isActive: true,
-    description: { it: '', en: '' },
+    description: {},
     location: { latitude: '', longitude: '' },
   };
   errorMessage: string = '';

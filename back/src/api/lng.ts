@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { check, validationResult } from "express-validator";
+import { body, check } from "express-validator";
+import { languageCodes } from "../i18n/languages";
 import LngServices from "../components/services/lngServices";
 import validateDataMiddleware from "../middlewares/validateDataMiddleware";
 
@@ -13,18 +14,24 @@ import ticketTypeModel from "../model/ticketTypeModel";
 import { applyCompanyToText } from "../utils/company";
 const router = Router();
 
+/** I testi sono stringhe per lingue configurate (es. { it: "...", pt: "..." }): niente altri campi. */
+const languageValuesCheck = body().custom(async (value: any) => {
+  const codes = new Set(await languageCodes(db));
+  for (const [key, text] of Object.entries(value || {})) {
+    if (key === "id" || key === "txt") continue;
+    if (!codes.has(key)) throw new Error(`Lingua non configurata: ${key}`);
+    if (typeof text !== "string") throw new Error(`Il testo per ${key} deve essere una stringa`);
+  }
+  return true;
+});
+
 router.post(
   "/",
   authMiddleware,
   [
     check("id").isEmpty().withMessage("Id not required"),
-    check("txt").isString().withMessage("txt must be a string"),
-    check("it").isString().withMessage("name in Italian must be a string"),
-    check("en").isString().withMessage("name in English must be a string"),
-    check("fr").optional().isString().withMessage("name in French must be a string"),
-    check("de").optional().isString().withMessage("name in German must be a string"),
-    check("es").optional().isString().withMessage("name in Spanish must be a string"),
-    check("jp").optional().isString().withMessage("name in Japanese must be a string"),
+    check("txt").isString().matches(/^[A-Za-z0-9_.-]{1,120}$/).withMessage("txt must be a key (letters, digits, _ . -)"),
+    languageValuesCheck,
   ],
 
   checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),
@@ -44,12 +51,7 @@ router.patch(
   authMiddleware,
   [
     check("id").notEmpty().withMessage("Id is required"),
-    check("it").isString().withMessage("name in Italian must be a string"),
-    check("en").isString().withMessage("name in English must be a string"),
-    check("fr").optional().isString().withMessage("name in French must be a string"),
-    check("de").optional().isString().withMessage("name in German must be a string"),
-    check("es").optional().isString().withMessage("name in Spanish must be a string"),
-    check("jp").optional().isString().withMessage("name in Japanese must be a string"),
+    languageValuesCheck,
   ],
 
   checkPermissionMiddleware(role.ADMIN, ["MANAGE_SETTINGS"]),

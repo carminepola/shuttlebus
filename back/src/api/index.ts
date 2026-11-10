@@ -21,6 +21,7 @@ import mfa from "./mfa";
 import momap from "./momap";import licensePlate from "./licensePlate";
 import depotSettings from "./depotSettings";
 import bookingSettings from "./bookingSettings";
+import languages from "./languages";
 import attendance from "./attendance";
 
 const router = express.Router();
@@ -55,6 +56,7 @@ router.use("/mfa", mfa);
 router.use("/licensePlate", licensePlate);
 router.use("/depotSettings", depotSettings);
 router.use("/bookingSettings", bookingSettings);
+router.use("/languages", languages);
 router.use("/attendance", attendance);
 
 export default router;

@@ -1,3 +1,4 @@
+import { resolveLanguage } from "../i18n/languages";
 import express, { CookieOptions } from "express";
 import { cookieSameSite, cookieSecure } from "../cookiePolicy";
 import { db, logger, env } from "../index";
@@ -259,7 +260,8 @@ router.post("/recoverPassword", authIpLimiter, authAccountLimiter, async (req: R
   try {
     let userDao = new UserDao(db);
     let email = req.body.email;
-    let lng = req.body.lng ? (req.body.lng == "it" ? "it" : "en") : "en";
+    // lingua attiva richiesta dal client, altrimenti la predefinita
+    let lng = await resolveLanguage(db, req.body.lng);
     let user = await userDao.getUserByEmail(email);
     if (user) {
       // Genera un TOKEN OPACO a scadenza (mai password in chiaro via email):

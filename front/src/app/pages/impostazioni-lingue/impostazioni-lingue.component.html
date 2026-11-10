@@ -1,0 +1,112 @@
+<div class="container-fluid container-lg">
+  <app-title-page title="Lingue" subtitle="Lingue disponibili per utenti, traduzioni ed email" back="true"></app-title-page>
+
+  @if (messaggio) {
+    <div class="alert alert-{{ tipoMessaggio }} alert-dismissible border-0">
+      {{ messaggio }}
+      <button type="button" class="btn-close" (click)="messaggio = ''" aria-label="Chiudi"></button>
+    </div>
+  }
+
+  <div class="card rounded-4 shadow-sm mb-3">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Ordine</th>
+              <th>Codice</th>
+              <th>Nome</th>
+              <th>Bandiera</th>
+              <th>Locale <small class="text-secondary fw-normal">(date e numeri)</small></th>
+              <th class="text-center">Attiva</th>
+              <th class="text-center">Predefinita</th>
+              <th>Testi mancanti</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (l of languages; track l.code; let i = $index; let last = $last) {
+              <tr>
+                <td class="text-nowrap">
+                  <button type="button" class="btn btn-sm btn-link px-1" [disabled]="i === 0" (click)="move(i, -1)" aria-label="Su"><i class="fa fa-arrow-up"></i></button>
+                  <button type="button" class="btn btn-sm btn-link px-1" [disabled]="last" (click)="move(i, 1)" aria-label="Giù"><i class="fa fa-arrow-down"></i></button>
+                </td>
+                <td><code>{{ l.code }}</code></td>
+                <td><input class="form-control form-control-sm" [(ngModel)]="l.name" [name]="'name_' + l.code" style="min-width: 8rem" /></td>
+                <td><input class="form-control form-control-sm" [(ngModel)]="l.flag" [name]="'flag_' + l.code" style="width: 4.5rem" /></td>
+                <td>
+                  <input class="form-control form-control-sm" [(ngModel)]="l.locale" [name]="'locale_' + l.code" style="width: 6rem" />
+                  @if (localeWarning(l)) {
+                    <small class="text-warning">Date in inglese</small>
+                  }
+                </td>
+                <td class="text-center">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="l.enabled" [name]="'enabled_' + l.code" [disabled]="l.code === defaultLanguage" />
+                </td>
+                <td class="text-center">
+                  <input class="form-check-input" type="radio" name="defaultLanguage" [checked]="l.code === defaultLanguage" (change)="setDefault(l.code)" />
+                </td>
+                <td>
+                  @if (missing[l.code]) {
+                    <a [routerLink]="['/admin/traduzioni']" class="text-warning">{{ missing[l.code] }}</a>
+                  } @else {
+                    <span class="text-success"><i class="fa fa-check"></i></span>
+                  }
+                </td>
+                <td class="text-end">
+                  <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="l.code === defaultLanguage" (click)="remove(i)" aria-label="Rimuovi">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="form-text mt-2">
+        Una lingua disattivata non compare nei menu, ma i suoi testi restano e si possono completare in Traduzioni.
+        Rimuoverla dall'elenco non cancella le traduzioni già scritte.
+      </div>
+    </div>
+  </div>
+
+  <div class="card rounded-4 shadow-sm mb-3">
+    <div class="card-body">
+      <h6 class="fw-bold mb-3">Aggiungi una lingua</h6>
+      <div class="row g-2 align-items-end">
+        <div class="col-6 col-md-2">
+          <label class="form-label small" for="new_code">Codice</label>
+          <input id="new_code" class="form-control form-control-sm" placeholder="pt" [(ngModel)]="nuova.code" />
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label small" for="new_name">Nome</label>
+          <input id="new_name" class="form-control form-control-sm" placeholder="Português" [(ngModel)]="nuova.name" />
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small" for="new_flag">Bandiera</label>
+          <input id="new_flag" class="form-control form-control-sm" placeholder="🇵🇹" [(ngModel)]="nuova.flag" />
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small" for="new_locale">Locale</label>
+          <input id="new_locale" class="form-control form-control-sm" placeholder="pt" [(ngModel)]="nuova.locale" />
+        </div>
+        <div class="col-12 col-md-3 text-md-end">
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="aggiungi()"><i class="fa fa-plus me-1"></i>Aggiungi</button>
+        </div>
+      </div>
+      <div class="form-text mt-2">
+        Una lingua nuova parte disattivata: completa i testi in Traduzioni (i mancanti mostrano la lingua predefinita), poi attivala.
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2 mb-4">
+    <button type="button" class="btn btn-primary" [disabled]="salvando" (click)="salva()">
+      @if (salvando) {
+        <span class="spinner-border spinner-border-sm me-2"></span>
+      }
+      Salva lingue
+    </button>
+  </div>
+</div>

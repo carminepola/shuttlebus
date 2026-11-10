@@ -16,11 +16,10 @@ export class RouteDAO {
       throw error;
     }
   }
-  async updateRoute(nameIt: string, nameEn: string, stops: Stop[], ticketTypes: string[], routeId: string, enabled: boolean, fares?: Fare[]) {
+  async updateRoute(name: Record<string, string>, stops: Stop[], ticketTypes: string[], routeId: string, enabled: boolean, fares?: Fare[]) {
     try {
       const set: Record<string, any> = {
-        "name.it": nameIt,
-        "name.en": nameEn,
+        name,
         stops: stops,
         enabled: enabled,
         ticketTypes: ticketTypes,

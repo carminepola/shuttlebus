@@ -10,9 +10,10 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { fadeAnimation } from '../../animations/fade.animation';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
+import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 @Component({
   selector: 'app-ticket-check',
-  imports: [CommonModule, LoadingComponent, TranslatePipe, RouterLink, FormsModule, TitlePageComponent],
+  imports: [TranslateNamePipe, CommonModule, LoadingComponent, TranslatePipe, RouterLink, FormsModule, TitlePageComponent],
   templateUrl: './ticket-check.component.html',
   styleUrl: './ticket-check.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,

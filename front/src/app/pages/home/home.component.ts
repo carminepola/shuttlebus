@@ -122,11 +122,12 @@ interface FasceOrarieRanking {
   slots: FasciaOraria[];
 }
 
+import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 @Component({
   selector: 'app-home',
   standalone: true,
   animations: [fadeAnimation],
-  imports: [CommonModule, RouterModule, TitlePageComponent, FormsModule],
+  imports: [TranslateNamePipe, CommonModule, RouterModule, TitlePageComponent, FormsModule],
   templateUrl: './home.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./home.component.scss'],

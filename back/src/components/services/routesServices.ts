@@ -4,6 +4,7 @@ import { Route, Stop, Schedule, ScheduleStop } from "../../model/routesModel";
 import ErrorModel from "../../model/errorModel";
 import { Guid } from "guid-typescript";
 import { sanitizeFares, sanitizeLuggagePrice } from "../../utils/fares";
+import { pickLanguageStrings } from "../../i18n/languages";
 import { LUGGAGE_PRICE } from "../../constants";
 
 export default class RoutesServices {
@@ -15,6 +16,7 @@ export default class RoutesServices {
 
   insertRoute(route: Partial<Route>) {
     route.id = Guid.create().toString();
+    route.name = pickLanguageStrings(route.name, 200);
     route.stops = route.stops || [];
     route.stops.forEach((stop, index) => {
       stop.position = index;
@@ -25,10 +27,10 @@ export default class RoutesServices {
     return this.routeDao.insertRoute(route);
   }
 
-  updateRoute(nameIt: string, nameEn: string, stops: Stop[], ticketTypes: string[], routeId: string, enabled: boolean, fares?: any) {
+  updateRoute(name: any, stops: Stop[], ticketTypes: string[], routeId: string, enabled: boolean, fares?: any) {
     // fares assente (client vecchio): le tariffe salvate restano invariate
     const cleanFares = fares === undefined ? undefined : sanitizeFares(fares, stops, ticketTypes);
-    return this.routeDao.updateRoute(nameIt, nameEn, stops, ticketTypes, routeId, enabled, cleanFares);
+    return this.routeDao.updateRoute(pickLanguageStrings(name, 200), stops, ticketTypes, routeId, enabled, cleanFares);
   }
 
   getRoutes() {

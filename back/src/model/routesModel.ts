@@ -7,10 +7,7 @@ interface Stop {
 /** 📁 Modello per la Tratta (Route) */
 interface Route {
   id: string;
-  name: {
-    it: string;
-    en: string;
-  };
+  name: Record<string, string>; // per codice lingua: { it: "...", en: "...", ... }
   stops: Stop[]; // Lista delle fermate
   ticketTypes: string[];
   enabled: boolean; // Tipologie di biglietti disponibili su questa tratta

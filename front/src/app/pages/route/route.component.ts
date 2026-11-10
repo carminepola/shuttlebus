@@ -8,6 +8,7 @@ import { LoadingComponent } from '../../components/loading/loading/loading.compo
 
 import { StopsService } from '../../services/stops/stops.service';
 import { lastValueFrom } from 'rxjs';
+import { pickText } from '../../utils/i18n';
 @Component({
   selector: 'app-route',
   imports: [
@@ -44,7 +45,7 @@ export class RouteComponent implements OnInit {
       );
 
       return {
-        nome: route.name.it,
+        nome: pickText(route.name),
         id: route.id,
         partenza: firstStop ? `${firstStop.name}${firstStop.isActive ? '' : ' (disattivata)'}` : 'Fermata non trovata',
         arrivo: lastStop ? `${lastStop.name}${lastStop.isActive ? '' : ' (disattivata)'}` : 'Fermata non trovata',

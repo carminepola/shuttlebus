@@ -7,9 +7,10 @@ import { BookingsService } from '../../services/bookings/bookings.service';
 import { Route, ActivatedRoute, Router } from '@angular/router';
 import { TitlePageComponent } from '../../components/title-page/title-page.component';
 
+import { TranslateNamePipe } from '../../pipe/translateName.pipe';
 @Component({
   selector: 'app-ticket-for-routes',
-  imports: [
+  imports: [TranslateNamePipe, 
     LoadingComponent,
     CommonModule,
     TitlePageComponent,

@@ -93,22 +93,8 @@ export interface RefundRecord {
   stripeRefundId: string;
 }
 
-export class Name {
-  it: string;
-  en: string;
-  fr?: string;
-  de?: string;
-  es?: string;
-  jp?: string;
-  constructor(name: any) {
-    this.it = name.it;
-    this.en = name.en;
-    this.fr = name.fr;
-    this.de = name.de;
-    this.es = name.es;
-    this.jp = name.jp;
-  }
-}
+/** Testo per codice lingua ({ it: "...", en: "...", ... }). */
+export type Name = Record<string, string>;
 
 export class From {
   id: string;
@@ -125,22 +111,7 @@ export class From {
   }
 }
 
-export class Description {
-  it: string;
-  en: string;
-  fr?: string;
-  de?: string;
-  es?: string;
-  jp?: string;
-  constructor(description: any) {
-    this.it = description.it;
-    this.en = description.en;
-    this.fr = description.fr;
-    this.de = description.de;
-    this.es = description.es;
-    this.jp = description.jp;
-  }
-}
+export type Description = Record<string, string>;
 
 export class To {
   id: string;
