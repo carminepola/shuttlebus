@@ -44,9 +44,21 @@ export class LngService {
     );
   }
 
-  /** Lingue selezionabili, per i menu: [{ lng: 'it', name: '🇮🇹 Italiano' }]. */
+  private optionsSource: unknown = null;
+  private optionsCache: { lng: string; name: string }[] = [];
+
+  /**
+   * Lingue selezionabili, per i menu: [{ lng: 'it', name: '🇮🇹 Italiano' }]. Stesso array
+   * finche' la configurazione non cambia: i template lo leggono a ogni change detection e
+   * un array nuovo ogni volta ricreava i menu in ciclo (footer bloccato tornando alla home).
+   */
   get languageOptions(): { lng: string; name: string }[] {
-    return this.languages.enabled.map((l) => ({ lng: l.code, name: this.languages.label(l) }));
+    const source = this.languages.current;
+    if (source !== this.optionsSource) {
+      this.optionsSource = source;
+      this.optionsCache = this.languages.enabled.map((l) => ({ lng: l.code, name: this.languages.label(l) }));
+    }
+    return this.optionsCache;
   }
 
   setLng(data: string) {
