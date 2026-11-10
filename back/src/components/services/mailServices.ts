@@ -4,6 +4,7 @@ import { MailDao } from "../dao/mailDao";
 import { logger, mailConfig, env } from "../../index";
 import nodemailer from "nodemailer";
 import { TemplateMailDao } from "../dao/templateMailDao";
+import { companyInfo, companyMailVariables, lngFromMailType } from "../../utils/company";
 
 class MailService {
   private mailDao: MailDao;
@@ -21,10 +22,11 @@ class MailService {
    * @returns Oggetto Mail con le variabili sostituite
    */
   private async templateParser(mail: Mail): Promise<any> {
-    let appName = process.env.APP_NAME || "Pintour";
+    // mittente col nome dell'azienda (COMPANY_NAME); niente virgolette che romperebbero l'header
+    const fromName = companyInfo().name.replace(/["<>\r\n]/g, "");
     let newMail: any = {
       id: mail.id,
-      from: `Pintour <${mailConfig.auth.user}>`,
+      from: `"${fromName}" <${mailConfig.auth.user}>`,
       to: mail.to,
       replyTo: mailConfig.auth.user,
       subject: "",
@@ -37,10 +39,10 @@ class MailService {
       if (!templateMail) {
         mail.type = "default";
       } else {
-        for (const [key, value] of Object.entries(mail.bodyVariables || {})) {
+        // variabili della mail, poi quelle aziendali comuni (nome, piè di pagina, colore del brand)
+        const variables: Record<string, any> = { ...(mail.bodyVariables || {}), ...companyMailVariables(lngFromMailType(mail.type)) };
+        for (const [key, value] of Object.entries(variables)) {
           templateMail.title = templateMail.title.replaceAll(`{${key}}`, value);
-        }
-        for (const [key, value] of Object.entries(mail.bodyVariables || {})) {
           templateMail.body = templateMail.body.replaceAll(`{${key}}`, value);
         }
         newMail.subject = templateMail.title;
