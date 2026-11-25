@@ -1,0 +1,56 @@
+.chevron {
+  transition: transform 0.2s;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.stat {
+  padding: 0.9rem 1rem;
+  border: 0;
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-sub {
+    font-size: 0.75rem;
+    color: #6c757d;
+  }
+
+  &.stat-main {
+    background: var(--bs-primary);
+    color: #fff;
+
+    .stat-label,
+    .stat-sub {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+}
+
+.registro-wrap {
+  max-height: 65vh;
+}
+
+.registro {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    white-space: nowrap;
+  }
+}

@@ -19,6 +19,7 @@ import RoutesServices from "./routesServices";
 import MailSenderServices from "./mailSender";
 import TelegramServices from "./telegramServices";
 import { role } from "../../enum/role";
+import FiscalServices from "./fiscalServices";
 
 /**
  * Calcolo SERVER-SIDE del flag `paid` per un booking.
@@ -56,6 +57,7 @@ class BookingsServices {
   private mailSenderServices: MailSenderServices;
   private telegramServices: TelegramServices;
   private bookingSettingsServices: BookingSettingsServices;
+  private fiscalServices: FiscalServices;
 
   constructor(db: Db) {
     this.bookingSettingsServices = new BookingSettingsServices(db);
@@ -66,6 +68,7 @@ class BookingsServices {
     this.routeServices = new RoutesServices(db);
     this.mailSenderServices = new MailSenderServices(db);
     this.telegramServices = new TelegramServices();
+    this.fiscalServices = new FiscalServices(db);
   }
 
   async findAvailableRoutes(travelDate: string, fromStopId: string, toStopId: string, posti: number = 1, bagagli: number = 0, opts: { skipCutoff?: boolean } = {}) {
@@ -184,6 +187,7 @@ class BookingsServices {
         case "cash":
           for (const b of books) {
             await this.bookingDao.updatePaymentInfo("cash", { type: "cash" }, b.numberOfTickets);
+            await this.fiscalServices.issue(b.numberOfTickets);
             let bookObj = await this.getBooking(b.numberOfTickets);
             if (process.env.MAIL_ADMIN) {
               await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Conferma Prenotazione (Contanti)", await this.mailSenderServices.transformBookGeneric(bookObj));
@@ -407,6 +411,8 @@ class BookingsServices {
     const issuedBy = { id: String(admin._id), email: admin.email };
     for (const b of books) {
       await this.bookingDao.updatePaymentInfo(paymentMode, { type: paymentMode, issuedBy }, b.numberOfTickets);
+      // documento fiscale (gli omaggi, a importo 0, non ricevono numero)
+      await this.fiscalServices.issue(b.numberOfTickets);
     }
     logger.info(`Biglietti ${books.map((b) => b.numberOfTickets).join(", ")} emessi da admin ${issuedBy.email || issuedBy.id} per ${bookingUser.mail} (${paymentMode})`);
 
@@ -547,7 +553,10 @@ class BookingsServices {
     return await this.bookingDao.updatePaymentIntentId(numberOfTickets, paymentIntentId);
   }
   async updatePaymentStatus(numberOfTickets: string, paymentStatus: string) {
-    return await this.bookingDao.updatePaymentStatus(numberOfTickets, paymentStatus);
+    const result = await this.bookingDao.updatePaymentStatus(numberOfTickets, paymentStatus);
+    // pagamento confermato (webhook Stripe): numero fiscale prima della mail di conferma
+    if (paymentStatus === "paid") await this.fiscalServices.issue(numberOfTickets);
+    return result;
   }
   async isBookingSyncedWithPayment(bookingId: string, paymentIntentId: string): Promise<boolean> {
     return await this.bookingDao.isBookingSyncedWithPayment(bookingId, paymentIntentId);
@@ -757,6 +766,8 @@ class BookingsServices {
   }
   async sendConfirmation(numberOfTickets: string, typePayment?: string) {
     logger.info(`Invio conferma per la prenotazione ${numberOfTickets}`);
+    // idempotente: assicura il documento fiscale anche per i percorsi senza updatePaymentStatus
+    await this.fiscalServices.issue(numberOfTickets);
     let book = await this.getBooking(numberOfTickets);
 
     await this.mailSenderServices.sendConfirmBook(
@@ -767,6 +778,7 @@ class BookingsServices {
       typePayment || "stripe",
       await this.mailSenderServices.bookSummaryHtml(book, book.lng),
       book.lng,
+      await this.mailSenderServices.fiscalHtml(book, book.lng),
     );
     await this.mailSenderServices.sendGenericMail(process.env.MAIL_ADMIN, "Conferma Prenotazione", await this.mailSenderServices.transformBookGeneric(book));
     await this.telegramServices.sendMessage(this.telegramServices.bookToMessage(book, "✅ *Prenotazione Confermata* ✅"));

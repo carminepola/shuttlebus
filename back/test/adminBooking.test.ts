@@ -33,6 +33,7 @@ function makeService(opts: { userById?: any; userByEmail?: any } = {}) {
     claimGuestBookings: jest.fn(async () => 2),
   };
   s.sendConfirmation = jest.fn(async () => undefined);
+  s.fiscalServices = { issue: jest.fn(async () => null) };
   return s;
 }
 

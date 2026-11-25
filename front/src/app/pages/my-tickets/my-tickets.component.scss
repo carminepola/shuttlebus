@@ -651,3 +651,17 @@
   border-radius: 0.5rem;
   padding: 0.35rem 0.6rem;
 }
+
+.booking-fiscal {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px dashed #e5e7eb;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #6b7280;
+
+  .booking-fiscal-title {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.15rem;
+  }
+}

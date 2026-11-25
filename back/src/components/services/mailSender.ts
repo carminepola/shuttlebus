@@ -60,6 +60,31 @@ class MailSenderServices {
     return `<table role="presentation" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${rows}</table>`;
   }
 
+  /**
+   * Dati fiscali del biglietto (emittente, numero, data, scorporo IVA): con questi il
+   * biglietto vale come documento fiscale. Vuoto se il biglietto non ha numero fiscale.
+   */
+  async fiscalHtml(book: booking, lng?: string): Promise<string> {
+    const f = book.fiscal;
+    if (!f?.code) return "";
+    const t = await Translator.for(this.db, lng);
+    const locale = (await getLanguageSettings(this.db)).languages.find((l) => l.code === t.lng)?.locale || t.lng;
+    const e = (s: string) => escapeHtml(String(s ?? ""));
+    const amount = (n: number) => e(formatAmount(String(n), locale));
+    const [y, m, d] = String(f.date).split("-");
+    const ids = [f.vatNumber ? `${e(t.t("str_fiscal_vat_number"))} ${e(f.vatNumber)}` : "", f.taxCode && f.taxCode !== f.vatNumber ? `${e(t.t("str_fiscal_tax_code"))} ${e(f.taxCode)}` : ""].filter(Boolean).join(" &middot; ");
+    const lines = [
+      `<strong>${e(t.t("str_fiscal_title"))}</strong>`,
+      e(f.legalName),
+      f.address ? e(f.address) : "",
+      ids,
+      `${e(t.t("str_fiscal_doc"))} <strong>${e(f.code)}</strong> &middot; ${e(t.t("str_fiscal_issued"))} ${e(`${d}/${m}/${y}`)}`,
+      `${e(t.t("str_fiscal_taxable"))} ${amount(f.taxable)} &middot; ${e(t.t("str_fiscal_vat"))} ${e(String(f.vatRate))}% ${amount(f.vat)} &middot; ${e(t.t("str_fiscal_total"))} <strong>${amount(f.total)}</strong>`,
+      f.vatNote ? e(f.vatNote) : "",
+    ].filter(Boolean);
+    return `<div style="border-top:1px solid #e5e7eb;padding-top:12px;font-size:13px;color:#444444;">${lines.join("<br>")}</div>`;
+  }
+
   /** Riepilogo per le notifiche interne (MAIL_ADMIN), nella lingua predefinita. */
   async transformBookGeneric(book: booking): Promise<string> {
     return this.bookSummaryHtml(book, undefined, true);
@@ -69,13 +94,14 @@ class MailSenderServices {
     return this.send(to, "REFUND_PROCESSED", lng, { name, order_id, amount });
   }
 
-  async sendConfirmBook(email: string, name: string, order_id: string, amount: string, payment_method: string, route: string, lng?: string) {
+  async sendConfirmBook(email: string, name: string, order_id: string, amount: string, payment_method: string, route: string, lng?: string, fiscal: string = "") {
     return this.send(email, "PURCHASE_COMPLETED", lng, {
       name,
       order_id,
       amount,
       payment_method,
       route,
+      fiscal,
       mytickets_url: (process.env.CLIENT_URL || "") + "/user/mytickets",
     });
   }

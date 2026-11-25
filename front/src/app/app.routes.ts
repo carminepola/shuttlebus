@@ -49,6 +49,7 @@ import { PendingUsersComponent } from './pages/pending-users/pending-users.compo
 import { StripeComponent } from './pages/stripe/stripe.component';
 import { ClientSearchComponent } from './pages/client-search/client-search.component';
 import { PresenzeComponent } from './pages/presenze/presenze.component';
+import { CommercialistaComponent } from './pages/commercialista/commercialista.component';
 export const routes: Routes = [
   {
     path: '',
@@ -345,6 +346,12 @@ export const routes: Routes = [
       {
         path: 'presenze',
         component: PresenzeComponent,
+        canActivate: [AuthGuard],
+        data: { navbar: true, requiredRole: 50 },
+      },
+      {
+        path: 'commercialista',
+        component: CommercialistaComponent,
         canActivate: [AuthGuard],
         data: { navbar: true, requiredRole: 50 },
       },

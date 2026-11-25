@@ -3494,5 +3494,69 @@
     "de": "Zusätzliches Gepäck über das Inklusive hinaus",
     "es": "Equipaje adicional más allá del incluido",
     "jp": "含まれる荷物を超える追加荷物"
+  },
+  "str_fiscal_title": {
+    "it": "Dati fiscali",
+    "en": "Tax details",
+    "fr": "Données fiscales",
+    "de": "Steuerdaten",
+    "es": "Datos fiscales",
+    "jp": "税務情報"
+  },
+  "str_fiscal_doc": {
+    "it": "Documento n.",
+    "en": "Document no.",
+    "fr": "Document n°",
+    "de": "Beleg Nr.",
+    "es": "Documento n.º",
+    "jp": "書類番号"
+  },
+  "str_fiscal_issued": {
+    "it": "emesso il",
+    "en": "issued on",
+    "fr": "émis le",
+    "de": "ausgestellt am",
+    "es": "emitido el",
+    "jp": "発行日"
+  },
+  "str_fiscal_vat_number": {
+    "it": "P. IVA",
+    "en": "VAT no.",
+    "fr": "N° TVA",
+    "de": "USt-IdNr.",
+    "es": "N.º IVA",
+    "jp": "VAT番号"
+  },
+  "str_fiscal_tax_code": {
+    "it": "C.F.",
+    "en": "Tax code",
+    "fr": "Code fiscal",
+    "de": "Steuernummer",
+    "es": "Código fiscal",
+    "jp": "納税者番号"
+  },
+  "str_fiscal_taxable": {
+    "it": "Imponibile",
+    "en": "Net amount",
+    "fr": "Montant HT",
+    "de": "Nettobetrag",
+    "es": "Base imponible",
+    "jp": "課税対象額"
+  },
+  "str_fiscal_vat": {
+    "it": "IVA",
+    "en": "VAT",
+    "fr": "TVA",
+    "de": "MwSt.",
+    "es": "IVA",
+    "jp": "消費税(VAT)"
+  },
+  "str_fiscal_total": {
+    "it": "Totale",
+    "en": "Total",
+    "fr": "Total",
+    "de": "Gesamt",
+    "es": "Total",
+    "jp": "合計"
   }
 }

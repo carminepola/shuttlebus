@@ -1,4 +1,5 @@
 import { generateTicketId } from "../utils/ticketId";
+import { FiscalDoc } from "../utils/fiscal";
 
 export default class booking {
   userId: string;
@@ -31,6 +32,10 @@ export default class booking {
   roundTrip?: RoundTrip;
   // Storico dei rimborsi: cosa e' stato rimborsato, quando e con quale rimborso Stripe
   refunds?: RefundRecord[];
+  // Momento del rimborso totale (anche senza storico: dashboard Stripe, cliente)
+  refundedAt?: number;
+  // Documento fiscale: numero progressivo e dati dell'emittente, assegnati al pagamento
+  fiscal?: FiscalDoc;
   constructor(book: any) {
     try {
       if (book.userId === undefined) throw new Error("userId is required");
@@ -72,6 +77,8 @@ export default class booking {
       this.other = book.other;
       if (book.roundTrip) this.roundTrip = book.roundTrip;
       if (book.refunds) this.refunds = book.refunds;
+      if (book.refundedAt) this.refundedAt = book.refundedAt;
+      if (book.fiscal) this.fiscal = book.fiscal;
     } catch (error) {
       throw error;
     }

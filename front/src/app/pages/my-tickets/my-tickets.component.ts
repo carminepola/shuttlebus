@@ -649,6 +649,39 @@ export class MyTicketsComponent implements OnInit, OnDestroy {
           console.error('Errore nella generazione del QR Code', error);
         }
 
+        // === DATI FISCALI (il biglietto vale come documento fiscale) ===
+        const f = booking.fiscal;
+        if (f?.code) {
+          const money = (n: number) => `${Number(n).toFixed(2).replace('.', ',')} €`;
+          const [fy, fm, fd] = String(f.date).split('-');
+          const ids = [
+            f.vatNumber ? `${this.lng.traslate('str_fiscal_vat_number')} ${f.vatNumber}` : '',
+            f.taxCode && f.taxCode !== f.vatNumber ? `${this.lng.traslate('str_fiscal_tax_code')} ${f.taxCode}` : '',
+          ]
+            .filter(Boolean)
+            .join('  ·  ');
+          const lines = [
+            [f.legalName, f.address].filter(Boolean).join('  ·  '),
+            ids,
+            `${this.lng.traslate('str_fiscal_doc')} ${f.code}  ·  ${this.lng.traslate('str_fiscal_issued')} ${fd}/${fm}/${fy}`,
+            `${this.lng.traslate('str_fiscal_taxable')} ${money(f.taxable)}  ·  ${this.lng.traslate('str_fiscal_vat')} ${f.vatRate}% ${money(f.vat)}  ·  ${this.lng.traslate('str_fiscal_total')} ${money(f.total)}`,
+            f.vatNote || '',
+          ]
+            .filter(Boolean)
+            .flatMap((l: string) => doc.splitTextToSize(l, contentWidth - 8));
+          const boxH = 9 + lines.length * 4;
+          const boxY = Math.min(y + 2, pageHeight - 32 - boxH);
+          doc.setFillColor(...GRAY_LIGHT);
+          roundedRect(mx, boxY, contentWidth, boxH, 2, 'F');
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(...GRAY_DARK);
+          doc.text(this.lng.traslate('str_fiscal_title').toUpperCase(), mx + 4, boxY + 5.5);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(...GRAY_MID);
+          lines.forEach((l: string, i: number) => doc.text(l, mx + 4, boxY + 10 + i * 4));
+        }
+
         // === FOOTER ===
         const footerY = pageHeight - 28;
 

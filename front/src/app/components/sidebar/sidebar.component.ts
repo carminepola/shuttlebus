@@ -104,6 +104,11 @@ export class SidebarComponent implements OnInit {
       route: '/admin/presenze',
     },
     {
+      icon: 'fa-file-invoice',
+      title: 'Commercialista',
+      route: '/admin/commercialista',
+    },
+    {
       icon: 'fa-gavel',
       title: 'Contestazioni',
       route: '/admin/contestazioni',

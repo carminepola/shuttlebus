@@ -81,6 +81,8 @@ export const MAIL_TYPES = {
       { type: "text", key: "mail_purchase_completed_tickets" },
       { type: "button", key: "mail_purchase_completed_button", urlVariable: "mytickets_url" },
       { type: "text", key: "mail_purchase_completed_thanks" },
+      /** Dati fiscali (emittente, numero, IVA): il biglietto vale come documento fiscale. */
+      { type: "html", variable: "fiscal" },
     ],
     sample: { name: "Mario Rossi", order_id: "TEST-ORDER-0001", amount: "99", payment_method: "stripe", mytickets_url: "{siteUrl}/user/mytickets" },
   },
@@ -149,4 +151,4 @@ export function isMailType(type: any): type is MailType {
 }
 
 /** Variabili che contengono HTML gia' pronto (generato dal codice): non vengono escapate. */
-export const HTML_VARIABLES = new Set(["route", "body"]);
+export const HTML_VARIABLES = new Set(["route", "body", "fiscal"]);

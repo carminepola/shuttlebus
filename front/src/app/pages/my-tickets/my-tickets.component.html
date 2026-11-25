@@ -173,6 +173,41 @@
             </div>
           </div>
 
+          @if (booking.fiscal?.code) {
+            <div class="booking-fiscal">
+              <div class="booking-fiscal-title">
+                <i class="fa-solid fa-receipt me-1"></i>
+                <span [innerText]="'str_fiscal_title' | translate"></span>
+              </div>
+              <div>
+                {{ booking.fiscal.legalName }}
+                @if (booking.fiscal.address) {
+                  · {{ booking.fiscal.address }}
+                }
+              </div>
+              <div>
+                @if (booking.fiscal.vatNumber) {
+                  {{ "str_fiscal_vat_number" | translate }} {{ booking.fiscal.vatNumber }}
+                }
+                @if (booking.fiscal.taxCode && booking.fiscal.taxCode !== booking.fiscal.vatNumber) {
+                  · {{ "str_fiscal_tax_code" | translate }} {{ booking.fiscal.taxCode }}
+                }
+              </div>
+              <div>
+                {{ "str_fiscal_doc" | translate }} <strong>{{ booking.fiscal.code }}</strong> ·
+                {{ "str_fiscal_issued" | translate }} {{ booking.fiscal.issuedAt | date: "dd/MM/yyyy HH:mm" }}
+              </div>
+              <div>
+                {{ "str_fiscal_taxable" | translate }} {{ booking.fiscal.taxable | number: "1.2-2" }}€ ·
+                {{ "str_fiscal_vat" | translate }} {{ booking.fiscal.vatRate }}% {{ booking.fiscal.vat | number: "1.2-2" }}€ ·
+                {{ "str_fiscal_total" | translate }} {{ booking.fiscal.total | number: "1.2-2" }}€
+              </div>
+              @if (booking.fiscal.vatNote) {
+                <div>{{ booking.fiscal.vatNote }}</div>
+              }
+            </div>
+          }
+
           <div class="booking-card-footer">
             <div class="booking-total">
               <span

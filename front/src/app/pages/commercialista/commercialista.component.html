@@ -1,0 +1,297 @@
+<div class="container-fluid container-lg">
+  <app-title-page
+    title="Commercialista"
+    subtitle="Corrispettivi dei biglietti, dati fiscali ed export"
+    back="true"
+  ></app-title-page>
+
+  @if (report && report.missingSettings.length > 0) {
+    <div class="alert alert-danger d-flex align-items-start gap-2">
+      <i class="fa-solid fa-triangle-exclamation mt-1"></i>
+      <div>
+        <strong>Dati fiscali incompleti:</strong> manca {{ missingLabels }}. Senza questi dati il biglietto
+        non vale come documento fiscale.
+        <button class="btn btn-link btn-sm p-0 align-baseline" (click)="showSettings = true">Completa ora</button>
+      </div>
+    </div>
+  }
+  @if (report && report.missingFiscal > 0) {
+    <div class="alert alert-warning d-flex align-items-start gap-2">
+      <i class="fa-solid fa-circle-exclamation mt-1"></i>
+      <div>
+        <strong>{{ report.missingFiscal }}</strong> biglietti pagati dopo l'attivazione della numerazione sono senza
+        numero fiscale (errore in fase di emissione, vedi i log). Non compaiono nel riepilogo.
+      </div>
+    </div>
+  }
+
+  <!-- Dati fiscali dell'emittente -->
+  <div class="card rounded-4 shadow-sm mb-3">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center" role="button" (click)="showSettings = !showSettings">
+      <div>
+        <i class="fa-solid fa-building me-2 text-primary"></i>
+        <strong>Dati fiscali sui biglietti</strong>
+        @if (settings) {
+          <span class="text-muted small ms-2 d-none d-md-inline">
+            {{ settings.legalName || "—" }} · P. IVA {{ settings.vatNumber || "—" }} · IVA {{ settings.vatRate }}%
+          </span>
+        }
+      </div>
+      <i class="fa-solid fa-chevron-down chevron" [class.open]="showSettings"></i>
+    </div>
+    @if (showSettings && settings) {
+      <div class="card-body">
+        <p class="small text-muted">
+          Stampati su biglietto, PDF e mail di conferma. Ogni biglietto conserva i dati in vigore al momento del pagamento:
+          le modifiche valgono per i biglietti emessi da ora in poi.
+        </p>
+        <form (ngSubmit)="saveSettings()" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold" for="legalName">Ragione sociale *</label>
+            <input id="legalName" name="legalName" class="form-control" [(ngModel)]="settings.legalName" maxlength="300" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-bold" for="vatNumber">Partita IVA *</label>
+            <input id="vatNumber" name="vatNumber" class="form-control" [(ngModel)]="settings.vatNumber" maxlength="40" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-bold" for="taxCode">Codice fiscale</label>
+            <input id="taxCode" name="taxCode" class="form-control" [(ngModel)]="settings.taxCode" maxlength="40" placeholder="se diverso dalla P. IVA" />
+          </div>
+          <div class="col-md-9">
+            <label class="form-label fw-bold" for="address">Sede legale *</label>
+            <input id="address" name="address" class="form-control" [(ngModel)]="settings.address" maxlength="300" placeholder="Via, numero, CAP, città" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-bold" for="vatRate">Aliquota IVA (%)</label>
+            <input id="vatRate" name="vatRate" type="number" class="form-control" [(ngModel)]="settings.vatRate" min="0" max="100" step="0.01" />
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-bold" for="vatNote">Nota fiscale sul biglietto</label>
+            <input id="vatNote" name="vatNote" class="form-control" [(ngModel)]="settings.vatNote" maxlength="300" placeholder="es. riferimento normativo se l'operazione è esente o non imponibile" />
+            <div class="form-text">I prezzi sono IVA inclusa: imponibile e IVA vengono scorporati con l'aliquota indicata.</div>
+          </div>
+          <div class="col-12 d-flex justify-content-end align-items-center gap-3">
+            @if (settingsMessage) {
+              <span class="small" [class.text-danger]="settingsError" [class.text-success]="!settingsError">{{ settingsMessage }}</span>
+            }
+            <button type="submit" class="btn btn-primary" [disabled]="saving">
+              @if (saving) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              Salva dati fiscali
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+
+  <!-- Periodo ed export -->
+  <div class="card rounded-4 shadow-sm mb-3">
+    <div class="card-body">
+      <div class="d-flex flex-wrap align-items-end gap-2">
+        <div>
+          <label class="form-label small mb-1" for="from">Dal</label>
+          <input id="from" type="date" class="form-control form-control-sm" [(ngModel)]="from" (change)="load()" />
+        </div>
+        <div>
+          <label class="form-label small mb-1" for="to">Al</label>
+          <input id="to" type="date" class="form-control form-control-sm" [(ngModel)]="to" (change)="load()" />
+        </div>
+        <div class="btn-group btn-group-sm flex-wrap">
+          <button class="btn btn-outline-secondary" (click)="setPreset('thisMonth')">Mese corrente</button>
+          <button class="btn btn-outline-secondary" (click)="setPreset('lastMonth')">Mese scorso</button>
+          <button class="btn btn-outline-secondary" (click)="setPreset('thisQuarter')">Trimestre</button>
+          <button class="btn btn-outline-secondary" (click)="setPreset('thisYear')">Anno</button>
+          <button class="btn btn-outline-secondary" (click)="setPreset('lastYear')">Anno scorso</button>
+        </div>
+        <div class="ms-auto d-flex flex-wrap gap-2">
+          <button class="btn btn-success btn-sm" (click)="exportExcel()" [disabled]="!report">
+            <i class="fa-solid fa-file-excel me-1"></i> Excel completo
+          </button>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-success" (click)="exportCsv('Registro giornaliero')" [disabled]="!report">CSV registro</button>
+            <button class="btn btn-outline-success" (click)="exportCsv('Biglietti')" [disabled]="!report">CSV biglietti</button>
+            <button class="btn btn-outline-success" (click)="exportCsv('Rimborsi')" [disabled]="!report">CSV rimborsi</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+
+  @if (loading) {
+    <div class="text-center py-5"><app-loading></app-loading></div>
+  } @else if (report) {
+    <!-- Sintetico -->
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat card rounded-4 shadow-sm h-100">
+          <div class="stat-label">Biglietti emessi</div>
+          <div class="stat-value">{{ report.totals.count }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat card rounded-4 shadow-sm h-100">
+          <div class="stat-label">Corrispettivi lordi</div>
+          <div class="stat-value">{{ report.totals.gross | currency: "EUR" }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat card rounded-4 shadow-sm h-100">
+          <div class="stat-label">Imponibile</div>
+          <div class="stat-value">{{ report.totals.taxable | currency: "EUR" }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat card rounded-4 shadow-sm h-100">
+          <div class="stat-label">IVA</div>
+          <div class="stat-value">{{ report.totals.vat | currency: "EUR" }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat card rounded-4 shadow-sm h-100">
+          <div class="stat-label">Rimborsi ({{ report.totals.refundsCount }})</div>
+          <div class="stat-value text-danger">−{{ report.totals.refunds | currency: "EUR" }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat card rounded-4 shadow-sm h-100 stat-main">
+          <div class="stat-label">Netto</div>
+          <div class="stat-value">{{ report.totals.net | currency: "EUR" }}</div>
+          <div class="stat-sub">di cui IVA {{ report.totals.netVat | currency: "EUR" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-lg-7">
+        <div class="card rounded-4 shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3">Per metodo di pagamento</h6>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr><th>Metodo</th><th class="text-end">Biglietti</th><th class="text-end">Lordo</th><th class="text-end">Rimborsi</th><th class="text-end">Netto</th></tr>
+                </thead>
+                <tbody>
+                  @for (m of methods; track m.key) {
+                    <tr>
+                      <td>{{ methodLabel(m.key) }}</td>
+                      <td class="text-end">{{ m.a.count }}</td>
+                      <td class="text-end">{{ m.a.gross | currency: "EUR" }}</td>
+                      <td class="text-end">{{ m.a.refunds | currency: "EUR" }}</td>
+                      <td class="text-end fw-bold">{{ m.a.net | currency: "EUR" }}</td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="5" class="text-muted">Nessun movimento nel periodo</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card rounded-4 shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3">Per aliquota IVA (al netto dei rimborsi)</h6>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr><th>Aliquota</th><th class="text-end">Imponibile</th><th class="text-end">IVA</th><th class="text-end">Totale</th></tr>
+                </thead>
+                <tbody>
+                  @for (r of rates; track r.key) {
+                    <tr>
+                      <td>{{ r.key }}%</td>
+                      <td class="text-end">{{ r.a.netTaxable | currency: "EUR" }}</td>
+                      <td class="text-end">{{ r.a.netVat | currency: "EUR" }}</td>
+                      <td class="text-end fw-bold">{{ r.a.net | currency: "EUR" }}</td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="4" class="text-muted">Nessun movimento nel periodo</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registro giornaliero -->
+    <div class="card rounded-4 shadow-sm mb-4">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3">Registro giornaliero dei corrispettivi</h6>
+        <div class="table-responsive registro-wrap">
+          <table class="table table-sm table-hover align-middle mb-0 registro">
+            <thead class="table-light">
+              <tr>
+                <th>Data</th>
+                <th class="text-end">Biglietti</th>
+                <th>Numeri</th>
+                <th class="text-end">Lordo</th>
+                <th class="text-end">Imponibile</th>
+                <th class="text-end">IVA</th>
+                <th class="text-end">Rimborsi</th>
+                <th class="text-end">Netto</th>
+                <th class="text-end">Carta</th>
+                <th class="text-end">Contanti</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (d of report.days; track d.date) {
+                <tr>
+                  <td>{{ formatDate(d.date) }}</td>
+                  <td class="text-end">{{ d.count }}</td>
+                  <td class="small text-muted text-nowrap">
+                    @if (d.firstCode) {
+                      {{ d.firstCode }}{{ d.lastCode !== d.firstCode ? " → " + d.lastCode : "" }}
+                    }
+                  </td>
+                  <td class="text-end">{{ d.gross | currency: "EUR" }}</td>
+                  <td class="text-end">{{ d.taxable | currency: "EUR" }}</td>
+                  <td class="text-end">{{ d.vat | currency: "EUR" }}</td>
+                  <td class="text-end" [class.text-danger]="d.refunds > 0">{{ d.refunds | currency: "EUR" }}</td>
+                  <td class="text-end fw-bold">{{ d.net | currency: "EUR" }}</td>
+                  <td class="text-end">{{ d.byMethod["stripe"] || 0 | currency: "EUR" }}</td>
+                  <td class="text-end">{{ d.byMethod["cash"] || 0 | currency: "EUR" }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="10" class="text-muted text-center py-4">Nessun biglietto emesso nel periodo</td></tr>
+              }
+            </tbody>
+            @if (report.days.length > 0) {
+              <tfoot>
+                <tr class="fw-bold">
+                  <td>Totale</td>
+                  <td class="text-end">{{ report.totals.count }}</td>
+                  <td></td>
+                  <td class="text-end">{{ report.totals.gross | currency: "EUR" }}</td>
+                  <td class="text-end">{{ report.totals.taxable | currency: "EUR" }}</td>
+                  <td class="text-end">{{ report.totals.vat | currency: "EUR" }}</td>
+                  <td class="text-end">{{ report.totals.refunds | currency: "EUR" }}</td>
+                  <td class="text-end">{{ report.totals.net | currency: "EUR" }}</td>
+                  <td class="text-end">{{ report.byMethod["stripe"]?.gross || 0 | currency: "EUR" }}</td>
+                  <td class="text-end">{{ report.byMethod["cash"]?.gross || 0 | currency: "EUR" }}</td>
+                </tr>
+              </tfoot>
+            }
+          </table>
+        </div>
+        <p class="small text-muted mt-3 mb-0">
+          Vendite al giorno del pagamento (emissione del biglietto), rimborsi al giorno del rimborso. Importi IVA inclusa
+          con scorporo per aliquota. Gli omaggi (importo 0) non sono corrispettivi e non sono numerati.
+          @if (report.firstIssuedAt) {
+            Numerazione fiscale attiva dal {{ report.firstIssuedAt | date: "dd/MM/yyyy" }}.
+          }
+        </p>
+      </div>
+    </div>
+  }
+</div>
